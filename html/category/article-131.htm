@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-131.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>c语言查看文件详细信息 - EgyptAddress</title>
+    <title>Java-NIO之Channel（通道） - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">c语言查看文件详细信息</h1>
+                <h1 class="title" style="word-break: break-all;">Java-NIO之Channel（通道）</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <pre><code class="language-cs">#include &lt;stdio.h&gt; #include &lt;sys/types.h&gt; #include &lt;sys/stat.h&gt; #include &lt;unistd.h&gt; #include &lt;pwd.h&gt; #include &lt;grp.h&gt; #include &lt;string.h&gt; #include &lt;time.h&gt; //文件权限 void get_filePermission(mode_t m) { 	char str[4]="rwx"; 	int i=0; 	for(i=0;i&lt;9;i++) 	{ 		if((m&amp;(0400&gt;&gt;i))==0) 		{ 			putchar('-'); 			continue; 		} 		printf("%c",str[i%3]); 	} 	//	puts(""); } //文件类型 char get_filetype(mode_t m) { 	switch (m&amp;S_IFMT) 	{ 	case S_IFBLK: return ('b'); break; 	case S_IFLNK: return ('l'); break; 	case S_IFREG: return ('-'); break; 	case S_IFSOCK: return ('s'); break; 	case S_IFDIR: return ('d'); break; 	case S_IFCHR: return ('c'); break; 	case S_IFIFO: return ('p'); break; 	default:return 0;  	} } //文件所属用户 char* get_pwdname(uid_t uid,char *ptr) { 	struct passwd* pwd=getpwuid(uid); 	if(NULL==pwd) 	{ 		perror("getpwuid"); 		return NULL; 	} 	strcpy(ptr,pwd-&gt;pw_name); 	return ptr; } //文件所属组用户 char* get_grname(gid_t gid,char *ptr) { 	struct group* grp=getgrgid(gid); 	if(NULL==grp) 	{ 		perror("gergrgid"); 		return NULL; 	} 	strcpy(ptr,grp-&gt;gr_name); 	return ptr; } int main(int argc, const char *argv[]) { 	if(argc&lt;2) 	{ 		fprintf(stderr,"请在命令行上输入一个文件名\n"); 		return -1; 	} 	struct stat buf; 	char a; 	char pwd[20]=""; 	char grp[20]=""; 	if(stat(argv[1],&amp;buf)&lt;0) 	{ 		perror("stat"); 		return -1; 	} 	//文件的类型以及权限 	//printf("st_mode:%o\n",buf.st_mode); 	a=get_filetype(buf.st_mode); 	printf("%c",a); 	get_filePermission(buf.st_mode); 	//硬链接个数 	printf(" %ld ",buf.st_nlink); 	//文件所属用户 	get_pwdname(buf.st_uid,pwd); 	printf("%s ",pwd); 	//puts(pwd); 	//printf("st_uid:%d\n",buf.st_uid); 	//文件所属组用户 	get_grname(buf.st_uid,grp); 	printf("%s ",grp); 	//puts( grp); 	//printf("st_gid:%d\n",buf.st_gid); 	//文件大小 	printf("%ld ",buf.st_size); 	//时间 	//printf("st_ctime:%ld\n",buf.st_ctime); 	struct tm *info=NULL; 	info=localtime(&amp;buf.st_ctime); 	printf("%02d-%02d %02d:%02d ",\ 			info-&gt;tm_mon+1,\ 			info-&gt;tm_mday,info-&gt;tm_hour,info-&gt;tm_min); 	//文件名 	printf("%s\n",argv[1]); 	return 0; } </code></pre> <p>运行结果</p> <p><img decoding="async" alt="" height="48" src="http://img.555519.xyz/uploads/20230119/0b8638c5142330a4ce594b02edaaa610.jpg"></p> <p>&nbsp;</p> </p></div> 			                </div>
+                      				  				  				<h1 id="1channel是什么">1：Channel是什么</h1> <p><u>通道表示与实体的开放连接，例如硬件设备、文件、网络套接字或能够执行一个或多个不同 I/O 操作（例如读取或写入）的程序组件。</u></p> <h2 id="11channel与stream的对比">1.1：Channel与Stream的对比</h2> <table> <thead> <tr> <th></th> <th>Stream</th> <th>Channel</th> <th>为什么</th> </tr> </thead> <tbody> <tr> <td>是否支持异步</td> <td>否</td> <td>是</td> <td></td> </tr> <tr> <td>是否同时支持输入和输出</td> <td>否</td> <td>是</td> <td>Stream的输入、输出分别需要InputStream、OutputStream</td> </tr> <tr> <td>是否必须结合Buffer使用</td> <td>否</td> <td>是</td> <td>缓冲区是通道内部发送数据和接收数据的端点</td> </tr> <tr> <td>性能</td> <td>低</td> <td>高</td> <td>通道是访问IO服务的导管，通过通道，我们可以以最小的开销来访问操作系统的I/O服务</td> </tr> </tbody> </table> <h2 id="12channel的类型">1.2：Channel的类型</h2> <p><strong><font color="red" size="4">文件类：</font></strong></p> <ul> <li>FileChannel</li> </ul> <p>可通过 FileInputStream/FileOutputStream 的getChannel方法获取通道。</p> <hr/> <p><strong><font color="red" size="4">网络类：</font></strong></p> <p><strong>面向流模式的socket协议：</strong></p> <ul> <li>SocketChannel</li> <li>ServerSocketChannel</li> </ul> <p>可通过 Socket/SocketServer 的getChannel方法获取通道。</p> <p><strong>面向数据报模式的UDP协议：</strong></p> <ul> <li>DatagramChannel</li> </ul> <p>可通过 DatagramSocket 的getChannel方法获取通道。</p> <h2 id="13操作系统io演变史">1.3：操作系统IO演变史</h2> <p>早一代IO操作是由CPU负责IO接口：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/709216e05416ab5d8f7757f64703682f.jpg" alt="Java-NIO之Channel（通道）"></p> <p>新一代DMA授权处理IO接口：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/cdc6a964fb58ed59fe4d64a2253e6f28.jpg" alt="Java-NIO之Channel（通道）"></p> <p>通道（Channel）模式：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1d882d127cb1a6e6278aa8503d5419c0.jpg" alt="Java-NIO之Channel（通道）"></p> <p>通道的产生是由于操作系统的升级而支持的。</p> <h1 id="2channel和操作系统的关系">2：Channel和操作系统的关系</h1> <p><u>在操作系统中对IO设备的控制方式一共有四种，按时间线依次是<strong><font color="red">轮询、中断、DMA、和通道</font></strong> 方式。</u></p> <ul> <li>轮旋</li> </ul> <p>轮询就是进行IO时操作系统一直问控制器数据准备好了没有。</p> <ul> <li>中断</li> </ul> <p>中断就是异步的方式进行了，CPU向设备控制器发送一条IO指令后接着返回继续做原来的工作，而当设备控制器从设备中取出数据放到控制器的寄存器中后便向CPU发送中断信号，CPU在检查完数据后便向控制器发送取走数据的信号，将数据写入内存，但仍是以字节为单位的。</p> <ul> <li>DMA</li> </ul> <p>DMA则是CPU和设备控制器之间的引入的一层加快速度的手段，由DMA代替CPU进行数据传送，CPU将指令发送给DMA，DMA向控制器发送请求，设备控制器将数据从缓冲区将数据直接写入内存。完成后设备控制器发送一个信号给DMA，DMA重复检查数据是否传送完成，确认完成后中断让CPU知道。</p> <p>DMA比起中断方式已经显著减少了CPU的干预，但是CPU每发出一条IO指令，只能去读写一个连续的数据块，当要读多个数据块并存放到不同的内存区域中去，CPU需要发送多条IO指令及进行多次中断。</p> <ul> <li>通道</li> </ul> <p>IO通道方式是DMA方式的发展，把对一个数据块的干预减少为对一组数据块的干预。</p> <hr/> <p><font color="red" size="5">IO通道有三种：</font></p> <ul> <li>字节多路通道(Byte Multiplexor Channel)</li> <li>选择通道(Block Selector Channel)</li> <li>数组多路通道(Block Multiplexor Channel)</li> </ul> <blockquote> <blockquote> <p>根据通道的工作方式分类，通道可以分为<u><font color="red" size="4">字节多路通道、选择通道、数组多路通道</font></u>。<br /><u><font color="red" size="4">字节多路通道</font>是一种简单的共享通道，主要用于连接大量的低速设备。</u><br /> 由于外围设备的工作速度较慢，通道在传送两个字节之间有很多空闲的时间，利用这段空闲时间字节多路通道可以为其他外围设备服务。因此字节多路通道采用分时工作方式，依赖它与CPU之间的高速总线分时为多台外围设备服务。<br /><u><font color="red" size="4">数据选择通道</font>用于连接高速的外围设备。</u><br /> 高速外围设备需要很高的数据传输率，因此不能采用字节多路通道那样的控制方式。选择通道在物理上可以连接多台外围设备，但多台设备不能同事工作。也就是在同一段时间内，选择通道只能为一台外围设备服务，在不同的时间内可以选择不同的外围设备。一旦选中某一设备，通道就进入<font color="red">忙</font>状态，知道该设备数据传输工作结束，才能为其他设备服务。<br /><u><font color="red" size="4">数组多路通道</font>是字节多路通道和选择通道的结合。</u><br /> 其基本思想是：当某设备进行数据传输时，通道只为该设备服务；当设备在进行寻址等控制性操作时，通道暂时断开与设备的连接，挂起该设备的通道程序，去为其他设备服务，即执行其他设备的通道程序。有数数组多路通道既保持了选择通道的告诉传输数据的有点，又充分利用了控制性操作偶读时间间隔为其他设备服务，使得通道效率充分得到发挥，因此数据多路通道在实际计算机系统中应用最多，适合于高速设备的数据传输。</p> <p>（以上引用内容来源于<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://easylearn.baidu.com/edu-page/tiangong/questiondetail?id=1722687790698845246&amp;source=tikushiti&amp;source_id=856013ef7d1cfad6195f312b3169a4517723e5f3"  title="百度教育" target="_blank" rel="nofollow">百度教育</a>）</p> </blockquote> </blockquote> <p>至于JAVA的Channel和操作系统的的通道是如何选择通道类型、如何交互的就没法深入了，暂且理解JAVA的Channel是对操作系统的通道的一种抽象实现吧。</p> <h1 id="3channel文件通道">3：Channel文件通道</h1> <p>上一篇已经介绍过Channel的文件内存映射（map）,就不做介绍了。</p> <p><u>所谓的分散读取、聚集写入就是用多个buffer来接收数据、传输数据。</u><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/09b93d7d0088949ea4094fb6c1b2549e.jpg" alt="Java-NIO之Channel（通道）"></p> <p><font color="red" size="4">分散读取、聚集写入</font>代码示例：</p> <pre><code class="language-java">    @Test     public void gatherWrite() {         FileInputStream inputStream = null;         FileOutputStream outputStream = null;         FileChannel inChannel = null;         FileChannel outChannel = null;         try {             File file = new File("src/test/java/com/loper/mine/SQLParserTest.java");             inputStream = new FileInputStream(file);             inChannel = inputStream.getChannel();              ByteBuffer buffer1 = ByteBuffer.allocate(8);             ByteBuffer buffer2 = ByteBuffer.allocate(15);             ByteBuffer[] buffers = new ByteBuffer[]{buffer1, buffer2};              // 分散读取             inChannel.read(buffers);             for (ByteBuffer buffer : buffers) {                 buffer.flip();                 System.out.println(buffer.mark());             }              File outFile = new File("src/test/java/com/loper/mine/1.txt");             outputStream = new FileOutputStream(outFile);             outChannel = outputStream.getChannel();             // 聚集写入             outChannel.write(buffers);          } catch (Exception e) {             e.printStackTrace();         } finally {             try {                 if (inputStream != null)                     inputStream.close();                 if (outputStream != null)                     outputStream.close();                 if (inChannel != null)                     inChannel.close();                 if (outChannel != null)                     outChannel.close();             } catch (IOException e) {                 e.printStackTrace();             }         }     }</code></pre> <h1 id="4channel网络通道">4：Channel网络通道</h1> <h2 id="41socket协议">4.1：socket协议</h2> <p>这部分代码比较复杂，可以翻看我的github代码，这里就不坐介绍了。<br /> 地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/zgq7/devloper-mine/tree/master/src/main/java/com/loper/mine/core/socket/nio"  target="_blank" rel="nofollow">https://github.com/zgq7/devloper-mine/tree/master/src/main/java/com/loper/mine/core/socket/nio</a></p> <h2 id="42udp协议">4.2：UDP协议</h2> <p>UDP发送数据：</p> <pre><code class="language-java">    @Test     public void send() {         DatagramChannel channel = null;         try {             channel = DatagramChannel.open();             // 设置为非阻塞             channel.configureBlocking(false);              ByteBuffer buffer = ByteBuffer.allocate(1024);             Scanner scanner = new Scanner(System.in);             while (true) {                 String nextLine = scanner.nextLine();                 buffer.put(nextLine.getBytes());                 buffer.flip();                 channel.send(buffer, new InetSocketAddress("127.0.0.1", 8056));                 buffer.clear();                 if ("over".equals(nextLine))                     break;             }         } catch (IOException e) {             e.printStackTrace();         } finally {             if (channel != null) {                 try {                     channel.close();                 } catch (IOException e) {                     e.printStackTrace();                 }             }         }     }</code></pre> <p>UDP接收数据：</p> <pre><code class="language-java">    @Test     public void receive() {         DatagramChannel channel = null;         try {             channel = DatagramChannel.open();             // 设置为非阻塞             channel.configureBlocking(false);             channel.bind(new InetSocketAddress(8056));              Selector selector = Selector.open();             channel.register(selector, SelectionKey.OP_READ);              while (true) {                 int select = selector.select();                 boolean exit = false;                  Iterator&lt;SelectionKey&gt; iterator = selector.selectedKeys().iterator();                 while (iterator.hasNext()) {                     SelectionKey selectionKey = iterator.next();                      if (selectionKey.isReadable()) {                         ByteBuffer buffer = ByteBuffer.allocate(1024);                         channel.receive(buffer);                         buffer.flip();                         byte[] data = new byte[buffer.limit()];                         buffer.get(data);                         String str = new String(data);                         System.out.println("收到：" + str);                         if ("over".equals(str))                             exit = true;                     }                     iterator.remove();                 }                 if (exit)                     break;             }          } catch (IOException e) {             e.printStackTrace();         } finally {             if (channel != null) {                 try {                     channel.close();                 } catch (IOException e) {                     e.printStackTrace();                 }             }         }     }</code></pre> <p>接收端接收数据并退出：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/7e3e359cb07833f1dfa865145330b3b8.jpg" alt="Java-NIO之Channel（通道）"></p> <hr/> <p><u><font color="red">以上即为本文理论知识+代码实战全部内容。如有错误欢迎指正。</font></u></p> <p>本文参考文章：</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/yy3b2007com/p/7263033.html"  title="通道(Channel)的原理与获取" target="_blank" rel="nofollow">通道(Channel)的原理与获取</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://cloud.tencent.com/developer/article/1739347"  title="10分钟看懂 Java NIO 底层原理" target="_blank" rel="nofollow">10分钟看懂 Java NIO 底层原理</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/cool_flag/article/details/99618101"  title="java nio中channel和操作系统的关系" target="_blank" rel="nofollow">java nio中channel和操作系统的关系</a></li> </ul> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-130.htm">java开发对controller返回数据统一封装结果集</a></p>
-                                        <p>下一个：<a href="/html/category/article-132.htm">python hdfs远程连接以及上传文件，读取文件内容，删除文件</a></p>
+                                        <p>上一个：<a href="/html/category/article-130.htm">vue3.0引入axios</a></p>
+                                        <p>下一个：<a href="/html/category/article-132.htm">encodeURI()函数和encodeURIComponent()函数</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-252.htm">[js] 回调函数 回调地狱 Promise async/await</a></h4>
+                <p>1. 回调函数 callback   一种封装代码的手段   什么是 callback , 概念 =&gt; 把 函数A 当做 实参 传递到 函数B 内部 =&gt; 在 函数B 内部以 形参 的方式</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
-                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
-                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
-                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
+                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
-                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
+                <h4><a href="/html/category/article-220.htm">SpringCloud&#8212;-Feign隔离和降级</a></h4>
+                <p>限流是一种预防措施，虽然限流可以尽量避免因高并发而引起的服务故障，但服务还会因为其它原因而故障。 而要将这些故障控制在一定范围，避免雪崩，就要靠线程隔离（舱壁模式）和熔断降级手段了。线程隔离：调用者在</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
-                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
-                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
+                <h4><a href="/html/category/article-251.htm">C# 有关List&lt;T&gt;的Contains与Equals方法_在线工具</a></h4>
+                <p>【以下内容仅为本人在学习中的所感所想，本人水平有限目前尚处学习阶段，如有错误及不妥之处还请各位大佬指正，请谅解，谢谢！】 #Updated【2022.5.2 修复移动端排版混乱的问题】 ！！！观前提醒</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
-                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

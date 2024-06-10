@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-17.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>python中借助subprocess产生和关闭子进程 - EgyptAddress</title>
+    <title>CentOS服务器中设置Redis开机自启 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">python中借助subprocess产生和关闭子进程</h1>
+                <h1 class="title" style="word-break: break-all;">CentOS服务器中设置Redis开机自启</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p style="margin-left:0cm;">用python的subprocess这个模块来产生子进程,并连接到子进程的标准输入/输出/错误中去，还可以得到子进程的返回值。</p> <p style="margin-left:0cm;">Subprocess.Popen开启子进程的方法（cmds为命令）</p> <p style="margin-left:0cm;"><img fetchpriority="high" decoding="async" alt="" height="424" src="http://img.555519.xyz/uploads3/20220722/28faffb480800bb5ed06b88220d7c14b.jpg"></p> <p style="margin-left:0cm;">关闭子进程的方法（开启子进程后一定要关闭！）</p> <p style="margin-left:0cm;"><img decoding="async" alt="" height="59" src="http://img.555519.xyz/uploads3/20220722/3c00cd489e6d695075153305711105fd.jpg"></p> <p style="margin-left:0cm;"><img decoding="async" alt="" height="83" src="http://img.555519.xyz/uploads3/20220722/4d76aac25d15b243fea2dd631dd709ff.jpg"></p> <p style="margin-left:0cm;"><span style="color:#f33b45;">注意：subprocess模块里的kill和terminate方法都可以杀掉子进程；</span></p> <p style="margin-left:0cm;"><span style="color:#f33b45;">在杀掉进程后要执行wait方法等待子进程终止;返回self.returncode</span></p> <p style="margin-left:0cm;"><span style="color:#2e3033;">不执行</span><span style="color:#2e3033;">wait</span><span style="color:#2e3033;">方法的后果：</span></p> <p style="margin-left:0cm;"><img loading="lazy" decoding="async" alt="" height="139" src="http://img.555519.xyz/uploads3/20220722/63388086bc3488f8cada185398b6585e.jpg"></p> <p style="margin-left:0cm;"><span style="color:#2e3033;">（</span><span style="color:#000000;">调用异步函数</span><span style="color:#000000;">,</span><span style="color:#000000;">没有关键字</span><span style="color:#000000;">await</span><span style="color:#2e3033;">）</span></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-github-gist"> <ol> <li>Linux环境下，将Redis添加到service，使用脚本启动和停止，并且可以设置开机自启动</li> </ol> <pre><code>#!/bin/sh # # Simple Redis init.d script conceived to work on Linux systems # as it does use of the /proc filesystem.  REDISPORT=6379 #设置密码 REDISPWD=123456 EXEC=/usr/local/bin/redis-server CLIEXEC=/usr/local/bin/redis-cli  PIDFILE=/var/run/redis_${REDISPORT}.pid CONF="/etc/redis/${REDISPORT}.conf"  case "$1" in     start)         if [ -f $PIDFILE ]         then                 echo "$PIDFILE exists, process is already running or crashed"         else                 echo "Starting Redis server..."                 $EXEC $CONF         fi         ;;     stop)         if [ ! -f $PIDFILE ]         then                 echo "$PIDFILE does not exist, process is not running"         else                 PID=$(cat $PIDFILE)                 echo "Stopping ..."                 $CLIEXEC -a $REDISPWD -p $REDISPORT shutdown                 while [ -x /proc/${PID} ]                 do                     echo "Waiting for Redis to shutdown ..."                     sleep 1                 done                 echo "Redis stopped"         fi         ;;     *)         echo "Please use start or stop as first argument"         ;; esac</code></pre> <ol start="2"> <li>保存上面脚本至 /etc/init.d/redis，设置开机自启</li> </ol> <pre><code>[root@harbor ~]# cp redis /etc/init.d/redis [root@harbor ~]# chkconfig --add redis [root@harbor ~]# chkconfig redis on</code></pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-16.htm">iOS全埋点解决方案-界面预览事件</a></p>
-                                        <p>下一个：<a href="/html/category/article-18.htm">我们如何计算MySQL中两个时间值之间的差？</a></p>
+                                        <p>上一个：<a href="/html/category/article-16.htm">C++详解多线程中的线程同步与互斥量_C 语言</a></p>
+                                        <p>下一个：<a href="/html/category/article-18.htm">Java程序查找数字的偶数因数之和</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-245.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></h4>
+                <p>创建型设计模式: 单例模式(Singleton Pattern)  CSDN专栏: 设计模式(UML/23种模式)  单例模式(Singleton Pattern)保证一个类仅有一个实例，并提供一个访</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
-                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
+                <h4><a href="/html/category/article-218.htm">【SpringMVC笔记02】SpringMVC接收请求参数的几种方式</a></h4>
+                <p>这篇文章，主要介绍SpringMVC框架中接收请求参数的几种方式。  目录 一、SpringMVC接收请求参数 1.1、通过方法参数接收 1.2、通过HttpServletRequest接收参数 1.</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
-                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
+                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
+                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
-                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
-                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
+                <h4><a href="/html/category/article-261.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
-                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-207.htm">restTemplate配置及使用</a></h4>
+                <p>文章目录      1 场景 2 依赖 3 配置 4 使用   4.1 GET请求   4.1.1 普通访问 4.1.2 返回HTTP状态 4.1.3 映射请求参数   4.2 POST请求   4.</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
-                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
+                <h4><a href="/html/category/article-228.htm"># kubernetes调度之nodeName与NodeSelector</a></h4>
+                <p>系列目录  Kubernetes的调度有简单，有复杂，指定NodeName和使用NodeSelector调度是最简单的，可以将Pod调度到期望的节点上。 本文主要介绍kubernetes调度框架中的N</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

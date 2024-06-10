@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-55.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Redis缓存中间件详解 - EgyptAddress</title>
+    <title>java springMVC之@RequestMapping注解 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Redis缓存中间件详解</h1>
+                <h1 class="title" style="word-break: break-all;">java springMVC之@RequestMapping注解</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>在上一篇中我们简单总结和介绍了Redis的几个方面</p> <blockquote> <p><strong>1.使用Redis背景</strong></p> </blockquote> <blockquote> <p><strong>2.Redis通信多路复用的基本原理</strong></p> </blockquote> <blockquote> <p><strong>3.Redis基本数据结构</strong></p> </blockquote> <blockquote> <p><strong>4.Redis持久化方式</strong></p> </blockquote> <p>这一篇我们使用简单的业务场景来介绍Redis的<code>分布式锁</code>和<code>集群</code></p> <h6 id="1分布式锁">1.分布式锁</h6> <p>首先我们应该知道什么是<code>分布式锁</code>，用来做什么的，解决了什么问题，我们应该怎么做？</p> <p>简单来说，分布式锁就是<code>锁住进程</code>的锁，通常我们分布式锁的使用场景在<code>多实例</code>的<code>集群</code>系统中，为了防止多个进程对资源的同时操作，而引发业务逻辑错误而诞生的，和我们的单个实例中的<code>lock</code>作用一样，一个是针对多实例<code>单进程</code>，一个是针对单实例<code>多线程</code>，具体在web中的表现在下面用实例的方式说明。</p> <h6 id="2单进程单实例多线程">2.单进程单实例多线程</h6> <p>1.例如现在我们部署了一个服务，他的功能是提供用户来抢红包的接口，我们在发红包时，总共设置了<code>10个红包</code>，我们将红包剩余数存入数据库，所以用一张表来存储红包的个数信息，每当有一个人来抢，我们就需要将红包的个数<s>减掉1</s>，主要的核心业务逻辑如下：</p> <ul> <li> <p>1.用户发起抢红包请求，服务器首先查询，红包剩余个数，如果为0，则直接返回，告诉用户红包抢完了</p> </li> <li> <p>2.如果红包个数不为0，则提示用户抢到了红包，然后扣减红包总数。</p> </li> </ul> <p><code>伪代码如下</code></p> <pre><code class="language-cs"> //查询剩余红包个数  int RedEnvelopeCount = getRedEnvelopes();  if (RedEnvelopeCount.Count == 0)  {      //返回用户红包抢完了 do something      return;  }  //通知用户抢到了 do something  //扣减红包个数  subtracRedEnvelopeCount();</code></pre> <p>2.此时如果同一时间多个并发请求进来，我们就会发生多个线程同时执行这段核心逻辑，导致业务错误</p> <ul> <li> <p>1.发生<code>超抢</code>,抢到的人大于实际个数，谁抢到的不算？</p> </li> <li> <p>2.发生<code>少抢</code>，几个人同时抢到同一个，算谁的？</p> </li> </ul> <p>我相信这2种情况，要是在真实的抢红包中，发生到谁头上，都不爽吧？按东哥的话说<code>我都气的想打人</code></p> <p>所以我们要着手解决，解决的思路就是，<code>核心业务的代码</code>同一时刻只能被一个线程执行，所以为了保证原子性，我们就需要使用到<code>锁</code>来锁住核心业务代码，在这里我们使用C#的<code>Lock</code>来实现</p> <pre><code class="language-cs">//静态全局唯一 private readonly static object _lock = new object(); using (_lock) {     int RedEnvelopeCount = getRedEnvelopes();     if (RedEnvelopeCount.Count == 0)     {         //返回用户红包抢完了         return;     }     //通知用户抢到了     //扣减红包个数     subtracRedEnvelopeCount(); }</code></pre> <h6 id="3单进程多实例多线程">3.单进程多实例多线程</h6> <p>上面我们列举并介绍了在单个实例中遇到并发产生的业务问题，我们通过锁的方式来暂时解决了问题，那么接下来我们继续思考，如果红包再多一点，抢的并发量起来了，单台服务器不能承载这么多并发，为了保证高可用，我们需要将红包服务，进行集群部署，利用nginx来负载均衡一下。</p> <p>1.在单个实例中我们为了保证业务执行的原子性，锁住了核心业务代码，保证<code>同一时刻</code>只有<code>一个线程</code>执行，但是现在多个实例来处理请求，假设现在2个用户提交抢红包的请求，在同一时刻被服务器负载均衡到2台不同的实例，那么此时就会遇到2个进程同时操作核心业务逻辑，<code>超抢</code>和<code>少抢</code>的事情又会发生，瞬间头又大了，那么针对这种业务情况，我们应该使用<code>分布式锁</code>来解决不同进程之间争夺资源的情况。</p> <p>2.接下来就是我们最后一个问题，如何实现分布式锁，其实对于集群系统实现分布式锁的方式有很多种，基于Zookeeper,Redis，包括数据库，等都可以实现，相较于Zookeeper和数据库 ,Redis单线程对于<code>实现分布式锁</code>拥有天生绝对的优势，而且它操作内存的方式就性能而言是非常优秀的，鉴于咱们这篇博客主要是跟Redis相关的，所以主要介绍使用Redis的方式，当然基于Redis中也存在不同的做法。</p> <p>3.实现锁的核心业务就是<code>加锁``释放锁</code>这2个功能，我们根据Redis内部<code>单线程</code>执行的原理自己来初步实现一个</p> <pre><code class="language-cs"> //设置key，加锁 防止死锁超时，设置60毫秒自动过期  bool result = database.StringSet("distributed-lock", "lock", expiry: TimeSpan.FromSeconds(60));  //失败说明锁已经被获取，直接返回  if (!result)  {      // "人有点多，再点点...";      return;  }  //获取剩余个数  int RedEnvelopeCount = getRedEnvelopes();  if (RedEnvelopeCount.Count == 0)  {      //返回用户红包抢完了      return;  }  //通知用户抢到了  //扣减红包个数  subtracRedEnvelopeCount();  //释放锁 database.KeyDelete("distributed-lock");</code></pre> <p>上面实现了最简单和最基础的分布式锁，但是还存在缺陷，仔细思考不难发现</p> <ul> <li> <p>1.执行业务的时间大于持有锁的最大时间，导致锁释放，业务还没执行完，乱了那也玩不了</p> </li> <li> <p>2.获取锁后执行到业务代码时抛异常了，锁没及时释放，而是等待自动释放，所以需要加异常处理</p> </li> </ul> <p>我们根据这2个缺陷来进一步完善,解决上面的问题，首先需要先保证执行业务的情况下，<code>谁加的锁由谁来释放</code>,然后<code>添加异常处理代码</code>用于处理业务异常能及时释放锁</p> <pre><code class="language-cs">//获取Guid作为当前请求唯一身份信息 string value = Guid.NewGuid().ToString("N");  //设置key，加锁，防止死锁超时，设置60毫秒自动过期 bool result = database.StringSet("distributed-lock", value, expiry: TimeSpan.FromSeconds(60));  //失败说明锁已经被获取，直接返回 if (!result) return;  // "人有点多，再点点...";  try {     int RedEnvelopeCount = getRedEnvelopes(); //获取剩余个数     if (RedEnvelopeCount.Count == 0)return; //返回用户红包抢完了      //通知用户抢到了     //扣减红包个数     subtracRedEnvelopeCount(); } finally {     //保证由当前请求释放，不会别的进来释放导致乱套     if (value.Equals(database.StringGet("distributed-lock")))     {         //释放锁         bool isDelete = database.KeyDelete("distributed-lock");     } }</code></pre> <p>4.最后我们使用<code>StackExchange.Redis</code>提供的方法来实现封装一个分布式锁，首先扩展IServiceCollection 将StackExchange.Redis 操作实例注入</p> <pre><code class="language-cs">//扩展连接客户端 public static class RedisServiceCollectionExtensions {     public static IServiceCollection AddRedisCache(this IServiceCollection services, string connectionString)     {         ConfigurationOptions configuration = ConfigurationOptions.Parse(connectionString);         ConnectionMultiplexer connectionMultiplexer = ConnectionMultiplexer.Connect(connectionString);         services.AddSingleton(connectionMultiplexer);         return services;     } } //注入容器 services.AddRedisCache("127.0.0.1:6379,password=xxx,connectTimeout=2000");</code></pre> <p>5.具体利用<code>LockTake</code>通过轮训询问的方式获取锁，通过<code>LockRelease</code>释放锁，在实现的源码中，加锁的原理就是设置一个string类型的key value以及过期时间</p> <pre><code class="language-cs">public class DistributedLock {     private readonly ConnectionMultiplexer _connectionMultiplexer;     private IDatabase db = null;     public DistributedLock(ConnectionMultiplexer connectionMultiplexer)     {        _connectionMultiplexer = connectionMultiplexer;        db = connectionMultiplexer.GetDatabase(0);     }      private void FetchLock()     {       while (true)        {           //当前锁的持有时间超过60毫秒就会被释放，这个时间应该设置比被锁住业务执行时间长           bool flag = db.LockTake("distributed-lock", Thread.CurrentThread.ManagedThreadId, TimeSpan.FromSeconds(60));           if (flag)  // 1、如果加锁成功直接退出，否则继续获取锁           {              break;           }            Thread.Sleep(10); // 防止死循环。通过等待10毫秒时间，释放资源        }    }    public void UnLock()   {      bool flag = db.LockRelease("distributed-lock", Thread.CurrentThread.ManagedThreadId);      _connectionMultiplexer.Close();   }  }</code></pre> <p>6.基于Redis实现的分布式锁，在Redis主从或者哨兵乃至集群中，会存在<code>锁丢失</code>的情况，具体就是当请求给Master节点写入锁后，Master节点宕机，此时主从还没来得及同步，但此时已经选择了一个Slaver为主节点，而最开始的设置的锁不见了，针对这种情况比较极端，可以利用<code>Zookeeper</code>来实现分布式锁作为解决方案，因为在数据一致性上<code>Zookeeper</code>是优于<code>Redis</code>的，当然<code>Redis</code>的性能也是较<code>Zookeeper</code>更为突出一些，用<code>CAP理论</code>来定义的话，Zookeeper趋向于<code>CP</code>更关注一致性,Redis趋向于<code>AP</code>更关注可用性.</p> <h5 id="4redis容灾高可用">4.Redis容灾高可用</h5> <p>就服务实例而言，单个服务实例<code>保证容灾</code>和<code>高可用</code>基本很难，因为一个实例随时都有宕机的风险，所以引入了<code>集群</code>的概念，通过多个服务实例，来共同保证系统提供稳定的服务，其实在Redis中也一样，也有保证容灾和高可用的方案，在一定程度上，实现的方案在大的策略层面思路都差不多，只是具体实现的方式不同罢了，至于最终选择保证<code>数据信息层面的高可用</code>，还是性能资源层面的高可用，需要用户去根据自己业务来分析，选择使用哪一种方案。</p> <p>在Redis中，有3种方式来实现高可用的方案，分别是</p> <ul> <li> <p>1.主从模式 （Master Slaver）</p> </li> <li> <p>2.哨兵模式 (Sentinel)</p> </li> <li> <p>3.数据分片 (Cluster)</p> </li> </ul> <h6 id="1主从模式和哨兵">1.主从模式和哨兵</h6> <p><code>主从模式</code>是Redis提供<code>高可用</code>的第一种方案，理解起来也比较简单，一个主节点多个从节点，主节点负责写入，然后会把数据同步到从节点，从节点负责读取，但是会存在不可避免的缺陷</p> <ul> <li> <p>1.如果宕机，它不具备自动容错和恢复功能，需要手动切换从节点为主节点。</p> </li> <li> <p>2.宕机导致数据未及时同步，降低可用性</p> </li> <li> <p>3.所有节点数据一样，内存浪费，并且在线扩容复杂，伸缩性差，海量数据存储无法解决。</p> </li> <li> <p>4.高并发主节点写入数据压力极大。</p> </li> </ul> <p><code>哨兵模式</code>是Redis提供的第二种方案，可以说是第一种主从方案的完善版本，因为它在主从的基础上，增加了<code>监控</code>功能，主节点宕机后提供<code>哨兵</code>自动选举master并将其他的slave指向新的master，哨兵是一个独立运行的进程，它的实现原理是哨兵进程向所有的redis机器发送心跳消息，从而监控运行状况,同样由于是基于主从而诞生，那么也存在主从中的一些缺陷。</p> <h6 id="2集群分片模式">2.集群分片模式</h6> <p>1.<code>集群和分片基本概念</code></p> <p>前面2种方案归根结底，就是使用主从复制和读写分离的方式保证高可用，但是内存占用，主节点压力过大，相较于Redis提供的第三种<code>集群和数据分片</code>的方案，存在的缺陷也非常明显,下面我们介绍<code>集群和数据分片</code>。</p> <blockquote> <p>1.<code>集群和数据分片</code>简单理解就是将主从复制的核心策略，做了集群来横向扩展，包含多个主从节点，采用去中心化思想，数据按照 slot 存储分布在多个节点，并且节点间数据共享，可动态调整数据分布，</p> </blockquote> <blockquote> <p>2.在集群中每一个节点都是<code>互相通信</code>采用<strong><code>Gossip</code></strong> 病毒协议，在一个节点写入的数据，其他任何节点都会查询到。</p> </blockquote> <p>2.<code>集群内部数据存取原理</code></p> <blockquote> <p>1.<code>Slot</code> 槽，存储数据的容器,总共16384个Slot ,采用平均分配，并且只有<code>主节点</code>才能被分配</p> </blockquote> <blockquote> <p>2.<code>Hash</code>算法用于对数据进行计算，得到一个Hash值，然后对16384<code>取模</code>选择存到哪个区间的<code>Slot</code></p> </blockquote> <p>3.<code>Windows下集群搭建</code></p> <p>1.我们部署集群使用<code>redis-trib.rb</code>，首先<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://pan.baidu.com/s/1_5N8V1ht4MEv5dtEHTNX6w"  target="_blank" rel="nofollow">下载环境 提取码1234</a></p> <p>2.安装需要用到Ruby语言运行环境，然后进入安装目录<code>Ruby22-x64</code>中，通过<code>gem</code>命令安装文件</p> <pre><code class="language-ruby">gem install –-local youFloder\redis-3.2.2.gem</code></pre> <p>3.准备Redis服务实例，此处准备6个实例，并配置Redis配置文件，然后启动<code>每一个</code>服务实例</p> <pre><code class="language-cmd">redis-server redis-6380.conf  redis-server redis-6381.conf  .... ....</code></pre> <pre><code class="language-conf">port 6380 #节点端口 bind 127.0.0.1   #节点主机ip appendonly yes 开启aof appendfilename "appendonly.6380.aof"    cluster-enabled yes                                     cluster-config-file nodes.6380.conf cluster-node-timeout 15000 cluster-slave-validity-factor 10 cluster-migration-barrier 1 cluster-require-full-coverage yes</code></pre> <p>3.进入到<code>redis-trib.rb</code>目录打开命令窗口，进行搭建集群</p> <pre><code class="language-cmd">ruby redis-trib.rb create -–replicas 1 127.0.0.1:6380 127.0.0.1:6381 127.0.0.1:6382 127.0.0.1:6383 127.0.0.1:6384 127.0.0.1:6385</code></pre> <p>4.检查集群状态,出现图片中的提示代表搭建成功</p> <pre><code class="language-cmd">ruby redis-trib.rb check 127.0.0.1:6380</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/405b64a5b57c30e520797ec372cfb065.jpg" alt="Redis缓存中间件详解"></p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p id="main-toc"><strong>目录</strong></p> <p id="main-toc-toc" style="margin-left:0px;"><a href="#main-toc" rel="nofollow">@RequestMapping注解</a></p> <p id="%E6%B3%A8%E8%A7%A3%E6%A0%87%E8%AF%86%E4%BD%8D%E7%BD%AE-toc" style="margin-left:40px;"><a href="#%E6%B3%A8%E8%A7%A3%E6%A0%87%E8%AF%86%E4%BD%8D%E7%BD%AE" rel="nofollow">注解标识位置</a></p> <p id="value%E5%B1%9E%E6%80%A7-toc" style="margin-left:40px;"><a href="#value%E5%B1%9E%E6%80%A7" rel="nofollow">value属性</a></p> <p id="method%E5%B1%9E%E6%80%A7-toc" style="margin-left:40px;"><a href="#method%E5%B1%9E%E6%80%A7" rel="nofollow">method属性</a></p> <p id="params%E5%B1%9E%E6%80%A7-toc" style="margin-left:40px;"><a href="#params%E5%B1%9E%E6%80%A7" rel="nofollow">params属性</a></p> <p id="headers%E5%B1%9E%E6%80%A7-toc" style="margin-left:40px;"><a href="#headers%E5%B1%9E%E6%80%A7" rel="nofollow">headers属性</a></p> <p id="springMVC%E6%94%AF%E6%8C%81ant%E9%A3%8E%E6%A0%BC%E8%B7%AF%E5%BE%84-toc" style="margin-left:40px;"><a href="#springMVC%E6%94%AF%E6%8C%81ant%E9%A3%8E%E6%A0%BC%E8%B7%AF%E5%BE%84" rel="nofollow">ant风格路径</a></p> <p id="%E8%B7%AF%E5%BE%84%E5%8D%A0%E4%BD%8D%E7%AC%A6-toc" style="margin-left:40px;"><a href="#%E8%B7%AF%E5%BE%84%E5%8D%A0%E4%BD%8D%E7%AC%A6" rel="nofollow">路径占位符</a></p> <hr id="hr-toc"/> <h1>@RequestMapping注解</h1> <p><strong>@RequestMapping注解的作用就是将请求和处理请求的控制器方法关联起来，建立映射关系。 SpringMVC接收到指定的请求，就会来找到在映射关系中对应的控制器方法来处理这个请求。</strong></p> <h2 id="%E6%B3%A8%E8%A7%A3%E6%A0%87%E8%AF%86%E4%BD%8D%E7%BD%AE"><strong>注解标识位置</strong></h2> <p><strong>（1）</strong>@RequestMapping标识一个类：设置映射请求的请求路径的初始信息。</p> <p><strong>（2）</strong>@RequestMapping标识一个方法：设置映射请求请求路径的具体信息。</p> <p><strong>标识在方法上时</strong></p> <pre><code>@Controller //@RequestMapping(value = "/web") public class RequestMappingController {      @RequestMapping(value = "/testRequestMapping")     public String testRequestMapping() {         //返回的字符串是去掉视图前缀和后缀的文件名         //比如说在某一路径下的test.html文件，只需要返回test即可跳转到该页面         //在springMVC.xml配置文件中设置视图前后缀         return "test";     }  }</code></pre> <p>跳转路径设置如下（这里我们使用了thymeleaf来管理路径）</p> <pre><code>&lt;a th:href="@{/testRequestMapping}"&gt;测试RequestMapping注解&lt;/a&gt;&lt;br&gt;</code></pre> <p>跳转结果</p> <p><img fetchpriority="high" decoding="async" alt="" height="123" src="http://img.555519.xyz/uploads3/20220901/9186ce7e0704ce3063af67103ad5486b.jpg"></p> <p>可以看到地址栏和我们设置的value属性一样。</p> <p><strong>&nbsp;标识在类上时</strong></p> <p>如果我们在类上设置一个RequestMapping，及取消上面代码中RequestMapping的注释，那么跳转的地址更改如下</p> <pre><code>&lt;a th:href="@{/web/testRequestMapping}"&gt;测试RequestMapping注解&lt;/a&gt;&lt;br&gt;</code></pre> <p><strong>在类上标记了之后，相当于这一个类中所有的路径前面都加上了类上所标记的路径。</strong></p> <h2 id="value%E5%B1%9E%E6%80%A7">value属性</h2> <p><strong>value属性通过请求的请求地址匹配请求映射</strong>，value属性可以是一个字符串类型的数组，表示该请求映射能够匹配多个请求地址所对应的请求。</p> <pre><code>@RequestMapping(value = {"/testRequestMapping", "/test"})     public String test() {         return "test";     }</code></pre> <p><strong>value的值为多个时，表示从这几个路径都可以访问到这一个页面。</strong></p> <h2 id="method%E5%B1%9E%E6%80%A7"><strong>method属性</strong></h2> <p><strong>method属性通过请求的请求方式（get或post）匹配请求映射</strong>，表示该请求能匹配的请求方式，如果不设置method属性，就表示不以请求方式为访问的限制条件。当满足value属性设置的路径但不满足method设置的请求方式时就会报错。</p> <pre><code>@RequestMapping(value = {"/testRequestMapping", "/test"},         method = {RequestMethod.GET, RequestMethod.POST} ) public String test() {     return "test"; }</code></pre> <h2 id="params%E5%B1%9E%E6%80%A7">params属性</h2> <p><strong>params属性通过请求参数匹配请求映射</strong>，@RequestMapping注解的params属性是一个字符串类型的数组，可以通过四种表达式设置请求参数。</p> <p>（1）"param"：要求请求映射所匹配的请求必须携带param请求参数。</p> <p>（2）"!param"：要求请求映射所匹配的请求必须不能携带param请求参数。</p> <p>（3）"param=value"：要求请求映射所匹配的请求必须携带param请求参数且param=value。</p> <p>（4）"param!=value"：要求请求映射所匹配的请求必须携带param请求参数但是param!=value。</p> <p>例如我们在访问路径上面设置传递过去的访问参数</p> <pre><code>&lt;a th:href="@{/web/testRequestMapping(username='HLJ',password='654321')}"&gt;测试RequestMapping注解false&lt;/a&gt;&lt;br&gt; &lt;a th:href="@{/web/testRequestMapping(username='JLH',password='123456')}"&gt;测试RequestMapping注解true&lt;/a&gt;&lt;br&gt;</code></pre> <p>接收方法如下</p> <pre><code>@RequestMapping(value = {"/testRequestMapping", "/test"},         method = {RequestMethod.GET, RequestMethod.POST},         params = {"username=JLH","password!=654321"} ) public String test() {     return "test"; }</code></pre> <p><strong>这样就表示当username和password都满足条件的时候才会跳转成功。</strong></p> <h2 id="headers%E5%B1%9E%E6%80%A7">headers属性</h2> <p><strong>headers属性通过请求的请求头信息匹配请求映射，</strong>@RequestMapping注解的headers属性是一个字符串类型的数组，可以通过四种表达式设置请求头信息和请求映射的匹配关系。</p> <p>"header"：要求请求映射所匹配的请求必须携带header请求头信息。</p> <p>"!header"：要求请求映射所匹配的请求必须不能携带header请求头信息。</p> <p>"header=value"：要求请求映射所匹配的请求必须携带header请求头信息且header=value。</p> <p>"header!=value"：要求请求映射所匹配的请求必须携带header请求头信息且header!=value。</p> <p>访问地址</p> <pre><code>&lt;a th:href="@{/testParamsAndHeaders}"&gt;测试headers&lt;/a&gt;&lt;br&gt;</code></pre> <p>接收设置</p> <pre><code>@RequestMapping(value = "/testParamsAndHeaders",             headers = {"Host=localhost:8080","Accept-Language=zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"})     public String testParamsAndHeaders() {         return "test";     }</code></pre> <p>&nbsp;通过查看网页的请求标头可以发现如下信息</p> <p><img decoding="async" alt="" height="164" src="http://img.555519.xyz/uploads3/20220901/6d7ec4245749146ac36f787faa64e3b8.jpg"></p> <p><strong>&nbsp;这里我们通过Host和Accept-Language来设置headers属性进行测试，只要标头的信息和headers中的匹配，就能够访问成功。</strong></p> <h2 id="springMVC%E6%94%AF%E6%8C%81ant%E9%A3%8E%E6%A0%BC%E8%B7%AF%E5%BE%84"><strong>ant风格路径</strong></h2> <p>？：表示任意的单个字符。</p> <p>*：表示任意的0个或多个字符。</p> <p>**：表示任意的一层或多层目录，<strong>在使用**时，只能使用/**/xxx的方式</strong>。</p> <p id="%E6%8E%A5%E6%94%B6%E8%B7%AF%E5%BE%84%E8%AE%BE%E7%BD%AE">接收路径设置</p> <pre><code>@RequestMapping(value = "/a?a/testAnt") public String testAnt1() {     return "test"; }  @RequestMapping(value = "/a*a/testAnt") public String testAnt2() {     return "test"; }  @RequestMapping(value = "/**/testAnt") public String testAnt3() {     return "test"; }</code></pre> <p>访问路径设置</p> <pre><code>&lt;a th:href="@{/a1a/testAnt}"&gt;使用?(一个问号匹配单个字符)&lt;/a&gt;&lt;br&gt; &lt;a th:href="@{/a1123123123a/testAnt}"&gt;使用*(开头和结尾的字符匹配即可)&lt;/a&gt;&lt;br&gt; &lt;a th:href="@{/tqwe/testAnt}"&gt;使用**(多目录都可以，只要最后是testAnt)&lt;/a&gt;&lt;br&gt;</code></pre> <p>因为springMVC支持ant风格的路径，所以上面的路径都能被接收到。</p> <h2 id="%E8%B7%AF%E5%BE%84%E5%8D%A0%E4%BD%8D%E7%AC%A6">路径占位符</h2> <p>当我们要把某些数据通过路径的方式传输到服务器时，原始的方式是/路径?username=123&amp;password=321，而现在可以改写成：/路径/username=123/password=321，并且可以通过在RequestMapping注解的value属性中设置占位符获取传输的数据，通过@PathVariable赋值给形参。</p> <p>访问路径设置</p> <pre><code>&lt;a th:href="@{/testPath/JLH/123456}"&gt;测试占位符&lt;/a&gt;&lt;br&gt;</code></pre> <p>设置占位符</p> <pre><code>@RequestMapping(value = "/testPath/{username}/{password}") public String testPath(@PathVariable("id") Integer id, @PathVariable("username") String username) {     System.out.println("id:" + id);     System.out.println("username:" + username);     return "test"; }</code></pre> <p>这样就可以很容易的获取到通过路径传递过来的参数。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-54.htm">java sm3国密算法加密、验证工具类</a></p>
-                                        <p>下一个：<a href="/html/category/article-56.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></p>
+                                        <p>上一个：<a href="/html/category/article-54.htm">删除PicGo的右键菜单的方法</a></p>
+                                        <p>下一个：<a href="/html/category/article-56.htm">Vue中this.$router.replace和this.$router.push的区别</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
-                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
-                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></h4>
-                <p>vue父组件向子组件传值与传递方法 学习笔记 1、父组件向子组件传值（props）  在子组件中，默认是无法访问到父组件中的data上的数据和methods中的方法 父组件可以在引用子组件的时候，通过</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
-                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
+                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
+                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
-                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
-                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
-                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
+                <h4><a href="/html/category/article-232.htm">Android中EditText光标的显示与隐藏方法</a></h4>
+                <p>目录  Android EditText的光标的显示和隐藏 Android之第一次不显示EditText光标 总结   Android EditText的光标的显示和隐藏 一、java代码 1.编辑框</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
-                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

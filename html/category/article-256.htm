@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-256.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>2、java mybatis 命名空间 - EgyptAddress</title>
+    <title>feign post 参数对象不加@RequestBody的用法 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">2、java mybatis 命名空间</h1>
+                <h1 class="title" style="word-break: break-all;">feign post 参数对象不加@RequestBody的用法</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p><strong>命名空间：</strong></p> <p>在之前版本的 MyBatis 中，<strong>命名空间（Namespaces）</strong>的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。</p> <p>命名空间的作用有两个，一个是利用更长的全限定名来将不同的语句隔离开来，同时也实现了你上面见到的接口绑定。就算你觉得暂时用不到接口绑定，你也应该遵循这里的规定，以防哪天你改变了主意。 长远来看，只要将命名空间置于合适的 Java 包命名空间之中，你的代码会变得更加整洁，也有利于你更方便地使用 MyBatis。</p> <p><strong>命名解析：</strong>为了减少输入量，MyBatis 对所有具有名称的配置元素（包括语句，结果映射，缓存等）使用了如下的命名解析规则。</p> <ul> <li>全限定名（比如 “com.mypackage.MyMapper.selectAllThings）将被直接用于查找及使用。</li> <li>短名称（比如 “selectAllThings”）如果全局唯一也可以作为一个单独的引用。 如果不唯一，有两个或两个以上的相同名称（比如 “com.foo.selectAllThings” 和 “com.bar.selectAllThings”），那么使用时就会产生“短名称不唯一”的错误，这种情况下就必须使用全限定名。</li> </ul> <p>对于像 BlogMapper 这样的映射器类来说，还有另一种方法来完成语句映射。 它们映射的语句可以不用 XML 来配置，而可以使用 <strong>Java 注解</strong>来配置。</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。<br /> 代码我就改造了下，不直接上真实代码。<br /> 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是：</p> <pre><code class="prism language-cpp">	@ResponseBody     @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/order/select"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     @<span class="token function">ApiImplicitParams</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryNum"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"查询流水"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">,</span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryDate"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"流水日期"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>     <span class="token punctuation">}</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@ApiIgnore Order hero<span class="token punctuation">)</span> throws Exception <span class="token punctuation">{<!-- --></span>          xxxxx<span class="token punctuation">;</span>     <span class="token punctuation">}</span> </code></pre> <p>这个post接口，有点奇怪，多了很多没见过的注解，而一般情况，post接口里参数对象应该是这么写的：</p> <pre><code class="prism language-cpp"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@RequestBody Order hero<span class="token punctuation">)</span> throws Exception <span class="token punctuation">{<!-- --></span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span> </code></pre> <p>也就是传参的body前面一般会加上@RequestBody参数，但是支付服务的接口用到了@ApiImplicitParam和@ApiIgnore 注解，属于Swagger2的注解，有必要先学习下这两个注解的基本使用：</p> <blockquote> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/h-c-g/p/11004020.html"  rel="nofollow">@ApiImplicitParam的使用</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/u010250240/article/details/103120635"  rel="nofollow">@ApiIgnore注解的使用</a></p> </blockquote> <p>但是呢，一开始没想太多，调支付服务的feign接口的方法就按着平常写的post接口来：</p> <pre><code class="prism language-cpp">@<span class="token function">FeignClient</span><span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">,</span> path<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">)</span> <span class="token keyword">public</span> interface payFeignClient <span class="token punctuation">{<!-- --></span>      @ResponseBody     @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/payment/order/select"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@RequestBody Order order<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>然后在调式的时候，发现小程序调支付服务这个订单查询接口的时候，支付服务那边接受的参数对象Order字段里面的值都是null，原因是feign这边传的Order对象是RequestBody类型，而支付服务那边的接口接受参数时没有加@RequestBody，所以应该是反序列化的时候，由于格式不同，就没有成功，才出现了支付服务这边接受的参数对象Order字段里面的值都为null。</p> <p>解决办法：<br /> feign接口改成这样子就正常了：</p> <pre><code class="prism language-cpp">@<span class="token function">FeignClient</span><span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">,</span> path<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">)</span> <span class="token keyword">public</span> interface payFeignClient <span class="token punctuation">{<!-- --></span>      @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/payment/qry/barcode/pay"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     @<span class="token function">Headers</span><span class="token punctuation">(</span>MediaType<span class="token punctuation">.</span>APPLICATION_FORM_URLENCODED_VALUE<span class="token punctuation">)</span>     <span class="token keyword">public</span> ResultInfo<span class="token operator">&lt;</span>QryBarcodePayModel<span class="token operator">&gt;</span> <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"qryNo"</span><span class="token punctuation">)</span> String qryNo<span class="token punctuation">,</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"hotelCode"</span><span class="token punctuation">)</span> String hotelCode<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>这里对比一下feign和原接口的参数：<br /> 原接口：</p> <pre><code class="prism language-cpp">@<span class="token function">ApiImplicitParams</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryNum"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"查询流水"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">,</span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryDate"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"流水日期"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>     <span class="token punctuation">}</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@ApiIgnore Order hero<span class="token punctuation">)</span> </code></pre> <p>feign接口：</p> <pre><code class="prism language-cpp">@<span class="token function">Headers</span><span class="token punctuation">(</span>MediaType<span class="token punctuation">.</span>APPLICATION_FORM_URLENCODED_VALUE<span class="token punctuation">)</span>     <span class="token keyword">public</span> ResultInfo<span class="token operator">&lt;</span>QryBarcodePayModel<span class="token operator">&gt;</span> <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"qryNo"</span><span class="token punctuation">)</span> String qryNo<span class="token punctuation">,</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"hotelCode"</span><span class="token punctuation">)</span> String hotelCode<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <p>可以看出来差别很大，首先传参，原接口是post请求，传的是一个对象，但是对象前加了@ApiIgnore 注解，相信前面给的链接学习后知道这个注解表示的是忽略的意思，也就是传参的时候，忽略掉这个对象，所以feign传的参压根就没有对象。<br /> 其次原接口对两个参数加了@ApiImplicitParam，需要提前说明的是，加了@ApiImplicitParam的两个参数queryNum、queryDate都属于Order 类里的属性。<br /> 重点看@ApiImplicitParam的paramType = “form”, required = true这两个地方，paramType="form"就表示传参以form表单的形式，所以feign接口方法上面加了@Headers(MediaType.APPLICATION_FORM_URLENCODED_VALUE)。<br /> 其次require=true就表示这两个参数是必传的。<br /> 以上就确定了feign的接口方法应该如何写，最后参数到原接口过来时，会自动将queryNum、queryDate两个参数set到Order对象里去，至于为何，我也不太清楚，暂时知道是可以这么用的。</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></p>
-                                        <p>下一个：<a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></p>
+                                        <p>上一个：<a href="/html/category/article-255.htm">python 查看包的版本</a></p>
+                                        <p>下一个：<a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
-                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
+                <h4><a href="/html/category/article-227.htm">Spring Boot四大神器之CLI</a></h4>
+                <p>目录             1. Spring Boot CLI简介： 2. 安装CLI:   手动安装：   3. 运行Groovy脚本 4. CLI运行原理说明：（CLI帮我们做了什么？）   </p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
-                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
+                <h4><a href="/html/category/article-208.htm">PHP字符串运算符详解</a></h4>
+                <p>介绍 有两个用于处理字符串数据类型的运算符。在&nbsp;“”（点）运算符是PHP的串联运算符。两个字符串操作数结合在一起（右手字符串附加在左手字符串上），并返回一个新字符串。PHP还具有&nbsp;</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
-                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
+                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
+                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-213.htm">C/C++内存申请函数总结</a></h4>
+                <p>#include &lt;stdlib.h&gt; new char[size] void* malloc(unsigned size); void* realloc(void* ptr, unsig</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
-                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+                <h4><a href="/html/category/article-244.htm">Redis事务详解</a></h4>
+                <p>大家好，我是七淅。 如果你了解过关系型数据库事务的话，相信这篇文章对你来说是很容易理解的了。具体什么是事务我就不说不多了，直接讲 Redis 事务相关的部分。 首先，我们先来看下，Redis 是怎么执</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
-                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
-                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

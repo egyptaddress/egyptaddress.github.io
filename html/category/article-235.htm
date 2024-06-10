@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-235.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>C#中检查null的语法糖_在线工具 - EgyptAddress</title>
+    <title>lombok和JPA的死递归 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">C#中检查null的语法糖_在线工具</h1>
+                <h1 class="title" style="word-break: break-all;">lombok和JPA的死递归</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dotnet/csharplang/blob/main/meetings/2022/LDM-2022-04-13.md"  target="_blank"  rel="nofollow">讨论</a>，最后<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://devblogs.microsoft.com/dotnet/csharp-11-preview-updates/"  target="_blank"  rel="nofollow">取消了</a>。然后我又想起来null检查，这个可以说一说。</p> <h2 id="函数参数null检查">函数参数null检查</h2> <h3 id="传统写法">传统写法</h3> <p>写一个函数的时候，最经典的检查，估计也是大家最常使用的null检查，应该是这样的吧：</p> <pre><code class="language-c#">public static void GetV1(string prompt) {     if (prompt is null) throw new ArgumentNullException(nameof(prompt));     Console.WriteLine(prompt); } </code></pre> <h3 id="throwifnull">ThrowIfNull</h3> <p>这个写起来也没啥问题，但是总觉得有点不舒适。.NET 6在<code>ArgumentNullException</code>中新增了<code>ThrowIfNull</code>方法，可以写的更优雅一点。</p> <pre><code class="language-c#">public static void GetV2(string prompt) {     ArgumentNullException.ThrowIfNull(prompt);     Console.WriteLine(prompt); }  </code></pre> <p>异常的时候，就会出现：<code>System.ArgumentNullException: 'Value cannot be null. (Parameter 'prompt')'</code>。这个是不是简单了点？可是还是需要写一行。</p> <h3 id="c-11的语法已经取消">C# 11的!!语法（已经取消）</h3> <p>C# 11刚preview的时候，我就瞄到了这个特性，现在依然可以通过设置<langversion>preview</langversion>来进行启用，但是以后正式发布估计就不行了。</p> <p>它通过在参数后面叠加!!表示此参数不可为空，运行时会自动进行检查，如果是null就直接弹出错误。</p> <pre><code class="language-c#">public static void GetV3(string prompt!!) {     Console.WriteLine(prompt); } </code></pre> <p>这个代码会被编译器翻译成：</p> <pre><code class="language-C#">public static void GetV3(string prompt!!) {     if (prompt is null) {         throw new ArgumentNullException(nameof(prompt));     }     Console.WriteLine(prompt); } </code></pre> <p>这样大家就可以专注于业务代码，不需要经常考虑异常检查了。至于为什么这个东西最后还是被删除了，可以从讨论中看到一丝端倪，首先是感觉非常纠结于这个语法，两个叹号；然后就是已经有比较多的方式可以实现检查了，这个东西是否有必要。反正最终是以后再讨论了，不过也可以看出来C#语言工作组对语言的特性讨论非常谨慎。</p> <p>他们还讨论了很多别的形式，每种都提出了各自的<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dotnet/csharplang/blob/main/meetings/2022/LDM-2022-04-13.md"  target="_blank"  rel="nofollow">优缺点</a>挺有意思的，能看出来有一点设计语言的严谨和小强迫症在，点赞~</p> <pre><code>void M(string s!!); void M(string! s); void M(string s!); void M(notnull string s); void M(string s ?? throw); void M(string s is not null); void M(checked string s); void M(string s) where s is not null; </code></pre> <h2 id="有关null的一些操作">有关null的一些操作</h2> <p>说起这个，就顺便说说c#处理null的另外几个语法糖吧。</p> <h3 id="">??</h3> <p>如果左边是的null，那么返回右边的操作数，否则就返回左边的操作数，这个在给变量赋予默认值非常好用。</p> <pre><code class="language-c#">int? a = null; int b = a ?? -1; Console.WriteLine(b);  // output: -1 </code></pre> <h3 id="-1">??=</h3> <p>当左边是null，那么就对左边的变量赋值成右边的</p> <pre><code class="language-C#">int? a = null; a ??= -1; Console.WriteLine(a);  // output: -1 </code></pre> <h3 id="-2">?.</h3> <p>当左边是null，那么不执行后面的操作，直接返回空，否则就返回实际操作的值。</p> <pre><code class="language-c#">using System; public class C {     public static void Main() {         string i = null;         int? length = i?.Length;         Console.WriteLine(length ?? -1); //output: -1     } } </code></pre> <h3 id="-3">?[]</h3> <p>索引器操作，和上面的操作类似</p> <pre><code class="language-c#">using System; public class C {     public static void Main() {         string[] i = null;         string result = i?[1];         Console.WriteLine(result ?? "null"); // output:null     } } </code></pre> <blockquote> <p>注意，如果链式使用的过程中，只要前面运算中有一个是null，那么将直接返回null结果，不会继续计算。下面两个操作会有不同的结果。</p> <pre><code class="language-c#">using System; public class C {     public static void Main() {         string[] i = null;         Console.WriteLine(i?[1]?.Substring(0).Length); //不弹错误         Console.WriteLine((i?[1]?.Substring(0)).Length) // System.NullReferenceException: Object reference not set to an instance of an object.     } } </code></pre> </blockquote> <h2 id="一些操作">一些操作</h2> <pre><code class="language-c#">//参数给予默认值 if(x == null) x = "str"; //替换 x ??= "str";   //条件判断 string x; if(i&lt;3)      x = y; else  {       if(z != null) x = z;      else z = "notnull"; } //替换 var x = i &lt; 3 ? y : z ?? "notnull"   //防止对象为null的时候，依然执行代码 if(obj != null)      obj.Act(); //替换 obj?.Act();  //Dictionary取值与赋值 string result; if(dict.ContainKey(key)) {     if(dict[key] == null) result = "有结果为null";     else result = dict[key]; } else      result = "无结果为null"; //替换 var result= dict.TryGetValue(key, out var value) ? value ?? "有结果为null" : "无结果为null"; </code></pre> <h2 id="结语">结语</h2> <p>原来新定的C# 11提供了一个新的??，话说我个人还是挺喜欢这个特性的，不管以什么形式出现吧，期待以后再见。</p> <blockquote> <p>C#中为了处理null给我们准备了许多的语法糖，只能说非常简便了。有很多人会说这个可读性不好，或者觉得这是“茴字的几种写法”似的歪门邪道，我只能说，传统的语法也不是说取消了，语言有发展，只要还是比较审慎的，我觉得还是一件好事。</p> </blockquote> <h2 id="参考资料">参考资料</h2> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-"  target="_blank"  rel="nofollow">https://docs.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/null-coalescing-operator"  target="_blank"  rel="nofollow">https://docs.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/null-coalescing-operator</a></li> </ul> <h2 id="后记">后记</h2> <p>一定要夸一下博客园，写完这篇文章想登陆博客园发布的时候，被登陆卡住了。弹出来和google一样的验证画面，找红绿灯找人行横道什么的，只能说我找了几分钟也没找明白，我确信我已经点的正确了，所有的区块，占上了有一点算不算？不知道也没有反馈，就点呀点呀，密码我已经按照要求设置的够复杂了，还有必要通过这种反人类的东西来验证吗？不理解，京东阿里之类的购物网站的验证也就拖一下完事，这博客园的后台估计比那些个地方还要敏感吧，赞一个！太赞了！</p> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1 id="这是一个bug">这是一个Bug</h1> <p>JPA我觉得是一个封装的很棒的框架，至于说很臃肿这个事，我觉得在需求需要很多复杂查询的时候，不适合用JPA。因为它的封装太棒了，以致于增强了表和实体类之间的耦合。不过在一些简单查询的部分，它真的太好用了。</p> <p>而关于这个Bug，就不单单是JPA自身的问题了，究其原因是我在实体类中，使用了lombok框架的<code>@Data</code>，这是一个使用注解，在编译时修改语法树并且自动生成Getter、Setter方法并且会实现toString，和hashCode方法得一个框架。其实这个本身也没问题，而且我一直觉得很好用。</p> <p>可是当这两个因素合在一起的时候，出现了问题。因为在实体类中存在多对多的关联关系，因此实体类A在实例化的时候，会实例化实体类B并调用它的toString和hashCode。可是在实体B实例化的时候，又会实例化对应的A并调用它的toString和hashCode。是的，你猜的没错，这是一个没有结束条件的递归，也可以叫死递归。会出现什么情况呢，简单来说就是一个StackOverflow。</p> <h1 id="一些想法">一些想法</h1> <p>知道了问题之后，就会发现其实解决问题就没那么难了。想了一下问题出现的原因，有了一些简单的思考： <br /> 1. 框架的封装导致在看不到的地方，可能会有我们意想不到的问题； <br /> 2. 在没有真正弄清楚框架在做了什么之前，不要对其完全信任（比如我们可以用lombok，但是要清楚它做了什么，如果没弄清楚还不如用Getter和Setter—反正可以直接生成）； <br /> 3. ibatis做的好的一点应该就是，它没有封装的太严实，在表和实体之间有了更大的定制空间； <br /> 4. 想知道为什么一个东西不好用，自己去用一下。如果你没有不爽，那你就别在说它不好用；如果你不爽了，那就搞清楚自己为什么不爽。</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></p>
-                                        <p>下一个：<a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></p>
+                                        <p>上一个：<a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></p>
+                                        <p>下一个：<a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
-                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
+                <h4><a href="/html/category/article-218.htm">【SpringMVC笔记02】SpringMVC接收请求参数的几种方式</a></h4>
+                <p>这篇文章，主要介绍SpringMVC框架中接收请求参数的几种方式。  目录 一、SpringMVC接收请求参数 1.1、通过方法参数接收 1.2、通过HttpServletRequest接收参数 1.</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
-                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
+                <h4><a href="/html/category/article-259.htm">游戏开发设计模式：单例模式</a></h4>
+                <p>一、单例模式  文章目录  一、单例模式     1.1 单例模式总结介绍   1.1.1什么是单例模式 1.1.2单例模式分类 1.1.3单例类特点 1.1.4如何保证线程安全？   1.2 单例模</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-237.htm">Java空指针异常和解决办法</a></h4>
+                <p>目录  问题描述：   尝试1： 尝试2：   使用Optional防止出现空指针异常 引用    问题描述： public class Main20220419 {     public stati</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
-                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
-                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
+                <h4><a href="/html/category/article-226.htm">Carson带你学设计模式：单例模式（Singleton）</a></h4>
+                <p>前言 今天Carson来全面总结最常用的设计模式 - 单例模式。  Carson带你学设计模式系列文章Carson带你学设计模式：这是一份全面 &amp; 详细的设计模式学习指南Carson带你学设计</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
-                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-245.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></h4>
+                <p>创建型设计模式: 单例模式(Singleton Pattern)  CSDN专栏: 设计模式(UML/23种模式)  单例模式(Singleton Pattern)保证一个类仅有一个实例，并提供一个访</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

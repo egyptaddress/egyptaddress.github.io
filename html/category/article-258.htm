@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-258.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>vue实现自定义全局右键菜单_vue.js - EgyptAddress</title>
+    <title>你确定你会用Enum枚举了？ - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">vue实现自定义全局右键菜单_vue.js</h1>
+                <h1 class="title" style="word-break: break-all;">你确定你会用Enum枚举了？</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/2a621ad2e70ec81e0e79c7faecdf5453.jpg"></p> <p><span style="color:#c0392b"><strong>注意：</strong></span></p> <p>需要在项目中找到页面整体布局的组件，比如项目使用Home.vue作为整个项目的公共布局，将根元素定位设置成relative，使右键菜单相对于其进行定位。</p> <p>本文的右键菜单主要使用vuex实现</p> <p><strong>一、vuex中定义全局状态用于管理右键菜单</strong></p> <div class="ay1code"> <pre class="brush:js;">export default {      /**       * menuContent格式：       * [       *      {       *          name: '新建文件',   // 操作名       *          method: 'createDirectory',  // 需要执行的对应组件中的方法       *             disabled: true        // 是否禁用，可以根据页面具体逻辑进行调整       *      }       * ]       *        *        * 整体右键菜单采用绝对定位，所以clientX、clientY代表是left和top定位       */      state: {          menuContent: [],    // 右键菜单内容          clientX: '',    // left          clientY: '',    // top          displayContextMenu: false   // 是否展示右键菜单      },      mutations: {          SET_CONTEXT_MENU: (state, payload) =&gt; {              state.menuContent = payload.menuContent;              state.clientX = payload.clientX;              state.clientY = payload.clientY;              state.displayContextMenu = payload.displayContextMenu;          },      }  }</pre> </div> <p><strong>二、定义公共组件ContextMenu.vue</strong></p> <div class="ay1code"> <pre class="brush:xhtml;">&lt;template&gt;      &lt;div class="context-menu" v-show="contextMenu.displayContextMenu"           :style="{'left': contextMenu.clientX + 'px', 'top': contextMenu.clientY + 'px'}"&gt;          &lt;ul&gt;              &lt;li v-for="(item, i) in contextMenu.menuContent" :key="i" :class="item.disabled ? 'disabled' : ''"                   @click="emitEvent(item.method)"&gt;                  {{item.name}}              &lt;/li&gt;          &lt;/ul&gt;      &lt;/div&gt;  &lt;/template&gt;    &lt;script&gt;  import { mapState } from 'vuex';  import bus from '@/views/common/bus';  export default {      name: 'ContextMenu',      data(){          return {          }      },      computed: {          ...mapState(['contextMenu'])      },      methods: {          emitEvent(type){              bus.$emit('operateDirectory', type)          }      }  }  &lt;/script&gt;    &lt;style lang="scss" scoped&gt;      .context-menu {          position: absolute;          background: #FFF;          color: #34495E;          min-width: 100px;          box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);          border-radius: 2px;          cursor: pointer;          z-index: 1002;          &amp;&gt;ul {              text-align: left;              padding: 5px 10px;              &amp;&gt;li {                  padding: 3px 4px;                  font-size: 12px;                  list-style: none;                  height: 24px;                  line-height: 24px;                  &amp;:hover {                      background: #EDF6FF;                  }              }              .disabled {                  color: #888585;                  pointer-events: none;              }          }      }  &lt;/style&gt;</pre> </div> <p><strong>三、在组件中使用</strong></p> <div class="ay1code"> <pre class="brush:js;">import { mapState } from 'vuex';  // ...    computed: {      ...mapState(['contextMenu'])  },  created(){      bus.$on('operateDirectory', (param) =&gt; {      // 点击右键菜单时，应触发组件内的同名方法，首先应判断该方法是否在本组件内存在，存在则调用          if(this[param]){              this[param]();          }      });  },  // ...    methods: {      showContextMenu(event, data) {          event.preventDefault();        // 阻止浏览器的默认事件          const menuContent = {              menuContent: [              {                  icon: "el-icon-upload2",                  name: "运行",                  method: "run",              },              {                  icon: "el-icon-refresh",                  name: "编辑",                  method: "editConfig",              },              {                  icon: "el-icon-refresh",                  name: "添加",                  method: "addCommond",              },              {                  icon: "el-icon-refresh",                  name: "删除",                  method: "deleteConfig",              },              ],              clientX: event.clientX,              clientY: event.clientY,              displayContextMenu: true,          };          this.$store.commit("SET_CONTEXT_MENU", menuContent);          // 再次点击页面，右键菜单消失          document.onclick = (event) =&gt; {              this.$store.commit("SET_CONTEXT_MENU", {                  displayContextMenu: false,              });          };      },      run(){          // ...      },      editConfig(){          // ...      },      addCommond(){          // ...      },      deleteConfig(){          // ...      }  }</pre> </div> <p><strong>总结</strong></p> <p>这种可以实现全局右键菜单，并且支持自定义右键内容，但是vue3.0对event bus的取消会导致不可用。</p> <p>目前有一种优化方法：项目中对应会使用组件库，例如element ui，在定义contextMenu.vue的时候，使用dialog，将内容定义在Popover 弹出框中，当组件使用右键菜单时，使用子组件的方式使用ContextMenu.vue，点击右键菜单内容时就不需要使用emit触发了。</p> 			                </div>
+                      				  				  				<p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能满足业务咱们就怎么方便怎么来吧。</p> <h1 id="基本使用">基本使用</h1> <p>我们业务中会经常遇到订单状态的枚举，它罗列出了所有订单状态的可能值，下面是我刚刚编的一个订单状态枚举</p> <pre><code class="language-c#">public&nbsp;enum&nbsp;OrderStatus { &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;未支付 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;WaitPay&nbsp;=&nbsp;0,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;已支付 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Payed&nbsp;=&nbsp;1,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;已退款 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Refund&nbsp;=&nbsp;2,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;已关闭 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Closed&nbsp;=&nbsp;3, }</code></pre> <p>我们都知道C# 枚举成员的类型默认是 int 类型，通过继承可以声明枚举成员为其它类型，例如</p> <pre><code class="language-c#">public&nbsp;enum&nbsp;OrderStatus: byte { &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;未支付 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;WaitPay&nbsp;=&nbsp;0,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;已支付 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Payed&nbsp;=&nbsp;1,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;已退款 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Refund&nbsp;=&nbsp;2,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;已关闭 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Closed&nbsp;=&nbsp;3, }</code></pre> <p>还真是“听君一席话,如听一席话”,别，干货这就来。</p> <h1 id="搭配description使用">搭配Description使用</h1> <p>我相信大部分人都知道这么玩</p> <pre><code class="language-c#">public&nbsp;enum&nbsp;OrderStatus { &nbsp;&nbsp;&nbsp;&nbsp;[Description("未支付")] &nbsp;&nbsp;&nbsp;&nbsp;WaitPay&nbsp;=&nbsp;0,   &nbsp;&nbsp;&nbsp;&nbsp;[Description("已支付")]&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;Payed&nbsp;=&nbsp;1,   &nbsp;&nbsp;&nbsp;&nbsp;[Description("已退款")]&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;Refund&nbsp;=&nbsp;2,   &nbsp;&nbsp;&nbsp;&nbsp;[Description("已关闭")] &nbsp;&nbsp;&nbsp;&nbsp;Closed&nbsp;=&nbsp;3, }</code></pre> <p>写一个扩展方法，用于获取<code>Description</code>的描述信息。</p> <pre><code class="language-c#">public&nbsp;static&nbsp;class&nbsp;EnumExtensions { &nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;string&nbsp;GetDescription(this&nbsp;Enum&nbsp;obj) &nbsp;&nbsp;&nbsp;&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object[]?&nbsp;array&nbsp;=&nbsp;obj.GetType().GetField(obj.ToString())?.GetCustomAttributes(typeof(DescriptionAttribute),&nbsp;inherit:&nbsp;true); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(array&nbsp;!=&nbsp;null) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;attr&nbsp;=&nbsp;array.FirstOrDefault(x&nbsp;=&gt;&nbsp;x&nbsp;is&nbsp;DescriptionAttribute); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(attr&nbsp;!=&nbsp;null) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;((DescriptionAttribute)attr).Description; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;string.Empty; &nbsp;&nbsp;&nbsp;&nbsp;} }</code></pre> <p>然后我们就可以很方便的获取枚举的描述信息了，这个好像有点用。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/fdfcef1a701b3763c3d5e5f75bb65110.jpg" alt="你确定你会用Enum枚举了？"></p> <h1 id="搭配flag属性使用">搭配Flag属性使用</h1> <p>在我们对枚举进行或运算时，如下</p> <pre><code class="language-c#">internal&nbsp;enum&nbsp;Jod { &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;老师 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Teacher&nbsp;=&nbsp;1,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;运动员 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Athletes&nbsp;=&nbsp;2 }</code></pre> <p>某人既是老师，又是国家运动员，我们对枚举进行或运算后由于结果是3.<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/e3826d9d07a2bae9af09bf4ae22aa460.jpg" alt="你确定你会用Enum枚举了？"></p> <p>这是因为<code>Jod</code>中不存在这样的一个值为3的枚举，所以会输出3；这一般情况下并不是我们想要的，此时我们只需要对这个枚举加上一个属性<code>[Flags]</code>。</p> <pre><code>[Flags] internal&nbsp;enum&nbsp;Jod { &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;老师 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Teacher&nbsp;=&nbsp;1,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;运动员 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Athletes&nbsp;=&nbsp;2 }</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/2c02673e9b3c47499925904872f01dfa.jpg" alt="你确定你会用Enum枚举了？"></p> <p>讲道理，这个有用，但我很少用~</p> <h1 id="位运算">位运算</h1> <p>上文中一共提到了两个枚举类型<code>OrderStatus</code>和<code>Jod</code>，他们正好分别对应互斥型和非互斥型，订单的状态某一时刻只能有一种，而工作可以同时有多个（举例可能不恰当，知道意思即可）。</p> <p>枚举类型的值不是所有的情况下都是加单的对新增的成员加1，比如<code>Jod</code>枚举随着业务增加，又新增了歌手和舞者</p> <pre><code class="language-c#">[Flags] internal&nbsp;enum&nbsp;Jod { &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;老师 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Teacher&nbsp;=&nbsp;1,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;运动员 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Athletes&nbsp;=&nbsp;2,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;歌手 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Singer&nbsp;=&nbsp;3,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;舞者 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Dancer&nbsp;=&nbsp;4 }</code></pre> <p>如果你觉得上面的枚举没问题，那问题就严重了，由于对于非互斥关系的枚举，我们可以很方便的进行<code>或运算</code>来表示同时兼多种枚举值的情况。可以通过<code>与运算</code>检查一个枚举值是否包含某个值，可以通过<code>异或</code>，<code>同或</code>操作进行更为有趣的操作，为了能够进行优雅的<code>位运算</code>，枚举值的分配则不能按照上面的12345累加1进行，而是要按照下例：</p> <pre><code class="language-c#">[Flags] internal&nbsp;enum&nbsp;Jod { &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;老师 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Teacher&nbsp;=&nbsp;1,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;运动员 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Athletes&nbsp;=&nbsp;2,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;歌手 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Singer&nbsp;=&nbsp;4,   &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;舞者 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;Dancer&nbsp;=&nbsp;8,   &nbsp;&nbsp;&nbsp;&nbsp;Jobx&nbsp;=&nbsp;0x10,   &nbsp;&nbsp;&nbsp;&nbsp;JobY&nbsp;=&nbsp;0x20,   &nbsp;&nbsp;&nbsp;&nbsp;JobZ&nbsp;=&nbsp;0x40,     ... }</code></pre> <p>我们知道<code>int</code>转成二进制是由0和1，一共32位组成的，位运算正是二进制运算的方法，上面的枚举继承自int，如果将32位二进制数的每一位表示一种职业，那么一共可以表示32个职业。对应关系如下</p> <table> <thead> <tr> <th>枚举值</th> <th>十进制</th> <th>16进制</th> <th>二进制</th> </tr> </thead> <tbody> <tr> <td>Teacher</td> <td>1</td> <td>0x1</td> <td>0000 0000 0000 0000 0000 0000 0000 0001</td> </tr> <tr> <td>Athletes</td> <td>2</td> <td>0x2</td> <td>0000 0000 0000 0000 0000 0000 0000 0010</td> </tr> <tr> <td>Singer</td> <td>4</td> <td>0x4</td> <td>0000 0000 0000 0000 0000 0000 0000 0100</td> </tr> <tr> <td>Dancer</td> <td>8</td> <td>0x8</td> <td>0000 0000 0000 0000 0000 0000 0000 1000</td> </tr> <tr> <td>JobX</td> <td>16</td> <td>0x10</td> <td>0000 0000 0000 0000 0000 0000 0001 0000</td> </tr> <tr> <td>JobY</td> <td>32</td> <td>0x20</td> <td>0000 0000 0000 0000 0000 0000 0010 0000</td> </tr> <tr> <td>...</td> <td>...</td> <td>...</td> <td>...</td> </tr> </tbody> </table> <p><em><strong>常用操作</strong></em></p> <pre><code class="language-c#">//&nbsp;1.基本的或运算，表示同时有多种枚举值的情况 var&nbsp;jobs&nbsp;=&nbsp;Jod.Teacher&nbsp;|&nbsp;Jod.Athletes;   //&nbsp;2.判断某个人的职业中是否有Athletes if&nbsp;((jobs&nbsp;&amp;&nbsp;Jod.Athletes)&nbsp;==&nbsp;Jod.Athletes) { &nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;是运动员 }</code></pre> <p>我们可以将enum的数值存到数据库，写sql时也可以使用位运算的，从数据库中查到的数据转成Model后在业务代码中就可以优雅的使用位运算进行判断了。</p> <h1 id="数据库设计中的妙用">数据库设计中的妙用</h1> <p>最初知道<code>Flags</code>这个属性的时候就在想，他为什么叫<code>Flags</code>?直到我遇到下面这样的业务场景（瞎编的，非公司实际业务场景，但可以说明问题）。</p> <h2 id="一般场景">一般场景</h2> <p>例如我们电商平台管理的商户，最开始我们会有个商户表<code>merch</code>,字段如下</p> <table> <thead> <tr> <th>字段</th> <th>描述</th> <th>类型</th> </tr> </thead> <tbody> <tr> <td>merch_id</td> <td>商户id</td> <td>long</td> </tr> <tr> <td>merch_name</td> <td>商户名</td> <td>string</td> </tr> <tr> <td>certified</td> <td>已认证?</td> <td>int(0或1)</td> </tr> </tbody> </table> <p>过了几个月，随着产品完善，该表又增加了两个字段</p> <table> <thead> <tr> <th>字段</th> <th>描述</th> <th>类型</th> </tr> </thead> <tbody> <tr> <td>is_vip_merch</td> <td>vip商户?</td> <td>int(0或1)</td> </tr> <tr> <td>is_defect_free</td> <td>商品上架免检</td> <td>int(0或1)</td> </tr> </tbody> </table> <p>又过了几个月，又增加了几个字段</p> <table> <thead> <tr> <th>字段</th> <th>描述</th> <th>类型</th> </tr> </thead> <tbody> <tr> <td>is_frozen</td> <td>是否冻结</td> <td>int(0或1)</td> </tr> <tr> <td>is_mvp</td> <td>是否金牌商户</td> <td>int(0或1)</td> </tr> </tbody> </table> <h2 id="优化">优化</h2> <p>每次新的需要来了，就需要增加字段，最后这张表，光这种标识字段就好快10来个了，这样维护起来太难受了吧。如果我说可以将这10来个标识字段用一个字段搞定，你会不会惊讶！这里是跟新手说的，大佬们自然知道我下面要怎么干了。</p> <p>我将上面的表字段进行了优化，由7个字段，缩减到3个字段。</p> <table> <thead> <tr> <th>字段</th> <th>描述</th> <th>类型</th> </tr> </thead> <tbody> <tr> <td>merch_id</td> <td>商户id</td> <td>long</td> </tr> <tr> <td>merch_name</td> <td>商户名</td> <td>string</td> </tr> <tr> <td>merch_flags</td> <td>各种商户标识</td> <td>int</td> </tr> </tbody> </table> <p>并给这个<code>merch_flags</code>定义了一个枚举</p> <pre><code class="language-c#">[Flags] public&nbsp;enum&nbsp;MerchFlags { &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;已认证?	 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;certified&nbsp;=&nbsp;1, &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;vip商户? &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;is_vip_merc&nbsp;=&nbsp;2, &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;商品上架免检 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;is_defect_free&nbsp;=&nbsp;4, &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;是否冻结 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;s_frozen&nbsp;=&nbsp;8, &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;是否金牌商户 &nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt; &nbsp;&nbsp;&nbsp;&nbsp;is_mvp&nbsp;=&nbsp;0x10,          // ...继续新增各种标志位 }</code></pre> <p>到这里应该明白这是要干嘛了吧，以后再来新的业务需要加标志字段，直接在枚举<code>MerchFlags</code>加一个就行了，数据库不需要加字段了。int类型的枚举可以给你32个标志可以用，long可以存64个，一般场景是够用了。</p> <h2 id="思考一个问题">思考一个问题</h2> <p>你知道<code>Flags</code>属性为什么叫<code>Flags</code>了吗？</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></p>
-                                        <p>下一个：<a href="/html/category/article-259.htm">python的collections.Counter方法</a></p>
+                                        <p>上一个：<a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></p>
+                                        <p>下一个：<a href="/html/category/article-259.htm">游戏开发设计模式：单例模式</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
-                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
-                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
+                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
+                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
-                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
-                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
-                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
+                <h4><a href="/html/category/article-237.htm">Java空指针异常和解决办法</a></h4>
+                <p>目录  问题描述：   尝试1： 尝试2：   使用Optional防止出现空指针异常 引用    问题描述： public class Main20220419 {     public stati</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-235.htm">lombok和JPA的死递归</a></h4>
+                <p>这是一个Bug JPA我觉得是一个封装的很棒的框架，至于说很臃肿这个事，我觉得在需求需要很多复杂查询的时候，不适合用JPA。因为它的封装太棒了，以致于增强了表和实体类之间的耦合。不过在一些简单查询的部</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-233.htm">echarts根据数据动态生成不同条数的折线图</a></h4>
+                <p>一、功能需求背景 1、后台可自定义折线图的折线名称、数据、数量（几条） 2、满足不同折线图之间随意切换 3、折线图可鼠标拖动缩放和滚动条收缩查看 4、同一页面涉及多个echarts 二、功能涉及ech</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
-                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
+                <h4><a href="/html/category/article-261.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
-                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

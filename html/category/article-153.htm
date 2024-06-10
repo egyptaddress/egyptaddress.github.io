@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-153.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>kerberos kafka 问题解决 - EgyptAddress</title>
+    <title>零宽断言正则表达式替换方案 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">kerberos kafka 问题解决</h1>
+                <h1 class="title" style="word-break: break-all;">零宽断言正则表达式替换方案</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>修改 kafka界面 security.inter.broker.protocol SASL_PLAINTEXT<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221228/708512055aec312fe0d4357fb302ff31.jpg" alt="kerberos kafka 问题解决"></p> <p><strong>登录添加用户生成keytab</strong></p> <pre><code>kadmin.local add_principal flink/master@AQ.COM add_principal flink/worker-1@AQ.COM add_principal flink/worker-2@AQ.COM 生成文件 xst -k /usr/local/keytab/flink/flink-master.keytab flink/master@AQ.COM xst -k /usr/local/keytab/flink/flink-worker-1.keytab flink/worker-1@AQ.COM xst -k /usr/local/keytab/flink/flink-worker-2.keytab flink/worker-2@AQ.COM 或者 kadmin.local -q "xst -k /usr/local/keytab/flink/flink-master.keytab flink/master@AQ.COM" </code></pre> <p><strong>keytab合并</strong></p> <pre><code>ktutil rkt /usr/local/keytab/flink/flink-master.keytab rkt /usr/local/keytab/flink/flink-worker-1.keytab rkt /usr/local/keytab/flink/flink-worker-2.keytab wkt /usr/local/keytab/flink/flink.keytab </code></pre> <p><strong>查看keytab</strong></p> <pre><code>klist -ket user.keytab  </code></pre> <p><strong>kinit登录与kadmin.local不能同时存在</strong></p> <pre><code>kinit -kt /usr/local/keytab/flink/flink-master.keytab flink/master@AQ.COM </code></pre> <p><strong>删除认证缓存</strong></p> <pre><code>kdestroy </code></pre> <p><strong>kafka生产消费</strong></p> <pre><code>1.客户端操作kafka生产消费需要jaas.conf以及各自的生产消费的配置文件 2.代码需要设置两个变量 </code></pre> <p><strong>jaas.conf</strong></p> <pre><code>KafkaClient{  com.sun.security.auth.module.Krb5LoginModule required  keyTab="/usr/local/keytab/flink/flink.keytab"  principal="flink/master@AQ.COM"  useKeyTab=true  useTicketCache=true; }; Client{  com.sun.security.auth.module.Krb5LoginModule required  keyTab="/usr/local/keytab/flink/flink.keytab"  principal="flink/master@AQ.COM"  useKeyTab=true  useTicketCache=true; }; KafkaServer{  com.sun.security.auth.module.Krb5LoginModule required  keyTab="/usr/local/keytab/flink/flink.keytab"  principal="flink/master@AQ.COM"  useKeyTab=true  useTicketCache=true; }; </code></pre> <p><strong>producer.properties</strong></p> <pre><code>security.protocol=SASL_PLAINTEXT sasl.mechanism=GSSAPI sasl.kerberos.service.name=kafka </code></pre> <p><strong>consumer.properties</strong></p> <pre><code>security.protocol=SASL_PLAINTEXT sasl.mechanism=GSSAPI sasl.kerberos.service.name=kafka group.id=testClient </code></pre> <p><strong>客户端消费命令</strong></p> <pre><code>export KAFKA_OPTS="-Djava.security.auth.login.config=/usr/local/keytab/kafka/jaas.conf" kafka-console-consumer --bootstrap-server master:9092 --topic tes  --consumer.config /usr/local/keytab/kafka/consumer.properties kafka-console-producer --broker-list master:9092 --topic tes --producer.config /usr/local/keytab/kafka/producer.properties  </code></pre> <p><strong>springboot-kafka配置问题</strong><br /> yml配置</p> <pre><code>  kafka:     bootstrap-servers: master:9092,worker-2:9092     producer:       #procedure要求leader在考虑完成请求之前收到的确认数，用于控制发送记录在服务端的持久化，其值可以为如下：       #acks = 0 如果设置为零，则生产者将不会等待来自服务器的任何确认，该记录将立即添加到套接字缓冲区并视为已发送。在这种情况下，无法保证服务器已收到记录，并且重试配置将不会生效（因为客户端通常不会知道任何故障），为每条记录返回的偏移量始终设置为-1。       #acks = 1 这意味着leader会将记录写入其本地日志，但无需等待所有副本服务器的完全确认即可做出回应，在这种情况下，如果leader在确认记录后立即失败，但在将数据复制到所有的副本服务器之前，则记录将会丢失。       #acks = all 这意味着leader将等待完整的同步副本集以确认记录，这保证了只要至少一个同步副本服务器仍然存活，记录就不会丢失，这是最强有力的保证，这相当于acks = -1的设置。       #可以设置的值为：all, -1, 0, 1       acks: 1       key-serializer: org.apache.kafka.common.serialization.StringSerializer       value-serializer: org.apache.kafka.common.serialization.StringSerializer       #=============== provider  =======================       # 写入失败时，重试次数。当leader节点失效，一个repli节点会替代成为leader节点，此时可能出现写入失败，       # 当retris为0时，produce不会重复。retirs重发，此时repli节点完全成为leader节点，不会产生消息丢失。       retries: 0     consumer:       group-id: mysqltestUserBehaviorGroup       enable-auto-commit: true       auto-offset-reset: latest       key-serializer: org.apache.kafka.common.serialization.StringSerializer       value-serializer: org.apache.kafka.common.serialization.StringSerializer     jaas:       enabled: true     properties:       security.protocol: SASL_PLAINTEXT       sasl.kerberos.service.name: kafka  </code></pre> <p>java flink 消费时候getKerberosJaas就好</p> <pre><code> import org.springframework.boot.SpringApplication; import org.springframework.boot.autoconfigure.SpringBootApplication;  @SpringBootApplication(scanBasePackages = "org.fuwushe") public class KafkaApplication {     public static void main(String []args){         getKerberosJaas();         SpringApplication.run(KafkaApplication.class,args);     }      public static void getKerberosJaas(){         System.setProperty("java.security.krb5.conf", "/etc/krb5.conf");         //加载本地jass.conf文件         System.setProperty("java.security.auth.login.config", "/usr/local/keytab/kafka/jaas.conf");          //System.setProperty("javax.security.auth.useSubjectCredsOnly", "false");         //System.setProperty("sun.security.krb5.debug","true");         //System.setProperty("java.security.auth.login.config", "/load/data/flink.keytab");      }  }   import org.apache.kafka.clients.consumer.ConsumerConfig; import org.apache.kafka.common.serialization.StringDeserializer; import org.fuwushe.da.kafka.ConsumerListener; import org.springframework.beans.factory.annotation.Value; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import org.springframework.kafka.annotation.EnableKafka; import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory; import org.springframework.kafka.config.KafkaListenerContainerFactory; import org.springframework.kafka.core.ConsumerFactory; import org.springframework.kafka.core.DefaultKafkaConsumerFactory; import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;  import java.net.InetAddress; import java.net.UnknownHostException; import java.util.HashMap; import java.util.Map;   @Configuration @EnableKafka public class KafkaConsumerConfig {      @Value("${spring.kafka.bootstrap-servers}")     private String servers;      @Value("${spring.kafka.consumer.enable-auto-commit}")     private boolean enableAutoCommit;       @Value("${spring.kafka.consumer.group-id}")     private String groupId;      @Value("${spring.kafka.consumer.auto-offset-reset}")     private String autoOffsetReset;      @Bean     public KafkaListenerContainerFactory&lt;ConcurrentMessageListenerContainer&lt;String, String&gt;&gt; kafkaListenerContainerFactory() {          ConcurrentKafkaListenerContainerFactory&lt;String, String&gt; factory = new ConcurrentKafkaListenerContainerFactory&lt;&gt;();         factory.setConsumerFactory(consumerFactory());         factory.getContainerProperties().setPollTimeout(1500);         return factory;     }      public ConsumerFactory&lt;String, String&gt; consumerFactory() {          return new DefaultKafkaConsumerFactory&lt;&gt;(consumerConfigs());     }       public Map&lt;String, Object&gt; consumerConfigs() {          Map&lt;String, Object&gt; propsMap = new HashMap&lt;&gt;();         try {             String addr = InetAddress.getLocalHost().getHostAddress().replaceAll("\\.", "");//获得本机IP             propsMap.put(ConsumerConfig.GROUP_ID_CONFIG, groupId + addr);         } catch (UnknownHostException e) {             e.printStackTrace();         }  //        propsMap.put("security.protocol", "SASL_PLAINTEXT"); //        propsMap.put("sasl.kerberos.service.name", "kafka"); //        propsMap.put("java.security.auth.login.config","/load/data/jaas.conf"); //        propsMap.put("java.security.krb5.conf","/load/data/krb5.conf");         propsMap.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);         propsMap.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);         propsMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);         propsMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);          propsMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);         return propsMap;     }      /**      * kafka监听      * @return      */     @Bean     public ConsumerListener listener() {          return new ConsumerListener();     }  } </code></pre> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p id="uc09bd2f0">一、背景</p> <p id="ue990aa9c">safari浏览器不支持零宽断言正则表达式</p> <p id="u30c00588"> <p id="ud0386db5">二、解决方案</p> <p id="u966e51e4">使用其他正则替换零宽断言正则（包含：(?&lt;=)正向肯定预查、(?&lt;!)正向否定预查、(?=)反向肯定预查、(?!)反向否定预查）</p> <p id="ua8ebbc61"> <p id="ua0de25fc">三、涉及场景</p> <p id="uf4a6bdcf">1、仅校验，不取值</p> <p id="uaa89c6f3">如表单正则校验，如editor\src\editor\Editor\constant\todoPropsList.js:2093,此类场景可能需要重新编写（改动可能较大）正则, 无需经过zeroWidthRegPolyfill方法</p> <p><img fetchpriority="high" decoding="async" alt="" height="368" src="http://img.555519.xyz/uploads/20230207/7d5e3ffc81b070362412b326e8ad871b.jpg"></p> <p>&nbsp;</p> <p id="u3e9655b8">2、校验，并取值</p> <p id="u6eb293e6">2.1、正则表达式不含g</p> <p id="u22ba741e">如packages\editor\src\CompEvent\hooks\useFunctionValue.tsx:17,需注意改写表达式后，后续取值可能会跟随分组而变化，无需经过zeroWidthRegPolyfill方法</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230207/f7049a442fe28b526dfb1c1e4e7e21d4.jpg"></p> <p id="u4a78da79">2.2、正则表达式含g</p> <p id="u71565f08">如editor\src\editor\Editor\components\pageDetail\CodeMirrorModal\CodeMirrorModal.jsx:87,将正则/(?&lt;=actionMap(\['|\[|\.))[^.[\s"']+?(?==|\s|'|])/g，改为/actionMap(\['|\[|\.)([^.[\s"']+?)(=|\s|'|])+?/g ，使用zeroWidthRegPolyfill方法处理</p> <p id="u3c435831"><img decoding="async" src="http://img.555519.xyz/uploads/20230207/134668f71d976eaa63e74874cdde1e38.jpg" alt="零宽断言正则表达式替换方案"></p> <p id="u543fa631"> <p id="u8158be77">四、方法使用说明</p> <p id="ud68efe56">涉及方法(主要处理正则含g的正则表达式)：</p> <p id="udc6a2441">packages\editor\src\utils\common.ts -&gt; zeroWidthRegPolyfill(str, reg, n=1)</p> <pre><code class="language-javascript">const zeroWidthRegPolyfill = (str, reg, n = 1) =&gt; {   let result = null;   const originRegStr = reg.toString();   const regStr = originRegStr.replace(/^\/(.*)+?(\/|\/g)$/, '$1');   const regWithoutG = new RegExp(regStr);   if (originRegStr.endsWith('g')) {     const arr = str.match(reg);     if (!arr) {       return result;     }     result = [];     arr.forEach((it) =&gt; {       result.push(it?.match(regWithoutG)?.[n]);     });   } else {     result = str.match(regWithoutG);   }   return result; };</code></pre> <p id="u8b3f0767">1、reg含g，入参为校验字符串str、不含零宽的正则reg，以及需要真正匹配获取的字符所在的分组（必须对需要获取的字符分组）的序号n。str.match(reg)返回含目标字符的字符串数组，需要通过it?.match(regWithoutG)?.[n]二次处理，返回仅含目标字符的字符串数组</p> <p>1.1、至于为啥要二次处理，这里需要知道match的使用及返回值，以下做简要对比：</p> <p><img decoding="async" alt="" height="452" src="http://img.555519.xyz/uploads/20230207/87745f4f66412ea96027c3bf0a522f65.jpg"></p> <p>&nbsp;1.2、当然，使用matchAll能够一次性获取所有的匹配，并且返回带有分组信息的数组，但ie浏览器不支持</p> <p><img decoding="async" alt="" height="641" src="http://img.555519.xyz/uploads/20230207/d35f6dc9483ab25e8f16eae2e47ee189.jpg"></p> <p>&nbsp;</p> <p id="u3040e720">2、如传入不含g的表达式，则效果等同str.match(reg)。</p> <p>3、使用该方法与零宽断言的区别</p> <p>先看案例：</p> <p><img loading="lazy" decoding="async" alt="" height="125" src="http://img.555519.xyz/uploads/20230207/814d6d658966026110d953f894134df9.jpg"></p> <p>&nbsp;<img loading="lazy" decoding="async" alt="" height="87" src="http://img.555519.xyz/uploads/20230207/edee0f35419cbcee6a5a7e11dcff7fa7.jpg"></p> <p>&nbsp;可以发现，零宽实现匹配了3个结果，非零宽匹配了2个结果，这是因为“零宽正则”匹配完了之后，会从匹配到的字符开始继续匹配，<span style="color:#fe2c24;">预查</span>不消耗字符</p> <p>一般场景，其实是需要消耗字符的。但是，如果需要完全与零宽正则相匹配，则需要使用升级版方法。</p> <pre><code class="language-javascript">const zeroWidthRegPolyfillPlus = (str, reg, n = 1) =&gt; {   let result = null;   const originRegStr = reg.toString();   const regStr = originRegStr.replace(/^\/(.*)+?(\/|\/g)$/, '$1');   const regWithoutG = new RegExp(regStr);   let hasMatch = true;   // 实现零宽预查补偿消耗字符，循环匹配   // const loopReg = (_str, res) =&gt; {   //   hasMatch = false;   //   const nextStr = _str.replace(regWithoutG, function () {   //     hasMatch = true;   //     res.push(arguments[n]);   //     return arguments[n + 1];   //   });   //   if (hasMatch) {   //     loopReg(nextStr, res);   //   }   // };   if (originRegStr.endsWith('g')) {     result = [];     // 实现补偿方法一：     // loopReg(str, result);     // 实现补偿方法二：     let nextStr = str;     while (hasMatch) {       hasMatch = false;       nextStr = nextStr.replace(regWithoutG, function () {         hasMatch = true;         result.push(arguments[n]);         return arguments[n + 1];       });     }   } else {     result = str.match(regWithoutG);   }   return result; };  // 目标：查找$$之间包裹的所有字符串 const str = '$abc$d$ef$'; // 1、零宽实现 const regZero = /(?&lt;=\$).*?(?=\$)/g; let result = str.match(regZero); console.log('result1:', result); // 返回 result = ['abc', 'd', 'ef'] // 此处需要将正向肯定预查进行分组，以便方法中能够将预查的字符消耗重新补上 const reg = /\$(.*?)(\$)/g;  result = zeroWidthRegPolyfillPlus(str, reg); console.log('result2:', result); // 返回 result = ['abc', 'd', 'ef']</code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-152.htm">Git下载安装及设置详细教程</a></p>
-                                        <p>下一个：<a href="/html/category/article-154.htm">spring-cloud之Feign服务调用降级</a></p>
+                                        <p>上一个：<a href="/html/category/article-152.htm">什么叫做阻塞队列的有界和无界</a></p>
+                                        <p>下一个：<a href="/html/category/article-154.htm">Java的引用和内存</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
-                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-218.htm">【SpringMVC笔记02】SpringMVC接收请求参数的几种方式</a></h4>
+                <p>这篇文章，主要介绍SpringMVC框架中接收请求参数的几种方式。  目录 一、SpringMVC接收请求参数 1.1、通过方法参数接收 1.2、通过HttpServletRequest接收参数 1.</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
-                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
+                <h4><a href="/html/category/article-213.htm">C/C++内存申请函数总结</a></h4>
+                <p>#include &lt;stdlib.h&gt; new char[size] void* malloc(unsigned size); void* realloc(void* ptr, unsig</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
-                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
+                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
+                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
-                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
+                <h4><a href="/html/category/article-230.htm">Vuex的各个模块封装</a></h4>
+                <p>一、各个模块的作用：   state 用来数据共享数据存储  mutation 用来注册改变数据状态（同步）  getters 用来对共享数据进行过滤并计数操作  action 解决异步改变共享数据（</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
-                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
+                <h4><a href="/html/category/article-212.htm">定时器中 this 指向修改实现方法和原理讲解</a></h4>
+                <p>定时器中 this 指向修改实现方法和原理讲解      1. 变量替换 2. 箭头函数 3. bind() 方法       定时器属于全局 window ，window.setTimeout();</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

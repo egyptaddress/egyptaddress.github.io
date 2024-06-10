@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-191.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>MySQL CONCAT_WS()函数的用途是什么？ - EgyptAddress</title>
+    <title>实现单例模式的八种方法 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">MySQL CONCAT_WS()函数的用途是什么？</h1>
+                <h1 class="title" style="word-break: break-all;">实现单例模式的八种方法</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>基本上，MySQL CONCAT_WS()函数用于连接两个或多个字符串以及分隔符。此处，CONCAT_WS()中的关键字WS表示WITH SEPARATOR。我们可以将CONCAT_WS()函数发音为带分隔符的串联函数。</p> <h2>语法</h2> <pre>CONCAT_WS(Separator,&nbsp;String1,String2,…,StringN)</pre> <p>在这里，CONCAT_WS函数的参数是Separator和需要与该分隔符一起作为单个字符串连接的字符串。除数值外，分隔符必须用引号引起来。</p> <h2>示例</h2> <pre>mysql&gt;&nbsp;SELECT&nbsp;CONCAT_WS('&nbsp;','New',&nbsp;'Delhi');  +-------------------------------+ |&nbsp;CONCAT_WS('&nbsp;','New',&nbsp;'Delhi')&nbsp;| +-------------------------------+ |&nbsp;New&nbsp;Delhi&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| +-------------------------------+  1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre> <p>在上面的示例中，我们可以看到字符串“”（即空格）用作分隔符，并插入到需要连接的两个字符串（“新”和“德里”）之间。</p> <pre>mysql&gt;&nbsp;SELECT&nbsp;CONCAT_WS('&nbsp;is&nbsp;our&nbsp;','Delhi','Capital');  +-----------------------------------------+ |&nbsp;CONCAT_WS('&nbsp;is&nbsp;our&nbsp;','Delhi','Capital')&nbsp;| +-----------------------------------------+ |&nbsp;Delhi&nbsp;is&nbsp;our&nbsp;Capital&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| +-----------------------------------------+  1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre> <p>在上面的示例中，我们可以看到字符串'是我们的'用作分隔符，并插入到两个字符串之间，德里字符串和大写字母需要串联。</p> <div></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-kimbie-light"> <p>一.单例模式的定义：</p> <p>单例模式确保某个类只有一个实例，而且自行实例化并向整个系统提供这个实例。</p> <p>二.单例模式的特点<br /> 　1、单例类只能有一个实例。　<br /> 　2、单例类必须自己创建自己的唯一实例。<br /> 　3、单例类必须给所有其他对象提供这一实例。<br /> 　<br /> 三.线程安全问题：</p> <p>一方面在获取单例的时候，要保证不能产生多个实例对象，后面会详细讲到五种实现方式；</p> <p>另一方面，在使用单例对象的时候，要注意单例对象内的实例变量是会被多线程共享的，推荐使用无状态的对象，不会因为多个线程的交替调度而破坏自身状态导致线程安全问题，比如我们常用的VO，DTO等（局部变量是在用户栈中的，而且用户栈本身就是线程私有的内存区域，所以不存在线程安全问题）。</p> <p>四.实现单例模式的八种方式：</p> <p><strong>1.饿汉式（静态常量）【可用】</strong></p> <pre><code>public class Singleton{       private final static Singleton INSTANCE=new Singleton();      private Singlrton(){}      public static Singleton getInstance(){          return INSTANCE;      } } </code></pre> <p>优点：这种写法比较简单，就是在类装载的时候就完成实例化。避免了线程同步问题。</p> <p>缺点：在类装载的时候就完成实例化，没有达到Lazy Loading的效果。如果从始至终从未使用过这个实例，则会造成内存的浪费。</p> <p><strong>2.饿汉式（静态代码块）【可用】</strong></p> <pre><code>public class Singleton{                private static Singleton instance;        static{              instance=new Singleton();         }         private Singleton(){}         public static Singleton getInstance(){         } } </code></pre> <p>这种方式和上面的方式其实类似，只不过将类实例化的过程放在了静态代码块中，也是在类装载的时候，就执行静态代码块中的代码，初始化类的实例。优缺点和上面是一样的。</p> <p><strong>3.懒汉式（线程不安全）【不可用】</strong></p> <pre><code>public static Singleton{       private static Singletons singleton;      private Singleton(){      public static Singleton getInstance(){          if(singleton==null){              singleton=new Singleton();            }          return singleton;      } } </code></pre> <p>这种写法起到了LazyLoading的效果，但是只能在单线程下使用。如果在多线程下，一个线程进入了if (singleton ==null)判断语句块，还未来得及往下执行，另一个线程也通过了这个判断语句，这时便会产生多个实例。所以在多线程环境下不可使用这种方式。</p> <p><strong>4.懒汉式（线程安全，同步方法）【不推荐用】</strong></p> <pre><code>public class Singleton{      private static Singleton singleton;      private Singleton(){}      public static synchronized Singleton getInstance(){           if(singleton==null){              singleton=new Singleton();              }            return singleton;      } } </code></pre> <p>解决上面第三种实现方式的线程不安全问题，做个线程同步就可以了，于是就对getInstance()方法进行了线程同步。</p> <p>缺点：效率太低了，每个线程在想获得类的实例时候，执行getInstance()方法都要进行同步。而其实这个方法只执行一次实例化代码就够了，后面的想获得该类实例，直接return就行了。方法进行同步效率太低要改进。</p> <p><strong>5.懒汉式（线程安全，同步代码块）【不可用】</strong></p> <pre><code>public class Singleton{      private static Singleton singleton;      private Singleton(){}      public static  Singleton getInstance(){           if(singleton==null){               synchronized (Singleton.class){                   singleton=new Singleton();                 }            }            return singleton;      } } </code></pre> <p>由于第四种实现方式同步效率太低，所以摒弃同步方法，改为同步产生实例化的的代码块。但是这种同步并不能起到线程同步的作用。跟第3种实现方式遇到的情形一致，假如一个线程进入了if (singleton ==null)判断语句块，还未来得及往下执行，另一个线程也通过了这个判断语句，这时便会产生多个实例。</p> <p><strong>6.双重检查【推荐使用】</strong></p> <pre><code>public class Singleton{      private static volatile Singleton singleton;      private Singleton(){}      public static  Singleton getInstance(){           if(singleton==null){               synchronized (Singleton.class){                      if(singleton==null){                           singleton=new Singleton();                         }               }            }            return singleton;      } } </code></pre> <p>Double-Check概念对于多线程开发者来说不会陌生，如代码中所示，我们进行了两次if (singleton ==null)检查，这样就可以保证线程安全了。这样，实例化代码只用执行一次，后面再次访问时，判断if(singleton == null)，直接return实例化对象。</p> <p>优点：线程安全；延迟加载；效率较高。</p> <p><strong>7.静态内部类【推荐使用】</strong></p> <pre><code>public class Singleton{      private Singlrton(){}      private static class SingletonInstance{             private static  final Singleton INSTANCE=new Singleton();      }      public static Singleton getInstance(){          return SingletonInstance.INSTANCE;      } } </code></pre> <p>这种方式跟饿汉式方式采用的机制类似，但又有不同。两者都是采用了类装载的机制来保证初始化实例时只有一个线程。不同的地方在饿汉式方式是只要Singleton类被装载就会实例化，没有Lazy-Loading的作用，而静态内部类方式在Singleton类被装载时并不会立即实例化，而是在需要实例化时，调用getInstance方法，才会装载SingletonInstance类，从而完成Singleton的实例化。</p> <p>类的静态属性只会在第一次加载类的时候初始化，所以在这里，JVM帮助我们保证了线程的安全性，在类进行初始化时，别的线程是无法进入的。</p> <p>优点：避免了线程不安全，延迟加载，效率高。</p> <p><strong>8.枚举【推荐使用】</strong></p> <pre><code>public enum Singleton{        INSTANCE;        public void whateverMethod(){        } } </code></pre> <p>借助JDK1.5中添加的枚举来实现单例模式。不仅能避免多线程同步问题，而且还能防止反序列化重新创建新的对象。</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-190.htm">Semaphore简单使用</a></p>
-                                        <p>下一个：<a href="/html/category/article-192.htm">kubernetes灰度发布篇-从步行到坐缆车的自动化服务升级</a></p>
+                                        <p>上一个：<a href="/html/category/article-190.htm">MySQL中一条SQL查询语句是如何执行的_Mysql</a></p>
+                                        <p>下一个：<a href="/html/category/article-192.htm">Instant的使用</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
-                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-204.htm">JavaWeb项目基于SpringBoot框架实现统一的数据返回格式 + 统一异常处理 + 统一日志处理</a></h4>
+                <p>目录 ????前言 ????统一返回格式 &nbsp;添加枚举类 &nbsp;添加统一返回格式的类 &nbsp;测试 ????统一异常处理 &nbsp;添加统一异常处理器（创建一个handler包，在</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
-                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
-                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
-                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
+                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
+                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
-                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

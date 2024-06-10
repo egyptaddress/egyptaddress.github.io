@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-186.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Mybatis动态SQL原理解析 - EgyptAddress</title>
+    <title>从源码角度分析创建线程池究竟有哪些方式 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Mybatis动态SQL原理解析</h1>
+                <h1 class="title" style="word-break: break-all;">从源码角度分析创建线程池究竟有哪些方式</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h1>资料准备</h1> <h2>官网</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 首先翻阅官网文档，（<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mybatis.org/mybatis-3/dynamic-sql.html"  rel="nofollow">https://mybatis.org/mybatis-3/dynamic-sql.html</a>）这页文档首先描述了Mybatis的动态SQL是多么牛逼，解决了哪些问题，又讲了如何使用，而我们想知道他是如何实现的，所以这不是我们想要的。</p> <blockquote> <h2>Dynamic SQL</h2> <p>One of the most powerful features of MyBatis has always been its Dynamic SQL capabilities. If you have any experience with JDBC or any similar framework, you understand how painful it is to conditionally concatenate strings of SQL together, making sure not to forget spaces or to omit a comma at the end of a list of columns. Dynamic SQL can be downright painful to deal with.</p> <p>While working with Dynamic SQL will never be a party, MyBatis certainly improves the situation with a powerful Dynamic SQL language that can be used within any mapped SQL statement.</p> </blockquote> <h2>源码&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</h2> <p>现在，我们去找mybatis源码（<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/mybatis/mybatis-3/releases/tag/mybatis-3.5.4"  rel="nofollow">https://github.com/mybatis/mybatis-3/releases/tag/mybatis-3.5.4</a>）</p> <h1>源码解析</h1> <h2>1.从哪创建的SqlSource</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 首先，在Mybatis中，首先从可以看到<strong>LanguageDriver</strong>接口中的createSqlSource方法，该类其中有2个方法，和2个实现类<strong>XMLLanguageDriver</strong>和<strong>RawLanguageDriver</strong>，他们的关系如下：</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<img fetchpriority="high" decoding="async" alt="" height="243" src="http://img.555519.xyz/uploads/20230129/afb2c56da092e6c81bff14312523b908.jpg"></p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 接下来我们可以看到该接口的其中2个方法：</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 1.<strong>通过解析XML文件为XNode数据</strong></p> <pre><code class="language-java">/**  * Creates an {@link SqlSource} that will hold the statement read from a mapper xml file.   * It is called during startup, when the mapped statement is read from a class or an xml file.  *   * @param configuration The MyBatis configuration  * @param script XNode parsed from a XML file  * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.  * @return  */ SqlSource createSqlSource(Configuration configuration, XNode script, Class&lt;?&gt; parameterType);</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; <strong>2.通过解析注解内容</strong></p> <pre><code class="language-java">/**  * Creates an {@link SqlSource} that will hold the statement read from an annotation.  * It is called during startup, when the mapped statement is read from a class or an xml file.  *   * @param configuration The MyBatis configuration  * @param script The content of the annotation  * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.  * @return   */ SqlSource createSqlSource(Configuration configuration, String script, Class&lt;?&gt; parameterType);</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 这两种方式都是为了获得<strong>SqlSource</strong>对象，第一个方法就是我们常规的通过XML配置SQL语句的方式创建，而第二种是在数据访问层通过对方法加对应注解（eg：@Select）的方式创建。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 而<strong>XMLLanguageDriver</strong>类实现了这两个方法</p> <pre><code class="language-java">@Override   public SqlSource createSqlSource(Configuration configuration, XNode script, Class&lt;?&gt; parameterType) {     XMLScriptBuilder builder = new XMLScriptBuilder(configuration, script, parameterType);     return builder.parseScriptNode();   }    @Override   public SqlSource createSqlSource(Configuration configuration, String script, Class&lt;?&gt; parameterType) {     // issue #3     if (script.startsWith("&lt;script&gt;")) {       XPathParser parser = new XPathParser(script, false, configuration.getVariables(), new XMLMapperEntityResolver());       return createSqlSource(configuration, parser.evalNode("/script"), parameterType);     } else {       // issue #127       script = PropertyParser.parse(script, configuration.getVariables());       TextSqlNode textSqlNode = new TextSqlNode(script);       if (textSqlNode.isDynamic()) {         return new DynamicSqlSource(configuration, textSqlNode);       } else {         return new RawSqlSource(configuration, script, parameterType);       }     }   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 可以看到，在通过尝试使用注解的方式创建SqlSource对象时，仍然会检查是否是包含以“script”为开头的字符串，若包含，则仍会调用XML方式对其进行解析，也就是说，我们可以在注解中加入script头的方式使用动态语句使其使用XML方式解析。当然，不是必要的情况下不建议这么做。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在方法结尾处，会通过TextSqlNode对象来判定该SqlNode是否是动态的，如果是动态的则使用<strong>DynamicSqlSource</strong>方式解析，若是静态，则使用<strong>RawSqlSource</strong>方式解析。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 而在<strong>LanguageDriver</strong>中，我们也看到了<strong>RawLanguageDriver</strong>类又继承了<strong>XMLLanguageDriver</strong>，但它和前者的区别就是<strong>RawLanguageDriver</strong>仅支持静态语句方式解析。</p> <h2>2.它是怎样解析数据的</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 这时，我们回到<strong>XMLLanguageDriver</strong>的<strong>createSqlSource</strong>方法中，它是调用了<strong>XMLScriptBuilder</strong>的<strong>parseScriptNode</strong>方法来进行解析创建的，而这个方法又做了什么呢？</p> <pre><code class="language-java">XMLScriptBuilder builder = new XMLScriptBuilder(configuration, script, parameterType);     return builder.parseScriptNode();</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 这个方法做了2个事，首先是将SqlNode集合混合，转换为MixedSqlNode对象，再判断是否为动态语句，再来决定是通过DynamicSqlSource还是RawSqlSource解析。</p> <pre><code class="language-java">public SqlSource parseScriptNode() {     MixedSqlNode rootSqlNode = parseDynamicTags(context);     SqlSource sqlSource = null;     if (isDynamic) {       sqlSource = new DynamicSqlSource(configuration, rootSqlNode);     } else {       sqlSource = new RawSqlSource(configuration, rootSqlNode, parameterType);     }     return sqlSource;   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 而我们目前需要关心的是它的parseDynamicTags方法，看它是如何将多个SqlNode转换为MixedSqlNode对象的。</p> <pre><code class="language-java">protected MixedSqlNode parseDynamicTags(XNode node) {     List&lt;SqlNode&gt; contents = new ArrayList&lt;SqlNode&gt;();     NodeList children = node.getNode().getChildNodes();     for (int i = 0; i &lt; children.getLength(); i++) {       XNode child = node.newXNode(children.item(i));       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {         String data = child.getStringBody("");         TextSqlNode textSqlNode = new TextSqlNode(data);         if (textSqlNode.isDynamic()) {           contents.add(textSqlNode);           isDynamic = true;         } else {           contents.add(new StaticTextSqlNode(data));         }       } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628         String nodeName = child.getNode().getNodeName();         NodeHandler handler = nodeHandlerMap.get(nodeName);         if (handler == null) {           throw new BuilderException("Unknown element &lt;" + nodeName + "&gt; in SQL statement.");         }         handler.handleNode(child, contents);         isDynamic = true;       }     }     return new MixedSqlNode(contents);   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在上述方法中，会将节点中所有childNode转换为<strong>List&lt;SqlNode&gt;</strong>对象，再调用节点处理方法。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 首先将当前标签（&lt;SELECT&gt;）中所有子Node获取出来，再检查Node的类型：</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 1.若该childNode类型为CDATA节点或静态SQL节点，再检查是否为动态语句，若为动态语句则直接将当前Node加入到SqlNode中，若为静态语句，则使用StaticTextSqlNode对象加入到SqlNode。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 2.若该childNode类型为元素节点（if，choose），则根据节点名从预设节点处理集合中找到Node处理方式，若未从预设节点处理集合中找到对应的处理方法，则抛出构造器异常。</p> <p><strong>（注意，在这里处理动态SQLNode的时候，会进行handleNode方法的递归调用，用于处理所有嵌套的动态语句）</strong></p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 现在，我们继续看下去（以<strong>IfHandler</strong>为例）</p> <pre><code class="language-java">MixedSqlNode mixedSqlNode = parseDynamicTags(nodeToHandle);       String test = nodeToHandle.getStringAttribute("test");       IfSqlNode ifSqlNode = new IfSqlNode(mixedSqlNode, test);       targetContents.add(ifSqlNode);</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在处理完所有节点后，会返回一个MixedSqlNode节点，再通过nodeToHandle方法获取到对应的校验字符串（eg ：null ！= a），再将上述节点与该校验字符串混合，生成IfSqlNode对象，最后将IfSqlNode对象加入<strong>List&lt;SqlNode&gt;</strong>。</p> <h2>3.它是如何处理数据的</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在处理数据的时候，就会用到我们上面每个动态语句对应的nodeHandler了，同样，以IfHandler为例，</p> <pre><code class="language-java">@Override   public boolean apply(DynamicContext context) {     if (evaluator.evaluateBoolean(test, context.getBindings())) {       contents.apply(context);       return true;     }     return false;   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在IfHandler中，它只需要判断True/False,再根据是否结果，决定是否将当前动态语句是否加入到SqlNode中。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在当前运算中，调用了表达式评估器ExpressionEvaluator的evaluateBoolean方法，传入了表达式与参数值。</p> <pre><code class="language-java">public boolean evaluateBoolean(String expression, Object parameterObject) {     Object value = OgnlCache.getValue(expression, parameterObject);     if (value instanceof Boolean) {       return (Boolean) value;     }     if (value instanceof Number) {       return new BigDecimal(String.valueOf(value)).compareTo(BigDecimal.ZERO) != 0;     }     return value != null;   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在evaluateBoolean方法中，将表达式通过OgnlCache方法进行判定，若结果是Boolean，则直接返回，若结果是Number，再通过BigDecimal对象的compareTo对象检查，然后返回最终结果。</p> <p>（<strong>注意：这里的对象使用的是OgnlCache，打开类描述可以看到这里面对表达式有缓存</strong>）</p> <p>&nbsp;</p> <p>至此，从动态语句的创建，到解析，到处理完成，过两天下一篇来看看Mybatis的<strong>SqlSessionFactory</strong>是如何构建的！！！</p> </p></div> 			                </div>
+                      				  				  				<p><strong>大家好，我是冰河~~</strong></p> <p>在Java的高并发领域，线程池一直是一个绕不开的话题。有些童鞋一直在使用线程池，但是，对于如何创建线程池仅仅停留在使用Executors工具类的方式，那么，创建线程池究竟存在哪几种方式呢？就让我们一起从创建线程池的源码来深入分析究竟有哪些方式可以创建线程池。</p> <h3 id="使用executors工具类创建线程池">使用Executors工具类创建线程池</h3> <p>在创建线程池时，初学者用的最多的就是Executors 这个工具类，而使用这个工具类创建线程池时非常简单的，不需要关注太多的线程池细节，只需要传入必要的参数即可。Executors 工具类提供了几种创建线程池的方法，如下所示。</p> <ul> <li>Executors.newCachedThreadPool：创建一个可缓存的线程池，如果线程池的大小超过了需要，可以灵活回收空闲线程，如果没有可回收线程，则新建线程</li> <li>Executors.newFixedThreadPool：创建一个定长的线程池，可以控制线程的最大并发数，超出的线程会在队列中等待</li> <li>Executors.newScheduledThreadPool：创建一个定长的线程池，支持定时、周期性的任务执行</li> <li>Executors.newSingleThreadExecutor: 创建一个单线程化的线程池，使用一个唯一的工作线程执行任务，保证所有任务按照指定顺序（先入先出或者优先级）执行</li> <li>Executors.newSingleThreadScheduledExecutor:创建一个单线程化的线程池，支持定时、周期性的任务执行</li> <li>Executors.newWorkStealingPool：创建一个具有并行级别的work-stealing线程池</li> </ul> <p>其中，Executors.newWorkStealingPool方法是Java 8中新增的创建线程池的方法，它能够为线程池设置并行级别，具有更高的并发度和性能。除了此方法外，其他创建线程池的方法本质上调用的是ThreadPoolExecutor类的构造方法。</p> <p>例如，我们可以使用如下代码创建线程池。</p> <pre><code class="language-java">Executors.newWorkStealingPool(); Executors.newCachedThreadPool(); Executors.newScheduledThreadPool(3);</code></pre> <h3 id="使用threadpoolexecutor类创建线程池">使用ThreadPoolExecutor类创建线程池</h3> <p>从代码结构上看ThreadPoolExecutor类继承自AbstractExecutorService，也就是说，ThreadPoolExecutor类具有AbstractExecutorService类的全部功能。</p> <p>既然Executors工具类中创建线程池大部分调用的都是ThreadPoolExecutor类的构造方法，所以，我们也可以直接调用ThreadPoolExecutor类的构造方法来创建线程池，而不再使用Executors工具类。接下来，我们一起看下ThreadPoolExecutor类的构造方法。</p> <p>ThreadPoolExecutor类中的所有构造方法如下所示。</p> <pre><code class="language-java">public ThreadPoolExecutor(int corePoolSize, 			      int maximumPoolSize, 			      long keepAliveTime, 			      TimeUnit unit, 			     BlockingQueue&lt;Runnable&gt; workQueue) { 	this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, 		 Executors.defaultThreadFactory(), defaultHandler); }  public ThreadPoolExecutor(int corePoolSize, 				int maximumPoolSize, 				long keepAliveTime, 				TimeUnit unit, 				BlockingQueue&lt;Runnable&gt; workQueue, 			        ThreadFactory threadFactory) { this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, 	 threadFactory, defaultHandler); }  public ThreadPoolExecutor(int corePoolSize, 				int maximumPoolSize, 				long keepAliveTime, 			        TimeUnit unit, 				BlockingQueue&lt;Runnable&gt; workQueue, 				RejectedExecutionHandler handler) { this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, 	 Executors.defaultThreadFactory(), handler); }  public ThreadPoolExecutor(int corePoolSize, 				int maximumPoolSize, 				long keepAliveTime, 				TimeUnit unit, 			        BlockingQueue&lt;Runnable&gt; workQueue, 				ThreadFactory threadFactory, 				RejectedExecutionHandler handler) { 	if (corePoolSize &lt; 0 || 		maximumPoolSize &lt;= 0 || 		maximumPoolSize &lt; corePoolSize || 		keepAliveTime &lt; 0) 		throw new IllegalArgumentException(); 	if (workQueue == null || threadFactory == null || handler == null) 		throw new NullPointerException(); 	this.acc = System.getSecurityManager() == null ? 			null : 			AccessController.getContext(); 	this.corePoolSize = corePoolSize; 	this.maximumPoolSize = maximumPoolSize; 	this.workQueue = workQueue; 	this.keepAliveTime = unit.toNanos(keepAliveTime); 	this.threadFactory = threadFactory; 	this.handler = handler; }</code></pre> <p>由ThreadPoolExecutor类的构造方法的源代码可知，创建线程池最终调用的构造方法如下。</p> <pre><code class="language-java">public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, 			  long keepAliveTime, TimeUnit unit, 			  BlockingQueue&lt;Runnable&gt; workQueue, 			  ThreadFactory threadFactory, 		          RejectedExecutionHandler handler) { 	if (corePoolSize &lt; 0 || 		maximumPoolSize &lt;= 0 || 		maximumPoolSize &lt; corePoolSize || 		keepAliveTime &lt; 0) 		throw new IllegalArgumentException(); 	if (workQueue == null || threadFactory == null || handler == null) 		throw new NullPointerException(); 	this.acc = System.getSecurityManager() == null ? 			null : 			AccessController.getContext(); 	this.corePoolSize = corePoolSize; 	this.maximumPoolSize = maximumPoolSize; 	this.workQueue = workQueue; 	this.keepAliveTime = unit.toNanos(keepAliveTime); 	this.threadFactory = threadFactory; 	this.handler = handler; }</code></pre> <p>关于此构造方法中各参数的含义和作用，各位可以移步《<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/l1028386804/article/details/104409796"  target="_blank" rel="nofollow">高并发之——不得不说的线程池与ThreadPoolExecutor类浅析</a>》进行查阅。</p> <p>大家可以自行调用ThreadPoolExecutor类的构造方法来创建线程池。例如，我们可以使用如下形式创建线程池。</p> <pre><code class="language-java">new ThreadPoolExecutor(0, Integer.MAX_VALUE,                        60L, TimeUnit.SECONDS,                        new SynchronousQueue&lt;Runnable&gt;());</code></pre> <h3 id="使用forkjoinpool类创建线程池">使用ForkJoinPool类创建线程池</h3> <p>在Java8的Executors工具类中，新增了如下创建线程池的方式。</p> <pre><code class="language-java">public static ExecutorService newWorkStealingPool(int parallelism) { 	return new ForkJoinPool 		(parallelism, 		 ForkJoinPool.defaultForkJoinWorkerThreadFactory, 		 null, true); }  public static ExecutorService newWorkStealingPool() { 	return new ForkJoinPool 		(Runtime.getRuntime().availableProcessors(), 		 ForkJoinPool.defaultForkJoinWorkerThreadFactory, 		 null, true); }</code></pre> <p>从源代码可以可以，本质上调用的是ForkJoinPool类的构造方法类创建线程池，而从代码结构上来看ForkJoinPool类继承自AbstractExecutorService抽象类。接下来，我们看下ForkJoinPool类的构造方法。</p> <pre><code class="language-java">public ForkJoinPool() { 	this(Math.min(MAX_CAP, Runtime.getRuntime().availableProcessors()), 		 defaultForkJoinWorkerThreadFactory, null, false); }  public ForkJoinPool(int parallelism) { 	this(parallelism, defaultForkJoinWorkerThreadFactory, null, false); }  public ForkJoinPool(int parallelism, 				ForkJoinWorkerThreadFactory factory, 				UncaughtExceptionHandler handler, 				boolean asyncMode) { 	this(checkParallelism(parallelism), 		 checkFactory(factory), 		 handler, 		 asyncMode ? FIFO_QUEUE : LIFO_QUEUE, 		 "ForkJoinPool-" + nextPoolId() + "-worker-"); 	checkPermission(); }  private ForkJoinPool(int parallelism, 				 ForkJoinWorkerThreadFactory factory, 				 UncaughtExceptionHandler handler, 				 int mode, 				 String workerNamePrefix) { 	this.workerNamePrefix = workerNamePrefix; 	this.factory = factory; 	this.ueh = handler; 	this.config = (parallelism &amp; SMASK) | mode; 	long np = (long)(-parallelism); // offset ctl counts 	this.ctl = ((np &lt;&lt; AC_SHIFT) &amp; AC_MASK) | ((np &lt;&lt; TC_SHIFT) &amp; TC_MASK); }</code></pre> <p>通过查看源代码得知，ForkJoinPool的构造方法，最终调用的是如下私有构造方法。</p> <pre><code class="language-java">private ForkJoinPool(int parallelism, 				 ForkJoinWorkerThreadFactory factory, 				 UncaughtExceptionHandler handler, 				 int mode, 				 String workerNamePrefix) { 	this.workerNamePrefix = workerNamePrefix; 	this.factory = factory; 	this.ueh = handler; 	this.config = (parallelism &amp; SMASK) | mode; 	long np = (long)(-parallelism); // offset ctl counts 	this.ctl = ((np &lt;&lt; AC_SHIFT) &amp; AC_MASK) | ((np &lt;&lt; TC_SHIFT) &amp; TC_MASK); }</code></pre> <p>其中，各参数的含义如下所示。</p> <ul> <li>parallelism：并发级别。</li> <li>factory：创建线程的工厂类对象。</li> <li>handler：当线程池中的线程抛出未捕获的异常时，统一使用UncaughtExceptionHandler对象处理。</li> <li>mode：取值为FIFO_QUEUE或者LIFO_QUEUE。</li> <li>workerNamePrefix：执行任务的线程名称的前缀。</li> </ul> <p>当然，私有构造方法虽然是参数最多的一个方法，但是其不会直接对外方法，我们可以使用如下方式创建线程池。</p> <pre><code class="language-java">new ForkJoinPool(); new ForkJoinPool(Runtime.getRuntime().availableProcessors()); new ForkJoinPool(Runtime.getRuntime().availableProcessors(),              ForkJoinPool.defaultForkJoinWorkerThreadFactory,              null, true);</code></pre> <h3 id="使用scheduledthreadpoolexecutor类创建线程池">使用ScheduledThreadPoolExecutor类创建线程池</h3> <p>在Executors工具类中存在如下方法类创建线程池。</p> <pre><code class="language-java">public static ScheduledExecutorService newSingleThreadScheduledExecutor() { 	return new DelegatedScheduledExecutorService 		(new ScheduledThreadPoolExecutor(1)); }  public static ScheduledExecutorService newSingleThreadScheduledExecutor(ThreadFactory threadFactory) { 	return new DelegatedScheduledExecutorService 		(new ScheduledThreadPoolExecutor(1, threadFactory)); }  public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) { 	return new ScheduledThreadPoolExecutor(corePoolSize); }  public static ScheduledExecutorService newScheduledThreadPool( 		int corePoolSize, ThreadFactory threadFactory) { 	return new ScheduledThreadPoolExecutor(corePoolSize, threadFactory); }</code></pre> <p>从源码来看，这几个方法本质上调用的都是ScheduledThreadPoolExecutor类的构造方法，ScheduledThreadPoolExecutor中存在的构造方法如下所示。</p> <pre><code class="language-java">public ScheduledThreadPoolExecutor(int corePoolSize) { 	super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS, 		  new DelayedWorkQueue()); }  public ScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory) { 	super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS, 		  new DelayedWorkQueue(), threadFactory); }  public ScheduledThreadPoolExecutor(int corePoolSize, RejectedExecutionHandler handler) { 	super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS, 		  new DelayedWorkQueue(), handler); }  public ScheduledThreadPoolExecutor(int corePoolSize,ThreadFactory threadFactory, RejectedExecutionHandler handler) { 	super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS, 		  new DelayedWorkQueue(), threadFactory, handler); }</code></pre> <p>而从代码结构上看，ScheduledThreadPoolExecutor类继承自ThreadPoolExecutor类，本质上还是调用ThreadPoolExecutor类的构造方法，只不过此时传递的队列为DelayedWorkQueue。我们可以直接调用ScheduledThreadPoolExecutor类的构造方法来创建线程池，例如以如下形式创建线程池。</p> <pre><code class="language-java">new ScheduledThreadPoolExecutor(3)</code></pre> <p><strong>好了，今天就到这儿吧，我是冰河，我们下期见~~</strong></p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-185.htm">[vmware to openstack] 安装virtio驱动</a></p>
-                                        <p>下一个：<a href="/html/category/article-187.htm">OAuth 2.1 框架_在线工具</a></p>
+                                        <p>上一个：<a href="/html/category/article-185.htm">Vue组件间传值的方式</a></p>
+                                        <p>下一个：<a href="/html/category/article-187.htm">SQL Server中函数、存储过程与触发器的用法_MsSql</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
-                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
+                <h4><a href="/html/category/article-213.htm">C/C++内存申请函数总结</a></h4>
+                <p>#include &lt;stdlib.h&gt; new char[size] void* malloc(unsigned size); void* realloc(void* ptr, unsig</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
-                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
+                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
+                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-203.htm">OAuth 2.1 框架_在线工具</a></h4>
+                <p>OAuth 2.1 Draft 当前版本：v2-1-05 失效时间：2022/09/08 本文对部分原文翻译，同时加了一些笔记，以便理解。    单词 译意     identifiler 识别码  </p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
-                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
-                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
-                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
-                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
-                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
-                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

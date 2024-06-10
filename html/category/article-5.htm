@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-5.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>KMP算法中的next数组详解 - EgyptAddress</title>
+    <title>docker设置代理服务器，解决pull命令：Error response from daemon: Get https://registry-1.docker.io/v2&#8230; - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">KMP算法中的next数组详解</h1>
+                <h1 class="title" style="word-break: break-all;">docker设置代理服务器，解决pull命令：Error response from daemon: Get https://registry-1.docker.io/v2&#8230;</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h1 id="kmp-算法中对-next-数组的理解">KMP 算法中对 next 数组的理解</h1> <h2 id="next-数组的意义">next 数组的意义</h2> <p>此处 next[j] = k；则有 k 前面的浅蓝色区域和 j 前面的浅蓝色区域相同；</p> <p>next[j] 表示当位置 j 的字符串与主串不匹配时，下一个需要和主串比较的字串位置在 next[j] 处；有下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/435eb439c59f823a4adf7f414fd7fb7c.jpg" alt="KMP算法中的next数组详解"></p> <p>若当前位置 j 与主串某一个字符不匹配，则下一次比较的是 K 与主串的当前位置，这个 K 也就是next[j]；由于两个浅蓝色区域相同，因此 K 前面的区域肯定与主串相同，不需比较；如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/a0e7afd996bbf8b9f0001f2a96233b18.jpg" alt="KMP算法中的next数组详解"></p> <p>由上图可知，K 前面的区域不需比较；</p> <h2 id="next-数组的推导">next 数组的推导</h2> <p>从 next 数组所表达的意义可知，我们要求 next[j]，首先要找到一个 K，这个 K 前面的浅蓝色区域和 j 前面的浅蓝色区域相同；如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/435eb439c59f823a4adf7f414fd7fb7c.jpg" alt="KMP算法中的next数组详解"></p> <p>根据规定 next[1] = 0；接下来求其他的 next[j]；</p> <p>对于 next[2] 可得其必然为 next[2] = 1；</p> <p>如下图：当第二个元素不匹配时，j 将退回到 1 处进行比较，因此 next[2] 一定为 1；</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b67eacc23d3f1e47d84109d7b3ddf7f7.jpg" alt="KMP算法中的next数组详解"></p> <p>接下来是一般情况的推导，此处使用递推法进行推导，即已知 next[j] 求 next[j + 1]；</p> <p>若 next[j] = k 则有下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c3ddd12bc3b9bc60bfc05429ffbd34bc.jpg" alt="KMP算法中的next数组详解"></p> <p>由于 next[j = k，可知浅蓝色部分相同；接下来分两种情况讨论；</p> <ul> <li> <p>ch[K] == ch[j]，这种情况时，可以得到下图；</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/ceb8888dbf20ba362e53d01f9f9b9722.jpg" alt="KMP算法中的next数组详解"></p> </li> </ul> <p>由图可知：对于 j + 1，能够找到一个 K + 1 使得有浅蓝色区域相同，那么当 j + 1 不匹配时，下一次将比较 K + 1 和主串；因此 next[j + 1] = K + 1 = next[j] + 1；</p> <ul> <li> <p>ch[K] != ch[j]，这种情况就变的复杂，这也是整个 KMP 算法中最难理解的部分；</p> <p>从本节的开头可以知道，求 next[j + 1] 最关键的一点在于求 j + 1 之前有多长的后缀和前缀匹配，即找出多大的浅蓝色区域匹配；我们现在面对的图如下：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/256b1e9b972765f60b4e1665bef93d48.jpg" alt="KMP算法中的next数组详解"></p> </li> </ul> <p>我们的目的是找到一个 K1 使得出现下列情况：找到 K1 使得浅蓝色部分相同；</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/55433722a109b8d4415ea5499788f9cf.jpg" alt="KMP算法中的next数组详解"></p> <p>要想浅蓝色部分相同，分为两个部分，使得 1 和 2 相同，使得 K1 和 j 相同；</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d6730e1627357bb0951dd56e35ea6260.jpg" alt="KMP算法中的next数组详解"></p> <p>想要让 1 和 2 相同是难以比较的，但是可以转化为另一个问题，如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/cc72ad97bf27299bd8a4f3b49058dfdc.jpg" alt="KMP算法中的next数组详解"></p> <p><strong>想要找出 1 和 3 相同的区域，等价与找到 1 和 2 相同的区域；</strong>为什么呢？因为 next[j] = K，因此 j 前面与 K 前面相同如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/435eb439c59f823a4adf7f414fd7fb7c.jpg" alt="KMP算法中的next数组详解"></p> <p>这个等价关系非常重要，是这部分推导的关键；将其单独抽离出来如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/cee276050b3fcc10c73f6c70d6eb0d81.jpg" alt="KMP算法中的next数组详解"></p> <p>那么如何得到 K1 使得 1 和 2 相同呢？回到文首 next[j] 所表示的意义，<strong>next[j] = k；则有 k 前面的浅蓝色区域和 j 前面的浅蓝色区域相同</strong> 而 next[K] 是在 j 前面的是已知的，因此可得 K1 = next[K]，此时得到的 K1 即可满足 1 和 3 相同；</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/cc72ad97bf27299bd8a4f3b49058dfdc.jpg" alt="KMP算法中的next数组详解">到此就解决了 1 和 3 相等的问题，直接比较 K1 和 j 若两者相同，则可得到下图；</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/55433722a109b8d4415ea5499788f9cf.jpg" alt="KMP算法中的next数组详解"></p> <p>那么 next[j + 1] = K1 + 1 = next[K] + 1 = next[next[j]] + 1；</p> <p>那么若 ch[j] != ch[K1] 呢？那么就又演化为如下问题：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/aca4be87b68f1d5156b4cf0448e0e8e8.jpg" alt="KMP算法中的next数组详解"></p> <p>这个图和本小节开始的图相同，那么按照此方法解决即可；</p> <p>可得结果：next[j + 1] = next[K1] + 1 = next[next[K]] + 1 = next[next[next[j]]] + 1</p> <p>若下一次 K2 依然和 j 不相等，那么又接着递归即可；一直到 Kn = 0；</p> <h2 id="一个例子">一个例子</h2> <p>接下来使用上面的结论来计算一个字符串的 next 数组；</p> <p>有数组 ababaaababaa 转化为如下表：</p> <table> <thead> <tr> <th style="text-align: center">S</th> <th style="text-align: center">a</th> <th style="text-align: center">b</th> <th style="text-align: center">a</th> <th style="text-align: center">b</th> <th style="text-align: center">a</th> <th style="text-align: center">a</th> <th style="text-align: center">a</th> <th style="text-align: center">b</th> <th style="text-align: center">a</th> <th style="text-align: center">b</th> <th style="text-align: center">a</th> <th style="text-align: center">a</th> </tr> </thead> <tbody> <tr> <td style="text-align: center">编号</td> <td style="text-align: center">1</td> <td style="text-align: center">2</td> <td style="text-align: center">3</td> <td style="text-align: center">4</td> <td style="text-align: center">5</td> <td style="text-align: center">6</td> <td style="text-align: center">7</td> <td style="text-align: center">8</td> <td style="text-align: center">9</td> <td style="text-align: center">10</td> <td style="text-align: center">11</td> <td style="text-align: center">12</td> </tr> <tr> <td style="text-align: center">next</td> <td style="text-align: center">0</td> <td style="text-align: center">1</td> <td style="text-align: center">1</td> <td style="text-align: center">2</td> <td style="text-align: center">3</td> <td style="text-align: center">4</td> <td style="text-align: center">2</td> <td style="text-align: center">2</td> <td style="text-align: center">3</td> <td style="text-align: center">4</td> <td style="text-align: center">5</td> <td style="text-align: center">6</td> </tr> </tbody> </table> <p>按如下顺序填表的 next 栏：</p> <ul> <li>对于 next[1] 规定为 0，根据前面的分析：next[2] = 1；</li> <li>对于 next[3]，则观察 2 和 next[2] = 1，即 b 和 a，不相等；而next[next[2]] = 0，因此 next[3] = 1；</li> <li>对于 next[4]，观察 3 和 next[3] = 1，即 a 和 a，相等，故 next[4] = next[3] + 1 = 2；</li> <li>对于 next[5]，观察 4 和 next[4] = 2，即 b 和 b，相等，故 next[5] = next[4] + 1 = 3；</li> <li>对于 next[6]，观察 5 和 next[5] = 3，即 a 和 a，相等，故 next[6] = next[5] + 1 = 4；</li> <li>对于 next[7]，观察 6 和 next[6] = 4，即 a 和 b，不相等，next[next[6]] = 2，与 6 比较即 b 和 a，不相等，继续递归 next[next[next[6]]] = next[next[4]] = next[2] = 1；比较 1 和 6 即 a 和 a，相等，因此 next[6] = next[next[next[6]] + 1 = 2；</li> <li>对于 next[8]，观察 7 和 next[7] = 2，即 a 和 b，不相等，next[next[7]] = 1，1 和 7相等，因此 next[8] = next[next[7]] + 1 = next[2] + 1 = 2；</li> <li>对于 next[9]，观察 8 和 next[8] = 2，即 b 和 b，相等，故 next[9] = next[8] + 1 = 3；</li> <li>对于 next[10]，观察 9 和 next[9] = 1，即 a 和 a，相等，故 next[10] = next[9] + 1 = 4；</li> <li>对于 next[11]，观察 10 和 next[10] = 2，即 b 和 b，相等，故 next[11] = next[10] + 1 = 5；</li> <li>对于 next[12]，观察 11 和 next[11] = 3，即 a 和 a，相等，故 next[12] = next[11] + 1 = 6；</li> </ul> <h2 id="代码实现">代码实现</h2> <p>通过以上分析得到的获取 next 数组的代码如下：</p> <pre><code class="language-cpp">void get_next(String T, int next[]) {     int k = 0, j = 1;     next[1] = 0;     while (j &lt; T.length)     {         if(k == 0 || T.ch[k] == T.ch[j]) {             k++;             j++;             next[j] = k;         } else {             k = next[k];         }     } }</code></pre> <p>那么接下来的 KMP 算法代码就比较容易了：</p> <pre><code class="language-cpp">int KMP(String S, String T, int next[]) {     int i = 1, j = 1;     while (i &lt;= S.length &amp;&amp; j &lt;= T.length)     {         if(j == 0 || S.ch[i] == T.ch[j]) {             i++;             j++;         } else {             j = next[j];         }     }     if(j &gt; T.length) {         return i - T.length;     } else {         return 0;     } }</code></pre> <p>测试代码如下：</p> <pre><code class="language-cpp">#include&lt;iostream&gt; using namespace std; const int MAX = 255; typedef struct {     char ch[MAX];     int length; } String;  void InitiString(String &amp;s, char chars[]) {     int len = 0;     while(chars[len] != '\0') {         s.ch[len + 1] = chars[len];         len++;     }     s.length = len; }  void get_next(String T, int next[]) {     int k = 0, j = 1;     next[1] = 0;     while (j &lt; T.length)     {         if(k == 0 || T.ch[k] == T.ch[j]) {             k++;             j++;             next[j] = k;         } else {             k = next[k];         }     } }  int KMP(String S, String T, int next[]) {     int i = 1, j = 1;     while (i &lt;= S.length &amp;&amp; j &lt;= T.length)     {         if(j == 0 || S.ch[i] == T.ch[j]) {             i++;             j++;         } else {             j = next[j];         }     }     if(j &gt; T.length) {         return i - T.length;     } else {         return 0;     } }  int main() {     char char1[20] = "aabaabaabaac";     char char2[20] = "aabaac";     String S, T;     InitiString(S, char1);     InitiString(T, char2);     int next[MAX];     get_next(T, next);     int index  = KMP(S, T, next);     printf("%d", index);     return 0; }</code></pre> <p>输出结果：</p> <pre><code class="language-cpp">7</code></pre> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <div id="cnblogs_post_body" class="blogpost-body"> <h2>当虚拟机无法连接访问到外网https://registry-1.docker.io/v2，执行docker pull命令会抛出异常，如下：</h2> <p>[root@localhost default]# docker pull debian<br />Using default tag: latest<br />Error response from daemon: Get https://registry-1.docker.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)</p> <h2>通过设置代理可以解决：</h2> <ul> <li> <p>创建http-proxy.conf文件:</p> </li> </ul> <p>　　　　$ mkdir -p /etc/systemd/system/docker.service.d<br />　　　　$ vim /etc/systemd/system/docker.service.d/http-proxy.conf<br />　　添加如下内容：<br />　　　　[Service]<br />　　　　Environment="HTTP_PROXY=http://&lt;allowed_proxy_ipv4_address&gt;:&lt;proxy_port_num&gt;/"<br />　　　　[Service]<br />　　　　Environment="HTTPS_PROXY=https://&lt;allowed_proxy_ipv4_address&gt;:&lt;proxy_port_num&gt;/"</p> <ul> <li>执行reload命令: &nbsp;$ sudo systemctl daemon-reload</li> </ul> <ul> <li>重启docker: &nbsp;$ sudo systemctl restart docker</li> </ul> <ul> <li>查看环境变量值： $ systemctl show --property=Environment docker</li> </ul> <h2>再次执行：</h2> <p>[root@localhost docker.service.d]# docker pull debian<br />Using default tag: latest<br />latest: Pulling from library/debian<br />55cbf04beb70: Pull complete<br />Digest: sha256:f1f61086ea01a72b30c7287adee8c929e569853de03b7c462a8ac75e0d0224c4<br />Status: Downloaded newer image for debian:latest</p> </div> <p>转载于:https://www.cnblogs.com/onetwothree/p/9371752.html</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-4.htm">Kubernetes Ingress作用及Ingress-Nginx实际操作详解</a></p>
-                                        <p>下一个：<a href="/html/category/article-6.htm">win11系统找不到网络路径如何解决</a></p>
+                                        <p>上一个：<a href="/html/category/article-4.htm">vue-cli中devServer.proxy相关配置项的使用_vue.js</a></p>
+                                        <p>下一个：<a href="/html/category/article-6.htm">C语言中为什么要使用指针</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
-                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
-                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
-                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
+                <h4><a href="/html/category/article-212.htm">定时器中 this 指向修改实现方法和原理讲解</a></h4>
+                <p>定时器中 this 指向修改实现方法和原理讲解      1. 变量替换 2. 箭头函数 3. bind() 方法       定时器属于全局 window ，window.setTimeout();</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
-                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-235.htm">lombok和JPA的死递归</a></h4>
+                <p>这是一个Bug JPA我觉得是一个封装的很棒的框架，至于说很臃肿这个事，我觉得在需求需要很多复杂查询的时候，不适合用JPA。因为它的封装太棒了，以致于增强了表和实体类之间的耦合。不过在一些简单查询的部</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
-                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
+                <h4><a href="/html/category/article-244.htm">Redis事务详解</a></h4>
+                <p>大家好，我是七淅。 如果你了解过关系型数据库事务的话，相信这篇文章对你来说是很容易理解的了。具体什么是事务我就不说不多了，直接讲 Redis 事务相关的部分。 首先，我们先来看下，Redis 是怎么执</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
-                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
-                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
+                <h4><a href="/html/category/article-203.htm">OAuth 2.1 框架_在线工具</a></h4>
+                <p>OAuth 2.1 Draft 当前版本：v2-1-05 失效时间：2022/09/08 本文对部分原文翻译，同时加了一些笔记，以便理解。    单词 译意     identifiler 识别码  </p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
-                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

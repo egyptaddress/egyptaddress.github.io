@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-41.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>用CSS样式控制文字浮于图片上方 - EgyptAddress</title>
+    <title>ModelSerializer序列化器实战 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">用CSS样式控制文字浮于图片上方</h1>
+                <h1 class="title" style="word-break: break-all;">ModelSerializer序列化器实战</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>用CSS样式控制文字浮于图片上方，这个我们首先要明确的知道一个层的概念，这里就是将图片为一个层，然后文字又是一个层，然后我们使用一个position定位，将文字定于图片的位置，然后使用<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.baidu.com/s?wd=z-index&amp;tn=SE_PcZhidaonwhc_ngpagmjz&amp;rsv_dl=gh_pc_zhidao"  rel="nofollow">z-index</a>这个层属性，来做，<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.baidu.com/s?wd=z-index&amp;tn=SE_PcZhidaonwhc_ngpagmjz&amp;rsv_dl=gh_pc_zhidao"  rel="nofollow">z-index</a>的数值越大，层就越在上面，这里通过具体的代码来理解：</p> <pre><code class="Bash"><xmp><html> <head> <style> .headr{ width:300px; height:200px; border:1px solid #f00; z-index:100;  } .wenzi{ position:absoulte; left:100px; //只是假定的值，具体需测量 top:200px; z-index:101; z-index的数值越大，层就越在上面 }  </head> <body> <div class="headr" > //页头 <img src='图片的地址'/> </div> <div class='wenzi'> <p>我会在图片的上面</p> </div>  </body> </html></xmp></code></pre> </div> 			                </div>
+                      				  				  				<div class="toc"> <div class="toc-container-header">目录</div> <ul> <li><a href="#modelserializer%E5%BA%8F%E5%88%97%E5%8C%96%E5%99%A8%E5%AE%9E%E6%88%98" rel="nofollow">ModelSerializer序列化器实战</a></li> <li><a href="#%E5%8D%95%E8%A1%A8%E6%93%8D%E4%BD%9C" rel="nofollow">单表操作</a> <ul> <li><a href="#%E5%BA%8F%E5%88%97%E5%8C%96%E5%99%A8%E7%B1%BB" rel="nofollow"><strong>序列化器类</strong></a></li> <li><a href="#%E8%A7%86%E5%9B%BE%E7%B1%BB" rel="nofollow"><strong>视图类</strong></a></li> <li><a href="#%E8%B7%AF%E7%94%B1" rel="nofollow"><strong>路由</strong></a></li> <li><a href="#%E6%A8%A1%E5%9E%8B" rel="nofollow"><strong>模型</strong></a></li> </ul> </li> <li><a href="#%E5%A4%9A%E8%A1%A8%E6%93%8D%E4%BD%9C" rel="nofollow">多表操作</a> <ul> <li><a href="#modelspy" rel="nofollow"><strong>models.py</strong></a></li> <li><a href="#serializerpy" rel="nofollow"><strong>serializer.py</strong></a></li> <li><a href="#viewspy" rel="nofollow"><strong>views.py</strong></a></li> <li><a href="#urlspy" rel="nofollow">urls.py</a></li> <li><a href="#%E4%BC%98%E5%8C%96%E6%93%8D%E4%BD%9C" rel="nofollow">优化操作</a></li> </ul> </li> </ul> </div> <h2 id="modelserializer序列化器实战">ModelSerializer序列化器实战</h2> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/edaa8bf4c6b7d2e0bb64276032be254b.jpg" alt="ModelSerializer序列化器实战"></p> <blockquote> <p>上篇ModelSerializer序列化器做了一个小demo，演示了如何操作单表进行序列化和反序列化来实现五个API的使用，多表大差不差????，这里对四个表写五个API接口</p> </blockquote> <h2 id="单表操作">单表操作</h2> <blockquote> <p>单表操作序列化类demo：</p> </blockquote> <h3 id="序列化器类"><strong>序列化器类</strong></h3> <pre><code class="language-python"># ModelSerializer和表模型有绑定关系 class BookSerializer1(serializers.ModelSerializer):     class Meta:         model = Book  # 指定和哪个表有关系         # 所有字段         # fields = '__all__'         # 这里注意id字段是从表模型映射过来的，auto自增的，不传也可以         # 自定制的字段不传必须注册，在列表中         fields = ['id', 'title', 'price', 'price_info']  # 指定字段         extra_kwargs = {             'title': {'write_only': True, 'max_length': 8, 'min_length': 3}         }     # 指定序列化的字段：两种写法：在序列化类中写；models中写     price_info = serializers.SerializerMethodField()     def get_price_info(self, obj):         return "价格是：" + str(obj.price)     '''     注意：自定制字段如果和表模型获取到的字段是同名，那么自定制返回给前端的字段值就被自定制覆盖了，比如：     title = serializers.SerializerMethodField()     def get_title(self, obj):         return "书名是：" + str(obj.title)     '''      #  局部和全局钩子，跟之前一样，但是要注意写在Meta外</code></pre> <h3 id="视图类"><strong>视图类</strong></h3> <pre><code class="language-python">from rest_framework.views import APIView from .models import Book from rest_framework.response import Response from app01.serializer import  BookSerializer1 class BookView1(APIView):     def get(self, request):         # 从数据库查数据，做序列化         book_list = Book.objects.all()         # 实例化类，传入初始化的参数，instance和many         '''         instance:要序列化的对象  qs，单个对象         many:如果是qs对象，many=True，如果是单个对象many=False         '''         ser = BookSerializer1(instance=book_list, many=True)         # ser.data使用模型类的对象得到序列化后的字典         return Response(ser.data)      def post(self,request):         # 反序列化，保存到数据库使用data参数         deser = BookSerializer1(data=request.data)         # 校验数据         if deser.is_valid():             # 保存需要重写create方法,不然不知道存到哪个表             deser.save()             return Response(deser.data)         return Response({'code':101,'msg':'校验不通过','errors':deser.errors})    # 处理修改再写一个视图类，防止get冲突 class BookDetailView1(APIView):     def get(self,request,pk):         book = Book.objects.filter(pk=pk).first()         ser = BookSerializer1(instance=book)  # 这里设置了主键值，单条记录many不需要写         return Response(ser.data)     def delete(self,request,pk):         res = Book.objects.filter(pk=pk).delete()         print(res) # (1, {'app01.Book': 1})         # res是影响的行数         if res[0]&gt;0:             return Response({'code': 100, 'msg': '删除成功'})         else:             return  Response({'code': 103, 'msg': '要删除的数据不存在'})      # 反序列化修改     def put(self,request,pk):         # 修改处理单条数据用过pk确定求改哪条数据         book = Book.objects.filter(pk=pk).first()         # 序列化器类实例化需要传入instance，data才表示修改         ser = BookSerializer1(instance=book,data=request.data)         if ser.is_valid():             # 重写update方法才能存入             ser.save()             return Response(ser.data)         return Response({'code':101,'msg':'校验未通过','error':ser.errors})</code></pre> <h3 id="路由"><strong>路由</strong></h3> <pre><code class="language-python">path('books1/', views.BookView1.as_view()), path('books1/&lt;int:pk&gt;', views.BookDetailView1.as_view()),</code></pre> <h3 id="模型"><strong>模型</strong></h3> <pre><code class="language-python">from django.db import models class Book(models.Model):     title = models.CharField(max_length=32)     price = models.DecimalField(max_digits=5,decimal_places=2)     authors = models.CharField(max_length=32)</code></pre> <h2 id="多表操作">多表操作</h2> <h3 id="modelspy"><strong>models.py</strong></h3> <pre><code class="language-python">from django.db import models    # build four model tables  class Book(models.Model):     name = models.CharField(max_length=32)     price = models.DecimalField(decimal_places=2, max_digits=5)     publish = models.ForeignKey(to='Publish', on_delete=models.CASCADE)     authors = models.ManyToManyField(to='Author')      def __str__(self):         return self.name      # 自定制字段     @property     def publish_detail(self):         return {'name': self.publish.name, 'addr': self.publish.city}      @property     def author_list(self):         l = []         print(self.authors.all()) # &lt;QuerySet [&lt;Author: Author object (1)&gt;, &lt;Author: Author object (2)&gt;]&gt;         for author in self.authors.all():             print(author.author_detail) # AuthorDetail object (1)             l.append({'name': author.name, 'age': author.age, 'addr': author.author_detail.addr})         return l   class Author(models.Model):     name = models.CharField(max_length=32)     age = models.IntegerField()     author_detail = models.OneToOneField(to='AuthorDetail', on_delete=models.CASCADE)      def __str__(self):         return self.name      @property     def authordetail_info(self):         return {'phone':self.author_detail.telephone,'addr':self.author_detail.addr}   class AuthorDetail(models.Model):     telephone = models.BigIntegerField()     addr = models.CharField(max_length=64)   class Publish(models.Model):     name = models.CharField(max_length=32)     city = models.CharField(max_length=32)     email = models.EmailField()</code></pre> <h3 id="serializerpy"><strong>serializer.py</strong></h3> <pre><code class="language-python">from app01 import models from rest_framework import serializers   # 书序列化器 class BookSerializer(serializers.ModelSerializer):     class Meta:         # 指定和哪个表有关系         model = models.Book         # fields = '__all__'         fields = ['id','name','price','publish','authors','publish_detail','author_list']         # 将关联表的信息全部取出来，不推荐使用         # depth = 1          extra_kwargs = {             'publish':{'write_only':True},             'authors':{'write_only':True}         }  # 作者序列化器 class AuthorSerializer(serializers.ModelSerializer):     class Meta:         # 指定和哪个表有关系         model = models.Author         # fields = '__all__'         fields = ['id', 'name', 'age', 'author_detail', 'authordetail_info']         extra_kwargs = {             'author_detail': {'write_only': True},         }   # 作者详情序列化器 class AuthorDetailSerializer(serializers.ModelSerializer):     class Meta:         # 指定和哪个表有关系         model = models.AuthorDetail         fields = '__all__'  # 出版社序列化器 class PublishSerializer(serializers.ModelSerializer):     class Meta:         # 指定和哪个表有关系         model = models.Publish         fields = '__all__'</code></pre> <h3 id="viewspy"><strong>views.py</strong></h3> <pre><code class="language-python">from rest_framework.response import Response from rest_framework.views import APIView  from app01 import models from app01 import serializer   # 书视图类 class BookView(APIView):     def get(self, requets):         # 序列化         book_list = models.Book.objects.all()         # 序列化多条数据many=True         ser = serializer.BookSerializer(instance=book_list, many=True)         return Response(ser.data)      def post(self, request):         # 获取反序列化数据         ser = serializer.BookSerializer(data=request.data)         if ser.is_valid():             # 校验通过存入数据库，不需要重写create方法了             ser.save()             return Response({'code': 100, 'msg': '新增成功', 'data': ser.data})         # 校验失败         return Response({'code': 101, 'msg': '校验未通过', 'error': ser.errors})   class BookViewDetail(APIView):     def get(self, request, pk):         book = models.Book.objects.filter(pk=pk).first()         ser = serializer.BookSerializer(instance=book)         return Response(ser.data)      def put(self, request, pk):         book = models.Book.objects.filter(pk=pk).first()         # 修改，instance和data都要传         ser = serializer.BookSerializer(instance=book, data=request.data)         if ser.is_valid():             # 校验通过修改，不需要重写update             ser.save()             return Response({'code:': 100, 'msg': '修改成功', 'data': ser.data})         # 校验不通过         return Response({'code:': 102, 'msg': '校验未通过，修改失败', 'error': ser.errors})      def delete(self, request, pk):         models.Book.objects.filter(pk=pk).delete()         return Response({'code': 100, 'msg': '删除成功'})   # 作者视图类 class AuthorView(APIView):     def get(self, requets):         # 序列化         author_list = models.Author.objects.all()         # 序列化多条数据many=True         ser = serializer.AuthorSerializer(instance=author_list, many=True)         return Response(ser.data)      def post(self, request):         # 获取反序列化数据         ser = serializer.AuthorSerializer(data=request.data)         if ser.is_valid():             # 校验通过存入数据库，不需要重写create方法了             ser.save()             return Response({'code': 100, 'msg': '新增成功', 'data': ser.data})         # 校验失败         return Response({'code': 101, 'msg': '校验未通过', 'error': ser.errors})   class AuthorViewDetail(APIView):     def get(self, request, pk):         book = models.Author.objects.filter(pk=pk).first()         ser = serializer.AuthorSerializer(instance=book)         return Response(ser.data)      def put(self, request, pk):         book = models.Author.objects.filter(pk=pk).first()         # 修改，instance和data都要传         ser = serializer.AuthorSerializer(instance=book, data=request.data)         if ser.is_valid():             # 校验通过修改，不需要重写update             ser.save()             return Response({'code:': 100, 'msg': '修改成功', 'data': ser.data})         # 校验不通过         return Response({'code:': 102, 'msg': '校验未通过，修改失败', 'error': ser.errors})      def delete(self, request, pk):         models.Author.objects.filter(pk=pk).delete()         return Response({'code': 100, 'msg': '删除成功'})   # 作者详情视图类 class AuthorDetailView(APIView):     def get(self, requets):         # 序列化         author_list = models.AuthorDetail.objects.all()         # 序列化多条数据many=True         ser = serializer.AuthorDetailSerializer(instance=author_list, many=True)         return Response(ser.data)      def post(self, request):         # 获取反序列化数据         ser = serializer.AuthorDetailSerializer(data=request.data)         if ser.is_valid():             # 校验通过存入数据库，不需要重写create方法了             ser.save()             return Response({'code': 100, 'msg': '新增成功', 'data': ser.data})         # 校验失败         return Response({'code': 101, 'msg': '校验未通过', 'error': ser.errors})   class OneAuthorViewDetail(APIView):     def get(self, request, pk):         book = models.AuthorDetail.objects.filter(pk=pk).first()         ser = serializer.AuthorDetailSerializer(instance=book)         return Response(ser.data)      def put(self, request, pk):         book = models.AuthorDetail.objects.filter(pk=pk).first()         # 修改，instance和data都要传         ser = serializer.AuthorDetailSerializer(instance=book, data=request.data)         if ser.is_valid():             # 校验通过修改，不需要重写update             ser.save()             return Response({'code:': 100, 'msg': '修改成功', 'data': ser.data})         # 校验不通过         return Response({'code:': 102, 'msg': '校验未通过，修改失败', 'error': ser.errors})      def delete(self, request, pk):         models.AuthorDetail.objects.filter(pk=pk).delete()         return Response({'code': 100, 'msg': '删除成功'})  # 出版社视图类 class PublishView(APIView):     def get(self, requets):         # 序列化         author_list = models.Publish.objects.all()         # 序列化多条数据many=True         ser = serializer.PublishSerializer(instance=author_list, many=True)         return Response(ser.data)      def post(self, request):         # 获取反序列化数据         ser = serializer.PublishSerializer(data=request.data)         if ser.is_valid():             # 校验通过存入数据库，不需要重写create方法了             ser.save()             return Response({'code': 100, 'msg': '新增成功', 'data': ser.data})         # 校验失败         return Response({'code': 101, 'msg': '校验未通过', 'error': ser.errors})   class PublishViewDetail(APIView):     def get(self, request, pk):         book = models.Publish.objects.filter(pk=pk).first()         ser = serializer.PublishSerializer(instance=book)         return Response(ser.data)      def put(self, request, pk):         book = models.Publish.objects.filter(pk=pk).first()         # 修改，instance和data都要传         ser = serializer.PublishSerializer(instance=book, data=request.data)         if ser.is_valid():             # 校验通过修改，不需要重写update             ser.save()             return Response({'code:': 100, 'msg': '修改成功', 'data': ser.data})         # 校验不通过         return Response({'code:': 102, 'msg': '校验未通过，修改失败', 'error': ser.errors})      def delete(self, request, pk):         models.Publish.objects.filter(pk=pk).delete()         return Response({'code': 100, 'msg': '删除成功'})</code></pre> <h3 id="urlspy">urls.py</h3> <pre><code class="language-python">from django.contrib import admin from django.urls import path  from app01 import views  urlpatterns = [     path('admin/', admin.site.urls),     # 书     path('books/', views.BookView.as_view()),     path('books/&lt;int:pk&gt;', views.BookViewDetail.as_view()),      # 作者     path('authors/', views.AuthorView.as_view()),     path('authors/&lt;int:pk&gt;', views.AuthorViewDetail.as_view()),      # 作者详情     path('authorsdetail/', views.AuthorDetailView.as_view()),     path('authorsdetail/&lt;int:pk&gt;', views.OneAuthorViewDetail.as_view()),      # 出版社     path('publish/', views.PublishView.as_view()),     path('publishdetail/&lt;int:pk&gt;', views.PublishViewDetail.as_view()), ]</code></pre> <p></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/8ade4232e195af60327dbf751d691566.jpg" alt="ModelSerializer序列化器实战"></p> <h3 id="优化操作">优化操作</h3> <blockquote> <p>我们知道作者表和作者详情表的表关系是一对一的关系，那么新增数据的时候，就得先新增作者详情表，再增作者表的数据，但是在实际生活中，用户不知道表关系这码事，为了体验更好，可以重写create方法，同时存两个表的内容，给用户的感觉就是操作了一张表</p> </blockquote> <pre><code class="language-python">'''优化作者表的序列化器''' # 作者序列化器 class AuthorSerializer(serializers.ModelSerializer):     class Meta:         # 指定和哪个表有关系         model = models.Author         # fields = '__all__'         fields = ['id', 'name', 'age', 'telephone', 'addr','authordetail_info']      # 重写字段telephone和addr     telephone = serializers.CharField(write_only=True)     addr = serializers.CharField(write_only=True,max_length=8,required=False)       # 重写create，操作两个表     def create(self, validated_data):         # 先存作者详情         authordetail = models.AuthorDetail.objects.create(telephone=validated_data.get('telephone'),addr=validated_data.get('addr'))         # 存作者表         author = models.Author.objects.create(author_detail=authordetail,name=validated_data.get('name'),age=validated_data.get('age'))         # 这样只返回author对象就行，直接存了两个表,返回反序列化的对象         return author</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/cf315856e7b22211f022e81d0453f841.jpg" alt="ModelSerializer序列化器实战"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d74dd5235b50e4caefe6218d2cc4ebe2.jpg" alt="ModelSerializer序列化器实战"></p> <p><strong>Postman自行测试，我测了测都能用，有问题望指正~</strong></p> <p><strong>注意</strong><br /> 如果实际项目中不需要操作数据库可以使用APIView，如果操作数据库那么推荐使用GenericAPIView</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-40.htm">Vue组件通信之跨组件跨层级传递</a></p>
-                                        <p>下一个：<a href="/html/category/article-42.htm">SpringSecurity核心过滤器-CsrfFilter</a></p>
+                                        <p>上一个：<a href="/html/category/article-40.htm">分布式应用运行时 Dapr 1.7 发布</a></p>
+                                        <p>下一个：<a href="/html/category/article-42.htm">PHP通过引用返回</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
-                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
-                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
+                <h4><a href="/html/category/article-235.htm">lombok和JPA的死递归</a></h4>
+                <p>这是一个Bug JPA我觉得是一个封装的很棒的框架，至于说很臃肿这个事，我觉得在需求需要很多复杂查询的时候，不适合用JPA。因为它的封装太棒了，以致于增强了表和实体类之间的耦合。不过在一些简单查询的部</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-254.htm">图像处理学习笔记——BMP图片详解</a></h4>
+                <p>一、位图和调色板的概念  1.位图（Bitmap）： 例如我们常说的屏幕分辨率为 640*480，刷新频率为70Hz，意思是说每行要扫描 640 个象素，一共有 480 行，每秒重复扫描屏幕 70 次</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
-                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
-                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
+                <h4><a href="/html/category/article-205.htm">001、利用pyttsx3、SAPI、SpeechLib 实现文本转语音</a></h4>
+                <p>1、使用pyttsx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3 &nbsp; &nbsp; &</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
-                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
-                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
+                <h4><a href="/html/category/article-220.htm">SpringCloud&#8212;-Feign隔离和降级</a></h4>
+                <p>限流是一种预防措施，虽然限流可以尽量避免因高并发而引起的服务故障，但服务还会因为其它原因而故障。 而要将这些故障控制在一定范围，避免雪崩，就要靠线程隔离（舱壁模式）和熔断降级手段了。线程隔离：调用者在</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

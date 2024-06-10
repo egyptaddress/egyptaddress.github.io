@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-2.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Elasticsearch Mapping 中配置自定义Analyzer - EgyptAddress</title>
+    <title>Semaphore简单使用 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Elasticsearch Mapping 中配置自定义Analyzer</h1>
+                <h1 class="title" style="word-break: break-all;">Semaphore简单使用</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h3>多字段特性</h3> <blockquote> <p>默认text 类型会有一个keyword 字段类型</p> </blockquote> <h3>什么情况下使用多字段？</h3> <ul> <li>公司名字实现精确匹配</li> <li>使用不同的Analyzer <ul> <li>不同语言</li> <li>pinyin字段的搜索</li> <li>还支持为搜索和索引指定不同的analyzer</li> </ul> </li> </ul> <h3>精确值和全文本</h3> <blockquote> <p>区别：精确值不需要做分词处理</p> </blockquote> <h3>自定义Analyzer 介绍</h3> <ul> <li>Character Filters</li> </ul> <blockquote> <p>在Tokenizer 之前对文本进行处理，例如增加删除及替换字符，可以配置多个Character Filters 。会影响TOkenizer 的position和offset 信息。</p> <p>一些自带的Character Filters</p> <p>HTML strip&nbsp; 去除html 标签</p> <p>Mapping 字符串替换</p> <p>Pattern replace 正则匹配替换</p> </blockquote> <p>示例</p> <pre><code class="language-bash">POST _analyze {   "tokenizer": "keyword",   "char_filter": ["html_strip"],   "text": "&lt;b&gt;hello world&lt;/b&gt;" }  // 使用char filter 进行替换 POST _analyze {   "tokenizer": "standard",   "char_filter": [     {       "type": "mapping",       "mappings": ["- =&gt; _"]     }   ],   "text": "123-456, I-test! test-990 650-555-1234" }  // 替换表情符号 POST _analyze {   "tokenizer": "standard",   "char_filter": [     {       "type": "mapping",       "mappings": [":) =&gt; happy", ":( =&gt; sad"]     }   ],   "text": "my today :) ,but :( !!!" } // 正则表达式 GET _analyze {   "tokenizer": "standard",   "char_filter": [     {       "type": "pattern_replace",       "pattern": "http://(.*)",       "replacement": "$1"     }   ],   "text": "http://www.baidu.com" }</code></pre> <h3> TOkenizer</h3> <blockquote> <p>将原始的文本按照一定的规则，切分为词(term or token)</p> <p>Elasticsearch 内置的Tokenizers</p> <p>whitespace / standard / uax_url_email /pattern /keyword/ path hierarchy</p> <p>可以用java 开发插件，实现自己的Tokenizer</p> </blockquote> <p>示例：</p> <pre><code class="language-bash">// 文件路径切分 POST _analyze {   "tokenizer": "path_hierarchy",   "text": "/usr/local/a/b/c/d/e" }</code></pre> <h3>Token Filters</h3> <blockquote> <p>将Tokenizer 输出的单词(term), 进行增加，修改，删除</p> <p>自带的Token Filters</p> <p>lowercase / stop / synonym （添加近义词）</p> </blockquote> <p>示例</p> <pre><code class="language-bash">// whitespace 与stop 以空格切分，并且去掉in  the on 介词 GET _analyze {   "tokenizer": "whitespace",   "filter": ["stop"],   "text": ["The rain in Spain falls mainly on the plain."] } // whitespace 加入lowercase 后，介词The 改为小写被删除   GET _analyze {   "tokenizer": "whitespace",   "filter": ["lowercase","stop"],   "text": ["The rain in Spain falls mainly on the plain."] }</code></pre> <p> 设置一个自定义Analyzer</p> <pre><code class="language-bash">// 创建索引指定分词器 PUT my_inx {   "settings": {     "analysis": {       "analyzer": {         "my_custom_analyzer": {           "type": "custom",           "char_filter": [             "emoticons"             ],             "tokenizer": "punctuation",             "filter": [               "lowercase",               "english_stop"               ]         }       },       "tokenizer": {         "punctuation": {           "type": "pattern",           "pattern": "[ .,!?]"         }       },       "char_filter": {         "emoticons": {           "type": "mapping",           "mappings": [             ":) =&gt; _happy_",             ":( =&gt; _sad_"             ]         }       },       "filter": {         "english_stop": {           "type": "stop",           "stopwords": "_englist_"         }       }     }   } }  POST my_inx/_analyze {   "analyzer": "my_custom_analyzer",   "text": "I'm a :) persion, and you?" }</code></pre> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>&nbsp;</p> <p>1、简介：</p> <p>Semaphore是Java的并发操作，用于多线程中，用于控制同时访问某个资源数，或某个操作的数量；</p> <p>初始许可数可以通过new Semaphore的构造函数指定，release释放许可，acquire阻塞，如果没有释放，该方法会一直阻塞直到有许可，或操作超时</p> <p>2、通过打印机的互斥demo来简单使用Semaphor，也能更加理解Semaphore</p> <pre class="has"><code>import java.util.concurrent.Semaphore;  /**  * semaphore的使用  */ public class MutrxPrint {      /**      * 定义初始值为1的信号量(会先允许有一个线程执行，后来的会阻塞等待)      */     private static final Semaphore mSemaphore = new Semaphore(1);       private static void print() throws InterruptedException {         System.out.println("print-----1");         //先等待，请求许可         mSemaphore.acquire();         System.out.println("print-----2");         System.out.println("print-----3--" + Thread.currentThread().getName() + "---Enter");         Thread.sleep(1000);         System.out.println("print-----4--" + Thread.currentThread().getName() + "---正在打印.....");         Thread.sleep(1000);         System.out.println("print-----5--" + Thread.currentThread().getName() + "---outer.....");         mSemaphore.release();     }      public static void main(String[] args){         //开启10个线程抢占         for (int i = 0; i &lt; 10; i++) {             new Thread(new Runnable() {                 @Override                 public void run() {                     try {                         print();                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             }).start();         }     } }</code></pre> <p>&nbsp;输出结果：</p> <pre class="has"><code>print-----3--Thread-1---Enter print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----4--Thread-1---正在打印..... print-----5--Thread-1---outer..... print-----2 print-----3--Thread-3---Enter print-----4--Thread-3---正在打印..... print-----5--Thread-3---outer..... print-----2</code></pre> <p>&nbsp;print---1说明是其他线程进来，由于acquire方法在阻塞，</p> <p>代码11行创建一个为1的许可数信号量，在调用print方法时代码17行会先判断是否还有剩余信号量许可数，有的话hui</p> <p>会继续往下执行，没有的话会阻塞，等到其他线程执行完并释放，也就是代码24行</p> <pre class="has"><code class="language-html">mSemaphore.release();之前阻塞的会继续执行 </code></pre> <p>3、连接池的模拟实现</p> <p>在项目中处理高并发时，一般数据库都会使用数据库连接池，假设现在数据库连接池最大连接数为10，当10个连接都分配出去以后，现在有用户继续请求连接，可能的处理：</p> <p>a、手动抛出异常，用户界面显示，服务器忙，稍后再试</p> <p>b、阻塞，等待其他连接的释放</p> <p>从用户体验上来说，更好的选择当然是阻塞，等待其他连接的释放，用户只会觉得稍微慢了一点，并不影响他的操作。下面使用Semaphore模拟实现一个数据库连接池：</p> <pre class="has"><code>import java.util.ArrayList; import java.util.List; import java.util.concurrent.Semaphore;  /**  * 连接池使用Semaphore  */ public class ConnectPool {     class Conn{}     private List&lt;Conn&gt; pools = new ArrayList&lt;&gt;(3);     private Semaphore mSemaphore = new Semaphore(3);     public ConnectPool() {         pools.add(new Conn());         pools.add(new Conn());         pools.add(new Conn());     }      /**      * 获取连接池的一个连接      * @return 连接池      */     private Conn getConn() throws InterruptedException {         mSemaphore.acquire();         System.out.println("------getConn--1--" + Thread.currentThread().getName());         Conn c = null;         //加这个同步的原因是为了防止两个线程同时走到这里，加入sync就可以防止将同一个conn 同时分配给这两个线程了         synchronized (ConnectPool.class){             c = pools.remove(0);         }         System.out.println("------getConn--2--" + Thread.currentThread().getName() + "---" + c);         return c;     }      /**      *      * @param c 释放连接池中的连接      */     private void releaseConn(Conn c){         pools.add(c);         System.out.println(Thread.currentThread().getName()+" release a conn " + c);         mSemaphore.release();     }      public static void main(String[] args){         ConnectPool mConnectPools = new ConnectPool();         new Thread(new Runnable() {             @Override             public void run() {                 try {                     Conn conn = mConnectPools.getConn();                     Thread.sleep(3000);                     mConnectPools.releaseConn(conn);                 } catch (InterruptedException e) {                     e.printStackTrace();                 }             }         }).start();          for (int i = 0; i &lt; 3; i++) {             new Thread(new Runnable() {                 @Override                 public void run() {                     try {                         Conn conn = mConnectPools.getConn();                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             }).start();         }     } }</code></pre> <p>输出日志：</p> <pre class="has"><code>------getConn--1--Thread-1 ------getConn--2--Thread-1---com.fengyu.cn.cha11.ConnectPool$Conn@2e4e6427 ------getConn--1--Thread-3 ------getConn--2--Thread-3---com.fengyu.cn.cha11.ConnectPool$Conn@1232cc0 ------getConn--1--Thread-0 ------getConn--2--Thread-0---com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802 Thread-0 release a conn com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802 ------getConn--1--Thread-2 ------getConn--2--Thread-2---com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802</code></pre> <p>测试时，让线程Thread-1获得连接池一个3秒的连接，同时又有3个线程去连接池获取连接，由于连接池中只有2个连接，所有有一个线程会等待，直到Thread-1释放连接池中的连接，他才会跟连接池连接上；</p> <p>好了文章有点啰嗦，有错误<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/lmj623565791/article/details/26810813"  rel="nofollow">希望各位提出一起探讨，学习</a>；</p> <p>文章转载：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/lmj623565791/article/details/26810813"  rel="nofollow">https://blog.csdn.net/lmj623565791/article/details/26810813</a></p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-1.htm">前端零：基本知识</a></p>
-                                        <p>下一个：<a href="/html/category/article-3.htm">Python中print和字符格式化的小结（Python2.7.5）</a></p>
+                                        <p>上一个：<a href="/html/category/article-1.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></p>
+                                        <p>下一个：<a href="/html/category/article-3.htm">关于Hadoop在java客户端进行下载时的异常java.io.FileNotFoundException: Hadoop home directory is no existed的解决办法</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
-                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
+                <h4><a href="/html/category/article-207.htm">restTemplate配置及使用</a></h4>
+                <p>文章目录      1 场景 2 依赖 3 配置 4 使用   4.1 GET请求   4.1.1 普通访问 4.1.2 返回HTTP状态 4.1.3 映射请求参数   4.2 POST请求   4.</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
-                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-212.htm">定时器中 this 指向修改实现方法和原理讲解</a></h4>
+                <p>定时器中 this 指向修改实现方法和原理讲解      1. 变量替换 2. 箭头函数 3. bind() 方法       定时器属于全局 window ，window.setTimeout();</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-228.htm"># kubernetes调度之nodeName与NodeSelector</a></h4>
+                <p>系列目录  Kubernetes的调度有简单，有复杂，指定NodeName和使用NodeSelector调度是最简单的，可以将Pod调度到期望的节点上。 本文主要介绍kubernetes调度框架中的N</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
-                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
+                <h4><a href="/html/category/article-209.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
-                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
+                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
+                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
-                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
-                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
-                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

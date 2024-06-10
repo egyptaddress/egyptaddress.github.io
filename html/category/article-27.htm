@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-27.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>PHP如何声明子命名空间 - EgyptAddress</title>
+    <title>基于casbin的RBAC权限实践_在线工具 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">PHP如何声明子命名空间</h1>
+                <h1 class="title" style="word-break: break-all;">基于casbin的RBAC权限实践_在线工具</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h2>介绍</h2> <p>可以在命名空间内创建命名空间。就像文件系统中的目录可以包含子目录一样，子命名空间也可以按层次结构排列。反斜杠字符<strong>&nbsp;\</strong>用于定义顶级和子级命名空间之间的关系，</p> <p>在此示例中，顶级命名空间myspace包含两个子命名空间space1和space2。为了访问子命名空间内的函数/类，请首先<strong>使用use</strong>关键字使其可用</p> <h2>示例</h2> <pre>&lt;?php namespace&nbsp;myspace\space1; function&nbsp;hello()&nbsp;{ &nbsp;&nbsp;&nbsp;echo&nbsp;"Hello&nbsp;World&nbsp;from&nbsp;space1\n"; } namespace&nbsp;myspace\space2; function&nbsp;hello(){ &nbsp;&nbsp;&nbsp;echo&nbsp;"Hello&nbsp;World&nbsp;from&nbsp;space2\n"; } use&nbsp;myspace\space1; hello(); use&nbsp;myspace\space2; hello(); ?&gt;</pre> <p>输出结果</p> <p>上面的代码显示以下输出</p> <pre>Hello&nbsp;World&nbsp;from&nbsp;space2 Hello&nbsp;World&nbsp;from&nbsp;space2</pre> <div></div> 			                </div>
+                      				  				  				<section id="nice" data-tool="mdnice编辑器" data-website="https://www.mdnice.com"> <figure data-tool="mdnice编辑器"><img decoding="async" src="https://dimg04.c-ctrip.com/images/0v56c120009fyyj1098AE.png" alt="基于casbin的RBAC权限实践_在线工具"><figcaption></figcaption></figure> <p data-tool="mdnice编辑器">五一假期疫情封在家也没事做，就想来优化一下一个前端容器小项目</p> <p data-tool="mdnice编辑器">之前的TODOlist里面有一项是权限这块时隔2年了还一直没有动手</p> <p data-tool="mdnice编辑器">迟迟没搞主要还是我太懒了，哈哈 其实我一直想要找一个轻量级的权限通用方案</p> <ul data-tool="mdnice编辑器"> <li> <section>权限的数据源可以切换，但是逻辑基本不用动</section> </li> <li> <section>权限策略定义简单不复杂,支持RBAC,ABAC(粒度可粗可细)</section> </li> <li> <section>支持内置超级用户(上帝模式)</section> </li> </ul> <p data-tool="mdnice编辑器">知道我最近研究了一下casbin（基于各种访问控制模型的授权）， 发现它正好满足了我以上几个点 官网： <a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://casbin.org/"   rel="nofollow">https://casbin.org/</a></p> <h3 data-tool="mdnice编辑器"><span class="content">基于cashbin的权限实践</span></h3> <h4 data-tool="mdnice编辑器"><span class="content">1. 权限设计</span></h4> <p data-tool="mdnice编辑器">分为2种权限：超级管理员(上帝模式) 和 普通用户</p> <p data-tool="mdnice编辑器">我这个程序的功能是按照项目维度来区分的，超级管理员创建一个空项目后，授权给别人去维护，总共包含7大功能：</p> <p data-tool="mdnice编辑器">超级管理员可以访问所有功能， 但只能是【超级管理员】做的有1和2和3</p> <ul data-tool="mdnice编辑器"> <li> <section>1.权限配置(普通用户创建和删除,权限的修改和保存)</section> </li> <li> <section>2.全局配置</section> </li> <li> <section>3.创建空项目</section> </li> <li> <section>4.上传并部署该项目</section> </li> <li> <section>5.把项目回滚到上一个版本</section> </li> <li> <section>6.项目维度的服务端js脚本(读和写)</section> </li> <li> <section>7.项目维度的配置文件(读和写)</section> </li> </ul> <p data-tool="mdnice编辑器">普通用户则可以被超级管理员在权限配置页面创建并进行配置来限制是否授予访问4~7这几个功能</p> <h4 data-tool="mdnice编辑器"><span class="content">2. 代码开发</span></h4> <p data-tool="mdnice编辑器">casbin基本主流的开发语言都有对应的实现，这里我用netcore版本(<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.nuget.org/packages/Casbin.NET/1.12.2"   rel="nofollow">Casbin.NET</a>)</p> <p data-tool="mdnice编辑器">首先定义模型：</p> <pre class="custom" data-tool="mdnice编辑器"><code> [request_definition] r = sub, obj, act  [policy_definition] p = sub, obj, act  [policy_effect] e = some(where (p.eft == allow))  [matchers] r.sub == p.sub &amp;&amp; keyMatch(r.obj, p.obj) &amp;&amp; regexMatch(r.act, p.act) || r.sub == "root"</code></pre> <p data-tool="mdnice编辑器">由于我这个是按照project进行权限控制的，所以我选用的是这个模型</p> <ul data-tool="mdnice编辑器"> <li> <section>sub -&gt; user(登录用户名,root是超级用户/上帝模式)</section> </li> <li> <section>obj -&gt; project(项目)</section> </li> <li> <section>act -&gt; api资源(这里用了基于正则的方式为了应对配置一个用户可以访问project下所有权限)</section> </li> </ul> <pre class="custom" data-tool="mdnice编辑器"><code> /// &lt;summary&gt; /// 创建casbin模型 /// &lt;/summary&gt; /// &lt;returns&gt;&lt;/returns&gt; public static Enforcer createEnforcer() {     var e = new Enforcer();     var m = NetCasbin.Model.Model.CreateDefault();     m.AddDef("r", "r", "sub, obj, act");     m.AddDef("p", "p", "sub, obj, act");     m.AddDef("e", "e", "some(where (p.eft == allow))");     m.AddDef("m", "m", "r.sub == p.sub &amp;&amp; keyMatch(r.obj, p.obj) &amp;&amp; regexMatch(r.act, p.act) || r.sub == "root"");     var csv = Path.Combine(WebRootPath, CasBinPolicyFile);     if (!File.Exists(csv))     {         File.CreateText(csv);     }      e.SetModel(m);     // 目前我的权限配置文件是放在csv文件中 切换成存db的话 就切换一个adapter     e.SetAdapter(new DefaultFileAdapter(csv));     e.LoadPolicy();     return e; }</code></pre> <p data-tool="mdnice编辑器">由于本身我的这个项目是一个中间件，</p> <figure data-tool="mdnice编辑器"><img decoding="async" src="https://dimg04.c-ctrip.com/images/0v501120009fynqx1ACD6.png" alt="基于casbin的RBAC权限实践_在线工具"><figcaption></figcaption></figure> <pre class="custom" data-tool="mdnice编辑器"><code> //内部api app.UseWhen(     c =&gt;     {         // 检查路由是否满足要求         if (!ApiMiddleware.CanInvoke(c, out var route))         {             return false;         }         // 路由规则满足后检查api是否存在         return c.RequestServices.GetService&lt;SpaDomain&gt;()?.IsSpaApi(route.Item2) ?? false;     },     _ =&gt; _.UseMiddleware&lt;ApiMiddleware&gt;());</code></pre> <p data-tool="mdnice编辑器">对于普通用户可访问的内部的api访问路径进行规则约束</p> <ul data-tool="mdnice编辑器"> <li> <section>4.上传并部署该项目-&gt; /{project}.reupload</section> </li> <li> <section>5.把项目回滚到上一个版本 -&gt; /{project}.rollback</section> </li> <li> <section>6.项目维度的服务端js脚本(读) -&gt; /{project}.getconfigjson</section> </li> <li> <section>项目维度的服务端js脚本(写) -&gt; /{project}.saveconfigjson</section> </li> <li> <section>7.项目维度的配置文件(读) -&gt; /{project}.serverjsget</section> </li> <li> <section>项目维度的配置文件(写)-&gt; /{project}.serverjssave</section> </li> </ul> <p data-tool="mdnice编辑器">这样我在ApiMiddleware里面可以进行统一权限拦截处理了</p> <ul data-tool="mdnice编辑器"> <li> <section>解析请求路径 拿到 project（obj） 和 act (api)</section> </li> <li> <section>拿到当前登录 拿到 sub（user）</section> </li> <li> <section>拿到了sub,obj,act三要素后调用casbin方法进行验证</section> </li> </ul> <pre class="custom" data-tool="mdnice编辑器"><code>bool isAuthed = ef.Enforce(sub, obj, act);</code></pre> <figure data-tool="mdnice编辑器"><img decoding="async" src="https://dimg04.c-ctrip.com/images/0v510120009fyy71o82DD.png" alt="基于casbin的RBAC权限实践_在线工具"><figcaption></figcaption></figure> <h4 data-tool="mdnice编辑器"><span class="content">设计一个页面来去配置策略</span></h4> <figure data-tool="mdnice编辑器"><img decoding="async" src="https://dimg04.c-ctrip.com/images/0v571120009fypsqs694B.png" alt="基于casbin的RBAC权限实践_在线工具"><figcaption></figcaption></figure> <p data-tool="mdnice编辑器">这也是针对casbin的一个ui操作的封装</p> <ul data-tool="mdnice编辑器"> <li> <section>支持创建用户</section> </li> <li> <section>casbin的策略进行增删改查</section> </li> <li> <section>支持的api资源的列表展示</section> </li> </ul> <p data-tool="mdnice编辑器">那么通过这个ui操作就很容易去配置</p> <h5 data-tool="mdnice编辑器"><span class="content">粗粒度：某个用户对哪些project有权限</span></h5> <figure data-tool="mdnice编辑器"><img decoding="async" src="https://dimg04.c-ctrip.com/images/0v510120009fyypytD1B6.png" alt="基于casbin的RBAC权限实践_在线工具"><figcaption></figcaption></figure> <p data-tool="mdnice编辑器">如上图，资源路径我配置了/* 代表这个zdyu用户可以访问project：test的所有操作</p> <h5 data-tool="mdnice编辑器"><span class="content">细力度：某个用户对哪些project的哪些具体操作有权限</span></h5> <figure data-tool="mdnice编辑器"><img decoding="async" src="https://dimg04.c-ctrip.com/images/0v51c120009fyy9312F35.png" alt="基于casbin的RBAC权限实践_在线工具"><figcaption></figcaption></figure> <p data-tool="mdnice编辑器">如上图，代表zdyu这个用户只荀彧访问test这个project下的 部署和回滚2个功能</p> <h4 data-tool="mdnice编辑器"><span class="content">总结</span></h4> <p data-tool="mdnice编辑器">本身研究怎么用casbin是非常简单的，这里主要分享了结合具体项目来如何设计，细节源码可以查看</p> <p data-tool="mdnice编辑器"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/yuzd/Spa/wiki"   rel="nofollow">https://github.com/yuzd/Spa</a></p> <p data-tool="mdnice编辑器">spa单页面容器里面一个project相当于一个二级域名的应用，应用内互相隔离，可以代替部署nginx或apache，对前端开发者友好,适合在某些只是用来静态项目访问的场景，来提高效率！</p> <p data-tool="mdnice编辑器"> </p> <p data-tool="mdnice编辑器"><img decoding="async" src="http://img.555519.xyz/uploads3/20220507/47b25cfe0fe7dc756764e854e85d003c.jpg" alt="基于casbin的RBAC权限实践_在线工具"></p> </section> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-26.htm">springboot集成elasticsearch7.2</a></p>
-                                        <p>下一个：<a href="/html/category/article-28.htm">python神经网络tf.name_scope和tf.variable_scope函数区别_python</a></p>
+                                        <p>上一个：<a href="/html/category/article-26.htm">python神经网络Keras构建CNN网络训练_python</a></p>
+                                        <p>下一个：<a href="/html/category/article-28.htm">Spring Boot &#8211; RestTemplate在URL中转义字符问题</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></h4>
-                <p>Redis的数据淘汰策略  volatile-lru（least recently used）：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰 vol</p>
+                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
+                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
-                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-245.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></h4>
+                <p>创建型设计模式: 单例模式(Singleton Pattern)  CSDN专栏: 设计模式(UML/23种模式)  单例模式(Singleton Pattern)保证一个类仅有一个实例，并提供一个访</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
-                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
-                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
+                <h4><a href="/html/category/article-205.htm">001、利用pyttsx3、SAPI、SpeechLib 实现文本转语音</a></h4>
+                <p>1、使用pyttsx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3 &nbsp; &nbsp; &</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
-                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
-                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
-                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
-                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
-                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

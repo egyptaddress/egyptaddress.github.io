@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-95.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>springboot实现定时任务-Scheduling - EgyptAddress</title>
+    <title>Python OpenCV实现3种滤镜效果实例_python_ - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">springboot实现定时任务-Scheduling</h1>
+                <h1 class="title" style="word-break: break-all;">Python OpenCV实现3种滤镜效果实例_python_</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h1>1.主要总结@Scheduled()注解的三个属性：cron,fixedRate,fixedDelay</h1> <p>cron为cron表达式，用来表示该任务在日期时间维度执行频率，详细可参考cron表达式的文章</p> <p>fixedRate:代表该任务的执行频率，单位毫秒，无论任务执行耗时多久，总是以该频率执行任务</p> <p>fixedDelay:代表该任务的执行频率，单位毫秒，在上一次任务执行完后等待x毫秒后执行下次任务</p> <h1>2.开启异步@EnableAsync后使用上述三种属性产生的效果</h1> <p>前提：springboot通过scheduling实现的定时任务使用的线程有自己的线程池，默认大小为1，此时无法满足多个定时任务的情形，因此通常需要手动设置线程池的大小，以10为例。</p> <p>有以下三种情形</p> <p>1.使用fixedRate属性不加@Async注解、使用fixedRate属性加@Async注解</p> <p>2.使用cron不加@Async注解、使用cron属性加@Async注解</p> <p>3.使用fixedDelay不加@Async注解</p> <pre><code class="language-java">@Component @EnableAsync @Slf4j public class ScheduledTasks {      @Scheduled(fixedDelay = 3000) //    @Scheduled(fixedRate = 3000) //    @Scheduled(cron = "0/3 * * * * ?") //    @Async(value = "myAsync")     void contextLoads() throws InterruptedException {         log.info("scheduled1 wait start");         Thread.sleep(4000);         log.info("scheduled1 wait end");         log.info("scheduled task run....      " + Thread.currentThread().getName());     }  //    @Scheduled(cron = "0/3 * * * * ?")     @Scheduled(fixedDelay = 3000) //    @Scheduled(fixedRate = 3000) //    @Async(value = "myAsync")     void scheduled2() throws InterruptedException {         log.info("scheduled2 wait start");         Thread.sleep(4000);         log.info("scheduled2 wait end");         log.info("scheduled task2 run....      " + Thread.currentThread().getName());     } }</code></pre> <h1>3.结论：</h1> <h3>1.使用fixedRate加@Async注解和使用cron加@Async注解效果相同</h3> <p>会实现无论任务执行耗时多久，下次任务始终会以规定的频率执行；</p> <p>上述例子中若为fixedRate，则下次任务开始执行始终是在上次任务开始后的三秒；</p> <p>若为cron，则下次任务开始执行始终为上次任务开始执行后的三秒，也就是上次任务开始时间为10:23:02，则下次任务开始时间为10:23:05，此种情况不受任务执行耗时影响。</p> <h3>2.使用fixedRate不加@Async注解</h3> <p>此时若每次任务执行耗时比fixedRate的值小，则会在上次任务开始后的fixedRate毫秒后开始执行下次任务；</p> <p>若每次执行任务耗时比fixedRate的值大，则会在上次任务执行后立刻执行下次任务，因为此时已经超过规定的执行频率的时间，因此需要立刻执行下次任务。</p> <h3>3.使用cron不加@Async注解</h3> <p>此时若每次任务执行耗时比cron表达式所表示的上次任务开始时间与下次任务开始时间的间隔小，则会以cron表达式表示的频率执行任务；</p> <p>若每次任务执行耗时比cron表达式所表示的上次任务开始时间与下次任务开始时间的间隔大，则下次任务会在上次任务执行完成后再到达cron表达式所表示的任务开始执行的时刻开始执行任务，例如上述例子中上次任务开始时间为10:23:02，任务执行耗时4s，而以cron表达式表示的频率下次的执行时间为10:23:05，但是此时上次任务并没有执行完成，上次任务执行完成的时间为10:23:06，因此下次任务执行需要等到cron表达式表示的下一次任务执行的时刻也就是10:23:08.</p> <h3>4.使用fixedDelay不加@Async注解</h3> <p>使用fixedDelay属性时不能加@Async注解，否则会报错。</p> <p>此时无论任务执行耗时是多少，下次任务开始执行的时间总是上次任务执行完成后的fixedDelay毫秒。</p> <h3>5.当有多个定时任务时，在保证定时任务线程池数以及异步线程池数足够的情况下，多个定时任务同样遵循上述结论。</h3> <h3>6.上述结论中1和4是比较符合开发需要的两种场景。</h3> <h1>4.修改定时任务线程池以及自定义异步任务线程池</h1> <h3>1.修改定时任务默认的线程池大小</h3> <p>方式一：修改配置文件application.yml&nbsp;</p> <pre><code class="language-java">spring.task.scheduling.pool.size = 10</code></pre> <p>方式二：配置类</p> <pre><code class="language-java">@Configuration public class ScheduleConfig implements SchedulingConfigurer {     @Override     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {         taskRegistrar.setScheduler(Executors.newScheduledThreadPool(50));     } }</code></pre> <h3>2.自定义定时任务的线程池</h3> <pre><code class="language-java">@Configuration public class ScheduleConfig {       /**      * 此处方法名为Bean的名字，方法名无需固定      * 因为是按TaskScheduler接口自动注入      */     @Bean     public TaskScheduler taskScheduler(){         // Spring提供的定时任务线程池类         ThreadPoolTaskScheduler taskScheduler=new ThreadPoolTaskScheduler();         //设定最大可用的线程数目         taskScheduler.setPoolSize(10);         return taskScheduler;     } }</code></pre> <h3>3.自定义异步任务线程池</h3> <pre><code class="language-java">@Component public class AsyncScheduledTaskConfig {      @Bean     public Executor myAsync() {         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();         //最大线程数         executor.setMaxPoolSize(100);         //核心线程数         executor.setCorePoolSize(10);         //任务队列的大小         executor.setQueueCapacity(10);         //线程前缀名         executor.setThreadNamePrefix("task-thread");         //线程存活时间         executor.setKeepAliveSeconds(30);          /**          * 拒绝处理策略          * CallerRunsPolicy()：交由调用方线程运行，比如 main 线程。          * AbortPolicy()：直接抛出异常。          * DiscardPolicy()：直接丢弃。          * DiscardOldestPolicy()：丢弃队列中最老的任务。          */         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());         //线程初始化         executor.initialize();         return executor;     } } </code></pre> <p>使用时只需在@Async注解中使用value属性指定线程线程池名称，也就是bean的名称，上述默认为方法名</p> </p></div> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">前言</a></li> <li><a href="#_label1" rel="nofollow">浮雕滤镜效果</a></li> <li><a href="#_label2" rel="nofollow">雕刻滤镜效果</a></li> <li><a href="#_label3" rel="nofollow">凸透镜滤镜效果</a></li> <li><a href="#_label4" rel="nofollow">总结</a></li> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>前言</h2> <p>本篇文章要使用OpenCV、Numpy 和Math这3个工具包实现一个简单的滤镜编辑器。在这个滤镜编辑器中，包含了3种滤镜效果，它们分别是浮雕滤镜、雕刻滤镜和凸透镜滤镜。本篇文章将对目标图像（如图1所示）进行处理，使得目标图像分别呈现浮雕滤镜（如图2所示）、雕刻滤镜（如图3所示）和凸透镜滤镜（如图4所示）的视觉效果。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/06e3852ed5a090cc3451df22fed2c24d.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/c66ffa83a043a2964660886d28d544d7.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/09e490a9749fcf5f84b6a04cb3d1adf5.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/385bd7dc214359f58688a965d857898f.jpg"></p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>浮雕滤镜效果</h2> <p>为了实现浮雕滤镜效果，首先要把实现浮雕滤镜效果的原理搞清楚、弄明白。实现浮雕滤镜效果的原理如下所示：</p> <ul> <li> <p>根据灰度图像中的某一个像素的像素值与其周围像素的像素值之间的差值，确定这个像素经过卷积处理后的像素值；</p> </li> <li> <p>由于边缘点的像素值与其周围像素的像素值之间的差值较大，经卷积处理后，导致这些边缘点较亮，从而达到凸显边缘的目的，进而形成浮雕状；</p> </li> <li> <p>为经卷积处理后的每一个像素加上一个灰度偏移值128，作为呈现浮雕滤镜效果的图像的底色。</p> </li> </ul> <p>明确了实现浮雕滤镜效果的原理后，再来学习一下实现浮雕滤镜效果的算法。实现浮雕滤镜效果的算法如下所示：</p> <ul> <li> <p>对灰度图像中的每一个像素进行卷积处理；</p> </li> <li> <p>实现浮雕滤镜效果的卷积核算子需采用如下矩阵：</p> </li> </ul> <blockquote> <p>[[1, 0], [0, -1]]</p> </blockquote> <p>掌握了实现浮雕滤镜效果的原理和算法后，下面开始编写用于实现浮雕滤镜效果的方法，即<code>fuDiao()</code>方法。<code>fuDiao()</code>方法是一个自定义的、有参且有返回值的方法，<code>fuDiao()</code>方法的语法格式如下所示：</p> <div class="ay1code"> <pre class="brush:py;">def fuDiao(img):      ……# 省略方法体中的代码      return canvas</pre> </div> <p><strong>参数说明：</strong></p> <blockquote> <p> img：与目标图像对应的灰度图像。</p> </blockquote> <p><strong>返回值说明：</strong></p> <blockquote> <p>canvas：画布，用于呈现浮雕滤镜效果的图像。</p> </blockquote> <p>那么，<code>fuDiao()方法</code>被省略的代码各自发挥怎样的作用？此外，被省略的代码又是那些呢？</p> <p><strong>先要明确fuDiao()方法中被省略的代码各自发挥的作用是什么：</strong></p> <p><strong>因为用于实现浮雕滤镜效果的卷积核算子是一个二维矩阵，所以需要使用<code>Numpy工具包</code>中的<code>array()方法</code>创建这个二维矩阵。关键代码如下所示：</strong></p> <div class="ay1code"> <pre class="brush:py;">kernel = np.array([[1, 0], [0, -1]])</pre> </div> <p><strong>分别获取灰度图像中像素的行数和列数。关键代码如下所示：</strong></p> <div class="ay1code"> <pre class="brush:py;">row = img.shape[0]  col = img.shape[1]</pre> </div> <p>根据灰度图像中像素的行数和列数，创建一个等高、等宽的，纯黑色的画布。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">canvas = np.zeros([row, col], dtype=np.uint8)</pre> </div> <p>根据横、纵坐标，使用嵌套的for循环得到灰度图像中的每一个像素。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">for i in range(row - 1):  for j in range(col - 1):</pre> </div> <p>使用实现浮雕滤镜效果的卷积核算子，对灰度图像中的每一个像素进行卷积处理，并且为经卷积处理后的每一个像素加上一个灰度偏移值128。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">new_value = np.sum(img[i:i + 2, j:j + 2] * kernel) + 128</pre> </div> <p>对于经卷积处理且加上一个灰度偏移值后的每一个像素的像素值，如果大于255，那么等于255；如果小于0，那么等于0。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">if new_value &gt; 255:     new_value = 255     elif new_value &lt; 0:        new_value = 0    else:      pass</pre> </div> <p>把经过比较后的每一个像素的像素值根据坐标赋值给画布对应位置上的像素。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:js;">canvas[i, j] = new_value</pre> </div> <p>结合<code>fuDiao()方法</code>中被省略的代码和它们各自发挥的作用，就能够迅速完成<code>fuDiao()</code>方法的编写。<code>fuDiao()</code>方法的代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">def fuDiao(img):        kernel = np.array([[1, 0], [0, -1]])        row = img.shape[0]        col = img.shape[1]        canvas = np.zeros([row, col], dtype=np.uint8)        for i in range(row - 1):           for j in range(col - 1):               new_value = np.sum(img[i:i + 2, j:j + 2] * kernel) + 128               if new_value &gt; 255:                   new_value = 255                elif new_value &lt; 0:                   new_value = 0                else:                    pass               canvas[i, j] = new_value        return canvas</pre> </div> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>雕刻滤镜效果</h2> <p><strong>实现雕刻滤镜效果的原理与实现浮雕滤镜效果的原理大致相同，实现雕刻滤镜效果的原理如下所示：</strong></p> <ul> <li> <p>根据灰度图像中的某一个像素的像素值与其周围像素的像素值之间的差值，确定这个像素经过卷积处理后的像素值；</p> </li> <li> <p>由于边缘点的像素值与其周围像素的像素值之间的差值较大，经卷积处理后，导致这些边缘点较暗，从而达到凹陷边缘的目的，进而形成雕刻状；</p> </li> <li> <p>为经卷积处理后的每一个像素加上一个灰度偏移值128，作为呈现雕刻滤镜效果的图像的底色。</p> </li> </ul> <p><strong>虽然实现雕刻滤镜效果的原理与实现浮雕滤镜效果的原理大致相同，但是实现雕刻滤镜效果的算法与实现浮雕滤镜效果的算法大不相同。实现雕刻滤镜效果的算法如下所示：</strong></p> <ul> <li> <p>对灰度图像中的每一个像素进行卷积处理；</p> </li> <li> <p>实现雕刻滤镜效果的卷积核算子需采用如下矩阵：</p> </li> </ul> <div class="ay1code"> <pre class="brush:py;">[[-1, 0],  [0, 1]]</pre> </div> <p>掌握了实现雕刻滤镜效果的原理和算法后，下面开始编写用于实现雕刻滤镜效果的方法，即<code>diaoKe()</code>方法。与<code>fuDiao()</code>方法相同，<code>diaoKe()</code>方法也是一个自定义的、有参且有返回值的方法，<code>diaoKe()</code>方法的语法格式如下所示：</p> <div class="ay1code"> <pre class="brush:py;">def diaoKe(img):     ……# 省略方法体中的代码      return canvas</pre> </div> <p><strong>参数说明：</strong></p> <blockquote> <p>img：与目标图像对应的灰度图像。</p> </blockquote> <p><strong>返回值说明：</strong></p> <blockquote> <p>canvas：画布，用于呈现雕刻滤镜效果的图像。</p> </blockquote> <p><strong>diaoKe()方法被省略的代码与fuDiao()方法被省略的代码大同小异，首先明确下diaoKe()方法中被省略的代码各自发挥的作用是什么：</strong></p> <p><strong>用于实现雕刻滤镜效果的卷积核算子与用于实现浮雕滤镜效果的卷积核算子虽然不同，但也是一个二维矩阵，因此需要使用Numpy工具包中的array()方法创建这个二维矩阵。关键代码如下所示：</strong></p> <div class="ay1code"> <pre class="brush:py;">kernel = np.array([[-1, 0], [0, 1]])</pre> </div> <p>分别获取灰度图像中像素的行数和列数。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">row = img.shape[0]  col = img.shape[1]</pre> </div> <p>根据灰度图像中像素的行数和列数，创建一个等高、等宽的，纯黑色的画布。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">canvas = np.zeros([row, col], dtype=np.uint8)</pre> </div> <p>根据横、纵坐标，使用嵌套的for循环得到灰度图像中的每一个像素。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">for i in range(row - 1):  for j in range(col - 1):</pre> </div> <p>使用实现雕刻滤镜效果的卷积核算子，对灰度图像中的每一个像素进行卷积处理，并且为经卷积处理后的每一个像素加上一个灰度偏移值128。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">new_value = np.sum(img[i:i + 2, j:j + 2] * kernel) + 128</pre> </div> <p>对于经卷积处理且加上一个灰度偏移值后的每一个像素的像素值，如果大于255，那么等于255；如果小于0，那么等于0。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">  if new_value &gt; 255:        new_value = 255    elif new_value &lt; 0:        new_value = 0    else:        pass</pre> </div> <p>把经过比较后的每一个像素的像素值根据坐标赋值给画布对应位置上的像素。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:js;">canvas[i, j] = new_value</pre> </div> <p>结合<code>diaoKe()</code>方法中被省略的代码和它们各自发挥的作用，就能够迅速完成<code>diaoKe()</code>方法的编写。<code>diaoKe()</code>方法的代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">  def diaoKe(img):        kernel = np.array([[-1, 0], [0, 1]])        row = img.shape[0]        col = img.shape[1]        canvas = np.zeros([row, col], dtype=np.uint8)        for i in range(row - 1):            for j in range(col - 1):                new_value = np.sum(img[i:i + 2, j:j + 2] * kernel) + 128                if new_value &gt; 255:                    new_value = 255                elif new_value &lt; 0:                    new_value = 0                else:                    pass                canvas[i, j] = new_value        return canvas</pre> </div> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>凸透镜滤镜效果</h2> <p>所谓凸透镜滤镜效果，相当于用户使用凸透镜观察一幅图像而成的视觉效果。实现凸透镜滤镜效果的原理与实现浮雕滤镜效果的原理和实现雕刻滤镜效果的原理大不相同。下面将着重对实现凸透镜滤镜效果的原理进行讲解：</p> <ul> <li> <p>当使用凸透镜中心观察一幅图像时，被观察的图像区域将按照一定比例进行放大；相应地，这个区域的周围区域将被压缩；</p> </li> <li> <p>为了让放大后的图像区域看起来和谐自然，这些被压缩的周围区域要保持连续性。</p> </li> </ul> <p><strong>明确了实现凸透镜滤镜效果的原理后，再来学习一下实现凸透镜滤镜效果的算法。实现凸透镜滤镜效果的算法如下所示：</strong></p> <ul> <li> <p>根据目标图像的宽、高确定凸透镜的半径；</p> </li> <li> <p>选择一个凸函数作为映射函数；</p> </li> </ul> <p>如果目标图像中的某一个像素与目标图像中心之间的距离的平方不大于凸透镜的半径的平方（两个整数进行比较，保证比较结果的精确度），就使用映射函数对这个像素的横、纵坐标进行映射处理。</p> <p><strong>掌握了实现凸透镜滤镜效果的原理和算法后，下面开始编写用于实现凸透镜滤镜效果的方法，即<code>tuTouJing()</code>方法。与<code>fuDiao()</code>方法和<code>diaoKe()</code>方法相同，<code>tuTouJing()</code>方法也是一个自定义的、有参且有返回值的方法，<code>tuTouJing()</code>方法的语法格式如下所示：</strong></p> <div class="ay1code"> <pre class="brush:py;">def tuTouJing(img):      ……# 省略方法体中的代码      return canvas</pre> </div> <p>参数说明：</p> <blockquote> <p> img：目标图像。</p> </blockquote> <p>返回值说明：</p> <blockquote> <p>canvas：画布，用于呈现凸透镜滤镜效果的图像。</p> </blockquote> <p><strong>先要明确<code>tuTouJing()</code>方法中被省略的代码各自发挥的作用是什么：</strong></p> <p>分别获取目标图像中像素的行数和列数以及目标图像的通道数。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">row = img.shape[0]  col = img.shape[1]  channel = img.shape[2]</pre> </div> <p>根据目标图像中像素的行数和列数以及目标图像的通道数，创建一个等高、等宽、等通道数的，纯黑色的画布。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">canvas = np.zeros([row, col, channel], dtype=np.uint8)</pre> </div> <p>根据目标图像中像素的行数和列数，分别获取目标图像中心的横、纵坐标。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">center_x = row/2  center_y = col/2</pre> </div> <p>比较目标图像中心的横、纵坐标的大小，把较小的数值作为凸透镜的半径。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">radius = min(center_x, center_y)</pre> </div> <p>根据横、纵坐标，使用嵌套的for循环得到目标图像中的每一个像素。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">for i in range(row):  for j in range(col):</pre> </div> <p>计算目标图像中的每一个像素与目标图像中心之间的距离的平方和距离。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">distance = ((i-center_x) * (i-center_x) + (j-center_y) * (j-center_y))  new_dist = math.sqrt(distance)</pre> </div> <p>把目标图像中的每一个像素的像素值根据坐标赋值给画布对应位置上的像素。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">canvas[i,j,:] = img[i, j, :]</pre> </div> <p>如果目标图像中的某一个像素与目标图像中心之间的距离的平方不大于凸透镜的半径的平方，就使用映射函数对这个像素的横、纵坐标进行映射处理。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">if distance &lt;= radius**2:  new_i = np.int(np.floor(new_dist * (i-center_x) / radius + center_x))  new_j = np.int(np.floor(new_dist * (j-center_y) / radius + center_y))</pre> </div> <p>把经过映射处理后的每一个像素的像素值根据坐标赋值给画布对应位置上的像素。关键代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">canvas[i,j,:] = img[new_i, new_j, :]</pre> </div> <p>结合tuTouJing()方法中被省略的代码和它们各自发挥的作用，就能够迅速完成tuTouJing()方法的编写。tuTouJing()方法的代码如下所示：</p> <div class="ay1code"> <pre class="brush:py;">  def tuTouJing(img):        row = img.shape[0]        col = img.shape[1]        channel = img.shape[2]        canvas = np.zeros([row, col, channel], dtype=np.uint8)        center_x = row/2        center_y = col/2        radius = min(center_x, center_y)        for i in range(row):            for j in range(col):                distance = ((i-center_x) * (i-center_x) + (j-center_y) * (j-center_y))                new_dist = math.sqrt(distance)                canvas[i,j,:] = img[i, j, :]                if distance &lt;= radius**2:                    new_i = np.int(np.floor(new_dist * (i-center_x) / radius + center_x))                    new_j = np.int(np.floor(new_dist * (j-center_y) / radius + center_y))                    canvas[i,j,:] = img[new_i, new_j, :]        return canvas</pre> </div> <p class="maodian"><a name="_label4" rel="nofollow"></a></p> <h2>总结</h2> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-94.htm">IndexError: tensors used as indices must be long, byte or bool tensors</a></p>
-                                        <p>下一个：<a href="/html/category/article-96.htm">《易学C++》第15章 再识对象</a></p>
+                                        <p>上一个：<a href="/html/category/article-94.htm">史上最简便的可以直接用的登录验证码攻略（前后端都有）</a></p>
+                                        <p>下一个：<a href="/html/category/article-96.htm">python -mysql-excel数据导出-如何把python的list列表中的数据放入sql语句的in后的语句中的办法</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
-                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
-                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
+                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
+                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
-                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
+                <h4><a href="/html/category/article-218.htm">【SpringMVC笔记02】SpringMVC接收请求参数的几种方式</a></h4>
+                <p>这篇文章，主要介绍SpringMVC框架中接收请求参数的几种方式。  目录 一、SpringMVC接收请求参数 1.1、通过方法参数接收 1.2、通过HttpServletRequest接收参数 1.</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
-                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
-                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
-                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
+                <h4><a href="/html/category/article-208.htm">PHP字符串运算符详解</a></h4>
+                <p>介绍 有两个用于处理字符串数据类型的运算符。在&nbsp;“”（点）运算符是PHP的串联运算符。两个字符串操作数结合在一起（右手字符串附加在左手字符串上），并返回一个新字符串。PHP还具有&nbsp;</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
-                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
+                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
+                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
-                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
+                <h4><a href="/html/category/article-232.htm">Android中EditText光标的显示与隐藏方法</a></h4>
+                <p>目录  Android EditText的光标的显示和隐藏 Android之第一次不显示EditText光标 总结   Android EditText的光标的显示和隐藏 一、java代码 1.编辑框</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
-                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-254.htm">图像处理学习笔记——BMP图片详解</a></h4>
+                <p>一、位图和调色板的概念  1.位图（Bitmap）： 例如我们常说的屏幕分辨率为 640*480，刷新频率为70Hz，意思是说每行要扫描 640 个象素，一共有 480 行，每秒重复扫描屏幕 70 次</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

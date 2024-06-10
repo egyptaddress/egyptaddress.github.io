@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-40.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Vue组件通信之跨组件跨层级传递 - EgyptAddress</title>
+    <title>分布式应用运行时 Dapr 1.7 发布 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Vue组件通信之跨组件跨层级传递</h1>
+                <h1 class="title" style="word-break: break-all;">分布式应用运行时 Dapr 1.7 发布</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1><a id="Vue_0" rel="nofollow"></a>Vue组件通信之跨组件跨层级传递</h1> <p>第一个方法就是转换为父子层级关系来解决（虽然可以解决，但是如果业务逻辑较多了嵌套比较深以后维护就会非常繁琐），至于详情请参考上一篇内容；</p> <p>这里主要说另一种方法<code>event-bus</code> （事件总线），就是借助<code>Vue</code>实例中的<code>$on()</code>与<code>$emit()</code>方法，来实现数据传递</p> <h2><a id="_6" rel="nofollow"></a>用法：</h2> <ul> <li>创建全局的空 Vue 实例: new Vue()</li> <li>在需要接收数据的组件中，利用 $on() 绑定自定义事件，关联事件处理程序(通常事件处理程序中会接收数据实现业务功能)，在这里用到了生命周期钩子函数<code>created(){}</code></li> <li>在需要传递数据的组件中，利用$emit)触发自定义事件，在触发执行事件时，传递数据</li> </ul> <pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>app<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>my-header</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>my-header</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>my-center</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>my-center</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>my-footer</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>my-footer</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script language-javascript"><span class="token comment">// 5、 创建全局的空 Vue 实例</span><span class="token keyword">const</span> bus<span class="token operator">=</span><span class="token keyword">new</span><span class="token class-name">Vue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">// 3、定义 局部 组件的选项对象</span><span class="token keyword">const</span> list<span class="token operator">=</span><span class="token punctuation">{<!-- --></span>         template<span class="token punctuation">:</span><span class="token template-string"><span class="token string">` 			&lt;!--7、绑定事件 --&gt; 			&lt;div @click='add'&gt;xxxxxxxxx&lt;/div&gt; 		`</span></span><span class="token punctuation">,</span>         methods<span class="token punctuation">:</span><span class="token punctuation">{<!-- --></span><span class="token comment">// 8、通过$emit()去 去调用 toggle, 并传递数据</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>                 bus<span class="token punctuation">.</span><span class="token function">$emit</span><span class="token punctuation">(</span><span class="token string">'toggle'</span><span class="token punctuation">,</span><span class="token string">'要传递的数据'</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token comment">// 2、创建一个全局组件</span>     vue<span class="token punctuation">.</span><span class="token function">component</span><span class="token punctuation">(</span><span class="token string">'MyHeader'</span><span class="token punctuation">,</span><span class="token punctuation">{<!-- --></span>         template<span class="token punctuation">:</span><span class="token template-string"><span class="token string">` 			&lt;div&gt; 				xxxxxx 				&lt;div&gt; 					&lt;list&gt;&lt;/list&gt;     			&lt;/div&gt;     		&lt;/div&gt; 		`</span></span><span class="token punctuation">,</span>         components<span class="token punctuation">:</span><span class="token punctuation">{<!-- --></span><span class="token comment">// 4、局部组件注册</span>             List<span class="token punctuation">:</span>list<span class="token comment">// List 作为 MyHeader 的子组件进行注册</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token comment">// 1、创建 Vue 实例</span><span class="token keyword">new</span><span class="token class-name">Vue</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>         el<span class="token punctuation">:</span><span class="token string">'#app'</span><span class="token punctuation">,</span>         data<span class="token punctuation">:</span><span class="token punctuation">{<!-- --></span>             todos<span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token punctuation">{<!-- --></span>xx<span class="token punctuation">:</span><span class="token string">'xx'</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">{<!-- --></span>xx<span class="token punctuation">:</span>xx<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">{<!-- --></span>yy<span class="token punctuation">:</span>‘yy’<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token function">created</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token comment">// 6、调用生命周期钩子函数</span><span class="token comment">// 这是在实例创建后会被自动调用到的方法</span><span class="token comment">// 该组件会接收数据，则利用 event-bus 的 bus对象，绑定自定义事件</span><span class="token comment">//  bus.$on(注册事件名称,绑定事件处理程序)</span>             bus<span class="token punctuation">.</span><span class="token function">$on</span><span class="token punctuation">(</span><span class="token string">'toggle'</span><span class="token punctuation">,</span><span class="token keyword">this</span><span class="token punctuation">.</span>add<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">,</span>         methods<span class="token punctuation">:</span><span class="token punctuation">{<!-- --></span><span class="token comment">// 事件处理程序</span><span class="token function">add</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>                 console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">)</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span></code></pre> </div> 			                </div>
+                      				  				  				<p>Dapr 是一个开源、可移植的、事件驱动的运行时，可以帮助开发人员构建在云和边缘上运行的弹性的、微服务的、无状态和有状态应用程序，并且关注于业务逻辑而不用考虑分布式相关的问题。 分布式相关的问题交给Dapr来解决。</p> <p>2022年4月8日正式发布了1.7 版本， 这是<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MjM5MTc4MDM1MQ==&amp;mid=2651733524&amp;idx=1&amp;sn=caf8d308604fb3e1aab00a8e8fe707c3&amp;chksm=bd4ac2848a3d4b92d00f2f52ada62ff48d581b69d543ce570aa05e4c0d7f9443ba7a18895afd&amp;scene=21#wechat_redirect"  rel="nofollow">这是自Dapr v1.0 发布</a>以来的第七次小版本更新，Dapr 1.7.0 版本的贡献者数量最多。我们要感谢所有 83 位新的和现有的贡献者，他们帮助实现了这个版本。 这次更新的内容很多都是大家期盼的功能，例如支持离线部署、更多的成熟Stable组件等，接下来我们一起来看看更新的内容。</p> <h5><span style="font-size: small"><span style="font-weight: normal">1、跨 Dapr API 配置重试、超时和断路器 ，这部分我也写了一篇文章：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/shanyou/p/15996654.html"  rel="nofollow">Dapr 弹性的策略</a>，Dapr 1.7.0 实现了第一阶段目标。分布式应用程序通常由许多服务组成，任何给定应用程序都有数十个甚至数百个实例。这些应用程序并非孤立存在，而是多次依赖于数据库、缓存、发布/订阅、秘密存储和其他基础设施服务。随着更多的依赖关系，系统故障的可能性增加。例如，由于硬件故障、数据库运行缓慢、请求数量过多、应用程序重新启动/横向扩展或其他几个原因，实例可能会失败或无响应。设计和实施具有容错能力（检测、缓解和响应故障的能力）的应用程序可以使您的应用程序恢复到正常运行状态并自我修复，还有助于防止级联故障一直到您的基础设施服务。</span></span></h5> <p>Dapr 提供了通过弹性规范定义和应用<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/resiliency/"  rel="nofollow">容错弹性策略的能力。</a>弹性规范保存在与组件规范相同的位置，并在 Dapr sidecar 启动时应用。Sidecar确定如何将<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/resiliency/policies/"  rel="nofollow">弹性策略</a>应用于您的 Dapr API 调用。在弹性规范中，您可以为流行的弹性模式定义策略，例如：</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/resiliency/policies/#timeouts"  rel="nofollow">超时</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/resiliency/policies/#retries"  rel="nofollow">重试</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/resiliency/policies/#circuit-breakers"  rel="nofollow">断路器</a></li> </ul> <p>然后可以将策略一致地应用于目标，其中包括：</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/resiliency/targets/#apps"  rel="nofollow">通过服务调用的应用程序</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/resiliency/targets/#components"  rel="nofollow">组件</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/resiliency/targets/#actors"  rel="nofollow">Actor</a></li> </ul> <p>2、在可观测性方面进一步加强，为了提高操作的可见性，<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dapr/dapr/blob/release-1.7/docs/development/dapr-metrics.md#dapr-component-metrics"  rel="nofollow">组件中添加了新的指标</a>，包括发布/订阅、绑定、状态存储等。例如：</p> <ul> <li>使用组件时的延迟。</li> <li>调用给定组件的次数。</li> </ul> <h6><span style="font-weight: normal; font-size: small">Dapr 运行时</span><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/troubleshooting/logs-troubleshooting/"  rel="nofollow"><span style="font-weight: normal; font-size: small">将事件记录</span></a><span style="font-weight: normal; font-size: small">到标准输出以便于诊断；例如，列出启动时加载的组件的其他运行时信息。使用此版本，您现在可以：</span></h6> <ul> <li>打开应用程序和 Dapr sidecar 之间<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/troubleshooting/api-logs-troubleshooting/"  rel="nofollow">API 调用的日志记录。</a></li> <li>在输出日志中查看这些调用。</li> </ul> <p>3、组件改进，在之前的 Dapr 版本中具有稳定候选版本的以下组件已升级为<strong>稳定</strong>版本，特别是MQTT 发布订阅组件的进入稳定状态，对于在边缘计算的采用提供了一个非常好的支持：</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-pubsub/setup-mqtt/"  rel="nofollow">MQTT 发布/订阅</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-pubsub/setup-rabbitmq/"  rel="nofollow">RabbitMQ 发布/订阅</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-bindings/blobstorage/"  rel="nofollow">Azure Blob 存储绑定</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-bindings/cosmosdb/"  rel="nofollow">Azure CosmosDB 绑定</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-bindings/servicebusqueues/"  rel="nofollow">Azure 服务总线队列绑定</a></li> </ul> <p>在这个版本中添加了3个状态组件，一共有23个状态组件了，华为云也开始提交了一个新的状态组件，1.8 版本会成为新增的状态组件。</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-state-stores/setup-cockroachdb/"  rel="nofollow">CockroachDB 状态存储组件</a>见<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dapr/components-contrib/issues/1556"  rel="nofollow">1556</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-state-stores/setup-jetstream-kv/"  rel="nofollow">NATS JetStream 状态存储组件</a>参见<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dapr/components-contrib/issues/1422"  rel="nofollow">1422</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-state-stores/setup-oracledatabase/"  rel="nofollow">Oracle 数据库状态存储组件</a>参见<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dapr/components-contrib/issues/1444"  rel="nofollow">1444</a></li> </ul> <p>在现有组件中加入了新的功能:</p> <p>influxdb<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-bindings/influxdb/"  rel="nofollow">绑定</a>现在支持<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/components-reference/supported-bindings/influxdb/#query"  rel="nofollow">查询</a>。在这个版本中，现在共有 97 个组件，包括 41 个绑定、1 个配置、8 个 HTTP 中间件、3 个名称解析、13 个 pub/sub、8 个秘密存储和 23 个状态存储。</p> <p>4、功能从预览版移至稳定版</p> <p>在至少两个版本可用并征求反馈和修复后，一些功能从<strong>预览</strong>状态转移到<strong>稳定状态。</strong>此版本中的以下功能现已稳定：</p> <ul> <li>Actor<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/developing-applications/building-blocks/actors/actor-reentrancy/"  rel="nofollow">重入</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/developing-applications/building-blocks/service-invocation/howto-invoke-services-grpc/"  rel="nofollow">gRPC 代理</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/developing-applications/building-blocks/state-management/howto-encrypt-state/"  rel="nofollow">自动状态存储加密</a>，包括添加对使用 128 位、192 位和 256 位密钥大小的新支持。</li> </ul> <p>5、CLI 更新</p> <p>Kubernetes 命名空间支持</p> <p><span style="text-decoration: underline"><span style="color: rgba(70, 70, 70, 1)">CLI 的命令</span></span><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/cli/dapr-components/"  rel="nofollow"><code>components</code></a>,<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/cli/dapr-configurations/"  rel="nofollow"><code>configurations</code></a>, 和<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/cli/dapr-list/"  rel="nofollow"><code>list</code></a> 在返回的输出结果中支持Kubernetes的命名空间</p> <p>简化新根证书和应用程序证书的更新：</p> <ul> <li>引入了<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/cli/dapr-mtls/dapr-mtls-export/"  rel="nofollow">dapr mtls renew-certificate</a>命令，可以更轻松地解决集群中的根证书到期和续订问题。</li> <li><code>-k</code>如果根证书到期时间不足 30 天，任何使用 Kubernetes 选项的 CLI 命令现在都会引发警告消息。</li> </ul> <p>6、在自托管模式下安装 Dapr 的新方法</p> <p><strong>私有和备用映像注册表（预览）</strong><br />在自托管模式下，CLI<code>init</code>命令现在可以：</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/reference/cli/dapr-init/"  rel="nofollow">指定任何私有注册表以提取</a>安装 Dapr 所需的容器Image。</li> <li>提供选择公共 Docker hub 或 Github 存储库的能力。这使您能够： <ul> <li>将Image放置在您选择的受信任存储库中。</li> <li>在Image 限制的情况下从不同的公共资源中提取。</li> </ul> </li> </ul> <p><strong></strong></p> <p><strong>离线安装（预览版）</strong></p> <p><strong></strong>默认情况下，Dapr 会下载二进制文件并从网络中提取Image 以设置开发环境。在此版本中，Dapr 现在支持使用预下载的制品进行离线 安装，无论是使用 Docker 还是silm环境。每个 Dapr 版本的制品现在都内置在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dapr/installer-bundle"  rel="nofollow">Dapr Installer Bundle</a>中，可以从 repo :<a title="https://github.com/dapr/installer-bundle" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dapr/installer-bundle"  rel="nofollow">https://github.com/dapr/installer-bundle</a> 下载。<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v1-7.docs.dapr.io/operations/hosting/self-hosted/self-hosted-airgap/"  rel="nofollow">通过将此安装程序包与 Dapr CLI<code>init</code>命令</a>一起使用，从而实现离线安装。</p> <p>7、性能改进</p> <h6><span style="font-size: small"><span style="font-weight: normal">Unix 域套接字现在在 Kubernetes 上可用，<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.dapr.io/reference/arguments-annotations-overview/"  rel="nofollow">现在，您可以在使用注释</a>&nbsp; dapr.io/unix-domain-socket-path 调用 Dapr sidecar 时将 Unix Domain Sockets 与 Kubernetes（以及自托管）一起使用，以提高吞吐量并降低延迟。</span></span></h6> <p>如果您不熟悉 Dapr，请访问<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.dapr.io/getting-started/"  rel="nofollow">入门</a>页面并熟悉 Dapr。 文档已更新，包含此版本的所有新功能和更改。通过<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.dapr.io/concepts/"  rel="nofollow">概念</a>和<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.dapr.io/developing-applications/"  rel="nofollow">开发应用程序</a>文档开始使用此版本中引入的新功能。要将 Dapr 升级到 1.7.0 版，请跳至<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.dapr.io/posts/2022/04/08/dapr-v1.7-is-now-available/#upgrading-to-dapr-1.7.0"  rel="nofollow">本节</a>。</p> <p>更多详情，参见<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dapr/dapr/releases/tag/v1.7.0"  rel="nofollow">https://github.com/dapr/dapr/releases/tag/v1.7.0</a></p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-39.htm">typescript的安装运行与自动编译</a></p>
-                                        <p>下一个：<a href="/html/category/article-41.htm">用CSS样式控制文字浮于图片上方</a></p>
+                                        <p>上一个：<a href="/html/category/article-39.htm">python数据导入hive_使用 python 批量插入 hive</a></p>
+                                        <p>下一个：<a href="/html/category/article-41.htm">ModelSerializer序列化器实战</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
-                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
+                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
+                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
-                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
+                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
-                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
+                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
+                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
-                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
-                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
+                <h4><a href="/html/category/article-233.htm">echarts根据数据动态生成不同条数的折线图</a></h4>
+                <p>一、功能需求背景 1、后台可自定义折线图的折线名称、数据、数量（几条） 2、满足不同折线图之间随意切换 3、折线图可鼠标拖动缩放和滚动条收缩查看 4、同一页面涉及多个echarts 二、功能涉及ech</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-212.htm">定时器中 this 指向修改实现方法和原理讲解</a></h4>
+                <p>定时器中 this 指向修改实现方法和原理讲解      1. 变量替换 2. 箭头函数 3. bind() 方法       定时器属于全局 window ，window.setTimeout();</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

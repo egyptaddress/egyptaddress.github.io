@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-44.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Java调用REST接口（get，post请求方法） - EgyptAddress</title>
+    <title>HTML5画布变形 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Java调用REST接口（get，post请求方法）</h1>
+                <h1 class="title" style="word-break: break-all;">HTML5画布变形</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>网上的调用方法实例千奇百怪，以下为本人自己整理的Java调用rest接口方法实例，包含get请求和post请求，可创建工具类方便调用，其中get、post请求解决了入出参中文乱码问题。</p> <h3>get方式请求</h3> <pre><code class="language-java">//get方式请求 public String restCallerGet(String path, String param) { 	//path 接口路径 xxx/xxx/xxx 	//param 入参 ?xxx=x&amp;xxx=x&amp;xxx=x     //接口ip 	String httpip = "http://127.0.0.1:8080"; 	 	String data = "";      //url拼接 	String lasturl = httpip + path + param; 	try{ 		URL url = new URL(lasturl); 		//打开和url之间的连接 		HttpURLConnection urlConn = (HttpURLConnection) url.openConnection(); 		 		//请求头 		urlConn.setRequestProperty("Accept-Charset", "utf-8"); 		urlConn.setRequestProperty("Content-Type", "application/json; charset=utf-8"); 		 		urlConn.setDoOutput(true); 		urlConn.setDoInput(true); 		urlConn.setRequestMethod("GET");//GET和POST必须全大写 		urlConn.connect(); 		 		int code = urlConn.getResponseCode();//获得响应码 		if(code == 200) {//响应成功，获得响应的数据 		    //InputStream is = urlConn.getInputStream();//得到数据流（输入流） 			//byte[] buffer = new byte[1024]; 			//int length = 0; 			//while ((length = is.read(buffer)) != -1) { 			//	String res = new String(buffer, 0, length); 			//	data += res; 			//} 			//System.out.println(data); 				 			//解决中文乱码 			BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.getInputStream(),"UTF-8")); 			data = reader.readLine(); 		}         urlConn.disconnect();   //断开连接  	}catch (Exception e) { 		e.printStackTrace(); 	}  	return data; }</code></pre> <h3>post方式请求</h3> <pre><code class="language-java">//post方式请求 public String restCallerPost(String path, String param) { 	//path 接口路径 xxx/xxx/xxx 	//param 入参json {} 	//接口ip 	String httpip = "http://127.0.0.1:8080"; 	 	int responseCode; 	//String urlParam = "?aaa=1&amp;bbb=2";     String urlParam = ""; 	     String data = ""; 	 	//url拼接 	String lasturl = httpip + path + urlParam; 	try { 		URL restURL = new URL(lasturl); 		HttpURLConnection conn = (HttpURLConnection) restURL.openConnection(); 		conn.setRequestMethod("POST"); 		//请求头 		conn.setRequestProperty("Content-Type", "application/json; charset=utf-8"); 		conn.setDoOutput(true); 		 		//输入流 		//OutputStream os = conn.getOutputStream(); 		//解决中文乱码 		OutputStreamWriter os = new OutputStreamWriter(conn.getOutputStream(), "UTF-8"); 		os.write(param); 		os.flush(); 		// 输出response code 		responseCode = conn.getResponseCode(); 		// 输出response 		if(responseCode == 200){ 			//输出流 			//BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream())); 			//解决中文乱码 			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8")); 			data = reader.readLine(); 		} else { 			data = "false"; 		} 		// 断开连接 		os.close(); 		conn.disconnect(); 		 	} catch (Exception e) { 		e.printStackTrace(); 	} 	 	return data; }</code></pre> <h3>main方法调用测试</h3> <pre><code class="language-java">public static void main(String[] args) { 	// TODO Auto-generated method stub 	     //接口路径 	String pathGet = "/xxx/xxx/getFunction";     String pathPost = "/xxx/xxx/postFunction"; 	 	//get 	String paramGet = "?aaa=1&amp;bbb=2";     //RestCallerUtil为自行封装的工具类 	RestCallerUtil rcuGet = new RestCallerUtil(); 	String resultDataGet = rcuGet.restCallerGet(pathGet, paramGet); 	System.out.println(resultDataGet); 	 	//post 	String paramPost = "{'aaa':'1','bbb':'2'}";     //RestCallerUtil为自行封装的工具类 	RestCallerUtil rcuPost = new RestCallerUtil(); 	String resultDataPost = rcuPost.restCallerPost(pathPost, paramPost); 	System.out.println(resultDataPost);  }</code></pre> </p></div> 			                </div>
+                      				  				  				<p>如果画布看起来变形，请尝试更改高度和宽度-</p> <pre>&lt;canvas&nbsp;id&nbsp;=&nbsp;”canvas1”&nbsp;width&nbsp;=&nbsp;'400'&nbsp;height&nbsp;=&nbsp;'300'&gt;&lt;/canvas&gt;</pre> <p>HTML5中画布的默认高度和宽度为2/1比率-</p> <pre>width&nbsp;=&nbsp;300 height&nbsp;=&nbsp;150</pre> <h2>示例</h2> <p>让我们看一个例子-</p> <pre>&lt;!DOCTYPE&nbsp;HTML&gt; &lt;html&gt; &nbsp;&nbsp;&nbsp;&lt;head&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#mycanvas{border:1px&nbsp;solid&nbsp;red;} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt; &nbsp;&nbsp;&nbsp;&lt;/head&gt; &nbsp;&nbsp;&nbsp;&lt;body&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;canvas&nbsp;id&nbsp;=&nbsp;"mycanvas"&nbsp;width&nbsp;=&nbsp;"100"&nbsp;height&nbsp;=&nbsp;"100"&gt;&lt;/canvas&gt; &nbsp;&nbsp;&nbsp;&lt;/body&gt; &lt;/html&gt;</pre> <div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-43.htm">反射的概念 和基本使用（一）</a></p>
-                                        <p>下一个：<a href="/html/category/article-45.htm">encodeURI()、encodeURIComponent()区别及使用场景</a></p>
+                                        <p>上一个：<a href="/html/category/article-43.htm">centos8安装docker，并设置开机自启</a></p>
+                                        <p>下一个：<a href="/html/category/article-45.htm">Python 函数进阶-递归函数_在线工具</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
-                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -102,7 +102,17 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-209.htm">pandas高阶应用</a></h4>
                 <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
@@ -112,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
-                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
+                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
+                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
             </div>
         </div>
     </div>
@@ -122,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
             </div>
         </div>
     </div>
@@ -132,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -142,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -152,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
-                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -162,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -172,18 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
-                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

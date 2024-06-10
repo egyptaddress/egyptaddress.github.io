@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-154.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>spring-cloud之Feign服务调用降级 - EgyptAddress</title>
+    <title>Java的引用和内存 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">spring-cloud之Feign服务调用降级</h1>
+                <h1 class="title" style="word-break: break-all;">Java的引用和内存</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h2 style="margin-left:0cm;">服务雪崩</h2> <p style="margin-left:0cm;"><img fetchpriority="high" decoding="async" alt="" class="has" height="99" src="http://img.555519.xyz/uploads/20221120/013ac302d42d941d3d2ac051b4bb66a8.jpg"></p> <p style="margin-left:0cm;">如图-1，如果所有服务A/B/C网络/应用等都正常，同时能够快速的处理请求并返回，服务之间就可以正常的调度。</p> <p style="margin-left:0cm;"><img decoding="async" alt="" class="has" height="137" src="http://img.555519.xyz/uploads/20221120/79a7ff934ff123280b7c3a0ce18d9f95.jpg"></p> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; 如图-2，如果A服务出现异常情况（网络异常/内部数据库异常等）无法在指定的时间内返回B服务结果，那么由于C服务会持续的请求B服务，最终导致B服务积压了大量的请求而服务器奔溃不可用。</p> <p style="margin-left:0cm;"><img decoding="async" alt="" class="has" height="161" src="http://img.555519.xyz/uploads/20221120/913fb80caf95552a82a7bb5694523ba7.jpg"></p> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; 如图-3，B服务由于A服务的不可用导致自身请求积压而崩溃，所以所有的请求蔓延到下游的C服务，最终也导致C服务不可用崩溃，如图-4所示。</p> <p style="margin-left:0cm;"><img loading="lazy" decoding="async" alt="" class="has" height="94" src="http://img.555519.xyz/uploads/20221120/6c639aaa318712535130701d6583aaf5.jpg"></p> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; 综上所述：服务雪崩就是由于上游（例如A）的服务异常不可用，最终蔓延到下游的所有服务，导致所有相关下游的微服务应用不可用而系统崩溃。</p> <h2 style="margin-left:0cm;">Feign使用Hystrix实现降级</h2> <h3 style="margin-left:0cm;">Hystrix简介</h3> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; Hystrix是由Netfix开源的一个延迟和容错工具库，用于解决远程调用/服务或者第三方库防止级联失败提示系统的可用性和容错性。</p> <h3 style="margin-left:0cm;">Feign整合Hystrix</h3> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; 之前的博文介绍过了spring cloud服务调用的两种方式，但是由于ribbon方式没有feign便捷。所以这里就只介绍feign方式使用htstrix实现服务降级，避免雪崩。</p> <p><strong>Maven依赖</strong></p> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; 由于spring cloud版本有差异，所以需要说明一下我这里使用的spring boot是2.1.5.RELEASE版本，所以依赖的hystrix如下。如spring boot是1.X版本artifactId应该是spring-cloud-starter-hystrix。Version属性可以不填，会根据spring boot自动配置找到对应的版本。</p> <pre class="has"><code class="language-html">&lt;dependency&gt;     &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;     &lt;artifactId&gt;spring-cloud-starter-netflix-hystrix&lt;/artifactId&gt; &lt;/dependency&gt;</code></pre> <p><strong>Application配置文件</strong></p> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; Feign开启支持hystrix的方式是在配置文件中添加feign.hystrix.enabled=true。这个值默认是false，所以需要开启。</p> <p><strong>添加降级类</strong></p> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; Feign服务熔断降级其实是通过调度超时就调用本地的方法，而不是一直等待服务返回。Feign调度服务是通过接口+注解方式的，我们需要实现该接口用于实现服务降级调用本地方法。</p> <pre class="has"><code class="language-java">@Component public class UserFeignClientFallback implements UserFeignClientInterface {       @Override     public String get(String name) {         return "error " + name;     } }</code></pre> <p><strong>Feign接口类</strong></p> <p style="margin-left:0cm;">&nbsp;&nbsp;&nbsp; 主要是通过@FeignClient的fallback属性定义降级后调用那个类的方法，这里方法名称等都是一致才可以。</p> <pre class="has"><code class="language-java">@FeignClient(name = "PROVIDER-USER",         fallback = UserFeignClientFallback.class) public interface UserFeignClientInterface {      @GetMapping(value = "/get")     String get(@RequestParam(value = "name") String name);  }</code></pre> <p><strong>验证步骤</strong></p> <ol> <li>启动注册中心</li> <li>启动服务提供者</li> <li>启动服务消费者</li> <li>访问服务消费者，看是否正常调度服务提供者的方法</li> <li>关闭服务提供者</li> <li>访问服务消费者，看是否正常调度本地方法返回</li> <li> <h1></h1> </li> </ol> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h3> <a id="_1" rel="nofollow"></a>例子</h3> <pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Square</span> <span class="token punctuation">{<!-- --></span>       <span class="token keyword">long</span> width<span class="token punctuation">;</span>       <span class="token keyword">public</span> <span class="token function">Square</span><span class="token punctuation">(</span><span class="token keyword">long</span> l<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>            width <span class="token operator">=</span> l<span class="token punctuation">;</span>       <span class="token punctuation">}</span>       <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String arg<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>     	<span class="token comment">//声明了3个Square类型的变量a,b,c</span>     	<span class="token comment">//在stack中分配3个内存，名字为a,b,c</span>         Square a<span class="token punctuation">,</span> b<span class="token punctuation">,</span> c<span class="token punctuation">;</span>         <span class="token comment">//在heap中分配了一块新内存，里边包含自己的成员变量width值为42L，然后stack中的a指向这块内存</span>         a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Square</span><span class="token punctuation">(</span><span class="token number">42</span>L<span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token comment">//在heap中分配了一块新内存，里边包含自己的成员变量width值为42L，然后stack中的b指向这块内存</span>         b <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Square</span><span class="token punctuation">(</span><span class="token number">42</span>L<span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token comment">//stack中的c也指向b所指向的内存 </span>         c <span class="token operator">=</span> b<span class="token punctuation">;</span>         <span class="token comment">//在stack中分配了一块内存，值为42   </span>         <span class="token keyword">long</span> s <span class="token operator">=</span> <span class="token number">42</span>L<span class="token punctuation">;</span>       <span class="token punctuation">}</span>  <span class="token punctuation">}</span> </code></pre> <p>以上代码在内存中的情况：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20230205/72848dd3cea76511bfbd286d52f3a6b8.jpg" alt="Java的引用和内存"></p> <h3> <a id="_25" rel="nofollow"></a>如何来对各种不同的变量作比较？</h3> <p>java的数据类型分为：</p> <ol> <li>基本数据类型</li> <li>引用数据类型<br /><img decoding="async" src="http://img.555519.xyz/uploads/20230205/472d4edcb0bb689556a73ccc6b6b0398.jpg" alt="Java的引用和内存"><br /> 上例中的变量a,b,c属于引用数据类型，s属于基本数据类型</li> </ol> <p>==强调栈中的比较，可以理解为地址比较<br /> ==可以用于<strong>基本数据类型</strong>相互比较，此时比较二者的<strong>值</strong>是否相等<br /> ==也可以用于<strong>引用数据类型</strong>的相互比较，此时比较二者的<strong>地址</strong>是否相等<br /> ==不能用于基本数据类型和引用数据类型比较，不同的基本数据类型之间也不能比较，例如string不能与char[]比较</p> <p>equals强调对象的内容比较<br /> equals不能用于基本数据类型比较，因为这是一个方法，不是运算符，继承自object<br /> equals用于进行对象的比较，比较二者的引用地址是否相同</p> <p>特殊情况：<br /> 1)数值型基本类型和数值型类会存在自动装箱和自动拆箱.<br /> 2)字符串会以常量形式存在, 如果多个字符串变量值相同, 则他们指向同一个地址.<br /> 3)数值类型会存在类型自动转换.</p> <h3> <a id="_48" rel="nofollow"></a>根据给出的例子判断</h3> <ul> <li> <p>由图可以看出a和b指向的不是同一个引用，所以a!=b</p> </li> <li> <p>一个Square类型不能与一个long型比较，编译就错误，所以不存在s==a这种比较</p> </li> <li> <p>由图可以看出b和c指向的是同一个引用，所以b==c</p> </li> <li> <p>程序会把s封装成一个Long类型，由于Square没有重写Object的equals方法，<br /> 所以调用的是Object类的equals方法，源码如下<br /> public boolean equals(Object obj) {<!-- --><br /> return (this == obj);<br /> }<br /> 其实就是判断两个引用是否相等，所以a.equals(s) == false</p> <p>在java中进行比较，我们需要根据比较的类型来选择合适的比较方式：</p> </li> </ul> <ol> <li>对象域，使用equals方法 。</li> <li>类型安全的枚举，使用equals或== 。</li> <li>可能为null的对象域 : 使用 == 和 equals 。</li> <li>数组域 : 使用 Arrays.equals 。</li> <li>除float和double外的原始数据类型 : 使用 == 。</li> <li>float类型: 使用Float.foatToIntBits转换成int类型，然后使用==。</li> <li>double类型: 使用Double.doubleToLongBit转换成long类型，然后使用==。</li> </ol> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-153.htm">kerberos kafka 问题解决</a></p>
-                                        <p>下一个：<a href="/html/category/article-155.htm">foreach循环中不能使用字符串拼接</a></p>
+                                        <p>上一个：<a href="/html/category/article-153.htm">零宽断言正则表达式替换方案</a></p>
+                                        <p>下一个：<a href="/html/category/article-155.htm">Java中的多态</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
-                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
+                <h4><a href="/html/category/article-254.htm">图像处理学习笔记——BMP图片详解</a></h4>
+                <p>一、位图和调色板的概念  1.位图（Bitmap）： 例如我们常说的屏幕分辨率为 640*480，刷新频率为70Hz，意思是说每行要扫描 640 个象素，一共有 480 行，每秒重复扫描屏幕 70 次</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
-                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
-                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
-                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
+                <h4><a href="/html/category/article-227.htm">Spring Boot四大神器之CLI</a></h4>
+                <p>目录             1. Spring Boot CLI简介： 2. 安装CLI:   手动安装：   3. 运行Groovy脚本 4. CLI运行原理说明：（CLI帮我们做了什么？）   </p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
-                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
+                <h4><a href="/html/category/article-241.htm">如何保证redis和数据库的一致性</a></h4>
+                <p>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-220.htm">SpringCloud&#8212;-Feign隔离和降级</a></h4>
+                <p>限流是一种预防措施，虽然限流可以尽量避免因高并发而引起的服务故障，但服务还会因为其它原因而故障。 而要将这些故障控制在一定范围，避免雪崩，就要靠线程隔离（舱壁模式）和熔断降级手段了。线程隔离：调用者在</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
-                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
-                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></h4>
-                <p>Redis的数据淘汰策略  volatile-lru（least recently used）：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰 vol</p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

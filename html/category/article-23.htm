@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-23.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>mysql中的date、datetime、timestamp你还不知道怎么使用吗_在线工具 - EgyptAddress</title>
+    <title>.Net IDE智能提示汉化(.Net6、AspNetCore) - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">mysql中的date、datetime、timestamp你还不知道怎么使用吗_在线工具</h1>
+                <h1 class="title" style="word-break: break-all;">.Net IDE智能提示汉化(.Net6、AspNetCore)</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>在后端开发中经常会碰到涉及数据库的场景，不知道屏幕前的你有这样的疑惑没有，每每在遇到时间、日期字段总是让人头疼，分不清到底是选date还是datetime，亦或是timestamp，真是抓耳挠腮啊，怎么办呐，大都翻看之前的表结构，把之前的时间、日期类型抄过来，草草了事。以至于在后面的开发中总是为时间、日期类型做特殊处理，过后便不再理会这事了，今天就把这事一次性说明白。这里的环境是mysql</p> <h1>一、引言</h1> <p>在mysql中表示日期和时间的数据类型，大体上有下面几种，</p> <table style="height: 269px; width: 1010px" border="0"> <tbody> <tr> <td style="border: 1px solid rgba(128, 104, 151, 1)">序号</td> <td>名称</td> <td>描述</td> <td>定义方式</td> <td>格式</td> <td>范围</td> </tr> <tr> <td>1</td> <td>date</td> <td>日期</td> <td>date</td> <td>YYYY-MM-DD</td> <td>'1000-01-01' to '9999-12-31'</td> </tr> <tr> <td>2</td> <td>time</td> <td>时间</td> <td>time[.fraction]</td> <td>hh:mm:ss[.000000]</td> <td>'-838:59:59.000000' to '838:59:59.000000'</td> </tr> <tr> <td>3</td> <td>datetime</td> <td>日期+时间</td> <td>datetime[.fraction]</td> <td>YYYY-MM-DD hh:mm:ss[.000000]</td> <td>'1000-01-01 00:00:00' to '9999-12-31 23:59:59'</td> </tr> <tr> <td>4</td> <td>timestamp</td> <td>时间戳</td> <td>timestamp[.fraction]</td> <td>YYYY-MM-DD hh:mm:ss[.000000]</td> <td>'1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC</td> </tr> <tr> <td>5</td> <td>year</td> <td>年</td> <td>year</td> <td>YYYY</td> <td>'1901' to '2155'</td> </tr> </tbody> </table> <p>注意在上面的表格中，我把日期和时间分开进行了描述，主要是因为在很多场景中很容易把这两个词当作同一个意思，在这里时间指的时分秒，日期指的是年月日。</p> <p>比较常用的有date、datetime、timestamp，今天就对这三种表示日期和时间的类型进行分析，看下在实际开发过程中如何选择？</p> <h1>二、日期/时间类型</h1> <p>为了弄清楚这三种类型之间的区别，我从网上也看了不少资料，最后发现还是要去官网找寻真理，感兴趣的小伙伴可以看下mysql的官方文档：https://dev.mysql.com/doc/refman/8.0/en/date-and-time-types.html，</p> <p>关于这些内容从下方的官方截图都可以找到，</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/9177ed0cb459ae7ef4c8702b91cadcad.jpg" alt="mysql中的date、datetime、timestamp你还不知道怎么使用吗_在线工具"></p> <p>下面具体总结下</p> <h2>1、date</h2> <p>date仅包含日期，mysql存储和显示的格式是'YYYY-MM-DD'，可以表示的范围是'1000-01-01' to '9999-12-31'</p> <h2>2、datetime</h2> <p>datetime包含日期、时间两部分，mysql存储和显示的格式是'YYYY-MM-DD hh:mm:ss'，可以表示的范围是'1000-01-01 00:00:00' to '9999-12-31 23:59:59'</p> <h2>3、timestamp</h2> <p>timestamp包含日期、时间两部分，在存储时存储的是时间戳，可以表示的范围是'1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC，这里需要注意timestamp是有时区概念的，该类型可跟随时区变化，默认情况下是服务器的时区，如果一个数据库连接设置了时区参数，那么该类型的值会根据连接设置的时区来存储和返回值。</p> <p>在前面说到在存储时存储的是时间戳，也就是从1970-01-01 00:00:00 UTC到要存储的时间所相差的毫秒数。关于UTC是世界协调是，感兴趣的可以自己查阅资料。</p> <p>还有强调下，</p> <ol> <li>上面介绍了date、datetime、timestamp这三种数据类型，还有一个点需要着重强调，datetime、timestamp是可以有小数位的，一共最多可以有6位，所以在定义是可以是datetime(3)，要说明的是默认情况下是datetime(0)，由于是0所以通常情况下就倍省略了；</li> <li>timestamp的范围刚才也看到了，最大到'2038-01-19 03:14:07' UTC，所以很多情况下最好不用该类型，避免超过最大范围产生问题，可以datetime来代替；</li> <li>datetime、tiemstap类型有自动初始话和更新为当前的日期和时间的功能；</li> </ol> <h1>三、实践</h1> <p>上面说了那么多理论知识，下面肯定要实践下，实践出真知嘛，</p> <p>下面是一个建表语句，</p> <div class="cnblogs_code"> <pre><span style="color: rgba(0, 0, 255, 1)">create</span><span style="color: rgba(0, 0, 255, 1)">table</span><span style="color: rgba(0, 0, 0, 1)"> test(  id</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(128, 128, 128, 1)">not</span><span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">  auto_increment,  t_date date</span><span style="color: rgba(0, 0, 255, 1)">default</span><span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">,  t_date_time</span><span style="color: rgba(0, 0, 255, 1)">datetime</span><span style="color: rgba(128, 128, 128, 1)">not</span><span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 255, 1)">default</span><span style="color: rgba(255, 0, 255, 1)">current_timestamp</span><span style="color: rgba(0, 0, 0, 1)">,  t_timestamp</span><span style="color: rgba(0, 0, 255, 1)">timestamp</span><span style="color: rgba(128, 128, 128, 1)">not</span><span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 255, 1)">default</span><span style="color: rgba(255, 0, 255, 1)">current_timestamp</span><span style="color: rgba(0, 0, 255, 1)">on</span><span style="color: rgba(0, 0, 255, 1)">update</span><span style="color: rgba(255, 0, 255, 1)">current_timestamp</span><span style="color: rgba(0, 0, 0, 1)">,  t_date_time2</span><span style="color: rgba(0, 0, 255, 1)">datetime</span>(<span style="color: rgba(128, 0, 0, 1); font-weight: bold">3</span>)<span style="color: rgba(128, 128, 128, 1)">not</span><span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 255, 1)">default</span><span style="color: rgba(255, 0, 255, 1)">current_timestamp</span>(<span style="color: rgba(128, 0, 0, 1); font-weight: bold">3</span><span style="color: rgba(0, 0, 0, 1)">),</span><span style="color: rgba(0, 0, 255, 1)">primary</span><span style="color: rgba(0, 0, 255, 1)">key</span><span style="color: rgba(0, 0, 0, 1)">(id)    );</span></pre> </div> <p>可以看到t_date_time是datetime类型，默认是自动插入当前日期+时间</p> <p>t_timestamp是timestamp类型，默认自动插入当前日期+时间，且更新是更新为当前日期和时间</p> <p>t_date_time2是datetime(3)类型，默认自动插入当前日期+时间，且current_timestamp(3)，</p> <p>下面插入数据，</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/49b806db30792362b1173fa27ac1bbfa.jpg" alt="mysql中的date、datetime、timestamp你还不知道怎么使用吗_在线工具"></p> <p>可以看到t_date_time、t_timestamp、t_date_time2都是可以自动赋值为当前日期+时间（我这里系统时间就是2022-05-01，大家不用误会），下面修改下，</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5515b05679e31bfabdeb251764cdbc0a.jpg" alt="mysql中的date、datetime、timestamp你还不知道怎么使用吗_在线工具"></p> <p>可以看到t_timestamp的时间已经自动更新为当前'2022-05-01 06:37:32'了。很奇怪吧。</p> <h1>四、总结</h1> <p>本文主要分享了，mysql中常见的日期、时间数据类型，下面几条需谨记，</p> <p><strong>1、datetime、timestamp都可以满足需求的情况下，优先选择datetime，因为其表示的范围更大；</strong></p> <p><strong>2、格式化方式为'YYYY-MM-DD hh:mm:ss[.000000]'，在进行插入的时候使用的是相应的字符串的格式进行插入；</strong></p> <p><strong>3、自动初始化和更新语句要牢记，'dt datetime not null default current_timestamp on update current_timestamp'；</strong></p> <p><strong>4、current_timestamp可以写成current_timestamp(0)；</strong></p> <p><strong>5、标识记录的新增或更新时间的字段，设置为数据“default current_timestamp on update current_timestamp‘更省心；</strong></p> 			                </div>
+                      				  				  				<h1 id="net-ide智能提示汉化net6aspnetcore">.Net IDE智能提示汉化(.Net6、AspNetCore)</h1> <p>先上现成的<code>.net6</code>汉化文件，可以手动下载后参照<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/dotnet/core/install/localized-intellisense"  target="_blank" rel="nofollow">如何为 .NET 安装本地化的 IntelliSense 文件</a> 进行安装。或者使用后文的<code>工具</code>进行自动安装。</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://files.cnblogs.com/files/blogs/708274/net6.0@zh-cn@None.zip"  target="_blank" rel="nofollow">无对照</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://files.cnblogs.com/files/blogs/708274/net6.0@zh-cn@OriginFirst.zip"  target="_blank" rel="nofollow">英文在前</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://files.cnblogs.com/files/blogs/708274/net6.0@zh-cn@LocaleFirst.zip"  target="_blank" rel="nofollow">中文在前</a></li> </ul> <p>汉化内容来自<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/"  target="_blank" rel="nofollow">官方在线文档</a> ，某些内容可能存在明显的机翻痕迹。</p> <p>上一些效果图：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/a3a0234115d5b73578abd49037c94494.jpg" alt=".Net IDE智能提示汉化(.Net6、AspNetCore)"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/457032501b7dee115e87a8f99b89e260.jpg" alt=".Net IDE智能提示汉化(.Net6、AspNetCore)"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/494c5da786edd7a50034b1d8003e2055.jpg" alt=".Net IDE智能提示汉化(.Net6、AspNetCore)"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/92657437b38ba4e0f4764f40ffcf34b1.jpg" alt=".Net IDE智能提示汉化(.Net6、AspNetCore)"></p> <h2 id="net6-之前的版本汉化">.Net6 之前的版本汉化</h2> <p><code>.net6</code> 之前的版本，微软官方提供了本地化包，可以在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://dotnet.microsoft.com/zh-cn/download/intellisense"  target="_blank" rel="nofollow">Download localized .NET IntelliSense files</a> 下载到，安装教程在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/dotnet/core/install/localized-intellisense"  target="_blank" rel="nofollow">如何为 .NET 安装本地化的 IntelliSense 文件</a> 。汉化内容包括<code>NETStandard2.1</code>、<code>NETCore</code>、<code>WindowsDesktop</code>。</p> <h2 id="net6-的汉化">.Net6 的汉化</h2> <p>到目前为止官方并没有提供<code>.net6</code> 的本地化包。</p> <p>官方文档仓库中有相关issue<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dotnet/docs/issues/27283"  target="_blank" rel="nofollow">Need .net6.0 Localized IntelliSense Packs</a> 。回答是不再提供本地化包了 -<code>"Yes, unfortunately, we will no longer be localizing IntelliSense."</code>，也没有在这里说明原因。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/8af62245e07e7a3d5df61e0e79e4b50e.jpg" alt=".Net IDE智能提示汉化(.Net6、AspNetCore)"></p> <p>然而<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/"  target="_blank" rel="nofollow">官方在线文档</a>却是本地化了的，包括<code>.net6</code>的新API，如：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/dotnet/api/system.dateonly"  target="_blank" rel="nofollow">System.DateOnly</a>、<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/dotnet/api/system.timeonly"  target="_blank" rel="nofollow">System.TimeOnly</a> 等。猜测可能是没有人力进行本地化相关工作，使用了机翻，质量参差不齐，所以不再发布本地化包了。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/7233bdee6ec55ebd5eb05a4193cba995.jpg" alt=".Net IDE智能提示汉化(.Net6、AspNetCore)"></p> <p>虽然有些翻译质量差，但如果能够直接在IDE中提示，也好过完全看不懂某些单词的时候，也不用手动再去查一遍在线文档。我们完全可以通过在线文档来做一个本地化包，流程如下：查看xml文件-&gt;找到要本地化的项-&gt;查看对应的在线文档页面-&gt;复制对应内容并粘贴回xml。</p> <p>机械化的重复流程可以使用代码来自动处理，并且还能生成<code>AspNetCore</code> 的相关文档。</p> <ul> <li>生成逻辑：解析xml文件-&gt;获取其中成员-&gt;爬取对应文档页面-&gt;解析页面-&gt;生成本地化xml</li> </ul> <p>当然缺陷是明显的 -<code>在线文档页面改版</code>，就要重写解析逻辑。这里提供一个现成的生成工具。</p> <h3 id="本地化xml生成工具">本地化xml生成工具</h3> <p>工具以<code>dotnet cli</code>发布，使用<code>dotnet tool</code>进行安装</p> <pre><code class="language-shell">dotnet tool install -g islocalizer</code></pre> <p><code>.net6</code>的汉化包已经有现成的了，可以直接进行安装</p> <pre><code class="language-shell">islocalizer install auto -m net6.0 -l zh-cn</code></pre> <p>工具会自动从<code>github</code>下载对应的包进行安装（可能需要访问加速）。<br /> 也可以通过<code>-cc</code>参数指定内容对照类型</p> <ul> <li><code>OriginFirst</code>: 原始内容在前</li> <li><code>LocaleFirst</code>: 本地化内容在前</li> <li><code>None</code>: 没有对照</li> </ul> <pre><code class="language-shell">islocalizer install auto -m net6.0 -l zh-cn -cc OriginFirst</code></pre> <h4 id="自定义生成">自定义生成</h4> <p>如下示例生成<code>.net6</code>的原始内容在前的<code>zh-cn</code>本地化包，并使用<code>---------</code> 分隔原文和本地化内容，生成完成后的<code>包路径</code>会输出到控制台。</p> <pre><code class="language-shell">islocalizer build -m net6.0 -l zh-cn -cc OriginFirst -sl '---------'</code></pre> <p>可以通过<code>islocalizer build -h</code> 查看更多的构建参数信息。</p> <h5 id="首次构建过程可能非常缓慢需要爬取所有的页面相关文件会被缓存单zh-cn内容大小约35g再次构建时会比较快">首次构建过程可能非常缓慢（需要爬取所有的页面），相关文件会被缓存（单zh-cn内容大小约3.5G），再次构建时会比较快；</h5> <h4 id="安装">安装</h4> <pre><code class="language-shell">islocalizer install {包路径}</code></pre> <p><code>包路径</code>为build命令完成后输出的路径。</p> <hr/> <p>可以通过<code>islocalizer -h</code> 查看更多的命令帮助。</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-22.htm">Css 弹性布局（Flex）详细介绍（Flex 属性详解、场景分析）</a></p>
-                                        <p>下一个：<a href="/html/category/article-24.htm">mybatis mysql 多租户_详解基于Mybatis-plus多租户实现方案</a></p>
+                                        <p>上一个：<a href="/html/category/article-22.htm">iOS全埋点解决方案-UITableView和UICollectionView点击事件</a></p>
+                                        <p>下一个：<a href="/html/category/article-24.htm">设计模式学习笔记状态模式及其实现</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
-                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
+                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
+                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
-                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
+                <h4><a href="/html/category/article-227.htm">Spring Boot四大神器之CLI</a></h4>
+                <p>目录             1. Spring Boot CLI简介： 2. 安装CLI:   手动安装：   3. 运行Groovy脚本 4. CLI运行原理说明：（CLI帮我们做了什么？）   </p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></h4>
-                <p>这篇将介绍如何写一个简单的基于Vue+Element的文件上传控件。 控件将具有 1. 上传队列的列表，显示文件名称，大小等信息，可以显示上传进度实时刷新 2. 取消上传  &nbsp;使用Eleme</p>
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
-                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
-                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
+                <h4><a href="/html/category/article-204.htm">JavaWeb项目基于SpringBoot框架实现统一的数据返回格式 + 统一异常处理 + 统一日志处理</a></h4>
+                <p>目录 ????前言 ????统一返回格式 &nbsp;添加枚举类 &nbsp;添加统一返回格式的类 &nbsp;测试 ????统一异常处理 &nbsp;添加统一异常处理器（创建一个handler包，在</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
-                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

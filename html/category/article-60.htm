@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-60.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>redis专题：redis键值设计、性能优化以及redis连接池配置 - EgyptAddress</title>
+    <title>慢SQL，压垮团队的最后一根稻草 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">redis专题：redis键值设计、性能优化以及redis连接池配置</h1>
+                <h1 class="title" style="word-break: break-all;">慢SQL，压垮团队的最后一根稻草</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3>文章目录</h3> <ul> <li><a href="#1redis_3" rel="nofollow">1.redis键值设计</a></li> <li> <ul> <li><a href="#key_6" rel="nofollow">①：key设计规范</a></li> <li><a href="#value_27" rel="nofollow">②：value设计规范</a></li> </ul> </li> <li><a href="#2__90" rel="nofollow">2. 命令使用优化</a></li> <li><a href="#3_redis_117" rel="nofollow">3. redis连接池配置参数设计</a></li> <li><a href="#4_redis_167" rel="nofollow">4. redis连接池预热</a></li> <li><a href="#5_rediskey_210" rel="nofollow">5. redis的key过期删除策略</a></li> <li><a href="#6_redis_266" rel="nofollow">6. 秒杀场景下redis性能提升策略</a></li> </ul> </div> <p></p> <h1><a id="1redis_3" rel="nofollow"></a>1.redis键值设计</h1> <p>redis合理的键值设计，可以增加可读性和可管理性，特别在大型项目中，要特别注意！</p> <h2><a id="key_6" rel="nofollow"></a>①：key设计规范</h2> <ol> <li>【建议】: 可读性和可管理性 以业务名(或数据库名)为前缀(防止key冲突)，用冒号分隔，比如业务名:表名:id</li> </ol> <pre><code>//表示交易系统中的订单号 1 trade:order:1</code></pre> <ol start="2"> <li>【建议】：简洁性 保证语义的前提下，控制key的长度，当key较多时，内存占用也不容忽视，例如：</li> </ol> <pre><code>// 表示某用户的朋友发来的消息 user:{uid}:friends:messages:{mid} 简化为 u:{uid}:fr:m:{mid}</code></pre> <ol start="3"> <li>【强制】：不要包含特殊字符<br /> 反例：包含空格、换行、单双引号以及其他转义字符</li> </ol> <p></p> <h2><a id="value_27" rel="nofollow"></a>②：value设计规范</h2> <p><strong>（1）【强制】：拒绝bigkey(防止网卡流量、慢查询)</strong></p> <p><strong>什么是bigkey?</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在Redis中，一个字符串最大512MB，一个二级数据结构（例如hash、list、set、zset）可以存 储大约40亿个(2^32-1)个元素，这么大的存储空间，为bigkey的产生创造了条件。如果有以下情况，就认为是bigkey！</p> <p>①：字符串类型：它的big体现在单个value值很大，一般认为超过10KB就是bigkey。</p> <p>②：非字符串类型：哈希、列表、集合、有序集合，它们的big体现在元素个数太多。 一般来说，string类型控制在10KB以内，hash、list、set、zset元素个数不要超过5000。</p> <p><strong>bigkey是如何产生的？</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在一般来说，bigkey的产生都是由于程序设计不当，或者对于数据规模预料不清楚造成的，比如：<br /> ①：社交类：粉丝列表，如果某些明星或者大v不精心设计下，必是bigkey<br /> ②：统计类：例如按天存储某项功能或者网站的用户集合，除非没几个人用，否则必是bigkey。<br /> ③：缓存类：将数据从数据库load出来序列化放到Redis里。注意缓存必要字段即可！</p> <p><strong>bigkey的危害是什么?</strong></p> <ol> <li> <p>导致redis阻塞<br /> 由于redis操作命令是单线程的，当bigkey太大时，操作bigkey耗时过长，其他命令都会被阻塞！</p> </li> <li> <p>网络拥塞<br /> bigkey也就意味着每次获取要产生的网络流量较大，假设一个bigkey为1MB，客户端每秒访问量为1000，那么每秒产生1000MB的流量，对于普通的千兆网卡(按照字节算是128MB/s)的服务器来说简直是灭顶之灾，而且一般服务器会采用单机多实例的方式来部署，也就是说一个bigkey可能会对其他实例也造成影响，其后果不堪设想。</p> </li> <li> <p>过期删除<br /> 有个bigkey，它安分守己（只执行简单的命令，例如hget、lpop、zscore等），但它设置了过期时间，当它过期后，会被删除，如果没有使用Redis 4.0的过期异步删除(lazyfree-lazy-expire yes)，就会存在阻塞Redis的可能性。</p> </li> </ol> <p><strong>如何优化bigkey？</strong></p> <ol> <li> <p>拆<br /> 比如一个bigkey，存储了100w的用户数据，那么可以把这个key拆分成200个key，每个key下存储5000个用户数据</p> </li> <li> <p>避免使用hgetAll全量获取<br /> 如果bigkey不可避免，也要思考一下要不要每次把所有元素都取出来(例如有时候仅仅需要 hmget，而不是hgetall)，删除也是一样，不要使用del删除，使用hscan、sscan、zscan方式渐进式删除，尽量使用优雅的方式来处理。</p> </li> </ol> <p><strong>（2）【推荐】：选择适合的数据类型。</strong><br /> 场景：存储某个用户(要合理控制和使用数据结构，但也要注意节省内存和性能之间的平衡)</p> <p>正例：使用hash结构</p> <pre><code>hmset user:1 name tom age 19 favor football</code></pre> <p>反例：使用string结构</p> <pre><code>set user:1:name tom set user:1:age 19 set user:1:favor football</code></pre> <p><strong>（3） 【推荐】：控制key的生命周期，redis不是垃圾桶。</strong><br /> 建议使用expire设置过期时间(条件允许可以打散过期时间，防止集中过期)。</p> <p>注意：redis内部默认有16个数据库，<strong>在微服务场景下，不要用redis的数据库做业务数据区分</strong>，比如订单放1库，商品放2库，这样做毫无作用，因为这些库都是一个redis服务，在高并发场景下，虽然访问的时不同的库，但redis还是单线程执行的！！</p> <p></p> <h1><a id="2__90" rel="nofollow"></a>2. 命令使用优化</h1> <p>1.【推荐】 使用命令时关注N的数量<br /> 例如hgetall、lrange、smembers、zrange、sinter等并非不能使用，但是需要明确N的值。有遍历的需求可以使用hscan、sscan、zscan代替。</p> <p>2.【推荐】：禁用命令<br /> 禁止线上使用keys、flushall、flushdb等，通过redis的rename机制禁掉命令，或者使用scan的方式渐进式处理。</p> <p>3.【推荐】合理使用redis数据库<br /> redis的多数据库较弱，使用数字进行区分，很多客户端支持较差，同时多业务用多数据库实际还是单线程处理，会有干扰。</p> <p>4.【推荐】使用批量操作提高效率</p> <pre><code>原生命令：例如mget、mset。 非原生命令：可以使用pipeline提高效率。</code></pre> <p>但要注意控制一次批量操作的元素个数(例如500以内，实际也和元素字节数有关)。<br /> 注意两者不同：</p> <ol> <li>原生命令是原子操作，pipeline是非原子操作。</li> <li>pipeline可以打包不同的命令，原生命令做不到</li> <li>pipeline需要客户端和服务端同时支持。</li> </ol> <p>5.【建议】Redis事务功能较弱，不建议过多使用，可以用lua替代</p> <p></p> <h1><a id="3_redis_117" rel="nofollow"></a>3. redis连接池配置参数设计</h1> <p>redis连接池参数如下：</p> <table> <thead> <tr> <th>参数</th> <th>含义</th> <th>默认值</th> <th>使用建议</th> </tr> </thead> <tbody> <tr> <td>maxTotal</td> <td>资源池中最大连接数</td> <td>8</td> <td>设置建议见下文</td> </tr> <tr> <td>maxIdle</td> <td>资源池允许最大空闲的连接数</td> <td>8</td> <td>设置建议见下文</td> </tr> <tr> <td>minIdle</td> <td>资源池确保最少空闲的连接数</td> <td>0</td> <td>设置建议见下文</td> </tr> <tr> <td>blockWhenExhausted</td> <td>当资源池用尽后，调用者是否要等待。只有当为true时，下面的maxWaitMillis才会生效</td> <td>true</td> <td>建议使用默认值</td> </tr> <tr> <td>maxWaitMillis</td> <td>当资源池连接用尽后，调用者的最大等待时间(单位为毫秒)</td> <td>-1：表示永不超时</td> <td>不建议使用默认值</td> </tr> <tr> <td>testOnBorrow</td> <td>向资源池借用连接时是否做连接有效性检测(ping)，无效连接会被移除</td> <td>false</td> <td>业务量很大时候建议设置为false(多一次ping的开销)。</td> </tr> <tr> <td>testOnReturn</td> <td>向资源池归还连接时是否做连接有效性检测(ping)，无效连接会被移除</td> <td>false</td> <td>业务量很大时候建议设置为false(多一次ping的开销)。</td> </tr> <tr> <td>jmxEnabled</td> <td>是否开启jmx监控，可用于监控</td> <td>true</td> <td>建议开启，但应用本身也要开启</td> </tr> </tbody> </table> <p>优化建议：</p> <p><strong>①：maxtotal：连接池最大连接数，早期版本叫maxActive！</strong><br /> 对于maxtotal的优化要考虑很多因素：</p> <ol> <li>业务希望的redis并发量(QPS)</li> <li>命令执行时间</li> <li>小于redis允许最大连接数<br /> 例如： nodes(例如应用个数) * maxTotal 是不能超过redis的最大连接数maxclients。</li> </ol> <p>用一个例子说明<br /><strong>假如：</strong><br /> 1.业务希望的QPS(每秒并发量)是50000<br /> 2.通过压测工具测得一次命令执行(拿连接+执行命令+归还连接)平均耗时为1ms，算得一个连接的QPS(每秒并发量)是1000</p> <p><strong>结论：</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;那么理论上需要的资源池大小是50000 / 1000 = 50个。但事实上这是个理论值，还要考虑到要比理论值预留一些资源，通常来讲maxTotal可以比理论值大一些，比如60个。但这个值不是越大越好，连接太多会一方面占用客户端和服务端资源，另一方面对于Redis这种高QPS的服务器，一个大命令的阻塞即使设置再大资源池仍然会无济于事。</p> <p><strong>②：maxIdle：业务需要的最大连接数</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxTotal是为了给出余量，而maxIdle才是业务需要的最大连接数，所以maxIdle不要设置过小，如果设置与maxTotal差距过大，则会有new Jedis(新建连接)开销。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一般推荐maxIdle可以设置为按上面的业务期望QPS计算出来的理论连接数50个，这样就避免连接池伸缩带来的性能干扰，maxTotal可以再放大一些，为redis预留一些资源！</p> <p><strong>③：minIdle（最小空闲连接数）</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minIdle是至少需要保持的空闲的连接数。</p> <p><strong>注意：redis连接池是懒加载的，一开始不会有任何连接，用一个连接连接池帮我们生成一个连接，连接数量根据并发量增加，redis默认取maxIdle配置的连接数量。</strong></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如 minIdle = 10 ；maxIdle = 20 ；maxtotal = 40。随着并发量逐渐增加，连接数量逐渐变大，但不会超过40，一段时间后，并发量下降，由于redis默认取maxIdle配置的连接数量20，所以超出20的连接会被释放，池中稳定存在20个连接，在这里minIdle配置显得无意义，可以通过配置修改minIdle为redispool默认连接数。</p> <p>在并发非常高的情况下，为了保持redis最佳性能，可以配置maxTotal = maxIdle</p> <p></p> <h1><a id="4_redis_167" rel="nofollow"></a>4. redis连接池预热</h1> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;由于redis连接池初始化时不会有连接，当系统启动时，突然爆发大量请求要获取redis数据，这样在短时间内会创建大量连接，影响系统性能，为了避免出现这种情况，可以给redis连接池做预热！</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如在系统启动时创建一些redis连接，执行简单命令，类似ping()，快速的将连接池里的空闲连接提升到minIdle的数量。注意执行ping()时不能立即把连接放回连接池，不然连接池只会有一个连接！</p> <p>预热代码如下：</p> <pre><code>List&lt;Jedis&gt; minIdleJedisList = new ArrayList&lt;Jedis&gt;(jedisPoolConfig.getMinIdle());  //拿到minIdle得数量 for (int i = 0; i &lt; jedisPoolConfig.getMinIdle(); i++) {     Jedis jedis = null;     try {         jedis = pool.getResource();         minIdleJedisList.add(jedis);                  //ping建立连接         jedis.ping();              } catch (Exception e) {         logger.error(e.getMessage(), e);     } finally {         //注意，这里不能马上close将连接还回连接池，否则最后连接池里只会建立1个连接。。         //jedis.close();     } } //统一将预热的连接还回连接池 for (int i = 0; i &lt; jedisPoolConfig.getMinIdle(); i++) {     Jedis jedis = null;     try {         jedis = minIdleJedisList.get(i);         //将连接归还回连接池         jedis.close();     } catch (Exception e) {         logger.error(e.getMessage(), e);     } finally {     } }</code></pre> <p></p> <h1><a id="5_rediskey_210" rel="nofollow"></a>5. redis的key过期删除策略</h1> <p><code>redis对于设置了过期时间，且已过期的key有三种清除策略</code>：</p> <ul> <li><strong>①：惰性删除</strong><br /> 当key过期时，不会立即删除，而是等到下一次读/写这个key时，才会先执行删除，再读/写，这也被称为惰性删除。缺点是如果后续一直不访问这个key，那么它会一直留在redis中，占用不必要的内存空间，对内存不友好</li> <li><strong>②：定时删除</strong><br /> 为每个键设置一个定时器，一旦过期时间到了，则将键删除。这种策略对内存很友好，但是对 CPU 不友好，因为每个定时器都会占用一定的 CPU 资源。</li> <li><strong>③：定期扫描</strong><br /> 系统每隔一段时间就定期扫描一次，发现过期的键就进行删除。不过 Redis 的定期扫描只会扫描设置了过期时间的键，因为设置了过期时间的键 Redis 会单独存储，所以不会出现扫描所有键的情况。这种策略相对来说是上面两种策略的折中方案</li> </ul> <p><code>如果reids中所有的key都没有过期，而且此时内存满了</code>，那么客户端继续执行 set 等命令时 Redis 会怎么处理呢？<code>Redis 当中提供了不同的内存淘汰策略来处理这种场景</code>。在Redis 4.0 之前一共实现了 6 种内存淘汰策略，<strong>可通过maxmemory-policy(默认是noeviction)来配置</strong>！在 4.0 之后，又增加了 2 种策略，总共8种如下：</p> <p><strong>a) 针对设置了过期时间的key做处理：</strong></p> <ol> <li>volatile-ttl：在筛选时，会针对设置了过期时间的键值对，根据过期时间的先后进行删除，越早过期的越先被删除。</li> <li>volatile-random：就像它的名称一样，在设置了过期时间的键值对中，进行随机删除。</li> <li>volatile-lru：会使用 LRU 算法筛选设置了过期时间的键值对删除。</li> <li>volatile-lfu：会使用 LFU 算法筛选设置了过期时间的键值对删除。</li> </ol> <p><strong>b) 针对所有的key做处理：</strong></p> <ol start="5"> <li> <p>allkeys-random：从所有键值对中随机选择并删除数据。</p> </li> <li> <p>allkeys-lru：使用 LRU 算法在所有数据中进行筛选删除。</p> </li> <li> <p>allkeys-lfu：使用 LFU 算法在所有数据中进行筛选删除。</p> </li> </ol> <p><strong>c) 不处理：</strong></p> <ol start="8"> <li>noeviction：不会剔除任何数据，拒绝所有写入操作并返回客户端错误信息"(error) OOM command not<br /> allowed when used memory"，此时Redis只响应读操作。redis默认操作</li> </ol> <p><strong>LRU 算法（Least Recently Used，最近最少使用）</strong></p> <ul> <li>传统的LRU算法目的是：淘汰很久没被访问过的数据。在 Redis 当中，并没有采用传统的 LRU 算法，因为传统的 LRU 算法存在 2 个问题：</li> </ul> <ol> <li>需要额外的空间进行存储。</li> <li>可能存在某些 key 值使用很频繁，但是最近没被使用，从而被 LRU 算法删除。</li> </ol> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;为了避免以上 2 个问题，<code>Redis 当中对传统的 LRU 算法进行了改造，通过抽样的方式进行删除</code>。配置文件中提供了一个属性<code>maxmemory_samples</code><code>5</code>，默认值就是 5，表示随机抽取 5 个 key 值，然后对这 5 个 key 值按照 LRU 算法进行删除，所以很明显，key 值越大，删除的准确度越高。</p> <p><strong>LFU 算法（Least Frequently Used，最近最少频率使用）</strong></p> <ul> <li>淘汰最近一段时间被访问次数最少的数据，以次数作为参考。<strong>热点数据通常用LFU算法！以次数为准</strong></li> </ul> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;以上8中清除策略，应根据自身业务类型，配置好maxmemory-policy(默认是noeviction)，推荐使用volatile-lru。如果不设置最大内存，当 Redis 内存超出物理内存限制时，内存的数据会开始和磁盘产生频繁的交换 (swap)，会让 Redis 的性能急剧下降。</p> <p><strong>注意：当Redis运行在主从模式时，只有主节点才会执行过期删除策略，然后把删除操作”del key”同步到从结点删除数据。</strong></p> <p></p> <h1><a id="6_redis_266" rel="nofollow"></a>6. 秒杀场景下redis性能提升策略</h1> <p>①：<strong>多商品抢购场景下</strong>，可以加redis服务器。如果是大促场景下，有很多商品待抢购，由于不同的商品id通过槽位分布在不同的redis集群节点上，可以通过增加redis服务器来分散槽位分配，实现高可用的redis架构！</p> <p>②：<strong>单商品秒杀场景下</strong>，增加redis服务器已无法起到优化作用，因为一个商品只能被分配到某一个redis集群节点中，秒杀这个商品会对当前redis节点产生较大压力！可以使用分段库存锁的思路来解决！</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如要秒杀id为001号商品，库存有1000个，可以把001拆分成001-1、001-2、001-3 … 001-10共拆分成10个小id来表示001号商品，每一个小id存储100库存，通过分段锁把单商品抢购优化为多商品抢购！这样在set key设置商品时由于hash(key)%16384得到的槽位不同，这些商品就被分配到不同的集群节点上，在抢购时判断001-1上是否还有库存，如果没有去其他节点减库存，这样就非常巧妙的实现了水平扩容，增强了系统性能！</p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views">先说结论，我支持将逻辑写在 Java 等应用系统中。</p> <p><strong>背景：<br /></strong></p> <p>今天只讨论一种应用模式，就是最普遍的，前端实时调用后端web服务，服务端经过DB的增删改查作出响应的应用。至于离线数据分析，在线规则引擎模板执行，流式计算等不在本次讨论范畴。</p> <p><strong>重SQL开发的场景</strong></p> <p>先看一个例子吧。用经典的 Controller Service DAO 开发模式描述。</p> <p>| city表 &nbsp; &nbsp; |<br />| --------- |<br />| city_name |<br />| city_code |</p> <p>| student表 &nbsp; &nbsp; |<br />| ------------ |<br />| student_name |<br />| city_code &nbsp; &nbsp;|<br />| student_id &nbsp; |</p> <p>| score表 &nbsp; &nbsp; |<br />| ---------- |<br />| student_id |<br />| score &nbsp; &nbsp; &nbsp;|</p> <p>需求：查询出每个学生所在的城市名以及分数展示到前端。</p> <p><strong>重SQL模式</strong></p> <p></p> <pre><code class="language-java">class Controller{   Service service;   Map&lt;String,String&gt; get(Map&lt;String,Object&gt; param){     return service.get(param);   } }   class Service{   DAO dao;   Map&lt;String,String&gt; get(Map&lt;String,Object&gt; param){     return dao.get(param);   } } class DAO{   SQLTemplate template;   Map&lt;String,String&gt; get(Map&lt;String,Object&gt; param){     String sql = "select city_name,student_name,score from student,score,city where city.city_code=student.city_code and score.student_id=student.student_id" ;     return template.execute(sql,param);   } }</code></pre> <p><strong><br />重Java模式</strong></p> <pre><code class="language-java">class View{   String studentName;   String cityName;   String score; }   class Requent{ }   class Controller{   Service service;   List&lt;View&gt; get(Requent request){     return service.get(param);   } }   class Service{   StudentDAO studentDAO;   ScoreDAO scoreDAO;   CityDAO cityDAO;   List&lt;View&gt; get(Requent param){     Student studentRequest = new Student();     //查询学生     List&lt;Student&gt; students = studentDAO.select(studentRequest);     List&lt;View&gt; result = new ArrayList(students.size());          for(Student student : students){       View view = new View();       view.setStudentName(student.getStudentName());             //拼接城市名       City cityRequest  = new City();       cityRequest.setStudentId(student.getStudentId());       City city = cityDAO.select(cityRequest);       view.setCityName(city);              //拼接分数       Score scoreRequest = new Score();         scoreRequest.setStudentId(student.getStudentId());       Score score = scoreDAO.select(scoreRequest);       view.setScode(score.getScore());              result.add(view);     }     return result;   } }   class StudentDAO{   SQLTemplate template;   Student select(Student param){     String sql = "select * from Student where param = ...";     template.select(sql,param);   }  }   class ScoreDAO{   SQLTemplate template;    Score select(Score param){     String sql = "select * from Score where param = ...";     template.select(sql,param);   } }   class CityDAO{   SQLTemplate template;   City select(City param){   String sql = "select * from City where param = ...";     template.select(sql,param);   } }</code></pre> <p>可以看到，使用重SQL的模式来进行开发确实很快很快，只需要把SQL开发出来基本就完事了，但是看着用重 Java 的模式开发，需要写一堆的代码，这么看来好像是 SQL 胜利一筹。</p> <p>好，PD突然说了，我要把城市名为 “大蕉” 的，分数乘于2展示出来。握草，这个怎么搞？？</p> <p><strong>重SQL模式</strong></p> <pre><code class="language-java">class DAO{   SQLTemplate template;   Map&lt;String,String&gt; get(Map&lt;String,Object&gt; param){     String sql = "select city_name,student_name,CASE WHEN city.city_name='大蕉' THEN 2*score.score ELSE score END score from student,score,city where city.city_code=student.city_code and score.student_id=student.student_id " ;     return template.execute(sql,param);   } }</code></pre> <p>好了。。这个SQL已经变得很复杂了基本没法看了。。</p> <p><strong>重 Java 模式</strong></p> <pre><code class="language-java">Service.class           //拼接分数       Score scoreRequest = new Score();         scoreRequest.setStudentId(student.getStudentId());       Score score = scoreDAO.select(scoreRequest);              if("大蕉".equals(city.getCityName()){         view.setScode(score.getScore() * 2);       }else{             view.setScode(score.getScore());       }</code></pre> <p>咦好像改动也不多嘛。</p> <p>这时候PD又来了我要把城市名为 “大蕉” ，并且城市Code小于10086的，分数乘于2展示出来。握草，完蛋了，之前全是SQL，这个需求要怎么搞？？继续叠加上去继续 CASE WHEN？</p> <p>还没想清楚呢，突然 DBA 电话飞过来了，兄dei你的SQL太慢了，现在把整个库拖垮了，你是不是没有加索引？</p> <p>我：索引加了啊。。。难道是没走到？那是先解决慢SQL还是先开发需求呢?拆库是不可能了，逻辑这么死鬼复杂拆库完全没法跑啊，加CPU加内存啊 DBA大佬！！！</p> <p>[DBA日报] 慢SQL 180+，已解决10。</p> <p>又上了一个版本</p> <p>[DBA日报] 慢SQL 200+，已解决15。</p> <p>又上了一个版本</p> <p>[DBA日报] 慢SQL 250+，已解决30。</p> <p>慢慢的，开发和运营和DBA每天都疲劳于监控这些SQL。。。。</p> <p></p> <h3><strong>前言</strong></h3> <p>观察了一下，传统企业以及绝大部分转型中的企业的 Java 应用中，很神奇的是，他们的开发人员包括我自己以前，大家都非常非常希望使用一个 SQL 来完成所有的逻辑的编写，非常多企业更是把数据库的存储过程和数据库自定义函数来完成。</p> <p>这些关于逻辑应该写在哪里的争论从来没有停止过，不仅仅发生在后端和数据库端，连前后端都经常会发生这种争论，现在只讨论后端和数据库端的纠结。</p> <p>我将从这五个方面分别对比一下两种模式的异同。</p> <p>- 出现场景<br />- 开发效率<br />- 缺陷排查<br />- 架构升级<br />- 系统维护</p> <h3>出现场景</h3> <p><strong>SQL</strong></p> <p>我们绝大多数的历史代码都是用存储过程来实现的啊，如果有新需求不往上面做的话，很难兼容原来的逻辑啊啊。</p> <p>前面的人呢是这样写的，我来了看大家都这样写就这样写了。</p> <p><strong>Java</strong></p> <p>新应用嘛，我想怎么样写就怎样写。</p> <p>监控和埋点写起来简单吖，排查问题可方便了。</p> <p>前面的人呢是这样写的，我来了看大家都这样写就这样写了。</p> <p></p> <h3>开发效率</h3> <p><strong>SQL</strong></p> <p>这样写起来很快啊，而且写 Java 代码多难受啊，写 SQL 我自己在数据库开发环境跑一下结果正确我就直接丢到代码中提交了，多爽啊。</p> <p>老实说，这样子确实会提高开发的效率，因为不用写那么多查库聚合的操作，一切都在 SQL 中搞定了。另一方面来看，这确实会让 Java 代码看起来很鸡肋，好像只是把数据从 web 层到数据层的一个管道而已，一切 if else 能写在 SQL 中的都写在 SQL 中了。</p> <p>但是新需求来或者需求变更的时候，我经常要重新写SQL，如果变动不多我可能要改动到原来的 SQL，但是我又不敢改，所以只好 copy 重新写一个，改 SQL 的风险好大，一报错又要重启好难受。</p> <p><strong>Java</strong></p> <p>一次要写N个类，有点烦。</p> <p>新需求来或者需求变更的时候，如果逻辑比较复杂，我直接抽成方法或者改成一些设计模式，维护起来效率还是可以接受的。</p> <p></p> <h3>缺陷排查</h3> <p><strong>SQL<br /></strong><br />开发排查问题的时候，除了看日志，直接把SQL和参数丢到 PL/SQL 或者 其他工具里跑一下，基本就能知道数据问题出现在哪了。测试同学在进行测试的时候，如果发现有不对的东西，直接跟开发同学一样的思路，把SQL 跑一下，问题基本就定位得七七八八了。</p> <p>但是呢，一旦遇到跑 SQL 无法一眼看出问题的 bug 或者 SQL 实在是太长太长了的的时候，就蒙圈了。我曾经就维护了一个几千行的存储过程，一旦发生问题，排查问题的过程巨艰难。但是呢直接用一个数据库一个功能搞定所有功能未尝不是一件很爽的事情，因为关系型数据库实在是实在是太太太稳定了，一次编写永久运行。</p> <p><strong>Java</strong></p> <p>看日志看监控。</p> <p>根据报错的代码位置 check 一下代码逻辑。</p> <p>一些入参分支肉眼 check 不出来，只能远程 debug 慢慢看数据流向。</p> <p>测试的同学基本无法帮忙 check 缺陷，只能靠程序的表现来判断。</p> <p></p> <h3>架构升级</h3> <p><strong>SQL</strong></p> <p>SQL 慢没关系，它稳定啊，慢就把机器垂直扩展一下好啦，加cpu，加内存，换SSD，加加加绝对可以解决事情的。</p> <p>SQL 有各种索引和优化策略，说不定跑起来比我们自己写逻辑还快呢。</p> <p>加加加，加内存加cpu垂直升级。也没有其他招数了，除了前置缓存，但是如果查询都很个性化SQL很复杂，前置缓存也基本没啥乱用。。。</p> <p>如果你的逻辑全部写在 SQL 中，那完蛋了，你这个表基本就没法分表了，因为你的业务逻辑跟数据库的数据完整性是强耦合的，需要一切数据基本都在一个数据库中，这是一件很难受很难受的事情，不信你去问问那些所有业务逻辑全写在 SQL 中的小伙。</p> <p>数据库中非常复杂的表关联会极大程度拖慢数据库处理每条 SQL 的平均时间，极大程度拖慢数据库 RT，降低了数据库的 RT ，如果逻辑都写在 SQL 中，那么只能进行垂直升级。因为一旦进行水平扩展，那么多机器的非常复杂的分布式表关联，RT 基本不是一个高并发的业务应用的能容忍的。</p> <p><strong>Java<br /></strong><br />如果是数据库瓶颈，加数据库机器，分库分表一下，应用层基本不用改，在DAO层进行路由一下。</p> <p>如果是服务器cpu瓶颈，多加几台机器就好了。</p> <p>如果还有瓶颈，增加一下查询缓存。</p> <p>在应用快速发展的过程中一般都会分库分表的拆分或者自动水平扩展，这时候其实只需要数据库层面做好自己的数据迁移和同步就好了，对于业务层来说是完全无感知的。即使业务非常非常复杂，需要拆应用，其实也非常简单，只需要把对应的 DAO 层的操作拆分出去，换成 RPC 或者其他方式的调用就好了。</p> <p></p> <h3>系统维护</h3> <p><strong>SQL</strong></p> <p>旧SQL完全不敢动，来一个需求加一个 SQL。</p> <p>慢SQL日益增加，应对疲乏。<br /><strong><br />Java</strong></p> <p>SQL写完一次基本不用动，来一个需求加一个方法聚合一下数据操作即可。</p> <p>应用维护比较简单，只要监控做好了，定位到问题基本都能很快解决。</p> <p>逻辑越来越复杂，没有好的开发框架的话，代码维护起来也是挺要命，因为完全不知道跑哪个分支去了。但是现在已经有很多优秀的开源框架来更好地维护代码了，比如 Spring 的全家桶。</p> <p></p> <h3>怎么破</h3> <p>旧的重 SQL 逻辑暂时不要动，新的逻辑都基于 Java 模式开发，先保证慢 SQL 不增加，旧的 SQL 稳定运行，毕竟业务稳定是第一要素。</p> <p>如果业务初期需要非常非常快速开发，那么使用重 SQL 模式也是可以理解的，但是还是要抽时间重构成 Java 模式。</p> <h3>结论</h3> <p>我支持将逻辑写在 Java 等应用系统中。其实原因在上面基本描述完了，第一就是复杂 SQL 的表关联其实跟个人的能力有非常大的关系，如果一个 SQL 写得不好，那是极慢极慢的非常容易把整个数据库拖慢的。第二就是维护这些 SQL 也是一件很难受的事情，因为你完全不知道这个 SQL 背后的数据流转是怎样的，你只能根据自己的猜测去查看 SQL 中的 bug，Java 应用好歹还能 debug 一下还有打点看看数据不是？如果逻辑写在 Java 中那么其实你的 DAO 层只需要编写一次，但是可以永久使用，基本不会在这一层浪费很多的时间（用过 ibatis 的都知道改了 SQL 需要重启应用吧？）。第三就是逻辑都写在 SQL ，中对于分库分表和应用拆分来说是一件非常难受的事情，真的难受。</p> <p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-59.htm">HCNP Routing&amp;Switching之MUX VLAN</a></p>
-                                        <p>下一个：<a href="/html/category/article-61.htm">Dapr 远程调试之 Nocalhost</a></p>
+                                        <p>上一个：<a href="/html/category/article-59.htm">【Python】自带的venv管理虚拟环境</a></p>
+                                        <p>下一个：<a href="/html/category/article-61.htm">快速学会SpringBoot的秘诀，看这篇就懂了</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
-                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
-                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
+                <h4><a href="/html/category/article-255.htm">python 查看包的版本</a></h4>
+                <p>python查看包的版本  方法1：pip 使用cmd命令打开命令行，在命令行输入pip list,即可查看所有已安装的包及包的版本。  方法2：导入查看 导入包，输入包名.__version__即可</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
-                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-226.htm">Carson带你学设计模式：单例模式（Singleton）</a></h4>
+                <p>前言 今天Carson来全面总结最常用的设计模式 - 单例模式。  Carson带你学设计模式系列文章Carson带你学设计模式：这是一份全面 &amp; 详细的设计模式学习指南Carson带你学设计</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
+                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
-                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
+                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
+                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-213.htm">C/C++内存申请函数总结</a></h4>
+                <p>#include &lt;stdlib.h&gt; new char[size] void* malloc(unsigned size); void* realloc(void* ptr, unsig</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
-                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
+                <h4><a href="/html/category/article-241.htm">如何保证redis和数据库的一致性</a></h4>
+                <p>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
-                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

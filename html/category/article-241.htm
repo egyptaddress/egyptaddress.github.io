@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-241.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>git 回滚到之前某一commit - EgyptAddress</title>
+    <title>如何保证redis和数据库的一致性 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">git 回滚到之前某一commit</h1>
+                <h1 class="title" style="word-break: break-all;">如何保证redis和数据库的一致性</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>git log</p> <p>git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220609/c9d426b541c0ffd1f8448f305aa23b8c.jpg" alt="git 回滚到之前某一commit"></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p><strong>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证缓存与数据库中数据一直呢？</strong></p> <h1><a id="_2" rel="nofollow"></a>四种同步策略</h1> <p><strong>想要保证缓存与数据库的双写一致，一共有四种方式，即四种同步策略</strong><br /> 1、先更新缓存，再更新数据库<br /> 2、先更新数据库，再更新缓存<br /> 3、先删除缓存，在更新数据库<br /> 4、先更新数据库，再删除缓存<br /><strong>更新缓存和删除缓存的选择</strong><br /> 更新缓存</p> <blockquote> <p>优点：<br /> 如果每次数据变化都能被及时更新，那么查询数据时不容易出现不命中的情况，<br /> 缺点：<br /> 1、如果数据的计算复杂，频繁的更新会造成服务器性能的消耗比较大<br /> 2、如果数据并不是被频繁使用，那么频繁更新也只是浪费服务器性能，对业务没有多大的帮助<br /> 适用于数据使用较为频繁，且数据的计算不那么复杂的场景</p> </blockquote> <p>删除缓存</p> <blockquote> <p>优点：不需要顾忌数据的复杂性，直接删除即可<br /> 缺点：查询数据时，增大未命中的几率，从而增大数据库的访问压力<br /> 适用于数据使用频率不高的场景</p> </blockquote> <p>在上面四种同步策略中，都存在导致数据不一致的风险</p> <h2><a id="1_23" rel="nofollow"></a><strong>1、先删除缓存，再更新数据库</strong></h2> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220829/333b7c5967b6644334fbcdb0ef980c4d.jpg" alt="如何保证redis和数据库的一致性"></p> <p>操作步骤：<br /> a、线程A删除缓存中的数据，<br /> b、线程A更新数据库中的数据，但是更新失败<br /> c、此时线程B去获取缓存中的数据，但是未命中<br /> d、线程B，去数据库中获取数据，但此时的数据因为更新失败为旧数据<br /> e、线程B将数据库中查到的数据同步到缓存中去<br /> f、线程A此时更新数据到数据库成功<br /> 最后数据库和redis缓存中的数据不一致</p> <p><strong>如果在更新数据库时没有出现失败，也同样存在会造成数据不一致的情况</strong><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220829/0a574bc2257456995405a7410d6ba34e.jpg" alt="如何保证redis和数据库的一致性"><br /> 操作步骤：<br /> a、线程A删除缓存中的数据，<br /> b、此时线程B去获取缓存中的数据，但是未命中<br /> c、线程B，去数据库中获取数据，但此时的数据因为更新失败为旧数据<br /> d、线程B将数据库中查到的数据同步到缓存中去<br /> e、线程A此时更新数据到数据库成功<br /> 最后数据库和redis缓存中的数据不一致,这里造成的数据不一致的原因是线程B在数据库还未更新时就已经获取到了旧的数据。</p> <h2><a id="2_46" rel="nofollow"></a><strong>2、先更新数据库，再删除缓存</strong></h2> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220829/d21b1548d1ae597a6dddad1570b52b1e.jpg" alt="如何保证redis和数据库的一致性"><br /> 操作步骤：<br /> 1、线程A更新数据库中的数据<br /> 2、线程A删除缓存中的数据，删除失败<br /> 3、线程B查询缓存中的数据，查询到旧数据<br /> 4、线程A异步重试删除缓存<br /> 这里，删除缓存中数据失败后就会造成线程B获取到缓存中的旧数据，从而导致数据不一致的情况</p> <p>如果缓存没有删除失败的情况也可能导致数据不一致<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220829/90f6f03442b832092012feaf0f3b54a3.jpg" alt="如何保证redis和数据库的一致性"><br /> 操作步骤：<br /> 1、线程A更新数据库中的数据<br /> 2、线程B查询缓存中的数据，查询到旧数据<br /> 3、线程A删除缓存<br /> 如果线程B在缓存删除前获取到了缓存中的数据，那么线程B获取到的还是旧数据，也会导致数据不一致的情况</p> <h1><a id="_63" rel="nofollow"></a>延时双删</h1> <p>上面中先删除缓存，在更新数据库在不出现失败时也会出现数据不一致的情况，那么我们要有什么解决方案呢。我们就采用延时双删的策略来保证缓存中的数据时更新后的数据<br /> 操作步骤<br /> 1、先删除缓存<br /> 2、更新数据库<br /> 3、线程等待 N秒（等待时间根据具体业务来判断）<br /> 4、再删除缓存<br /> 这样就保证了缓存中的数据最终会和数据库中的数据保持一致</p> <h1><a id="_72" rel="nofollow"></a>数据库读写分离</h1> <p>先删除缓存，在更新数据库，如果数据库采用读写分离架构会有什么影响呢？<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220829/c4e8f493007831c3f5d5a4c88c491af4.jpg" alt="如何保证redis和数据库的一致性"></p> <p>操作步骤：<br /> 1、线程A删除缓存<br /> 2、线程A更新从数据库<br /> 3、线程B查询缓存，未命中<br /> 4、线程B去从数据库查询数据，还未同步，所以从数据库为旧数据<br /> 5、线程B将数据更新到缓存中<br /> 6、主数据库同步数据到从数据中<br /> 这样还是会出现数据不一致的情况，那么我们要怎么解决呢？<br /> 如果只是为了更新redis的数据的数据库查询，让线程同步数据时强行指定到主数据库执行</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></p>
-                                        <p>下一个：<a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></p>
+                                        <p>上一个：<a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></p>
+                                        <p>下一个：<a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
-                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
+                <h4><a href="/html/category/article-245.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></h4>
+                <p>创建型设计模式: 单例模式(Singleton Pattern)  CSDN专栏: 设计模式(UML/23种模式)  单例模式(Singleton Pattern)保证一个类仅有一个实例，并提供一个访</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-213.htm">C/C++内存申请函数总结</a></h4>
+                <p>#include &lt;stdlib.h&gt; new char[size] void* malloc(unsigned size); void* realloc(void* ptr, unsig</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
-                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
-                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-243.htm">SpringMVC访问静态资源的三种方式</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果你的DispatcherServlet拦截 *.do这样的URL，就不存在访问不到静态资源的问题。如果你的Dispatch</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
-                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
-                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
+                <h4><a href="/html/category/article-261.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
-                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

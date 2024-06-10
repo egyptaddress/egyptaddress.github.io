@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-249.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>vue 使用echarts绘制折线图 - EgyptAddress</title>
+    <title>element树形数据与懒加载失效 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">vue 使用echarts绘制折线图</h1>
+                <h1 class="title" style="word-break: break-all;">element树形数据与懒加载失效</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/14bbf058d43319b9ed8bce938b2ab836.jpg" alt="vue 使用echarts绘制折线图"></p> <pre><code>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt;         &lt;el-row :gutter="20" style="margin-bottom: 20px;"&gt;             &lt;el-col :span="24"&gt;                 &lt;el-card shadow="always"&gt;                     &lt;el-input v-model="query.deviceId" placeholder="请输入设备编号" style="width:250px;" clearable&gt;&lt;/el-input&gt;                     &lt;el-button icon="el-icon-search" @click="getDevMeterHistoryData()"&gt;查询&lt;/el-button&gt;                     &lt;div id="myChart" style="{width:1000px; height:500px;}"&gt;&lt;/div&gt;                 &lt;/el-card&gt;             &lt;/el-col&gt;         &lt;/el-row&gt;     &lt;/div&gt; &lt;/template&gt; &lt;script&gt; import { fetchGet } from "@/assets/js/api"; export default {     name: "dashboard",     data() {         return {             query: {                 deviceId: "884A1882E80A",                 fields: "",             },             myChart: "",             option: [],             minData: 0,             data_totalVoltage: [],             data_electricCurrentData: [],             data_activePower: [],             data_powerFactor: [],             data_frequency: [],             data_energy: [],         };     },     mounted() {         this.initChart();         this.getDevMeterHistoryData();         this.getLegendSelectChanged();     },     methods: {         initChart() {             //echarts.init(document.getElementById("myChart")).dispose(); //销毁前一个echarts实例             //获取容器元素,初始化echarts实例             this.myChart = this.$echarts.init(document.getElementById("myChart"));             this.option = {                 title: { text: "" },                 tooltip: {                     trigger: "axis",                     textStyle: { align: "left" },                 },                 toolBox: {                     show: true,                     feature: {                         dataView:{show: true},                         dataZoom:{show: true},//数据缩放视图                         magicType:{type :['line','bar']},                         restore:{show: true},                         saveAsImage: { show: true }                     },                 },                 xAxis: {                     data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],                     splitLine: { show: false }, //去除网格分割线（默认false）                     splitArea: { show: false }, //保留网格区域                     axisLine: {                         lineStyle: {                             //坐标线                             type: "solid",                             //color: '#d8d8d8',//轴的颜 色                             width: "1", //坐标线宽度                         },                     },                     axisTick: {                         show: false, //x轴初始化不显示                     },                 },                 yAxis: {                     name: "", //y轴的名称（单位）                     //max: '241.0',//y轴最大刻度                     min: 0, //y轴最小刻度                     type: "value",                     axisLine: {                         show: false,                     },                 },                 legend: {                     //itemWidth: 34, //图例                     //itemHeight: 14,                     align: "left",                     data: [ "电压", "电流", "有功功率", "频率", "功率因数", "用电量"],                 },                 series: [                     { name: "电压", type: "line", data: [], , smooth: true }, //smooth 是否平滑 也可以设置为 0到1 的值，表示平滑程度                     { name: "电流", type: "line", data: [] },                     { name: "有功功率", type: "line", data: [] },                     { name: "频率", type: "line", data: [] },                     { name: "功率因数", type: "line", data: [] },                     { name: "用电量", type: "line", data: [] },                 ],             };             //重绘, 设置option             window.addEventListener("resize", this.myChart.resize());             this.myChart.setOption(this.option);             this.getLegendSelectChanged();         },         getDevMeterHistoryData() {             fetchGet("getDevMeterHistoryData", {                 deviceId: this.query.deviceId,                 pageNo: 1,                 pageSize: 15,             }).then((rsp) =&gt; {                 if (rsp.code == 0) {                     this.setChartData(rsp.data);                 }             });         },         //设置图表实体数据         setChartData(rspData) {             let opt = this.option;             opt.xAxis.data = rspData.xAxisData;             opt.legend.data = [];             opt.series = [];             //             for (var i = 0; i &lt; rspData.data.length; i++) {                 let vo = rspData.data[i];                 if (rspData.size == 1) {                     opt.yAxis.name = vo.unit;                     opt.yAxis.min = vo.minData;                 }                 opt.legend.data.push(vo.name);                 //                 // 给一个对象中增加属性markPoint                 var markPoint = {data: [{type: 'max', name: '最大值'}]}                 this.$set(vo, 'markPoint', markPoint)                 console.log(vo)                 opt.series.push(vo);             }             this.myChart.setOption(opt);         },         getLegendSelectChanged() {             let opt = this.option;             this.myChart.on("legendselectchanged", function (param) {                 var keys = Object.keys(param.selected);                 var values = Object.values(param.selected);                 //                 console.log(param.name);                 //                 if (keys == null || keys.length == 0 || opt.series == null) {                     return;                 }                 for (var i = 0; i &lt; opt.series.length; i++) {                     if (param.name != keys[i]) {                         //根据点击的参数，如果只有一个数据展示，则动态设置y轴的最小参考数值（未处理）                         //this.minData = opt.series[i].minData;                         //console.log(opt.series[i]);                     } else {                         //console.log("1 minData:" + this.minData +", series minData:" + opt.series[i].minData);                         this.minData = opt.series[i].minData;                         console.log("2 minData:" + this.minData + ", series minData:" + opt.series[i].minData);//                     }                 }             });             this.myChart.setOption(opt);         }     }, }; &lt;/script&gt;</code></pre> <h3><a id="set__173" rel="nofollow"></a>使用$set 给一个对象中增加属性</h3> <pre><code class="prism language-html">//给一个对象中增加属性markPoint var markPoint = {data: [{type: 'max', name: '最大值'}]} this.$set(vo, 'markPoint', markPoint) console.log(vo) opt.series.push(vo);</code></pre> <h2><a id="_182" rel="nofollow"></a>接口实体参数</h2> <pre><code>{     "result":"SUCCESS",     "code":"0",     "msg":"ok",     "data":{         "xAxisData":["17:46:20","17:46:40","17:46:50","17:47:00","17:47:10","17:47:20","17:47:40", "17:47:50","17:48:00","17:48:10","17:48:20","17:48:30","17:48:50","17:49:00","17:49:10"],         "data":[{                 "field":"voltage",                 "id":"voltage",                 "name":"电压",                 "unit":"V",                 "minData":240,                 "type":"line",                 "data":[236.71,236.7,236.82,236.62,236.75,236.58,236.6,236.53,236.68,236.52,236.65,236.44,236.95,236.84,236.81]             },{                 "field":"electricCurrent",                 "id":"electricCurrent",                 "name":"电流",                 "unit":"mA",                 "minData":5,                 "type":"line",                 "data":[0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002]             },{                 "field":"activePower",                 "id":"activePower",                 "name":"有功功率",                 "unit":"KW",                 "minData":0,                 "type":"line",                 "data":[0.537,0.534,0.53,0.531,0.53,0.529,0.533, 0.527,0.525, 0.537,0.532,0.535,0.526, 0.53,0.528]             },{                 "field":"frequency",                 "id":"frequency",                 "name":"频率",                 "unit":"Hz",                 "minData":51,                 "type":"line",                 "data":[49.9,49.92,49.94,49.92,49.88,49.88,49.88,49.88,49.82,49.9,49.9,49.88,49.92,49.96,49.9]             },{                 "field":"powerFactor",                 "id":"powerFactor",                 "name":"功率因数",                 "unit":"λ",                 "minData":0,                 "type":"line",                 "data":[0.88,0.87,0.87,0.86,0.87,0.87,0.87,0.86,0.87,0.88,0.87,0.87,0.86,0.87,0.88 ]             },{                 "field":"energy",                 "id":"energy",                 "name":"用电量",                 "unit":"千瓦·时(度)",                 "minData":0,                 "type":"line",                 "data":[1.784, 1.784,1.784,1.784,1.784,1.784,1.784,1.784,1.784,1.784,1.784,1.784,1.784,1.784,1.784]             }         ]     } }</code></pre> <h3><a id="_245" rel="nofollow"></a>参考资料</h3> <p>vue中绘制echarts折线图<br /> https://www.cnblogs.com/yanl55555/p/12544109.html</p> <p>echarts 改变折线图曲线颜色、区域颜色<br /> https://www.cnblogs.com/justyouadmin/p/11421680.html</p> <p>echarts中设置markPoint<br /> https://www.cnblogs.com/aixuexi-504682107/p/13575733.html</p> <pre><code>markPoint: {     data: [         {             type: "max",             name: "最大值",             color: "pink",             itemStyle: {                 color: "rgba(115, 159, 250, .5)"                 },                 symbol: "rect",                 symbolSize: [25, 25], // 容器大小                 symbolOffset: [0, -15], //位置偏移         },         {                 type: "min",                 name: "最小值",                 color: "rgba(255, 148, 77, 1)",                 itemStyle: {                     color: "rgba(255, 148, 77, .5)"                     },                     symbol: "rect",                     symbolSize: [25, 25], // 容器大小                     symbolOffset: [0, -15], //位置偏移         },     ] },</code></pre> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230210/13553b1ade3449413b49df5947c67500.jpg"></p> <blockquote> <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能</p> <p>table树形数据设置，不显示下拉箭头</p> <p>将官网相关demo复制到本地仍不能正常工作，没有报错</p> <p>后面百度了好久才发现</p> <p>版本&nbsp;<code>v2.7.0</code>&nbsp;开始增加了对 table 树形结构的支持直接让我emo了</p> <p>之前我的版本是2.4.1&nbsp; 现在跟新之后就好了</p> <p>解决方法是：</p> <p>1-删除之前的版本 node.js ：&nbsp;&nbsp;npm uninstall element-ui</p> <p>2-更新指定的版本 node.js ：&nbsp; npm install element-ui@2.7.0 -S&nbsp;&nbsp;</p> </blockquote> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230210/a46267e3a89b671663624d189265ee1e.jpg"></p> <p>&nbsp;</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></p>
-                                        <p>下一个：<a href="/html/category/article-250.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></p>
+                                        <p>上一个：<a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></p>
+                                        <p>下一个：<a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
+                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
-                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
+                <h4><a href="/html/category/article-205.htm">001、利用pyttsx3、SAPI、SpeechLib 实现文本转语音</a></h4>
+                <p>1、使用pyttsx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3 &nbsp; &nbsp; &</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-227.htm">Spring Boot四大神器之CLI</a></h4>
+                <p>目录             1. Spring Boot CLI简介： 2. 安装CLI:   手动安装：   3. 运行Groovy脚本 4. CLI运行原理说明：（CLI帮我们做了什么？）   </p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-237.htm">Java空指针异常和解决办法</a></h4>
+                <p>目录  问题描述：   尝试1： 尝试2：   使用Optional防止出现空指针异常 引用    问题描述： public class Main20220419 {     public stati</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
-                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
+                <h4><a href="/html/category/article-218.htm">【SpringMVC笔记02】SpringMVC接收请求参数的几种方式</a></h4>
+                <p>这篇文章，主要介绍SpringMVC框架中接收请求参数的几种方式。  目录 一、SpringMVC接收请求参数 1.1、通过方法参数接收 1.2、通过HttpServletRequest接收参数 1.</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
-                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-208.htm">PHP字符串运算符详解</a></h4>
+                <p>介绍 有两个用于处理字符串数据类型的运算符。在&nbsp;“”（点）运算符是PHP的串联运算符。两个字符串操作数结合在一起（右手字符串附加在左手字符串上），并返回一个新字符串。PHP还具有&nbsp;</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
-                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
+                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
+                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
-                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

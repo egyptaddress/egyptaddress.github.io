@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-25.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>C#使用RestClient调用Web API_C#教程 - EgyptAddress</title>
+    <title>写了个开源小中间件——运行时动态日志等级开关 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">C#使用RestClient调用Web API_C#教程</h1>
+                <h1 class="title" style="word-break: break-all;">写了个开源小中间件——运行时动态日志等级开关</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>获取Token</p> <div class="ay1code"> <pre class="brush:csharp;">		/// &lt;summary&gt;          /// 获取Token          /// &lt;/summary&gt;          /// &lt;returns&gt;&lt;/returns&gt;          public static async Task&lt;string&gt; GetToken()          {              var url = $"http://127.0.0.1/terminal-tenant/sys/login";              var client = new RestClient(url);              var request = new RestRequest(Method.POST);              request.RequestFormat = DataFormat.Json;              var body = new { username = "xxx", password = "xxx" };              request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(body), ParameterType.RequestBody);              IRestResponse response = client.Execute(request);              var responseContent = response.Content;              return responseContent;          }</pre> </div> <p>保存数据</p> <div class="ay1code"> <pre class="brush:csharp;">		/// &lt;summary&gt;          /// 保存数据          /// &lt;/summary&gt;          /// &lt;returns&gt;&lt;/returns&gt;          public async Task&lt;string&gt; Save(Model model, string token)          {              var url = $"http://127.0.0.1/terminal-tenant/app/visitor/save";              var client = new RestClient(url);              var request = new RestRequest(Method.POST);              request.RequestFormat = DataFormat.Json;              request.AddHeader("token", token);              request.AddParameter("application/json; charset=utf-8", JsonConvert.SerializeObject(model), ParameterType.RequestBody);              IRestResponse response = client.Execute(request);              var responseContent = response.Content;              return responseContent;          }</pre> </div> <p>上传文件</p> <div class="ay1code"> <pre class="brush:csharp;">		/// &lt;summary&gt;          /// 上传文件          /// &lt;/summary&gt;          /// &lt;param name="bt"&gt;&lt;/param&gt;          /// &lt;param name="token"&gt;&lt;/param&gt;          /// &lt;returns&gt;&lt;/returns&gt;          public async Task&lt;string&gt; Upload(byte[] bt, string token)          {              var url = $"http://127.0.0.1/terminal-tenant/tenant/common/upload";              var client = new RestClient(url);              var request = new RestRequest(Method.POST);              request.RequestFormat = DataFormat.Json;              request.AddHeader("token", token);              request.AddFile("file", bt, "multipart/form-data");              IRestResponse response = client.Execute(request);              var responseContent = response.Content;              return responseContent;          }</pre> </div> 			                </div>
+                      				  				  				<blockquote class="pgc-blockquote-abstract"> <p data-track="1">项目地址，走过路过可以点个star ：）<br class="sysbr"/><br />https://github.com/saigu/LogLevelSwitch</p> </blockquote> <h1 class="pgc-h-arrow-right">1.为什么需要LogLevelSwitch</h1> <p data-track="3">随着业务规模不断扩大，每一次线上故障的快速定位都是对开发同学的巨大挑战。</p> <p data-track="4">通过日志进行业务关键逻辑的输出，是定位问题的有效手段之一。但是，过多的日志记录又会对系统造成额外的开销，极端情况下，甚至可能导致系统宕机。</p> <p data-track="5">因此，为了兼顾性能和故障场景下的快速定位，我们需要能够实时调整日志等级，以便输出更多的日志信息排查线上问题，或是减少日志打印带来的性能消耗。</p> <div class="pgc-img"></p> <p class="pgc-img-caption"> </div> <p data-track="6">基于以上背景，我们的LogLevelSwitch诞生了。</p> <blockquote> <p data-track="7">LogLevleSwitch以中间件的形式嵌入应用，基于配置中心的热更新能力，实现了应用运行时动态调整日志等级的能力。</p> </blockquote> <h1 class="pgc-h-arrow-right" data-track="8">2.功能特性</h1> <ul> <li data-track="9">兼容性：支持Log4j、Log4j2、Logback等。</li> <li data-track="10">扩展性：可以使用默认的基于本地配置文件的配置修改方式（仅供本地测试学习使用）。生产上，「强烈推荐」&nbsp;通过SPI接入你自己的配置中心，实现热更新。</li> <li data-track="11">易用性：接入简单，效果拔群，只要5分钟你就能用上。</li> </ul> <h1 class="pgc-h-arrow-right" data-track="12">3.基本架构</h1> <div class="pgc-img"><img decoding="async" src="https://p3.toutiaoimg.com/origin/tos-cn-i-qvj2lq49k0/d28defcc670840bd9654e326e258e46e?from=pc" alt="写了个开源小中间件——运行时动态日志等级开关" class="syl-page-img"/></p> <p class="pgc-img-caption"> </div> <p data-track="66">在应用Application中引入我们的LogLevelSwitch。</p> <p data-track="14">LogLevelSwitch包含两个核心组件，LogContext和SwitchContext。</p> <ul> <li data-track="15">SwitchContext: 保存从配置中心获取的switch开关状态与具体Logger配置信息。通过监听配置中心消息，实时更新switch内容，并实现对Logger等级的修改通知。</li> <li data-track="16">LogContext：保存应用原始的Logger与日志级别信息，并能够根据switch配置 更新 或 复原 Logger的等级。</li> </ul> <h1 class="pgc-h-arrow-right" data-track="17">4.Quick Start</h1> <p data-track="18">话不多说了，快来尝尝鲜吧。</p> <h1 class="pgc-h-arrow-right" data-track="19">4.1 普通spring项目</h1> <p data-track="20">只用三步即可完成。</p> <ul> <li data-track="21">STEP 1: 应用中pom引入依赖</li> </ul> <pre class="syl-page-code hljs xml"><code><span class="hljs-tag">&lt;<span class="hljs-name">dependency&gt;<span class="hljs-tag">&lt;<span class="hljs-name">groupId&gt;io.github.saigu<span class="hljs-tag">&lt;/<span class="hljs-name">groupId&gt;<span class="hljs-tag">&lt;<span class="hljs-name">artifactId&gt;log-switch-core<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId&gt;<span class="hljs-tag">&lt;<span class="hljs-name">version&gt;1.0.0-beta<span class="hljs-tag">&lt;/<span class="hljs-name">version&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">dependency&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="23">STEP 2: 构建config Bean</li> </ul> <pre class="syl-page-code hljs java"><code><span class="hljs-meta">@Configuration<span class="hljs-keyword">public<span class="hljs-class"><span class="hljs-keyword">class<span class="hljs-title">LogLevelSwitchConfig {<span class="hljs-meta">@Bean<span class="hljs-function">LogLevelSwitch<span class="hljs-title">logLevelSwitch<span class="hljs-params">() {<span class="hljs-keyword">return<span class="hljs-keyword">new LogLevelSwitch();     } }</span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="25">STEP 3: 接入配置中心</li> </ul> <p data-track="26">声明配置中心的SPI实现。</p> <blockquote class="pgc-blockquote-abstract"> <p data-track="27">在resource路径下新建 META-INF/services，创建文件名为<br />io.github.saigu.log.level.sw.listener.ConfigListener的文件，并写入需要的「实现类名」。</p> </blockquote> <p data-track="28">实现一：项目自带的LocalFile配置中心</p> <p data-track="29">如果你还没有自己的配置中心，那就使用我们自带的基于本地配置文件进行本地测试学习。</p> <p data-track="30">「实现类名」为<br />io.github.saigu.log.level.sw.listener.LocalFileListener</p> <blockquote class="pgc-blockquote-abstract"> <p data-track="31">注意，生产上 强烈推荐 通过「实现二」接入你自己的配置中心，实现热更新。</p> </blockquote> <p data-track="32">在resource目录下新建LocalSwitch.json文件：</p> <div class="pgc-img"><img decoding="async" src="https://p3.toutiaoimg.com/origin/tos-cn-i-qvj2lq49k0/622c60a6ac16442ea3fbb1c0b059145e?from=pc" alt="写了个开源小中间件——运行时动态日志等级开关" class="syl-page-img"/></p> <p class="pgc-img-caption"> </div> <p data-track="33">然后填写开关配置：</p> <pre class="syl-page-code hljs json"><code>{<span class="hljs-attr">"status":<span class="hljs-string">"on",<span class="hljs-attr">"loggerBeans": [     {<span class="hljs-attr">"name":<span class="hljs-string">"all",<span class="hljs-attr">"level":<span class="hljs-string">"error"     }   ] }</span></span></span></span></span></span></span></code></pre> <p data-track="35">实现二：自定义SPI扩展配置,接入自己的配置中心</p> <p data-track="36">如果你已经有了自己的配置中心，那就可以通过SPI扩展配置,接入自己的配置中心。</p> <p data-track="37">「实现类名」为你自己的实现类名。</p> <p class="syl-page-br" data-track="38"> <h1 class="pgc-h-arrow-right" data-track="40">4.2 springboot项目</h1> <p data-track="41">两步接入。</p> <ul> <li data-track="42">STEP 1: 应用中pom引入依赖</li> </ul> <pre class="syl-page-code hljs xml"><code><span class="hljs-tag">&lt;<span class="hljs-name">dependency&gt;<span class="hljs-tag">&lt;<span class="hljs-name">groupId&gt;io.github.saigu<span class="hljs-tag">&lt;/<span class="hljs-name">groupId&gt;<span class="hljs-tag">&lt;<span class="hljs-name">artifactId&gt;log-switch-starter<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId&gt;<span class="hljs-tag">&lt;<span class="hljs-name">version&gt;1.0.0-beta<span class="hljs-tag">&lt;/<span class="hljs-name">version&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">dependency&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="44">STEP 2: 接入配置中心<br />同「方式一」</li> </ul> <h1 class="pgc-h-arrow-right" data-track="45">5.关键配置</h1> <p data-track="46">SwitchContext是我们的关键配置：</p> <div class="tableWrapper"> <div class="syl-shadow-provider"> <div class="syl-table-wrap"> <table> <colgroup> <col> <col> <col></colgroup> <tbody> <tr> <td> <p data-track="47">参数名</p> </td> <td> <p data-track="48">含义</p> </td> <td> <p data-track="49">可选值</p> </td> </tr> <tr> <td> <p class="syl-line-pure-english" data-track="50">status</p> </td> <td> <p data-track="51">开关状态</p> </td> <td> <p data-track="52">「off」: 关闭，使用应用 「on」:开启，使用配置中心的配置等级。</p> </td> </tr> <tr> <td> <p class="syl-line-pure-english" data-track="53">List&lt;LoggerBean&gt;</p> </td> <td> <p data-track="54">日志等级list</p> </td> <td> <p data-track="55">如果列表的第一个LoggerBean的name为all，则影响全局logger等级</p> </td> </tr> </tbody> </table> </div> </div> </div> <p data-track="56">参考范例：</p> <pre class="syl-page-code hljs json"><code>{<span class="hljs-attr">"status":<span class="hljs-string">"on",<span class="hljs-attr">"loggerBeans": [     {<span class="hljs-attr">"name":<span class="hljs-string">"all",<span class="hljs-attr">"level":<span class="hljs-string">"error"     }   ] }</span></span></span></span></span></span></span></code></pre> <h1 class="pgc-h-arrow-right" data-track="58">6.注意事项</h1> <p data-track="59">为了规范日志使用，同时避免影响降级开关效果，初始化的时候会去检测项目中依赖的日志框架实现。</p> <p data-track="60">请注意，如果日志提示</p> <blockquote> <p data-track="61">“存在多个日志框架实现，建议只保留一个，否则会影响日志降级开关效果”</p> </blockquote> <p data-track="62">说明检测到了应用中引入了多个日志框架实现。</p> <p data-track="63">建议从pom中进行移除多余日志框架，确保采用唯一日志框架实现。</p> <h1 class="pgc-h-arrow-right" data-track="64">7.详细设计 TL;DR</h1> <p data-track="65">本文还是专注于介绍吧，后面再讲讲实现吧，敬请期待。</p> <p data-track="65"> <blockquote><p>都看到最后了，原创不易，点个关注，点个赞吧～</p></blockquote> <blockquote><p>文章持续更新，可以微信搜索「阿丸笔记 」第一时间阅读，回复【笔记】获取Canal、MySQL、HBase、JAVA实战笔记，回复【资料】获取一线大厂面试资料。</p></blockquote> <blockquote><p>知识碎片重新梳理，构建Java知识图谱：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/saigu/JavaKnowledgeGraph"  rel="nofollow">github.com/saigu/JavaK…</a>（历史文章查阅非常方便）</p></blockquote> <p data-track="65"> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-24.htm">mybatis mysql 多租户_详解基于Mybatis-plus多租户实现方案</a></p>
-                                        <p>下一个：<a href="/html/category/article-26.htm">springboot集成elasticsearch7.2</a></p>
+                                        <p>上一个：<a href="/html/category/article-24.htm">设计模式学习笔记状态模式及其实现</a></p>
+                                        <p>下一个：<a href="/html/category/article-26.htm">python神经网络Keras构建CNN网络训练_python</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-212.htm">定时器中 this 指向修改实现方法和原理讲解</a></h4>
+                <p>定时器中 this 指向修改实现方法和原理讲解      1. 变量替换 2. 箭头函数 3. bind() 方法       定时器属于全局 window ，window.setTimeout();</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
-                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
+                <h4><a href="/html/category/article-205.htm">001、利用pyttsx3、SAPI、SpeechLib 实现文本转语音</a></h4>
+                <p>1、使用pyttsx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3 &nbsp; &nbsp; &</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
-                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
+                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
-                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
+                <h4><a href="/html/category/article-208.htm">PHP字符串运算符详解</a></h4>
+                <p>介绍 有两个用于处理字符串数据类型的运算符。在&nbsp;“”（点）运算符是PHP的串联运算符。两个字符串操作数结合在一起（右手字符串附加在左手字符串上），并返回一个新字符串。PHP还具有&nbsp;</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
-                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
-                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-33.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Spring的事务管理机制和传播机制 - EgyptAddress</title>
+    <title>6-10java8中关于接口的新特性 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Spring的事务管理机制和传播机制</h1>
+                <h1 class="title" style="word-break: break-all;">6-10java8中关于接口的新特性</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p><span style="font-size:14px">问：Spring的事务管理是怎么搞的？</span></p> <p><span style="font-size:14px">Spring&nbsp;的事务，可以说是&nbsp;Spring&nbsp;AOP&nbsp;的一种实现。</span></p> <p><span style="font-size:14px">AOP面向切面编程，即在不修改源代码的情况下，对原有功能进行扩展，通过代理类来对具体类进行操作。</span></p> <p><span style="font-size:14px"><span style="font-family:Microsoft YaHei; font-size:14px; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="color:#FF0000">Spring声明式事务让我们从复杂的事务处理中得到解脱。使得我们再也无需要去处理获得连接、关闭连接、事务提交和回滚等这些操作。再也无需要我们在与事务相关的方法中处理大量的try…catch…finally代码。</span></span></span></span><br /></span></p> <p><span style="font-family:Microsoft YaHei; font-size:14px">Spring的事务管理分为<span style="color:#FF0000">声明式</span>和<span style="color:#FF0000">编程式</span>。声明式就是在Spring的配置文件中进行相关配置；编程式就是用注解的方式写到代码里。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:14px"><br /></span></p> <p><span style="font-size:14px"><span style="color:#FF0000">核心接口</span>：</span></p> <p><span style="font-size:14px"><span id="Label3">Spring事务管理涉及的接口的联系如下：</span><br /></span></p> <p><span style="font-size:14px"><img decoding="async" src="http://img.555519.xyz/uploads3/20220708/231b8489544bcd6f5c9b9f6eda8df46d.jpg" alt="Spring的事务管理机制和传播机制"><br /></span></p> <p><span style="font-size:14px"><br /></span></p> <p><span style="font-size:14px"><span id="Label3">Spring并不直接管理事务，而是提供了多种事务管理器，他们将事务管理的职责委托给Hibernate或者JTA等持久化机制所提供的相关平台框架的事务来实现。 Spring事务管理器的接口是<span style="color:#FF0000">org.springframework.transaction.PlatformTransactionManager</span>，通过这个接口，Spring为各个平台如JDBC、Hibernate等都提供了对应的事务管理器，但是具体的实现就是各个平台自己的事情了。此接口的内容如下：</span><br /></span></p> <p><span style="font-size:14px"></span></p> <pre><code class="language-java">public interface PlatformTransactionManager()...{       // 由TransactionDefinition得到TransactionStatus对象     TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;      // 提交     void commit(TransactionStatus status) throws TransactionException;       // 回滚     void rollback(TransactionStatus status) throws TransactionException;   }</code></pre> <p><span style="font-size:14px">Spring在TransactionDefinition接口中定义这些属性,以供PlatfromTransactionManager使用。<span style="font-size:14px">TransactionDefinition</span>接口定义如下：</span></p> <p><span style="font-size:14px"></span></p> <pre><code class="language-java">public interface TransactionDefinition {     int getPropagationBehavior();//返回事务的传播行为。     int getIsolationLevel();//返回事务的隔离级别，事务管理器根据它来控制另外一个事务可以看到本事务内的哪些数据。     int getTimeout();//返回事务必须在多少秒内完成。     boolean isReadOnly();//事务是否只读，事务管理器能够根据这个返回值进行优化，确保事务是只读的。 }</code></pre> <p> 上述接口定义了以下五种属性：</p> <p><span style="font-size:14px"><img decoding="async" src="http://img.555519.xyz/uploads3/20220708/761a5cbdf724187b83347c2647ef710f.jpg" alt="Spring的事务管理机制和传播机制"><br /></span></p> <p><span style="font-size:14px"><br /></span></p> <p><span style="font-size:14px"><span style="color:#FF0000">传播行为</span>：</span></p> <p><span style="font-size:14px"></span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_REQUIRED</strong>--支持当前事务，如果当前没有事务，就新建一个事务。这是最常见的选择。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_SUPPORTS</strong>--支持当前事务，如果当前没有事务，就以非事务方式执行。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_MANDATORY</strong>--支持当前事务，如果当前没有事务，就抛出异常。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_REQUIRES_NEW</strong>--新建事务，如果当前存在事务，把当前事务挂起。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_NOT_SUPPORTED</strong>--以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_NEVER</strong>--以非事务方式执行，如果当前存在事务，则抛出异常。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_NESTED</strong>--如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则进行与PROPAGATION_REQUIRED类似的操作</span></p> <p><span style="font-size:14px"><br /></span></p> <p><span style="font-size:14px"><span style="color:#FF0000">声明式事务管理配置</span>：<br /></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-size:14px">Spring配置文件</span>中关于事务配置总是由三个组成部分，分别是DataSource、TransactionManager和代理机制（切面配置）</span><span style="font-family:'Microsoft YaHei'">。</span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">比如使用Hibernate进行数据访问时，DataSource实际为SessionFactory，TransactionManager的实现为HibernateTransactionManager。</span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px"><br /></span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">参考文献：</span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">http://www.mamicode.com/info-detail-1248286.html<br /></span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">http://www.cnblogs.com/newsouls/p/3988216.html<br /></span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">http://bbs.csdn.net/topics/390632361<br /></span></span></p> <p></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <blockquote> <p>Java 8中，你可以为接口添加<strong>静态方法</strong>和<strong>默认方法</strong>。从技术角度来说，这是完全合法的，只是它看起来违反了接口作为一个抽象定义的理念。</p> </blockquote> <blockquote> <p>静态方法：使用<code>static</code>关键字修饰。<code>可以通过接口直接调用静态方法</code>，并执行其方法体。我们经常在相互一起使用的类中使用静态方法。你可以在标准库中找到像Collection/Collections或者Path/Paths这样成对的接口和类。</p> </blockquote> <blockquote> <p>默认方法：默认方法使用<code>default</code>关键字修饰。可以通过实现类对象来调用。我们在已有的接口中提供新方法的同时，还保持了与旧版本代码的兼容性。比如：java 8 API中对Collection、List、Comparator等接口提供了丰富的默认方法。</p> </blockquote> <h4> <a id="JDK8_6" rel="nofollow"></a>JDK8:除了全局常量和抽象方法之外，还可以定义静态方法、默认方法(略)</h4> <pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">CompareA</span> <span class="token punctuation">{<!-- --></span>      <span class="token comment">//静态方法</span>     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">method1</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"CompareA:西安"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span>      <span class="token comment">//默认方法</span>     <span class="token keyword">public</span> <span class="token keyword">default</span> <span class="token keyword">void</span> <span class="token function">method2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"CompareA:深圳"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span>      <span class="token keyword">default</span> <span class="token keyword">void</span> <span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"CompareA:杭州"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span> <span class="token punctuation">}</span>  </code></pre> <pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">CompareB</span> <span class="token punctuation">{<!-- --></span>     <span class="token keyword">default</span> <span class="token keyword">void</span> <span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"CompareB：上海"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span> <span class="token punctuation">}</span>  </code></pre> <pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SuperClass</span> <span class="token punctuation">{<!-- --></span>     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"SuperClass:北京"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span> <span class="token punctuation">}</span>  </code></pre> <p>知识点 1：接口中定义的静态方法，只能通过接口来调用。<br /> 知识点 2：通过实现类的对象，可以调用接口中的默认方法。<br /> 如果实现类重写了接口中的默认方法，调用时，仍然调用的是重写以后的方法<br /> 知识点 3：如果子类(或实现类)继承的父类和实现的接口中声明了同名同参数的默认方法，那么子类在没有重写此方法的情况下，默认调用的是父类中的同名同参数的方法。–&gt;类优先原则<br /> 知识点 4：如果实现类实现了多个接口，而这多个接口中定义了同名同参数的默认方法，那么在实现类没有重写此方法的情况下，报错。–&gt;接口冲突。<br /> 这就需要我们必须在实现类中重写此方法</p> <h4> <a id="subclasstest_49" rel="nofollow"></a>subclasstest类</h4> <pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SubClassTest</span> <span class="token punctuation">{<!-- --></span>      <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>         <span class="token class-name">SubClass</span> s <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SubClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//		s.method1();</span> <span class="token comment">//		SubClass.method1();</span> <span class="token comment">//		知识点 1：接口中定义的静态方法，只能通过接口来调用。</span>         <span class="token class-name">CompareA</span><span class="token punctuation">.</span><span class="token function">method1</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//		知识点 2：通过实现类的对象，可以调用接口中的默认方法。</span> <span class="token comment">//		如果实现类重写了接口中的默认方法，调用时，仍然调用的是重写以后的方法</span>         s<span class="token punctuation">.</span><span class="token function">method2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//		知识点 3：如果子类(或实现类)继承的父类和实现的接口中声明了同名同参数的默认方法，</span> <span class="token comment">//		那么子类在没有重写此方法的情况下，默认调用的是父类中的同名同参数的方法。--&gt;类优先原则</span> <span class="token comment">//		知识点 4：如果实现类实现了多个接口，而这多个接口中定义了同名同参数的默认方法，</span> <span class="token comment">//		那么在实现类没有重写此方法的情况下，报错。--&gt;接口冲突。</span> <span class="token comment">//		这就需要我们必须在实现类中重写此方法</span>         s<span class="token punctuation">.</span><span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>      <span class="token punctuation">}</span> <span class="token punctuation">}</span> <span class="token keyword">class</span> <span class="token class-name">SubClass</span> <span class="token keyword">extends</span> <span class="token class-name">SuperClass</span> <span class="token keyword">implements</span> <span class="token class-name">CompareA</span><span class="token punctuation">,</span><span class="token class-name">CompareB</span><span class="token punctuation">{<!-- --></span>      <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">method2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"SubClass：上海"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span>      <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"SubClass：深圳"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span>      <span class="token comment">//	知识点 5：如何在子类(或实现类)的方法中调用父类、接口中被重写的方法</span>     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">myMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//调用自己定义的重写的方法</span>         <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//调用的是父类中声明的</span> <span class="token comment">//		调用接口中的默认方法</span>         <span class="token class-name">CompareA</span><span class="token punctuation">.</span><span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token class-name">CompareB</span><span class="token punctuation">.</span><span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span> <span class="token punctuation">}</span>  </code></pre> <p>输出结果：</p> <pre><code class="prism language-java"><span class="token class-name">CompareA</span><span class="token operator">:</span>西安 <span class="token class-name">SubClass</span>：上海 <span class="token class-name">SubClass</span>：深圳 </code></pre> <hr/> <p>若一个接口中定义了一个默认方法，而另外一个接口中也定义了一个同名同参数的方法（不管此方法是否是默认方法），在实现类同时实现了这两个接口时，会出现：接口冲突。</p> <blockquote> <p>解决办法：实现类必须覆盖接口中同名同参数的方法，来解决冲突。</p> </blockquote> <p>若一个接口中定义了一个默认方法，而父类中也定义了一个同名同参数的非抽象方法，则不会出现冲突问题。因为此时遵守：类优先原则。接口中具有相同名称和参数的默认方法会被忽略。</p> <h3> <a id="_104" rel="nofollow"></a>练习：接口冲突的解决办法</h3> <pre><code class="prism language-java"><span class="token comment">/*  * 练习：接口冲突的解决方式  */</span> <span class="token keyword">interface</span> <span class="token class-name">Filial</span> <span class="token punctuation">{<!-- --></span><span class="token comment">// 孝顺的</span> 	<span class="token keyword">default</span> <span class="token keyword">void</span> <span class="token function">help</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> 		<span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"老妈，我来救你了"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 	<span class="token punctuation">}</span> <span class="token punctuation">}</span>  <span class="token keyword">interface</span> <span class="token class-name">Spoony</span> <span class="token punctuation">{<!-- --></span><span class="token comment">// 痴情的</span> 	<span class="token keyword">default</span> <span class="token keyword">void</span> <span class="token function">help</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> 		<span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"媳妇，别怕，我来了"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 	<span class="token punctuation">}</span> <span class="token punctuation">}</span>  <span class="token keyword">class</span> <span class="token class-name">Father</span><span class="token punctuation">{<!-- --></span> 	<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">help</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span> 		<span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"儿子，救我媳妇！"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 	<span class="token punctuation">}</span> <span class="token punctuation">}</span>  <span class="token keyword">class</span> <span class="token class-name">Man</span> <span class="token keyword">extends</span> <span class="token class-name">Father</span> <span class="token keyword">implements</span> <span class="token class-name">Filial</span><span class="token punctuation">,</span> <span class="token class-name">Spoony</span> <span class="token punctuation">{<!-- --></span>  	<span class="token annotation punctuation">@Override</span> 	<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">help</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> 		<span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"我该就谁呢？"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 		<span class="token class-name">Filial</span><span class="token punctuation">.</span><span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">help</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 		<span class="token class-name">Spoony</span><span class="token punctuation">.</span><span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">help</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 	<span class="token punctuation">}</span> 	 <span class="token punctuation">}</span>  </code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-32.htm">windows下安装redis_在线工具</a></p>
-                                        <p>下一个：<a href="/html/category/article-34.htm">toString() 和 new String()用法区别</a></p>
+                                        <p>上一个：<a href="/html/category/article-32.htm">@RequestBody接收实体类时，部分字段丢失的问题</a></p>
+                                        <p>下一个：<a href="/html/category/article-34.htm">stm32F103RCT6使用FFT运算分析波形详解</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
-                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
-                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
+                <h4><a href="/html/category/article-218.htm">【SpringMVC笔记02】SpringMVC接收请求参数的几种方式</a></h4>
+                <p>这篇文章，主要介绍SpringMVC框架中接收请求参数的几种方式。  目录 一、SpringMVC接收请求参数 1.1、通过方法参数接收 1.2、通过HttpServletRequest接收参数 1.</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-252.htm">[js] 回调函数 回调地狱 Promise async/await</a></h4>
+                <p>1. 回调函数 callback   一种封装代码的手段   什么是 callback , 概念 =&gt; 把 函数A 当做 实参 传递到 函数B 内部 =&gt; 在 函数B 内部以 形参 的方式</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
+                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-230.htm">Vuex的各个模块封装</a></h4>
+                <p>一、各个模块的作用：   state 用来数据共享数据存储  mutation 用来注册改变数据状态（同步）  getters 用来对共享数据进行过滤并计数操作  action 解决异步改变共享数据（</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
-                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
+                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
-                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
-                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
-                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
+                <h4><a href="/html/category/article-245.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></h4>
+                <p>创建型设计模式: 单例模式(Singleton Pattern)  CSDN专栏: 设计模式(UML/23种模式)  单例模式(Singleton Pattern)保证一个类仅有一个实例，并提供一个访</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-160.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Vue项目如何设置反向代理和cookie设置问题_vue.js - EgyptAddress</title>
+    <title>Java-Day05 函数、函数重载、递归函数 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Vue项目如何设置反向代理和cookie设置问题_vue.js</h1>
+                <h1 class="title" style="word-break: break-all;">Java-Day05 函数、函数重载、递归函数</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">Vue设置反向代理和cookie设置</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_0_0" rel="nofollow">项目场景</a></li> <li><a href="#_lab2_0_1" rel="nofollow">问题描述</a></li> <li><a href="#_lab2_0_2" rel="nofollow">原因分析</a></li> <li><a href="#_lab2_0_3" rel="nofollow">解决方案</a></li> </ul> <li><a href="#_label1" rel="nofollow">Vue项目使用js-cookie细则</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_4" rel="nofollow">什么是js-cookie</a></li> <li><a href="#_lab2_1_5" rel="nofollow">在项目中进行安装</a></li> <li><a href="#_lab2_1_6" rel="nofollow">在项目中的入口文件（main.js）全局引入</a></li> <li><a href="#_lab2_1_7" rel="nofollow">在项目中使用</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>Vue设置反向代理和cookie设置</h2> <p class="maodian"><a name="_lab2_0_0" rel="nofollow"></a></p> <h3>项目场景</h3> <p>最近使用Vue开发一个新的项目，因为服务器还没到，调取后端本地接口，因为请求接口的时候没有跨域，就没开反向代理。后面就被一个很基础的东西踩了坑，就是 cookie的一些知识，记录一下，加深一下印象。</p> <p class="maodian"><a name="_lab2_0_1" rel="nofollow"></a></p> <h3>问题描述</h3> <p>联调过程中，发现调用登录接口之后，再去调其他接口，就会报登录状态失效，之前做了好久小程序的项目，突然遇到这种有点懵逼。</p> <p class="maodian"><a name="_lab2_0_2" rel="nofollow"></a></p> <h3>原因分析</h3> <p>首先，出现这个问题，问了下后端，后端说是Cookie没有传给他。然后我们来确认下Cookie的定义和作用是什么？</p> <p>HTTP 协议中的 Cookie 它包括 Web Cookie 和浏览器 Cookie，它是服务器发送到 Web 浏览器的一小块数据。服务器发送到浏览器的 Cookie，浏览器会进行存储，并与下一个请求一起发送到服务器。通常，它用于判断两个请求是否来自于同一个浏览器，例如用户保持登录状态。</p> <p>当接收到客户端发出的 HTTP 请求时，服务器可以发送带有响应的 Set-Cookie 标头，Cookie 通常由浏览器存储，然后将 Cookie 与 HTTP 标头一同向服务器发出请求。</p> <p>看到这里，我就去看了下，当我调用登录接口成功的时候，后端是返回了Set-Cookie 的，但是发现浏览器没有去设置。看到这里，就知道Set-Cookie 浏览器没有生效。Cookie 基于安全方面的考虑，在浏览器中无法获取跨域的 Cookie 。</p> <p class="maodian"><a name="_lab2_0_3" rel="nofollow"></a></p> <h3>解决方案</h3> <p>在Vue项目里根目录vue.config.js设置一下反向代理</p> <div class="ay1code"> <pre class="brush:js;">module.exports = {   devServer: {    // 设置代理    proxy: {     "/api": {      target: "http://127.0.0.1:8081/", // 域名      ws: true, // 是否启用websockets      changOrigin: true, //开启代理：在本地会创建一个虚拟服务端，然后发送请求的数据，并同时接收请求的数据，                         //这样服务端和服务端进行数据的交互就不会有跨域问题      pathRequiresRewrite: {       "^/api": "/"      }     }    }   }  }</pre> </div> <p>请求的时候</p> <div class="ay1code"> <pre class="brush:js;">// '/api'等于'http://127.0.0.1:8081/api'  // 此时请求地址为'http://127.0.0.1:8081/api/picture?method=upload'  get('/api/picture?method=upload')</pre> </div> <p>解决完成！开心。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>Vue项目使用js-cookie细则</h2> <p>背景：最近的vue项目中由于项目的token是需要设置过期时间的，当然，以前这种过期的行为逻辑一直是后端来控制，但这次要求前端也进行token时间的一个监控，由于懒得封装cookie，所以就用了js-cookie的一个cookie封装库</p> <p class="maodian"><a name="_lab2_1_4" rel="nofollow"></a></p> <h3>什么是js-cookie</h3> <p>看名字我们就知道这是关于cookie存储的一个js的API，根据官网描述其优点有：适用所有浏览器、接受任何字符、经过任何测试没什么bug、支持CMD和CommonJS、压缩之后非常小，仅900个字节</p> <p class="maodian"><a name="_lab2_1_5" rel="nofollow"></a></p> <h3>在项目中进行安装</h3> <div class="ay1code"> <pre class="brush:js;">npm install js-cookie 'js-cookie' --save</pre> </div> <p class="maodian"><a name="_lab2_1_6" rel="nofollow"></a></p> <h3>在项目中的入口文件（main.js）全局引入</h3> <div class="ay1code"> <pre class="brush:js;">import Cookies from 'js-cookie'</pre> </div> <p class="maodian"><a name="_lab2_1_7" rel="nofollow"></a></p> <h3>在项目中使用</h3> <p>1、存cookie  set方法支持的属性有 ：  expires-&gt;过期时间    path-&gt;设置为指定页面创建cookie   domain-》设置对指定域名及指定域名的子域名可见  secure-&gt;值有false和true ,表示设置是否只支持https,默认是false</p> <div class="ay1code"> <pre class="brush:js;">Cookies.set('key', 'value');  //创建简单的cookie  Cookies.set('key', 'value', { expires: 27 });//创建有效期为27天的cookie  Cookies.set('key', 'value', { expires: 17, path: ''  }); //可以通过配置path,为当前页创建有效期7天的cookie</pre> </div> <p>2、取cookie</p> <div class="ay1code"> <pre class="brush:js;">Cookies.get('key'); // 获取指定key 对应的value  Cookies.get(); //获取所有value</pre> </div> <p>3、删除cookie</p> <div class="ay1code"> <pre class="brush:js;">Cookies.remove('key');//删除普通的cookie  Cookies.remove('name', { path: '' }); // 删除存了指定页面path的cookie</pre> </div> <p>注意：如果存的是对象，如：</p> <div class="ay1code"> <pre class="brush:js;">userInfo = {age:111,score:90};  Cookie.set('userInfo',userInfo)</pre> </div> <p>取出来的userInfo需要进行JSON的解析,解析为对象：</p> <div class="ay1code"> <pre class="brush:js;">let res = JSON.parse( Cookie.get('userInfo') );</pre> </div> <p>当然你也可以使用：</p> <div class="ay1code"> <pre class="brush:js;">Cookie.getJSON('userInfo');</pre> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p id="main-toc"><strong>目录</strong></p> <p id="1.%20%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89-toc" style="margin-left:0px;"><a href="#1.%20%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89" rel="nofollow">1. 函数（function）</a></p> <p id="1.1%20%E4%BB%80%E4%B9%88%E6%98%AF%E5%87%BD%E6%95%B0-toc" style="margin-left:40px;"><a href="#1.1%20%E4%BB%80%E4%B9%88%E6%98%AF%E5%87%BD%E6%95%B0" rel="nofollow">1.1 什么是函数</a></p> <p id="1.2%20%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0-toc" style="margin-left:40px;"><a href="#1.2%20%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0" rel="nofollow">1.2 为什么使用函数</a></p> <p id="1.3%20Java%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0-toc" style="margin-left:40px;"><a href="#1.3%20Java%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0" rel="nofollow">1.3 Java中如何定义函数</a></p> <p id="1.4%20%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8-toc" style="margin-left:40px;"><a href="#1.4%20%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8" rel="nofollow">1.4 函数调用</a></p> <p id="1.5%20%E5%87%BD%E6%95%B0%E7%9A%84%E5%88%86%E7%B1%BB-toc" style="margin-left:40px;"><a href="#1.5%20%E5%87%BD%E6%95%B0%E7%9A%84%E5%88%86%E7%B1%BB" rel="nofollow">1.5 函数的分类</a></p> <p id="1.6%20%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F-toc" style="margin-left:40px;"><a href="#1.6%20%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F" rel="nofollow">1.6 局部变量</a></p> <p id="1.7%20%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E6%9C%AC%E8%B4%A8-toc" style="margin-left:40px;"><a href="#1.7%20%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E6%9C%AC%E8%B4%A8" rel="nofollow">1.7 函数调用的本质</a></p> <p id="2.%20%E5%87%BD%E6%95%B0%E9%87%8D%E8%BD%BD-toc" style="margin-left:0px;"><a href="#2.%20%E5%87%BD%E6%95%B0%E9%87%8D%E8%BD%BD" rel="nofollow">2. 函数重载</a></p> <p id="3.%20%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%92%E5%BD%92(recursion)%EF%BC%9A-toc" style="margin-left:0px;"><a href="#3.%20%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%92%E5%BD%92%28recursion%29%EF%BC%9A" rel="nofollow">3. 函数的递归(recursion)：</a></p> <p id="%E4%BE%8B%E9%A2%981%EF%BC%9A%E6%B1%821-100%E4%B9%8B%E9%97%B4%E6%89%80%E6%9C%89%E7%9A%84%E6%95%B0%E4%B9%8B%E5%92%8C-toc" style="margin-left:40px;"><a href="#%E4%BE%8B%E9%A2%981%EF%BC%9A%E6%B1%821-100%E4%B9%8B%E9%97%B4%E6%89%80%E6%9C%89%E7%9A%84%E6%95%B0%E4%B9%8B%E5%92%8C" rel="nofollow">例题1：求1-100之间所有的数之和</a></p> <p id="%E4%BE%8B%E9%A2%982%EF%BC%9A%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AA%E7%A8%8B%E5%BA%8F%EF%BC%8C%E6%89%93%E5%8D%B0%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97%E6%9F%90%E4%B8%80%E9%A1%B9%E7%9A%84%E5%80%BC-toc" style="margin-left:40px;"><a href="#%E4%BE%8B%E9%A2%982%EF%BC%9A%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AA%E7%A8%8B%E5%BA%8F%EF%BC%8C%E6%89%93%E5%8D%B0%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97%E6%9F%90%E4%B8%80%E9%A1%B9%E7%9A%84%E5%80%BC" rel="nofollow">例题2：编写一个程序，打印斐波那契数列某一项的值</a></p> <hr id="hr-toc"/> <h1 id="1.%20%E5%87%BD%E6%95%B0%EF%BC%88function%EF%BC%89">1. 函数（function）</h1> <h2 id="1.1%20%E4%BB%80%E4%B9%88%E6%98%AF%E5%87%BD%E6%95%B0">1.1 什么是函数</h2> <p>函数就是定义在类中的具有特定功能的一段独立小程序，并能被多次使用。具有名称的特定功能代码的集合。</p> <h2 id="1.2%20%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0">1.2 为什么使用函数</h2> <p>提高代码的复用性，减少代码的维护成本。</p> <h2 id="1.3%20Java%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0">1.3 Java中如何定义函数</h2> <pre><code class="language-java">权限修饰符 [函数类型修饰符] 返回值类型 函数名([参数类型 形式参数1, 参数类型 形式参数2, ...]){     执行语句;     [return 返回值;] }</code></pre> <p>注意：在Java中，函数是定义在类中，是类的成员</p> <ol> <li><span style="color:#494949;">权限修饰符：指的就是函数的使用范围(内部和外部)</span></li> <li><span style="color:#494949;">函数类型：指的就是函数类型分类，说的就是函数的具体使用场景和场合</span></li> <li><span style="color:#494949;">函数名：就是程序员给这一段代码自定义的名称(标识符)</span></li> <li><span style="color:#494949;">参数列表：参数列表有若干个 参数类型,参数名... 组成主要用于接收外界传递给函数的一些数据</span></li> <li><span style="color:#494949;">函数体：就是那些具有独立功能的代码块</span></li> <li><span style="color:#494949;">return：仅仅表示结束当前函数，如果有返回值，则函数结束前将返回值返回给调用者</span></li> <li><span style="color:#494949;">返回值：指的就是这一具有独立功能的代码块的计算结果，需要传递给外界 配合return</span></li> <li><span style="color:#494949;">返回值类型：就是返回值的数据类型(可兼容)</span></li> </ol> <h2 id="1.4%20%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8">1.4 函数调用</h2> <p>当函数定义完成后，不会自己执行，需要通过调用来执行</p> <p>函数名称([实际参数列表])</p> <p>如下实现了一个打印Hello的函数：</p> <pre><code class="language-java">public class Function {     public static void main(String[] args) {         // 调用函数         printHello();     }      // 定义一个函数     // static 关键字的作用是将函数提前加载到内存中     public static void printHello() {         System.out.println("Hello");     } }</code></pre> <h2 id="1.5%20%E5%87%BD%E6%95%B0%E7%9A%84%E5%88%86%E7%B1%BB">1.5 函数的分类</h2> <p>1. 通过函数是否存在参数</p> <ul> <li>无参函数</li> <li>有参函数</li> </ul> <p>2. 函数是是否需要返回计算结果</p> <ul> <li>无返回值</li> <li>有返回值</li> </ul> <h2 id="1.6%20%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F"><strong>1.6 局部变量</strong></h2> <p>定义在函数内部的变量，叫做局部变量，局部变量的作用域只在当前函数中有效</p> <p>注意：在Java中没有全局变量，main函数中的变量也是局部变量，只是比较特殊</p> <p>作用域还是main函数本身，但是声明周期是比较长</p> <pre><code class="language-java">public class Function {     public static void main(String[] args) {         // 调用函数         printHello();         System.out.println(a); // 错误: 找不到符号     }      // 定义一个函数     // static 关键字的作用是将函数提前加载到内存中     public static void printHello() {         int a = 10;         System.out.println("Hello");     } }</code></pre> <p>在上述的代码中，函数printHello()中的变量就是局部变量。当在主函数中调用时，会报错。</p> <h2 id="1.7%20%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E6%9C%AC%E8%B4%A8">1.7 函数调用的本质</h2> <p>函数本质是一个对象，存储在对中，当调用时，会临时的压入栈中(push)，等调用完成后，函数被弹出栈(pop)。所以函数调用就是瞬时操作。</p> <p>调用函数 ==&gt; 函数压栈 ==&gt; 函数调用完 ==&gt; 函数出栈</p> <p>函数的运行原理：</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;每当调用一个方法时，系统会创建一个活动记录（也称为活动框架），用于保存方法中的参数和变 量。活动记录置于一个内存去榆中，称为调用堆栈（call stack）。调用堆栈也称为执行堆栈、运行时堆 栈，或者一个机器堆栈，常简称为“堆栈”。当一个方法调用另一个方法时，调用者的活动记录保持不 动，一个新的活动记录被创建用于被调用的新方法。一个方法结束返回到调用者时，其相应的活动记录也被释放。</p> <h1 id="2.%20%E5%87%BD%E6%95%B0%E9%87%8D%E8%BD%BD">2. 函数重载</h1> <p>函数重载(overload)：至少两个或者更多函数，函数名称相同，但是参数的个数或者类型不同，从而在调用的时候，可以通过传参确定要调用的函数</p> <pre><code class="language-java">public class OverLoadTest {     public static void main(String[] args) {         System.out.println(add(10, 20)); // 30         byte a = 10;         System.out.println(add(a, 10)); // 20         System.out.println(add(10)); // 110     }          public static int add(int x, int y) {         return x + y;     }      // 错误: 已在类 OverLoadTest中定义了方法 add(int,int)     // public static int add(int a, int b) {     //     return a + b;     // }      public static int add(byte a, int b) {         return a + b;     }      public static int add(int a) {         return a + 100;     }  }</code></pre> <p>函数重载，本质是对功能的扩展，不是代码的复用！！！</p> <h1 id="3.%20%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%92%E5%BD%92(recursion)%EF%BC%9A">3. 函数的递归(recursion)：</h1> <p>递归：函数自身调用自身</p> <p>如果要使用递归：必须有终止条件，没有终止条件的递归就是一个死循环！！</p> <h2 id="%E4%BE%8B%E9%A2%981%EF%BC%9A%E6%B1%821-100%E4%B9%8B%E9%97%B4%E6%89%80%E6%9C%89%E7%9A%84%E6%95%B0%E4%B9%8B%E5%92%8C">例题1：求1-100之间所有的数之和</h2> <pre><code class="language-java">public class RecursionTest {     public static void main(String[] args) {         int s = sum(100);         System.out.println(s); // 5050          int n = sum1(100);         System.out.println(s); // 5050     }      public static int sum(int n) {         return n * (1 + n) / 2; // 等差数列     }      public static int sum1(int n) {         return n + sum(n - 1);  // 递归     } }</code></pre> <p>除次之外，我们还可以使用for循环去实现。</p> <p>再如，</p> <h2 id="%E4%BE%8B%E9%A2%982%EF%BC%9A%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AA%E7%A8%8B%E5%BA%8F%EF%BC%8C%E6%89%93%E5%8D%B0%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97%E6%9F%90%E4%B8%80%E9%A1%B9%E7%9A%84%E5%80%BC">例题2：编写一个程序，打印斐波那契数列某一项的值</h2> <pre><code class="language-java">import java.util.Scanner;  public class RecursionTest1 {     // 输入一个数n，输出斐波那契数列的第n项值      public static void main(String[] args) {         Scanner scan = new Scanner(System.in);         System.out.print("请输入项数：");         int n = scan.nextInt();          int result = fibonacci(n);         System.out.println(result);          fibonacci1(n);     }      public static int fibonacci(int n) {         if (n == 0) {             return 0;         }         if (n == 1) {             return 1;         }         return fibonacci(n - 1) + fibonacci(n - 2);     }      public static void fibonacci1(int n) {         int frist = 0;         int second = 1;         int three = 0;         for (int i = 2; i &lt;= n; i++) {             three = frist + second;             frist = second;             second = three;         }         System.out.println(three);     } }</code></pre> <p>函数fibonacci是一个递归函数，而fibonacci1函数是一个使用for循环去实现这个题目的方法。</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-159.htm">Servlet的url-pattern配置</a></p>
-                                        <p>下一个：<a href="/html/category/article-161.htm">vue项目运行后自动运行浏览器（vue2/vue3）</a></p>
+                                        <p>上一个：<a href="/html/category/article-159.htm">SpringBoot教程SpringBoot统一结果封装</a></p>
+                                        <p>下一个：<a href="/html/category/article-161.htm">对vue中的render理解</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
-                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
-                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
-                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
+                <h4><a href="/html/category/article-243.htm">SpringMVC访问静态资源的三种方式</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果你的DispatcherServlet拦截 *.do这样的URL，就不存在访问不到静态资源的问题。如果你的Dispatch</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
-                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
-                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-203.htm">OAuth 2.1 框架_在线工具</a></h4>
+                <p>OAuth 2.1 Draft 当前版本：v2-1-05 失效时间：2022/09/08 本文对部分原文翻译，同时加了一些笔记，以便理解。    单词 译意     identifiler 识别码  </p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-204.htm">JavaWeb项目基于SpringBoot框架实现统一的数据返回格式 + 统一异常处理 + 统一日志处理</a></h4>
+                <p>目录 ????前言 ????统一返回格式 &nbsp;添加枚举类 &nbsp;添加统一返回格式的类 &nbsp;测试 ????统一异常处理 &nbsp;添加统一异常处理器（创建一个handler包，在</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
-                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
+                <h4><a href="/html/category/article-261.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

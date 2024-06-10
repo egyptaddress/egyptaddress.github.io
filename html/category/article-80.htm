@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-80.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>nginx进程管理 - EgyptAddress</title>
+    <title>vscode如何运行JavaWeb项目 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">nginx进程管理</h1>
+                <h1 class="title" style="word-break: break-all;">vscode如何运行JavaWeb项目</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <blockquote> <p>nginx进程管理==&gt; master + 多个worker进程<br /> master进程：全局的初始化 和管理 worker进程<br /> worker进程：主要业务逻辑，事件处理<br /> 通信：socketpair ==&gt; 每次fork完一个子进程后都把句柄传给前面已经存在的进程，以达到子进程间通信</p> </blockquote> <p><strong>nginx有多进程启动和单进程启动</strong><br /><img decoding="async" title="" alt="这里写图片描述" src="http://img.555519.xyz/uploads3/20220820/b24b00cf730ad74bb7612ea9cccad4fe.jpg"></p> <pre class="prettyprint"><code class="hljs objectivec">主要分析多进程启动： nginx中的fork在ngx_spawn_process函数中进行 ngx_pid_t ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc,<span class="hljs-keyword">void</span> *data,<span class="hljs-keyword">char</span> *name, ngx_int_t respawn) 第一个参数是全局的配置，第二个参数是子进程需要执行的函数，第三个参数是proc的参数，第四个类型<span class="hljs-comment">/*作用：： 1 有一个ngx_processes全局数组，包含了所有的存货的子进程，这里会fork出来的子进程放入到相应的位置。 并设置这个进程的相关属性。 2 创建socketpair，并设置相关属性。 3 在子进程中执行传递进来的函数。 */</span>  nginx进程结构：<span class="hljs-keyword">typedef</span><span class="hljs-keyword">struct</span>  {     ngx_pid_t            pid;<span class="hljs-comment">//进程的ID</span><span class="hljs-keyword">int</span>                  status;<span class="hljs-comment">//进程的退出状态</span>     ngx_socket_t         channel[<span class="hljs-number">2</span>];<span class="hljs-comment">//用于socketpair通信的一对socket句柄</span>     ngx_spawn_proc_pt    proc;<span class="hljs-comment">//进程的执行函数</span><span class="hljs-keyword">void</span>                 *data;<span class="hljs-comment">//proc的参数</span><span class="hljs-keyword">char</span>                 *name;<span class="hljs-comment">//进程的title标识</span><span class="hljs-keyword">unsigned</span>             respawn:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态:重新创建的</span><span class="hljs-keyword">unsigned</span>             just_spawn:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态: 第一次创建的</span><span class="hljs-keyword">unsigned</span>             detached:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态: 分离的，独立的</span><span class="hljs-keyword">unsigned</span>             exiting:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态: 正在退出的</span><span class="hljs-keyword">unsigned</span>             exited:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态: 已经退出的</span> } ngx_process_t;(src/os/unix/ngx_process<span class="hljs-variable">.h</span>)  master每创建一个worker都会把一个设置好的ngx_process_t结构变量放入ngx_processes中，新创建的进程存放在ngx_process_slot位置（遍历数组，查看是否空闲<span class="hljs-keyword">id</span> == -<span class="hljs-number">1</span>）   master进程向worker子进程发送命令是通过socketpair创建的一对socket实现的，之间传输的是ngx_channel_t结构变量：<span class="hljs-keyword">typedef</span><span class="hljs-keyword">struct</span>  {      ngx_uint_t  command;<span class="hljs-comment">//发送的命令</span>      ngx_pid_t   pid;<span class="hljs-comment">//发送方进程的进程id</span>      ngx_int_t   slot;<span class="hljs-comment">//发送方进程在进程表中偏移位置</span>      ngx_fd_t    fd;<span class="hljs-comment">//发送给对方的文件句柄</span> } ngx_channel_t;(src/os/unix/ngx_channel<span class="hljs-variable">.h</span>)</code></pre> <p><img decoding="async" title="" alt="这里写图片描述" src="http://img.555519.xyz/uploads3/20220820/d5483c8394045635c0eee346af114a31.jpg"></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>2、使用vscode打开(或者手动创建)Java web项目</p> <p><img fetchpriority="high" decoding="async" alt="" height="305" src="http://img.555519.xyz/uploads/20221201/a3f815d70498b77f65e3493524e916c3.jpg"></p> <p>3.点击选中该项目文件夹后点击最上面的查看--》选中命令面板后利用命令行tomcat:Generate War Package from Current Folder将项目打包成war，在项目文件下选择第一个命令会生成该项目文件夹命名的一个war包</p> <p>4.添加Tomcat服务，在侧边栏 Tomcat Server 点击添加，选择自己的Tomcat目录</p> <p><img decoding="async" alt="" height="113" src="http://img.555519.xyz/uploads/20221201/65a22992de65bcb8e2e46e3a3d7bc3bd.jpg"></p> <p>5.运行服务和项目，右键生成的war包，选择 Run on Tomcat Server</p> <p>6.查看项目，直接在浏览器中输入<code>http://localhost:8080</code>或者右键发布的项目<code>open in Browser</code>，查看项目运行结果。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-79.htm">MySQL 优化：explain 执行计划详解与示例分析</a></p>
-                                        <p>下一个：<a href="/html/category/article-81.htm">react实战系列 —— 我的仪表盘（bizcharts、antd、moment）_在线工具</a></p>
+                                        <p>上一个：<a href="/html/category/article-79.htm">Java Map的遍历与排序</a></p>
+                                        <p>下一个：<a href="/html/category/article-81.htm">多线程与高并发原理篇：3_java内存模型</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-252.htm">[js] 回调函数 回调地狱 Promise async/await</a></h4>
+                <p>1. 回调函数 callback   一种封装代码的手段   什么是 callback , 概念 =&gt; 把 函数A 当做 实参 传递到 函数B 内部 =&gt; 在 函数B 内部以 形参 的方式</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></h4>
-                <p>Redis的数据淘汰策略  volatile-lru（least recently used）：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰 vol</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
-                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
-                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
+                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
+                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
-                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-212.htm">定时器中 this 指向修改实现方法和原理讲解</a></h4>
+                <p>定时器中 this 指向修改实现方法和原理讲解      1. 变量替换 2. 箭头函数 3. bind() 方法       定时器属于全局 window ，window.setTimeout();</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
-                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
-                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

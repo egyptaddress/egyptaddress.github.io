@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-225.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>坑——java里List的remove方法 - EgyptAddress</title>
+    <title>Spring的3级缓存和循环引用的理解_在线工具 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">坑——java里List的remove方法</h1>
+                <h1 class="title" style="word-break: break-all;">Spring的3级缓存和循环引用的理解_在线工具</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>写过的类似代码：</p> <pre><code class="language-java">/**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.util.List;  /**  * @author xinwenfeng  *  */ public class TestListRemove {  	/** 	 * @param args 	 */ 	public static void main(String[] args) { 		List&lt;Integer&gt; ageList = new ArrayList&lt;&gt;(); 		Student stu1 = new Student(7, "Tom"); 		Student stu2 = new Student(6, "Jerry"); 		Student stu3 = new Student(4, "Mordecai"); 		Student stu4 = new Student(5, "Lilith"); 		Student stu5 = new Student(8, "Roland"); 		Student stu6 = new Student(9, "Brick"); 		ageList.add(stu1.getAge()); 		ageList.add(stu2.getAge()); 		ageList.add(stu3.getAge()); 		ageList.add(stu4.getAge()); 		ageList.add(stu5.getAge()); 		ageList.add(stu6.getAge()); 		System.out.println(ageList); 		//删掉Lilith,age=5 		ageList.remove(stu4.getAge()); 		System.out.println(ageList);//发现删掉的是stu6 		//删掉Roleand，age=8 //		ageList.remove(stu5.getAge());//Exception:java.lang.IndexOutOfBoundsException: Index: 8, Size: 5 		//正确删掉Jerry 		ageList.remove((Integer)stu2.getAge()); 		System.out.println(ageList); 	}  } class Student{ 	private int age; 	public int getAge() { 		return age; 	} 	public void setAge(int age) { 		this.age = age; 	} 	public String getName() { 		return name; 	} 	public void setName(String name) { 		this.name = name; 	} 	private String name; 	public Student(int age, String name) { 		super(); 		this.age = age; 		this.name = name; 	} 	@Override 	public String toString() { 		return age+":"+name; 	} }</code></pre> <p>结果：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads/20230108/2169b69830488c315c66afe4b93f5951.jpg" alt="坑——java里List的remove方法"></p> <p>发生这样的bug经常要找很久，因为自认为list是按照age塞进去的，按照age删肯定没问题，通常也不会想到这样的bug而优先去找业务逻辑的bug，出现这种问题的原因就在list的remove方法有两个：</p> <h5></h5> <div style="padding-top:2px;margin-left:20px;">  boolean&nbsp;<br />  <a class="header" rel="nofollow">java</a>.<br />  <a class="header" rel="nofollow">util</a>.<br />  <a class="header" rel="nofollow">List</a>.remove(<br />  <span style="font-weight:normal;"></span><br />  <a title="in java.lang" class="header" rel="nofollow">Object</a>&nbsp;o) </div> <div style="padding-top:2px;margin-left:20px;">  <a title="in java.lang" class="header" rel="nofollow">Integer</a>&nbsp;<br />  <a class="header" rel="nofollow">java</a>.<br />  <a class="header" rel="nofollow">util</a>.<br />  <a class="header" rel="nofollow">List</a>.remove(<br />  <span style="font-weight:normal;"></span>int index) </div> <p>Student的age属性是int而不是Integer，所以remove(stu.getAge())的时候传递的是int，调用的是remove(int index)方法，根据索引删除，这样造成两种结果：删错（删掉Lilith）、异常（删掉Roland）。要正常删除应把age转型成Integer对象，调用remove(Object)方法而不是remove(int)。</p> </p></div> 			                </div>
+                      				  				  				<blockquote> <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。</p> </blockquote> <h1 id="一背景">一、背景</h1> <p>在我们写代码的过程中一般会使用 <code>@Autowired</code> 来注入另外的一个对象，但有些时候发生了<code> 循环依赖</code>，但是我们的代码没有报错，这个是什么原因呢？</p> <h1 id="二前置知识">二、前置知识</h1> <h2 id="1考虑循环依赖的类型">1、考虑循环依赖的类型</h2> <p>此处我们考虑 <code>单例</code> + <code>@Autowired</code> 的循环依赖，不考虑使用<code>构造器注入</code>或<code>原型作用域的Bean</code>的注入。</p> <h2 id="2代理对象何时创建">2、代理对象何时创建</h2> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220428/4f2efb146cccd30df758f97759072b97.jpg" alt="Spring的3级缓存和循环引用的理解_在线工具"><br /><strong>注意：</strong><br /> 正常情况下，即没有发生 循环依赖的时候，<code>aop增强</code>是在 bean 初始化完成之后的 <code>BeanPostProcessor#postProcessAfterInitialization</code>方法中，但是如果有循环依赖发生的话，就需要提前，在 <code>getEarlyBeanReference</code>中提前创建代理对象。</p> <h2 id="33级缓存中保存的是什么对象">3、3级缓存中保存的是什么对象</h2> <table> <thead> <tr> <th>缓存字段名</th> <th>缓存级别</th> <th>数据类型</th> <th>解释</th> </tr> </thead> <tbody> <tr> <td>singletonObjects</td> <td>1</td> <td>Map&lt;String, Object&gt;</td> <td>保存的是完整的Bean，即可以使用的Bean</td> </tr> <tr> <td>earlySingletonObjects</td> <td>2</td> <td>Map&lt;String, Object&gt;</td> <td>保存的是半成品的Bean,即属性还没有设置，没有完成初始化工作</td> </tr> <tr> <td>singletonFactories</td> <td>3</td> <td>Map&lt;String, ObjectFactory&lt;?&gt;&gt;</td> <td>主要是生成Bean，然后放到二级缓存中</td> </tr> </tbody> </table> <p><strong>注意：</strong><br /><code>ObjectFactory#getObject()</code> 每调用一次，都会产生一个新的对象或返回旧对象，取决于是否存在代理等等。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220428/4dbcae99ba855144b53b8240a4d82a6c.jpg" alt="Spring的3级缓存和循环引用的理解_在线工具"></p> <h2 id="4从3级缓存中获取对象">4、从3级缓存中获取对象</h2> <blockquote> <p>org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton(java.lang.String, boolean)</p> </blockquote> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220428/39e95a555cf81b430f300e15e1900194.jpg" alt="Spring的3级缓存和循环引用的理解_在线工具"></p> <h2 id="5-spring-bean的简化创建过程">5 Spring Bean的简化创建过程</h2> <h3 id="1实例化一个bean">1、实例化一个bean</h3> <pre><code class="language-java">Object bean = instanceWrapper.getWrappedInstance(); </code></pre> <p>实例化Bean 即 new Bean()</p> <h3 id="2加入到三级缓存中">2、加入到三级缓存中</h3> <pre><code class="language-java">addSingletonFactory(beanName, () -&gt; getEarlyBeanReference(beanName, mbd, bean)); </code></pre> <p>加入到三级缓存中是有一些条件判断的，一般都会是成立的，此处认为需要加入到三级缓存。</p> <h3 id="3设置bean的属性">3、设置bean的属性</h3> <pre><code class="language-java">populateBean(beanName, mbd, instanceWrapper); </code></pre> <p>第一步实例化了bean，但是此时是没有填充需要注入的属性的，通过这一步进行属性的填充。</p> <h3 id="4初始化bean">4、初始化bean</h3> <pre><code class="language-java">Object exposedObject = initializeBean(beanName, exposedObject, mbd); </code></pre> <p>初始化Bean，执行初始化方法、Aware回调、执行 BeanPostProcessor#postProcessAfterInitialization 方法 (<code>aop的增强</code>是在这个里面实现的)</p> <p>如果有<code>循环引用</code>的话，则aop的增强需要提前。</p> <h3 id="5加入到一级缓存中">5、加入到一级缓存中</h3> <pre><code class="language-java">addSingleton(......) </code></pre> <h1 id="三理解">三、理解</h1> <pre><code class="language-java">@Component class A {     @Autowired 	private B b; }  @Transaction (存在代理) @Component class B{     @Autowired 	private A a; } </code></pre> <h2 id="1假设只有singletonobjects和earlysingletonobjects可否完成循环依赖">1、假设只有singletonObjects和earlySingletonObjects可否完成循环依赖</h2> <table> <thead> <tr> <th>缓存字段名</th> <th>缓存级别</th> <th>数据类型</th> <th>解释</th> </tr> </thead> <tbody> <tr> <td>singletonObjects</td> <td>1</td> <td>Map&lt;String, Object&gt;</td> <td>保存的是完整的Bean，即可以使用的Bean</td> </tr> <tr> <td>earlySingletonObjects</td> <td>2</td> <td>Map&lt;String, Object&gt;</td> <td>保存的是半成品的Bean,即属性还没有设置，没有完成初始化工作</td> </tr> </tbody> </table> <p>此时需要获取 <code>B</code>的实例，即 <code>getBean("b")</code>，由上方了解到的 Bean 的简化流程可知<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220428/3853546a0bcb2a1f9e4ed8d122b1b3e2.jpg" alt="Spring的3级缓存和循环引用的理解_在线工具"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220428/04a8ea3ecf5d146feb995c9a078bf6c2.jpg" alt="Spring的3级缓存和循环引用的理解_在线工具"><br /> 由上图可知，<code>对象存在代理时</code>，2级缓存无法解决问题。因为代理对象是通过<code>BeanPostProcessor</code>来完成，<code>是在设置属性之后才产生的代理对象</code>。</p> <p>此时可能有人会说，那如果我在构建完B的实例后，就立马进行Aop代理，这样不就解决问题了吗？那假设A和B之间没有发生循环依赖，这样设计会不会不优雅？</p> <h2 id="2假设只有singletonobjects和singletonfactories可否完成循环依赖">2、假设只有singletonObjects和singletonFactories可否完成循环依赖</h2> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220428/76875e30067a8affc5fa72b2adb05fe8.jpg" alt="Spring的3级缓存和循环引用的理解_在线工具"><br /> 由图中可知也是不可以实现的。</p> <h2 id="33级缓存如何实现">3、3级缓存如何实现</h2> <h3 id="1解决代理问题">1、解决代理问题</h3> <p>因为默认情况下，代理是通过<code>BeanPostProcessor</code>来完成，为了解决代理，就需要提前创建代理，那么这个代理的创建就放到3级缓存中来进行创建。</p> <pre><code class="language-java">addSingletonFactory(beanName, () -&gt; getEarlyBeanReference(beanName, mbd, bean)); </code></pre> <p><code>getEarlyBeanReference</code> 此方法会返回代理bean</p> <h3 id="2解决单例通过第3级缓存多次获取的值不一致">2、解决单例通过第3级缓存多次获取的值不一致</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220428/39e95a555cf81b430f300e15e1900194.jpg" alt="Spring的3级缓存和循环引用的理解_在线工具"><br /> 从上图中可知，对象是先从 <code>一级-&gt;二级-&gt;三级缓存</code> 这样查找，当三级缓存产生了对象后就放入二级缓存中缓存起来，同时删除三级缓存。</p> <h3 id="3流程图">3、流程图</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220428/0e9f0c7f4cfa3104d594bf25274378bd.jpg" alt="Spring的3级缓存和循环引用的理解_在线工具"></p> <h1 id="四总结">四、总结</h1> <p>1、一级缓存 <code>singletonObjects</code> 存放可以使用的单例。<br /> 2、二级缓存<code>earlySingletonObjects</code>存放的是早期的Bean，即是半成品，此时还是不可用的。<br /> 3、三级缓存<code>singletonFactories</code> 是一个对象工厂，用于创建对象，然后放入到二级缓存中。同时对象如果有Aop代理的话，这个对对象工厂返回的就是代理对象。</p> <p>那可以在<code>earlySingletonObjects</code>中直接存放创建后的代理对象吗？这样是可以解决问题，但是设计可能就不合理了。因为在Spring中 <code>Aop</code>的代理是在对象完成之后创建的。而且如果没有发生循环依赖的话，有必要提前创建代理对象吗？分成三级缓存，代码结构更清楚，更合理。</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-224.htm">go语言panic函数详解</a></p>
-                                        <p>下一个：<a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></p>
+                                        <p>上一个：<a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></p>
+                                        <p>下一个：<a href="/html/category/article-226.htm">Carson带你学设计模式：单例模式（Singleton）</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
-                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
-                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
-                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
-                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-209.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
-                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
+                <h4><a href="/html/category/article-251.htm">C# 有关List&lt;T&gt;的Contains与Equals方法_在线工具</a></h4>
+                <p>【以下内容仅为本人在学习中的所感所想，本人水平有限目前尚处学习阶段，如有错误及不妥之处还请各位大佬指正，请谅解，谢谢！】 #Updated【2022.5.2 修复移动端排版混乱的问题】 ！！！观前提醒</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
-                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
-                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
+                <h4><a href="/html/category/article-232.htm">Android中EditText光标的显示与隐藏方法</a></h4>
+                <p>目录  Android EditText的光标的显示和隐藏 Android之第一次不显示EditText光标 总结   Android EditText的光标的显示和隐藏 一、java代码 1.编辑框</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
-                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
+                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

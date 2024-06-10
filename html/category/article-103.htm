@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-103.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>【Android笔记】BaseAdapter适配器的介绍、使用及优化（详细） - EgyptAddress</title>
+    <title>SpringBoot中的重定向不可用（使用redirect：） - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">【Android笔记】BaseAdapter适配器的介绍、使用及优化（详细）</h1>
+                <h1 class="title" style="word-break: break-all;">SpringBoot中的重定向不可用（使用redirect：）</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>&nbsp;</p> <h2>什么是数据适配器</h2> <p>&nbsp;</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/98916a09c42d67d5aa020c1b51234872.jpg"></p> <p>&nbsp;</p> <p>数据源（Data source）的格式是多种多样的，但是ListView的可以展示的格式却是有一定的要求的</p> <p>作为适配器(Adapter)的作用就是将数据源中多种多样的数据格式转化为ListView可以展示的格式，建立数据源与ListView的一个适配关系，比如数据源的某某格式应该对应ListView支持的某某格式。并从中将数据的来源和数据的显示进行了解耦，降低了程序的耦合性，让程序更容易扩展。</p> <p>&nbsp;</p> <h2>ListView的显示与缓存机制</h2> <p>&nbsp;</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/61459a439131eff6dcbfd5998f2648a7.jpg"></p> <p>&nbsp;</p> <p>&nbsp;</p> <p>如果存在一百条数据，ListView不会一次性全部加载，它只会加载屏幕能够展示的数据，如图中的7条数据，当手指向上滑动的时候，Item1就会移除屏幕，它就会被回收到一个Recycler的View缓冲池中，而Item8就从会缓存池中取出来一个布局文件，并通过<strong>getView()</strong>重新设置好Item8要显示的数据，再插入画面中空位中</p> <p>&nbsp;</p> <p>&nbsp;</p> <p>&nbsp;</p> <h2>BaseAdapter通用适配器</h2> <p>&nbsp;</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/ae3ce3a0f581ee07d2c2e319bd3767d4.jpg"></p> <p><strong>getCount():</strong>就是这个ListView总共要显示多少条数据</p> <p>&nbsp;</p> <p><strong>使用步骤：</strong></p> <p><strong>第一步，</strong>我们要建立好android的界面布局，首先是主要的ListView的布局界面</p> <p>&nbsp;</p> <p>在activity_main.xml写一个ListView，代码如下：</p> <p><strong>activity_main.xml</strong></p> <pre class="has"><code class="language-html">&lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"     xmlns:tools="http://schemas.android.com/tools"     android:layout_width="match_parent"     android:layout_height="match_parent"     tools:context="${relativePackage}.${activityClass}" &gt;      &lt;ListView         android:id="@+id/lv_main"         android:layout_width="wrap_content"         android:layout_height="wrap_content"         android:text="@string/hello_world" /&gt;  &lt;/RelativeLayout&gt; </code></pre> <p><strong>第二步</strong>，再新建一个item布局，作为ListView的子布局</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/96332ecb1d16c6e2ba5f79a71f558eaf.jpg"></p> <p>&nbsp;</p> <p>布局文件如下：</p> <p><strong>item.xml</strong></p> <p>&nbsp;</p> <pre class="has"><code class="language-html">&lt;?xml version="1.0" encoding="utf-8"?&gt; &lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"     android:layout_width="match_parent"     android:layout_height="match_parent"     android:orientation="vertical" &gt;      &lt;ImageView         android:id="@+id/iv_image"         android:layout_width="60dp"         android:layout_height="60dp"         android:src="@drawable/ic_launcher" /&gt;      &lt;TextView         android:id="@+id/tv_title"         android:layout_width="match_parent"         android:layout_height="30dp"         android:layout_alignParentTop="true"         android:layout_toRightOf="@+id/iv_image"         android:gravity="center"         android:layout="@+id/iv_image"         android:text="title" /&gt;       &lt;TextView          android:id="@+id/tv_content"          android:layout_width="match_parent"          android:layout_height="30dp"          android:layout_alignBottom="@+id/iv_image"          android:layout_alignLeft="@+id/tv_title"          android:layout_alignParentRight="true"          android:gravity="center_vertical"          android:layout="@+id/iv_image"          android:text="content" /&gt;  &lt;/RelativeLayout&gt;</code></pre> <p>&nbsp;</p> <p>这个布局是用来给ListView每一项Item显示内容的布局,效果如下</p> <p>&nbsp;</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/d6a65a8e251dac18375d3b76a6daecb3.jpg"></p> <p>&nbsp;</p> <h2>&nbsp;</h2> <h2>BaseAdapter之创建数据源</h2> <p>之前我们已经将ListView的item项布局已经建好了，但是我们还需要建立一个数据源，通过数据源来给item赋值。</p> <p><strong>第三步</strong>，创建数据源，这里新建一个Java类，叫做itemBean,作用是来封装item布局的三个数据，图片，title,content</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/0844c8a297abc4cdfe87a83ae7c52f63.jpg"></p> <p><strong>ItemBean.java</strong></p> <p>&nbsp;</p> <pre class="has"><code class="language-html">package bnuz.lwj.listviewteacheing;  public class ItemBean { 	public int ItemImageResid; 	public String ItemTitle; 	public String ItemContent; 	 	//构造方法 	public ItemBean(int itemImageResid, String itemTitle, String itemContent) { 		super(); 		ItemImageResid = itemImageResid; 		ItemTitle = itemTitle; 		ItemContent = itemContent; 	} 	 	  }</code></pre> <p>将数据封装起来，每一个ItemBean对象就对应一个Item布局的内容</p> <p>&nbsp;</p> <p><strong>第四步</strong>，我们要给数据源赋值，然后我们切换在MainActivity的onCreate（）函数中写一个for循环，用于 赋值、调试</p> <p>&nbsp;</p> <pre class="has"><code class="language-html">List&lt;ItemBean&gt; itemBeanList=new ArrayList&lt;ItemBean&gt;(); for(int i=0;i&lt;20;i++){ 	itemBeanList.add(new ItemBean(R.drawable.ic_launcher,"我的标题"+i,"我是内容"+i)); }</code></pre> <p>&nbsp;</p> <p>&nbsp;</p> <h2>BaseAdapter之数据适配器初解</h2> <p>经过上面的操作，我们已经将数据源建立起来了，然后我们需要重写一个数据适配器</p> <p><strong>第五步</strong>、重写数据适配器，新建一个JAVA类,MyAdapter.java，继承于BaseAdapter，重写四个函数，我们可以看到这四个函数就是我们之间在上面介绍BaseAdapter通用适配器的时候图片所展示出来的四个函数（如果没看懂，就上去看上边的图片，BaseAdapter的基本结构）</p> <p>&nbsp;</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/5f66de7ab177414d68ecc32e5a5f9cfa.jpg"></p> <p>为了从数据源中要获取传进来的数据，通常在适配器中对数据进行初始化</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/e73a16df7e64cc416d726287f5f301eb.jpg"></p> <h2>这里贴出前三个函数的重写方法，每一个函数的作用都写在了注释了，可以参考上边BaseAdapter的基本结构的图一一对应，好好琢磨，会想通的</h2> <pre class="has"><code class="language-html">//私人成员属性，用于保存传进来的数据 	private List &lt;ItemBean&gt; mList; 	//构造方法，用于初始化传进来的参数 	//这里需要传进来一个context对象来初始化 mInflater 	public MyAdapter(Context context,List&lt;ItemBean&gt; list) { 		mList=list; 		mInflater=LayoutInflater.from(context); 	} 	@Override 	public int getCount() { 		// 返回ListView需要显示的数据 		return mList.size(); 	}  	@Override 	public Object getItem(int position) { 		//所有的数据（集中）项数据都存放在mList中 		//取出对应索引的数据项的数据并返回 		return mList.get(position); 	}  	@Override 	public long getItemId(int position) { 		// 返回某个数据项对应的索引 		return position; 	}</code></pre> <p>&nbsp;</p> <h2>getView（）的三种使用方法</h2> <p>第四个函数<strong>getView（）</strong>即是最重要也是最复杂的一个函数，所以一定要弄懂这个函数。</p> <p>同时这个函数，这里总结三个方法。</p> <p>&nbsp;</p> <p>第一个方法仔细的总结一下，第二第三个方法就贴代码，不一一总结了。</p> <p>&nbsp;</p> <p><strong>第一个方法：</strong></p> <p>&nbsp;</p> <p>首先我们要在<strong>MyAdapter</strong>函数里，创建一个<strong>LayoutInflater</strong>对象，它的作用是将XML文件转化为一个<strong>View</strong>布局，然后 通过<strong>LayoutInflater.from(context)</strong>来初始化</p> <p>&nbsp;</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/20921cef3c60b282123469b268691798.jpg"></p> <p>&nbsp;</p> <p>&nbsp;</p> <p> 然后在<strong>getView</strong>函数里，新定义一个<strong>View</strong>的对象来获取<strong>mInflater</strong>装载的item布局的对象。</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/9c5fc0911990217df8d55a476619b8df.jpg"></p> <p>&nbsp;</p> <p>然后我们需要将getItem（）函数从数据源中取得并返回来的数据赋值我们的item.xml里的三个控件或则新定义一个ItemBean,再通过List集合的get索引（position）方法来获取在mList的数据项，在这里，我们使用第二种方法。</p> <p>第一种方法的完整代码</p> <p>&nbsp;</p> <pre class="has"><code class="language-html">@Override 	public View getView(int position, View convertView, ViewGroup parent) { 		//这是最重要也是最复杂的方法 		//作用是返回每一项的内容 	//方法一、效率低下 		//将item.xml转化为View布局 		View view =mInflater.inflate(R.layout.item,null); 		ImageView imageView=(ImageView) view.findViewById(R.id.iv_image); 		TextView title=(TextView) view.findViewById(R.id.tv_title); 		TextView content=(TextView) view.findViewById(R.id.tv_content); 		//赋值 		ItemBean bean =mList.get(position);				 		imageView.setImageResource(bean.ItemImageResid); 		title.setText(bean.ItemTitle); 		content.setText(bean.ItemContent); 		 		return view; 		 	 	}</code></pre> <p>&nbsp;</p> <p>&nbsp;</p> <p>&nbsp;</p> <p>但是方法一没有使用到ListView的缓存机制，这是对资源的极大浪费，效率低下，所以不推荐使用</p> <p>&nbsp;</p> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <p><strong>第二个方法：</strong></p> <p>&nbsp;</p> <p>第二种方法的完整代码</p> <p>&nbsp;</p> <pre class="has"><code class="language-html">@Override 	public View getView(int position, View convertView, ViewGroup parent) { 		//这是最重要也是最复杂的方法 		//作用是返回每一项的内容 	 		//方法二、正常,利用了ListView的缓存机制，算入门，findViewById会浪费大量时间 		//如果为空：View未被实例化，缓存池中也无缓存,所以我们要主动为它赋一个View 		if(convertView==null){ 			convertView=mInflater.inflate(R.layout.item,null); 		} 		ImageView imageView=(ImageView)convertView.findViewById(R.id.iv_image); 		TextView title=(TextView) convertView.findViewById(R.id.tv_title); 		TextView content=(TextView) convertView.findViewById(R.id.tv_content); 		//赋值 		ItemBean bean =mList.get(position);				 		imageView.setImageResource(bean.ItemImageResid); 		title.setText(bean.ItemTitle); 		content.setText(bean.ItemContent); 		return convertView; 	 	 	}</code></pre> <p>&nbsp;</p> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <p>第二种方法虽然使用了ListView的缓存机制，算入门方式，但是其中每次都会重复调用多次findViewById，也会浪费资源，所以谷歌的大佬提供了第三种方式</p> <p>&nbsp;</p> <p><strong>第三个方法：</strong></p> <p>首先在MyAdapter类里定义一个内部类ViewHolder类，作用就是为了避免重复的findViewById操作</p> <p>&nbsp;</p> <pre class="has"><code class="language-html">//创建一个内部类,作业就是为了避免重复的findViewById操作 	class ViewHolder{ 		//对应item.xml的三个控件 		public ImageView imageView; 		public TextView title; 		public TextView content; 	} </code></pre> <p>第三种方法的完整代码</p> <p>&nbsp;</p> <pre class="has"><code class="language-html">@Override 	public View getView(int position, View convertView, ViewGroup parent) { 		//这是最重要也是最复杂的方法 		//作用是返回每一项的内容 	 		//方法三、建议使用 		ViewHolder viewHolder; 		if(convertView==null){ 			viewHolder=new ViewHolder(); 			convertView=mInflater.inflate(R.layout.item,null); 			//将控件保存到viewHolder中 			viewHolder.imageView=(ImageView)convertView.findViewById(R.id.iv_image); 			viewHolder.title=(TextView) convertView.findViewById(R.id.tv_title); 			viewHolder.content=(TextView) convertView.findViewById(R.id.tv_content); 			//通过setTag将ViewHoler与convertView绑定 			convertView.setTag(viewHolder);			 		}else{ 			viewHolder=(ViewHolder) convertView.getTag();					 		} 		ItemBean bean =mList.get(position);				 		viewHolder.imageView.setImageResource(bean.ItemImageResid); 		viewHolder.title.setText(bean.ItemTitle); 		viewHolder.content.setText(bean.ItemContent); 		 		return convertView; 	 	 	}</code></pre> <p>&nbsp;</p> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <pre>&nbsp;</pre> <p>作用就是通过ViewHodler，当converView为空的时候，我们为其赋值，并且通过converView.setTag(viewHolder)的方法将holder与converView进行绑定，之后的遍历中，每次只要通过converView的getTag()方法就能获取到converView的三个控件，避免了每次都通过findById这个方法去实例化三个控件。</p> <p>&nbsp;</p> <p>&nbsp;</p> <p><strong>MyAdapter.java</strong></p> <p>&nbsp;</p> <pre class="has"><code class="language-html">package bnuz.lwj.listviewteacheing;  import java.util.List; import bnuz.lwj.listviewteacheing.ItemBean; import android.content.Context; import android.view.LayoutInflater; import android.view.View; import android.view.ViewGroup; import android.widget.BaseAdapter; import android.widget.ImageView; import android.widget.TextView;  public class MyAdapter extends BaseAdapter{ 	//创建一个LayoutInflater 	private LayoutInflater mInflater; 	//私人成员属性，用于保存传进来的数据 	private List &lt;ItemBean&gt; mList; 	//构造方法，用于初始化传进来的参数 	//这里需要传进来一个context对象来初始化 mInflater 	public MyAdapter(Context context,List&lt;ItemBean&gt; list) { 		mList=list; 		mInflater=LayoutInflater.from(context); 	} 	@Override 	public int getCount() { 		// 返回ListView需要显示的数据 		return mList.size(); 	}  	@Override 	public Object getItem(int position) { 		//所有的数据（集中）项数据都存放在mList中 		//取出对应索引的数据项的数据并返回 		return mList.get(position); 	}  	@Override 	public long getItemId(int position) { 		// 返回某个数据项对应的索引 		return position; 	}  	@Override 	public View getView(int position, View convertView, ViewGroup parent) { 		//这是最重要也是最复杂的方法 		//作用是返回每一项的内容 	//方法一、效率低下 		//将item.xml转化为View布局 		/*View view =mInflater.inflate(R.layout.item,null); 		ImageView imageView=(ImageView) view.findViewById(R.id.iv_image); 		TextView title=(TextView) view.findViewById(R.id.tv_title); 		TextView content=(TextView) view.findViewById(R.id.tv_content); 		//赋值 		ItemBean bean =mList.get(position);				 		imageView.setImageResource(bean.ItemImageResid); 		title.setText(bean.ItemTitle); 		content.setText(bean.ItemContent); 		 		return view;*/ 		 	//方法二、正常,利用了ListView的缓存机制，算入门，findViewById会浪费大量时间 		//如果为空：View未被实例化，缓存池中也无缓存,所以我们要主动为它赋一个View 		/*if(convertView==null){ 			convertView=mInflater.inflate(R.layout.item,null); 		} 		ImageView imageView=(ImageView)convertView.findViewById(R.id.iv_image); 		TextView title=(TextView) convertView.findViewById(R.id.tv_title); 		TextView content=(TextView) convertView.findViewById(R.id.tv_content); 		//赋值 		ItemBean bean =mList.get(position);				 		imageView.setImageResource(bean.ItemImageResid); 		title.setText(bean.ItemTitle); 		content.setText(bean.ItemContent); 		return convertView;*/ 	//方法三、建议使用 		ViewHolder viewHolder; 		if(convertView==null){ 			viewHolder=new ViewHolder(); 			convertView=mInflater.inflate(R.layout.item,null); 			//将控件保存到viewHolder中 			viewHolder.imageView=(ImageView)convertView.findViewById(R.id.iv_image); 			viewHolder.title=(TextView) convertView.findViewById(R.id.tv_title); 			viewHolder.content=(TextView) convertView.findViewById(R.id.tv_content); 			//通过setTag将ViewHoler与convertView绑定 			convertView.setTag(viewHolder);			 		}else{ 			viewHolder=(ViewHolder) convertView.getTag();					 		} 		ItemBean bean =mList.get(position);				 		viewHolder.imageView.setImageResource(bean.ItemImageResid); 		viewHolder.title.setText(bean.ItemTitle); 		viewHolder.content.setText(bean.ItemContent); 		 		return convertView; 	} 	 	//创建一个内部类,作业就是为了避免重复的findViewById操作 	class ViewHolder{ 		//对应item.xml的三个控件 		public ImageView imageView; 		public TextView title; 		public TextView content; 	}  }</code></pre> <p> 这里将方法一、二都注释掉，第三种方法不仅仅利用了ListView的缓存机制，更通过ViewHolder类来实现显示数据的视图的缓存，避免了多次通过调用findViewById寻找控件</p> <p>所以强烈建议使用第三种方法</p> <p>&nbsp;</p> <h2>ListView调用BaseAdapter适配器</h2> <p>&nbsp;</p> <p><strong>第六步，</strong>在MainActivity中，我们通过setAdapter来讲view对象的数据传递到ListView对象中</p> <p>&nbsp;</p> <p><strong>MainActivity.java</strong></p> <pre class="has"><code class="language-html">package bnuz.lwj.listviewteacheing;  import java.util.ArrayList; import java.util.List;  import android.app.Activity; import android.os.Bundle; import android.view.Menu; import android.view.MenuItem; import android.widget.ListView;  public class MainActivity extends Activity { 	ListView listView; 	@Override 	protected void onCreate(Bundle savedInstanceState) { 		super.onCreate(savedInstanceState); 		setContentView(R.layout.activity_main); 		listView=(ListView) findViewById(R.id.lv_main); 		List&lt;ItemBean&gt; itemBeanList=new ArrayList&lt;ItemBean&gt;(); 		for(int i=0;i&lt;20;i++){ 			itemBeanList.add(new ItemBean(R.drawable.ic_launcher,"我的标题"+i,"我是内容"+i)); 		} 		//通过这个函数，我们可以将一个MyAdpter对象传递给我们的ListView 		//从而达到将数据源中多种多样的数据格式转化为ListView可以展示的格式 		//因为在MyAdpter中，已经将数据进行处理，赋值给View并返回过来 		listView.setAdapter(new MyAdapter(this,itemBeanList)); 	} } </code></pre> <p> 最后结果展示</p> <p>&nbsp;</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20230211/55afa16b7fdd8182c8168fc128e445fd.jpg"></p> <p>总结就到此结束~~~</p> <p>&nbsp;</p> <p>&nbsp;</p> <p><span style="color:#ff0000;">第一次码博客，就请各位大佬高抬贵手，本总结是看了慕课网的大佬后写的，截图也是出自视频</span></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://download.csdn.net/detail/snailmann/9853709"  rel="nofollow"><span style="color:#3366ff;">完整源码下载点击这里</span></a></p> <p>&nbsp;</p> <p>欢迎关注我的博客，一起学习讨论</p> <p>要转载，请附上原文链接，作者：SnailMann</p> <p>&nbsp;</p> <p><span style="color:#ff0000;">可以关注我的私人github:&nbsp;https://github.com/SnailMann，欢迎watch ,star, fork</span></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/SnailMann"  rel="nofollow"><span style="color:#3366ff;">关注我的私人GitHub</span></a></p> <p>虽然现在暂时没有什么东西,但是总会有的<img decoding="async" alt="大笑" class="has" src="0"/></p> <p>&nbsp;</p> <p>&nbsp;</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>首先我们先要了解在SpringBoot中的默认规定，在templates目录下的html是无法被直接访问的，但是在static，pubilc，resource中的就行。</p> <p>注意：类的注解不能使用@RestController，要用@Controller</p> <p>接下来我们了解一下重定向的原理，我们就可以发现重定向失败的原因是什么。</p> <p><img fetchpriority="high" decoding="async" alt="" height="189" src="http://img.555519.xyz/uploads/20221130/cc3711da4719cd993cf5f8daddc168b7.jpg"></p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;资源2可以放在templates下&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;资源二不可以放在templates下</p> <p>资源2可以放在templates下</p> <p>左图中的方式是转发</p> <p>浏览器向服务器发出一个请求，并且通过servlet处理再把请求转发给指定的资源二，整个过程都在服务器中完成</p> <p><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;转发地址栏不会发生变化</strong>；</p> <p>右图中的方式是重定向</p> <p><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;重定向是浏览器向服务器发送一个请求并收到响应后再次向一个新地址发出请求</strong>，<strong>转发是服务器收到请求后为了完成响应跳转到一个新的地址</strong>；也就是说在浏览器向服务器发起请求之后，服务器袭击返回这个响应，告诉浏览器，你必须再发一个请求去访问指定资源，于是浏览器再次发起请求去获取，于是就不能获取到templates下面的资源</p> <p><strong>&nbsp; &nbsp;&nbsp; &nbsp;重定向地址栏会发生变化</strong></p> <p><strong>于是我们可以通过自定义配置来实现</strong></p> <p><img decoding="async" alt="" height="278" src="http://img.555519.xyz/uploads/20221130/57bae83520289cb9afbf849f60bcef91.jpg"></p> <p>controller层：</p> <p><img decoding="async" alt="" height="119" src="http://img.555519.xyz/uploads/20221130/2cc087e39d170071e709b66414d53ff9.jpg"></p> <p>创建一个webMvcConfig来实现WebMvcConfigurer（加上@Configuration告诉spring）</p> <p><img loading="lazy" decoding="async" alt="" height="192" src="http://img.555519.xyz/uploads/20221130/92fdbf661362ddff4859b57a2bb02ffd.jpg"></p> <p>spring会优先使用用户自定义的配置，如果没有则使用默认配置</p> <p>之后，就能够成功访问！</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-102.htm">微信小程序自定义导航栏组件(完美适配手机),可自定义实现任何你想要的功能</a></p>
-                                        <p>下一个：<a href="/html/category/article-104.htm">使用TreeMap在Java中对用户定义的对象进行排序</a></p>
+                                        <p>上一个：<a href="/html/category/article-102.htm">MyBatis-Plus 高级功能多租户功能实现</a></p>
+                                        <p>下一个：<a href="/html/category/article-104.htm">ASP.NET登出系统并清除Cookie_实用技巧_</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-235.htm">lombok和JPA的死递归</a></h4>
+                <p>这是一个Bug JPA我觉得是一个封装的很棒的框架，至于说很臃肿这个事，我觉得在需求需要很多复杂查询的时候，不适合用JPA。因为它的封装太棒了，以致于增强了表和实体类之间的耦合。不过在一些简单查询的部</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-207.htm">restTemplate配置及使用</a></h4>
+                <p>文章目录      1 场景 2 依赖 3 配置 4 使用   4.1 GET请求   4.1.1 普通访问 4.1.2 返回HTTP状态 4.1.3 映射请求参数   4.2 POST请求   4.</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
-                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
+                <h4><a href="/html/category/article-228.htm"># kubernetes调度之nodeName与NodeSelector</a></h4>
+                <p>系列目录  Kubernetes的调度有简单，有复杂，指定NodeName和使用NodeSelector调度是最简单的，可以将Pod调度到期望的节点上。 本文主要介绍kubernetes调度框架中的N</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
-                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
+                <h4><a href="/html/category/article-233.htm">echarts根据数据动态生成不同条数的折线图</a></h4>
+                <p>一、功能需求背景 1、后台可自定义折线图的折线名称、数据、数量（几条） 2、满足不同折线图之间随意切换 3、折线图可鼠标拖动缩放和滚动条收缩查看 4、同一页面涉及多个echarts 二、功能涉及ech</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
+                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
-                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
-                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
-                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -172,18 +172,18 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <h4><a href="/html/category/article-209.htm">pandas高阶应用</a></h4>
                 <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

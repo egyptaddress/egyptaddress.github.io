@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-197.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>旋转矩阵与欧拉角的相互转换 - EgyptAddress</title>
+    <title>Nacos基本使用：注册中心、配置中心 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">旋转矩阵与欧拉角的相互转换</h1>
+                <h1 class="title" style="word-break: break-all;">Nacos基本使用：注册中心、配置中心</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div class="toc"> <div class="toc-container-header">目录</div> <ul> <li><a href="#1-%E6%A6%82%E8%BF%B0" rel="nofollow">1. 概述</a></li> <li><a href="#2-%E8%AF%A6%E8%AE%BA" rel="nofollow">2. 详论</a> <ul> <li><a href="#21-%E6%AC%A7%E6%8B%89%E8%A7%92%E7%9A%84%E7%90%86%E8%A7%A3" rel="nofollow">2.1. 欧拉角的理解</a></li> <li><a href="#22-%E6%AC%A7%E6%8B%89%E8%A7%92%E8%BD%AC%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5" rel="nofollow">2.2. 欧拉角转旋转矩阵</a></li> <li><a href="#23-%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5%E8%BD%AC%E6%AC%A7%E6%8B%89%E8%A7%92" rel="nofollow">2.3. 旋转矩阵转欧拉角</a></li> </ul> </li> </ul> </div> <h1 id="1-概述">1. 概述</h1> <p>欧拉角与旋转矩阵的相互转换，是图形计算中的常见问题。</p> <h1 id="2-详论">2. 详论</h1> <h2 id="21-欧拉角的理解">2.1. 欧拉角的理解</h2> <p>表达旋转变换最简单的理解是三种旋转矩阵（绕X轴旋转矩阵，绕Y轴旋转矩阵以及绕Z轴旋转矩阵）级联。而欧拉角同样也有三种：航向角heading，俯仰角pitch和滚转角roll；其中，航向角heading有时也被称为偏航角yaw。三个欧拉角定义的矩阵级联也可以定义成旋转矩阵，这种旋转变换也叫做欧拉变换。</p> <p>两者并没有绝对的对应的关系，但是绝大部分情况下，我们可以确定一个默认的视图方向：朝向负z轴，头部沿y轴定向，如下图所示：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/860cd65197a35b4cf0c2f693b345850d.jpg" alt="旋转矩阵与欧拉角的相互转换"></p> <p>想象一个飞机也位于上图的坐标系的默认视图，那么很显然可以看出一个对应关系：</p> <ul> <li>航向角heading为绕Y轴旋转</li> <li>俯仰角pitch为绕X轴旋转</li> <li>滚转角roll为绕Z轴旋转</li> </ul> <h2 id="22-欧拉角转旋转矩阵">2.2. 欧拉角转旋转矩阵</h2> <p>如上节所述，确定欧拉角到底是绕哪一个轴旋转的关键是确定默认的视图方向。另一个需要确定的因素就是旋转的顺序。由于矩阵的乘法不满足交换律，那么矩阵级联的顺序不同，得到的旋转矩阵也不同。一种比较常用的旋转顺序是：</p> <div class="math display">\[{\textbf{E}}(h,p,r) = {\textbf{R}}_z(r){\textbf{R}}_x (p){\textbf{R}}_y(h)<br /> \]</div> <p>我们使用GLM（OpenGL Mathematics）库进行验证一下：</p> <pre><code class="language-cpp">#include &lt;iostream&gt; #include &lt;glm/gtx/euler_angles.hpp&gt;  using namespace std;  static void PrintMat(const glm::mat4&amp; m) { 	for (int i = 0; i &lt; 4; i++) 	{ 		for (int j = 0; j &lt; 4; j++) 		{ 			printf("%.9lf\t", m[i][j]); 		} 		printf("\n"); 	} }  int main() { 	glm::mat4 rotY = glm::eulerAngleY(glm::radians(24.0f)); 	glm::mat4 rotX = glm::eulerAngleX(glm::radians(65.0f)); 	glm::mat4 rotZ = glm::eulerAngleZ(glm::radians(42.0f));  	glm::mat4 rotYXZ = rotY * rotX * rotZ; 	PrintMat(rotYXZ); 	cout &lt;&lt; endl;  	glm::mat4 rotYXZ1 = glm::eulerAngleYXZ(glm::radians(24.0f), glm::radians(65.0f), glm::radians(42.0f)); 	PrintMat(rotYXZ1); 	cout &lt;&lt; endl;  	glm::mat4 rotYXZ2 = glm::yawPitchRoll(glm::radians(24.0f), glm::radians(65.0f), glm::radians(42.0f)); 	PrintMat(rotYXZ2); }</code></pre> <p>运行结果如下：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/e7e7cdb8e19581eac963be340d6e88fb.jpg" alt="旋转矩阵与欧拉角的相互转换"></p> <p>直接使用欧拉角旋转矩阵相乘，与eulerAngleYXZ()函数，以及yawPitchRoll()函数三者的矩阵结果是一致的。说明在GLM中欧拉角的定义以及旋转顺序，与本文论述的一致。</p> <h2 id="23-旋转矩阵转欧拉角">2.3. 旋转矩阵转欧拉角</h2> <p>已知绕X轴、Y轴以及Z轴旋转矩阵的公式以及它们的旋转顺序，可以很容易倒推旋转矩阵表达的欧拉角。当然也没有那么容易，因为有一些特殊情况必须处理。那么还是通过GLM进行实现：</p> <pre><code class="language-cpp">#include &lt;iostream&gt; #include &lt;glm/gtx/euler_angles.hpp&gt;  using namespace std;  static void PrintMat(const glm::mat4&amp; m) { 	for (int i = 0; i &lt; 4; i++) 	{ 		for (int j = 0; j &lt; 4; j++) 		{ 			printf("%.9lf\t", m[i][j]); 		} 		printf("\n"); 	} }  int main() { 	glm::mat4 rotY = glm::eulerAngleY(glm::radians(24.0f)); 	glm::mat4 rotX = glm::eulerAngleX(glm::radians(65.0f)); 	glm::mat4 rotZ = glm::eulerAngleZ(glm::radians(42.0f)); 		 	glm::mat4 rotYXZ1 = glm::eulerAngleYXZ(glm::radians(24.0f), glm::radians(65.0f), glm::radians(42.0f)); 	PrintMat(rotYXZ1); 	cout &lt;&lt; endl;  	float y = 0, x = 0, z = 0; 	glm::extractEulerAngleYXZ(rotYXZ1, y, x, z); 	cout &lt;&lt; glm::degrees(y) &lt;&lt; '\t' &lt;&lt; glm::degrees(x) &lt;&lt; '\t' &lt;&lt; glm::degrees(z); }</code></pre> <p>运行结果如下：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/bcea781dfe18534a8fc127fe6682b6de.jpg" alt="旋转矩阵与欧拉角的相互转换"></p> <p>由欧拉角参数生成的eulerAngleYXZ()与extractEulerAngleYXZ()提取的欧拉角一致。说明GLM的实现是正确的，一般的图形矩阵计算库应该都有类似的接口。</p> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <h1><a id="_0" rel="nofollow"></a>导语</h1> <ul> <li>注意：本文是建立在Nacos安装成功的基础上讲解。建议安装Nacos后，对照系统页面学习此文章。</li> <li>1、本文采取<code>Nacos 2.0.3</code>单例形式、服务单例形式来讲解，不涉及集群相关特定知识点。</li> <li>2、本文分为三部分来讲解Nacos的基本使用： <ul> <li>一、Nacos页面；</li> <li>二、Nacos作为注册中心使用；</li> <li>三、Nacos作为配置中心使用。</li> </ul> </li> <li>3、如有错误，请务必指出，感谢！</li> </ul> <h1><a id="Nacos_8" rel="nofollow"></a>一、Nacos页面</h1> <ul> <li>主要讲解Nacos的一些通用性配置，如用户、角色配置等。</li> </ul> <h2><a id="namespace_10" rel="nofollow"></a>命名空间（namespace）</h2> <ul> <li>【重要】：Nacos所有配置的最顶层分组，项目中需要用到该字段值。</li> <li>默认的<code>namespace</code>是<code>public</code>。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/ed64f8d6288840f9d9f82c6d121ac993.jpg" alt="Nacos基本使用：注册中心、配置中心"></li> <li>命名空间ID：可以不填，会自动生成一个不规则值，也可以自定义，不能重复。</li> <li>命名空间名：自定义一个名称，帮助识别分组。</li> <li>描述：字面意思</li> </ul> <h3><a id="_17" rel="nofollow"></a>新增后检查</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/4089eede6885b7f7faed1a9a49f75572.jpg" alt="Nacos基本使用：注册中心、配置中心"></p> <ul> <li>命名空间新增后，随便点点页面，你会在很多地方可以找到该分组，如上图【配置管理】–【配置列表】中。</li> </ul> <h2><a id="Nacos_21" rel="nofollow"></a>Nacos用户相关配置</h2> <h3><a id="_22" rel="nofollow"></a>创建用户</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/3997ec3e7c0de284085824cb8fc02379.jpg" alt="Nacos基本使用：注册中心、配置中心"></p> <ul> <li>上图为Nacos系统页面，启动Nacos成功后，访问Nacos页面，默认的登录用户账号密码都是<code>nacos</code>。</li> <li>进入页面后，找到【权限控制】–【用户列表】，在该页面可以创建用户，只需要输入账号和密码即可创建。</li> </ul> <h3><a id="_27" rel="nofollow"></a>创建角色</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/0e0111dbd42dda0d14b0553c4d50a732.jpg" alt="Nacos基本使用：注册中心、配置中心"></p> <ul> <li>如图进入【权限控制】–【角色管理】，点击绑定角色弹出图中窗口，可以自定义一个新的角色名，也可以填已经存在的角色名，用户名必须是已存在的用户。</li> <li>注意：之所以说<code>可以自定义一个新的角色名，也可以填已经存在的角色名</code>的，因为这里即可以视为角色和用户的关系维护，也可以视为新增角色。</li> <li>一般我们对角色、用户的理解可能是：先有用户和角色，再给用户指定相应的角色。但是在这里不太一样，可以理解为角色创建时，即绑定了用户：必须先有用户，创建角色时，必须指定一个已存在的用户。</li> </ul> <h3><a id="_32" rel="nofollow"></a>权限管理</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/d80f2fbabec42f57dab3a00c7b6db423.jpg" alt="Nacos基本使用：注册中心、配置中心"></p> <ul> <li>如图进入【权限控制】–【权限管理】，即角色权限的维护页面。</li> <li>角色名：已存在的一个角色名</li> <li>资源：命名空间（namespace）</li> <li>动作：只读、只写、读写</li> </ul> <h1><a id="Nacos_38" rel="nofollow"></a>二、Nacos作为注册中心使用</h1> <h2><a id="_39" rel="nofollow"></a>创建项目</h2> <ol> <li>创建一个普通的SpringCloud项目，引入如下Nacos的maven依赖：</li> </ol> <pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.alibaba.cloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-cloud-starter-alibaba-nacos-discovery<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span></code></pre> <ol start="2"> <li>项目中创建<code>bootstrap.yml</code>配置文件，添加如下Yml配置：</li> </ol> <pre><code class="prism language-yml"><span class="token key atrule">spring</span><span class="token punctuation">:</span><span class="token key atrule">cloud</span><span class="token punctuation">:</span><span class="token key atrule">nacos</span><span class="token punctuation">:</span><span class="token comment"># 【注册中心】相关配置</span><span class="token key atrule">discovery</span><span class="token punctuation">:</span><span class="token comment"># 命名空间（大分组）</span><span class="token key atrule">namespace</span><span class="token punctuation">:</span> cjbgd_nacos<span class="token comment"># 分组名称，默认为【DEFAULT_GROUP】</span><span class="token key atrule">group</span><span class="token punctuation">:</span> CJBGD_DEV<span class="token comment"># 注册中心地址</span><span class="token key atrule">server-addr</span><span class="token punctuation">:</span> localhost<span class="token punctuation">:</span><span class="token number">8848</span></code></pre> <ol start="3"> <li>启动类上增加注解：<code>@EnableDiscoveryClient</code></li> </ol> <h2><a id="_62" rel="nofollow"></a>启动项目</h2> <ul> <li>项目启动成功后，可以到Nacos页面中看到如下图的结果<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/25d416eb7151348ff674db0af10446cf.jpg" alt="Nacos基本使用：注册中心、配置中心"></li> </ul> <h1><a id="Nacos_65" rel="nofollow"></a>三、Nacos作为配置中心使用</h1> <blockquote> <ul> <li>nacos作为配置中心，主要分两部分：1、配置管理；2、配置引用。</li> <li>配置管理：使用Nacos页面管理配置文件。</li> <li>配置引用：在项目中引用想要的配置。</li> </ul> </blockquote> <h2><a id="_69" rel="nofollow"></a>配置管理</h2> <h3><a id="_70" rel="nofollow"></a>新增配置文件</h3> <ul> <li>Nacos作为配置中心，必须先在Nacos管理页面新增一些配置。</li> </ul> <ol> <li>在【配置管理】–【配置列表】页面中，点击右侧加号，进入配置新增页面<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/c841c726932cec75805f6e054412f463.jpg" alt="Nacos基本使用：注册中心、配置中心"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/b15b3745832621ccdbf78171a97a35f0.jpg" alt="Nacos基本使用：注册中心、配置中心"></li> <li>在新增页面中填写相应信息。 <ul> <li>Data ID：配置文件名。【如果在引用时，想要某个项目缺省式的引用到该配置文件，<code>Data ID</code>应该与服务的<code>spring.application.name</code>保持一致】</li> <li>Group：配置分组，默认为<code>DEFAULT_GROUP</code></li> <li>描述：描述</li> <li>配置格式：按需选择，现在一般都用<code>yaml</code>，即<code>yml</code></li> <li>配置内容：配置内容</li> </ul> </li> <li>填写示例<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/27ebc4f51005d0d94aead6b4b55edb5f.jpg" alt="Nacos基本使用：注册中心、配置中心"></li> </ol> <h4><a id="_83" rel="nofollow"></a>注意</h4> <ul> <li>Nacos配置新增保存成功后，新增页面不会自动关闭，只会弹出成功提示框。即这个新增页面不会主动关闭，而且不会清空已填写的内容，会一直开着，直到你手动返回。</li> <li>如果你以为你新增失败了，再次点击保存，会弹出已存在同名配置的错误提示。</li> <li>且新增页面只能用来新增配置，新增后想要修改必须返回列表，点击对应配置后边的【编辑】按钮。</li> <li>这是个使用习惯的问题，对我来说刚使用的时候不是很友好，用多了也就无所谓了。</li> </ul> <h3><a id="_89" rel="nofollow"></a>配置导出</h3> <ul> <li>在微服务时代，微服务越多吗，配置文件也就越多，在开发环境、正式环境中，总不能每次改动都是都在Nacos的编辑页面修改配置吧，所以配置导入导出就很有必要。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/984768be001ca49744a425a951dcaa9f.jpg" alt="Nacos基本使用：注册中心、配置中心"></li> <li>如上图，主要就是两种选择： <ul> <li>导出查询结果：根据查询条件，把查出的所有配置一起导出。</li> <li>导出选中的配置：导出选中的配置。</li> </ul> </li> <li>至于有个【新版】，我猜测是分页数据导出的优化？由于我的配置文件较少，没有做测试，有想法的可以试试。</li> <li>导出的是一个zip压缩包，打开可以看到导出文件如下图：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/d5f4944148b11432511d26bf7d595931.jpg" alt="Nacos基本使用：注册中心、配置中心"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/716263e3502ed1ae31c2e70b2484a0f7.jpg" alt="Nacos基本使用：注册中心、配置中心"></li> </ul> <h3><a id="_100" rel="nofollow"></a>配置导入</h3> <ul> <li>细心地同学看导出文件时候，会发现没有导出命名空间（namespace）的信息，这也意味着，导出的配置可以导入到任意的命名空间中，导入前点到想要导入的命名空间即可。</li> <li>如下图，先进入<code>cjbgd_nacos</code>的命名空间中，再点击【<code>导入配置</code>】，弹出的窗口会自动显示导入的空间信息，且不能更改。</li> <li>上传的文件，直接选中导出的压缩包即可。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220904/8f9f55fe72c0ffe16e1cf79cca089461.jpg" alt="Nacos基本使用：注册中心、配置中心"></li> </ul> <h2><a id="_105" rel="nofollow"></a>配置引用</h2> <h3><a id="_106" rel="nofollow"></a>引用配置</h3> <ul> <li>项目中想用配置中心，还要写相应配置，告诉项目我要用哪个配置中心、哪个配置文件。【没有希洛克打啥希洛克！？没有奥兹玛打啥奥兹玛！？突然感觉有点道理。。。】</li> <li>配置示例：</li> </ul> <pre><code class="prism language-yml"><span class="token key atrule">spring</span><span class="token punctuation">:</span><span class="token key atrule">cloud</span><span class="token punctuation">:</span><span class="token key atrule">nacos</span><span class="token punctuation">:</span><span class="token comment"># 【配置中心】相关配置</span><span class="token key atrule">config</span><span class="token punctuation">:</span><span class="token comment"># 命名空间（大分组）</span><span class="token key atrule">namespace</span><span class="token punctuation">:</span> cjbgd_nacos<span class="token comment"># 配置中心地址</span><span class="token key atrule">server-addr</span><span class="token punctuation">:</span> 127.0.0.1<span class="token punctuation">:</span><span class="token number">8848</span><span class="token comment"># 配置文件的data-id，默认使用服务名（spring.application.name）</span><span class="token comment">#name: gateway.yaml</span><span class="token comment"># 配置文件类型：test/json/xml/yaml/properties</span><span class="token key atrule">file-extension</span><span class="token punctuation">:</span> yaml<span class="token comment"># 分组名称，默认为【DEFAULT_GROUP】</span><span class="token key atrule">group</span><span class="token punctuation">:</span> CJBGD_PRO<span class="token comment"># 自动刷新配置，默认为true</span><span class="token key atrule">refresh-enabled</span><span class="token punctuation">:</span><span class="token boolean important">true</span><span class="token comment"># 共享配置引用</span><span class="token key atrule">shared-configs</span><span class="token punctuation">:</span><span class="token comment"># 配置ID</span><span class="token punctuation">-</span><span class="token key atrule">data-id</span><span class="token punctuation">:</span> shared<span class="token punctuation">-</span>datasource<span class="token punctuation">-</span>dbcp2<span class="token punctuation">-</span>pro.yaml<span class="token comment"># 配置组名称，默认为【DEFAULT_GROUP】</span><span class="token key atrule">group</span><span class="token punctuation">:</span> SHARED_PRO<span class="token key atrule">refresh</span><span class="token punctuation">:</span><span class="token boolean important">true</span><span class="token punctuation">-</span><span class="token key atrule">data-id</span><span class="token punctuation">:</span> shared<span class="token punctuation">-</span>redis<span class="token punctuation">-</span>pro.yaml<span class="token key atrule">group</span><span class="token punctuation">:</span> SHARED_PRO<span class="token key atrule">refresh</span><span class="token punctuation">:</span><span class="token boolean important">true</span><span class="token punctuation">-</span><span class="token key atrule">data-id</span><span class="token punctuation">:</span> shared<span class="token punctuation">-</span>info<span class="token punctuation">-</span>pro.yaml<span class="token key atrule">group</span><span class="token punctuation">:</span> SHARED_PRO<span class="token key atrule">refresh</span><span class="token punctuation">:</span><span class="token boolean important">true</span></code></pre> <ul> <li>上边我把我用到的所有配置全部贴出来了，注释也都写的很明白，不做太细的讲解，只说几个个人理解：</li> </ul> <ol> <li><code>config.name</code>：应该填写配置中心中对应配置的<code>data-id</code>，可以缺省，缺省时默认使用本服务的<code>spring.application.name</code>的值。</li> <li><code>config.file-extension</code>：配置文件拓展名，会自动和<code>config.name</code>组合，用<code>.</code>拼接为一个<code>data-id</code>到配置中心查找配置。</li> <li><code>config.shared-configs</code>：声明引用哪些公共的配置。下边可以显式引用多个配置中心的配置文件。</li> <li><code>group</code>：默认值为<code>DEFAULT_GROUP</code>，当配置文件较多时，建议自定义一些<code>group</code>，对配置文件进行分组管理，使用起来也更加清晰明了。</li> </ol> <h3><a id="_146" rel="nofollow"></a>项目启动日志</h3> <pre><code class="prism language-shell"><span class="token number">2022</span>-04-12<span class="token number">11</span>:54:14.224  INFO<span class="token number">65808</span> ---<span class="token punctuation">[</span>           main<span class="token punctuation">]</span> c.a.n.client.config.impl.ClientWorker<span class="token builtin class-name">:</span><span class="token punctuation">[</span>fixed-localhost_8848-cjbgd_nacos<span class="token punctuation">]</span><span class="token punctuation">[</span>subscribe<span class="token punctuation">]</span> gateway+CJBGD_DEV+cjbgd_nacos<span class="token number">2022</span>-04-12<span class="token number">11</span>:54:14.224  INFO<span class="token number">65808</span> ---<span class="token punctuation">[</span>           main<span class="token punctuation">]</span> c.a.nacos.client.config.impl.CacheData<span class="token builtin class-name">:</span><span class="token punctuation">[</span>fixed-localhost_8848-cjbgd_nacos<span class="token punctuation">]</span><span class="token punctuation">[</span>add-listener<span class="token punctuation">]</span> ok,<span class="token assign-left variable">tenant</span><span class="token operator">=</span>cjbgd_nacos,<span class="token assign-left variable">dataId</span><span class="token operator">=</span>gateway,<span class="token assign-left variable">group</span><span class="token operator">=</span>CJBGD_DEV,<span class="token assign-left variable">cnt</span><span class="token operator">=</span><span class="token number">1</span><span class="token number">2022</span>-04-12<span class="token number">11</span>:54:14.225  INFO<span class="token number">65808</span> ---<span class="token punctuation">[</span>           main<span class="token punctuation">]</span> c.a.n.client.config.impl.ClientWorker<span class="token builtin class-name">:</span><span class="token punctuation">[</span>fixed-localhost_8848-cjbgd_nacos<span class="token punctuation">]</span><span class="token punctuation">[</span>subscribe<span class="token punctuation">]</span> gateway.yaml+CJBGD_DEV+cjbgd_nacos<span class="token number">2022</span>-04-12<span class="token number">11</span>:54:14.225  INFO<span class="token number">65808</span> ---<span class="token punctuation">[</span>           main<span class="token punctuation">]</span> c.a.nacos.client.config.impl.CacheData<span class="token builtin class-name">:</span><span class="token punctuation">[</span>fixed-localhost_8848-cjbgd_nacos<span class="token punctuation">]</span><span class="token punctuation">[</span>add-listener<span class="token punctuation">]</span> ok,<span class="token assign-left variable">tenant</span><span class="token operator">=</span>cjbgd_nacos,<span class="token assign-left variable">dataId</span><span class="token operator">=</span>gateway.yaml,<span class="token assign-left variable">group</span><span class="token operator">=</span>CJBGD_DEV,<span class="token assign-left variable">cnt</span><span class="token operator">=</span><span class="token number">1</span><span class="token number">2022</span>-04-12<span class="token number">11</span>:54:14.225  INFO<span class="token number">65808</span> ---<span class="token punctuation">[</span>           main<span class="token punctuation">]</span> c.a.n.client.config.impl.ClientWorker<span class="token builtin class-name">:</span><span class="token punctuation">[</span>fixed-localhost_8848-cjbgd_nacos<span class="token punctuation">]</span><span class="token punctuation">[</span>subscribe<span class="token punctuation">]</span> gateway-dev.yaml+CJBGD_DEV+cjbgd_nacos<span class="token number">2022</span>-04-12<span class="token number">11</span>:54:14.225  INFO<span class="token number">65808</span> ---<span class="token punctuation">[</span>           main<span class="token punctuation">]</span> c.a.nacos.client.config.impl.CacheData<span class="token builtin class-name">:</span><span class="token punctuation">[</span>fixed-localhost_8848-cjbgd_nacos<span class="token punctuation">]</span><span class="token punctuation">[</span>add-listener<span class="token punctuation">]</span> ok,<span class="token assign-left variable">tenant</span><span class="token operator">=</span>cjbgd_nacos,<span class="token assign-left variable">dataId</span><span class="token operator">=</span>gateway-dev.yaml,<span class="token assign-left variable">group</span><span class="token operator">=</span>CJBGD_DEV,<span class="token assign-left variable">cnt</span><span class="token operator">=</span><span class="token number">1</span></code></pre> <ul> <li>debug模式启动项目，观察启动日志会发现上面的日志，可以看到他在从配置中心加载哪些配置。</li> <li>但是没有发现<code>shared-configs</code>引用的相关日志，可能开发者任务缺省的形式才有必要打印日志，而<code>shared-configs</code>都是显式的将各种信息填写到配置文件中了，所以没必要打印日志。</li> </ul> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-196.htm">避坑！js正确地使用fill()初始化二维数组_在线工具</a></p>
-                                        <p>下一个：<a href="/html/category/article-198.htm">C#多态性02</a></p>
+                                        <p>上一个：<a href="/html/category/article-196.htm">使用API访问开启kerberos集群下的HDFS</a></p>
+                                        <p>下一个：<a href="/html/category/article-198.htm">js的二级菜单</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
-                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
+                <h4><a href="/html/category/article-245.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></h4>
+                <p>创建型设计模式: 单例模式(Singleton Pattern)  CSDN专栏: 设计模式(UML/23种模式)  单例模式(Singleton Pattern)保证一个类仅有一个实例，并提供一个访</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
-                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
-                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
-                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
-                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
+                <h4><a href="/html/category/article-235.htm">lombok和JPA的死递归</a></h4>
+                <p>这是一个Bug JPA我觉得是一个封装的很棒的框架，至于说很臃肿这个事，我觉得在需求需要很多复杂查询的时候，不适合用JPA。因为它的封装太棒了，以致于增强了表和实体类之间的耦合。不过在一些简单查询的部</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
-                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
+                <h4><a href="/html/category/article-244.htm">Redis事务详解</a></h4>
+                <p>大家好，我是七淅。 如果你了解过关系型数据库事务的话，相信这篇文章对你来说是很容易理解的了。具体什么是事务我就不说不多了，直接讲 Redis 事务相关的部分。 首先，我们先来看下，Redis 是怎么执</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
-                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

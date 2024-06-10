@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-133.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>PHP重载 - EgyptAddress</title>
+    <title>vue中watch监听器的触发时机(watch的坑及解决)_vue.js_ - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">PHP重载</h1>
+                <h1 class="title" style="word-break: break-all;">vue中watch监听器的触发时机(watch的坑及解决)_vue.js_</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h2>介绍</h2> <p>与其他面向对象的语言（例如C ++或Java）相比，PHP中对重载的解释是不同的，其中该术语表示具有使用相同名称的方法多次但具有不同参数和/或返回类型的类的能力。另一方面，在PHP中，动态创建属性和方法的功能称为重载。PHP的<strong>魔术方法</strong>（方法名称以双下划线开头）用于设置动态属性和方法。</p> <p>以下魔术方法用于重载属性-</p> <h2>语法</h2> <pre>public&nbsp;__set&nbsp;(&nbsp;string&nbsp;$name&nbsp;,&nbsp;mixed&nbsp;$value&nbsp;)&nbsp;:&nbsp;void public&nbsp;__get&nbsp;(&nbsp;string&nbsp;$name&nbsp;)&nbsp;:&nbsp;mixed public&nbsp;__isset&nbsp;(&nbsp;string&nbsp;$name&nbsp;)&nbsp;:&nbsp;bool public&nbsp;__unset&nbsp;(&nbsp;string&nbsp;$name&nbsp;)&nbsp;:&nbsp;void</pre> <p>运行__set()以便将数据写入受保护的，私有的或不存在的不可访问的属性。</p> <p>__get()从不可访问的属性读取数据。</p> <p>__isset()调用<code>isset()</code>或<code>empty()</code>无法访问的属性。</p> <p><code>unset()</code>在无法访问的属性上调用__unset()时会被调用。</p> <p>在以下代码中，设置，检索和取消设置了名为<strong>myprop</strong>的动态属性。</p> <h2>示例</h2> <pre>&lt;?php class&nbsp;myclass{ &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__set($name,&nbsp;$value){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"setting&nbsp;$name&nbsp;property&nbsp;to&nbsp;$value&nbsp;\n"; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;$name&nbsp;=&nbsp;$value; &nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__get($name){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"value&nbsp;of&nbsp;$name&nbsp;property&nbsp;is&nbsp;"; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;$this-&gt;$name; &nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__isset($name){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;isset($this-&gt;$name); &nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__unset($name){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unset($this-&gt;$name); &nbsp;&nbsp;&nbsp;} } $obj&nbsp;=&nbsp;new&nbsp;myclass(); $obj-&gt;myprop="test"; echo&nbsp;$obj-&gt;myprop&nbsp;.&nbsp;"\n"; var_dump&nbsp;(isset($obj-&gt;myprop)); unset($obj-&gt;myprop); var_dump&nbsp;(isset($obj-&gt;myprop)); ?&gt;</pre> <p>输出结果</p> <p>输出如下-</p> <pre>setting&nbsp;myprop&nbsp;property&nbsp;to&nbsp;test test bool(true) bool(false)</pre> <h2>方法重载</h2> <p>用于动态设置方法的两个魔术方法是__call()和__callStatic()</p> <pre>public&nbsp;__call&nbsp;(&nbsp;string&nbsp;$name&nbsp;,&nbsp;array&nbsp;$arguments&nbsp;)&nbsp;:&nbsp;mixed public&nbsp;static&nbsp;__callStatic&nbsp;(&nbsp;string&nbsp;$name&nbsp;,&nbsp;array&nbsp;$arguments&nbsp;)&nbsp;:&nbsp;mixed</pre> <p>在对象上下文中调用不可访问的方法时，会触发__call()。</p> <p>在静态上下文中调用不可访问的方法时，会触发__callStatic()。</p> <p>以下示例演示了PHP中的方法重载</p> <h2>示例</h2> <pre>&lt;?php class&nbsp;myclass{ &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__call($name,&nbsp;$args){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//注意：$name的值区分大小写。 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Calling&nbsp;object&nbsp;method&nbsp;$name&nbsp;with&nbsp;"&nbsp;.&nbsp;implode("&nbsp;",&nbsp;$args).&nbsp;"\n"; &nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;function&nbsp;__callStatic($name,&nbsp;$args){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Calling&nbsp;static&nbsp;method&nbsp;$name&nbsp;with&nbsp;"&nbsp;.&nbsp;implode("&nbsp;",&nbsp;$args).&nbsp;"\n"; &nbsp;&nbsp;&nbsp;} } $obj&nbsp;=&nbsp;new&nbsp;myclass(); $obj-&gt;mymethod("你好，世界！"); myclass::mymethod("你好，世界！"); ?&gt;</pre> <p>输出结果</p> <p>上面的代码产生以下结果：</p> <pre>Calling&nbsp;object&nbsp;method&nbsp;mymethod&nbsp;with&nbsp;你好，世界！ Calling&nbsp;static&nbsp;method&nbsp;mymethod&nbsp;with&nbsp;你好，世界！</pre> <div></div> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">watch监听器的触发时机</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_0_0" rel="nofollow">起因</a></li> <li><a href="#_lab2_0_1" rel="nofollow">代码</a></li> <li><a href="#_lab2_0_2" rel="nofollow">watch</a></li> <li><a href="#_lab2_0_3" rel="nofollow">控制台</a></li> <li><a href="#_lab2_0_4" rel="nofollow">说明</a></li> </ul> <li><a href="#_label1" rel="nofollow">vue watch的理解小记</a></li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>watch监听器的触发时机</h2> <p class="maodian"><a name="_lab2_0_0" rel="nofollow"></a></p> <h3>起因</h3> <p>我需要在页面created时获得商家的类型id值，然后监听id值，动态的改变请求接口的地址。请求接口的函数在mounted中执行。业务逻辑写完后发现，页面在第一次加载时，接口没有数据，原因接口地址为空，即接口地址没有改变。</p> <p class="maodian"><a name="_lab2_0_1" rel="nofollow"></a></p> <h3>代码</h3> <div class="ay1code"> <pre class="brush:js;"> created() {      this.typeId = this.$route.params.id;      console.log("this.typeId的值发生改变，触发watch");    },    mounted() {      console.log(this.typeUrl, "mounted中的typeUrl的值");      //访问接口的函数      this.getData();    },  </pre> </div> <p class="maodian"><a name="_lab2_0_2" rel="nofollow"></a></p> <h3>watch</h3> <div class="ay1code"> <pre class="brush:js;">  watch: {    // 监听订单类型 给出对应面包屑    typeId: function (val) {      if (val == 1) {        console.log("watch触发了");        this.selfBreadcrumb[1].name = "核销订单";        this.typeUrl = "settlements";        console.log(this.typeUrl, "这里是watch");      } else if (val == 2) {        this.selfBreadcrumb[1].name = "物流订单";        this.typeUrl = "logistics-orders";      } else if (val == 4) {        this.selfBreadcrumb[1].name = "外卖订单";        this.typeUrl = "takeout-orders";      }    },  </pre> </div> <p class="maodian"><a name="_lab2_0_3" rel="nofollow"></a></p> <h3>控制台</h3> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220413/5fd96ffd2a7879ca8d8193b636129fc5.jpg"></p> <p class="maodian"><a name="_lab2_0_4" rel="nofollow"></a></p> <h3>说明</h3> <p>watch的触发会在created和mounted结束后。</p> <p>先占个坑，具体原理如何只有等我项目完成了再来康康。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>vue watch的理解小记</h2> <p>刚开始学时，感觉自己懂了。可是到用时才发现自己是渣渣中的渣渣。。。</p> <p>想通过路由id的变化来改变组件的加载数据时，遇到了一个问题，就是，组件不会重新渲染。一脸懵逼了，，，</p> <p>找到了watch的监控方法时，又用不好。扣扣会用了一些，赶紧记下来。</p> <p>首先确认 watch是一个对象，一定要当成对象来用。</p> <p>对象就有键，有值。</p> <ul> <li> <strong>键：</strong>就是你要监控的那个家伙，比如说$route，这个就是要监控路由的变化。或者是data中的某个变量。</li> <li> <strong>值可以是函数：</strong>就是当你监控的家伙变化时，需要执行的函数，这个函数有两个形参，第一个是当前值，第二个是变化后的值。</li> <li> <strong>值也可以是函数名：</strong>不过这个函数名要用单引号来包裹。</li> </ul> <p>第三种情况厉害了。</p> <p><strong>值是包括选项的对象：选项包括有三个。</strong></p> <ul> <li>第一个handler：其值是一个回调函数。即监听到变化时应该执行的函数。</li> <li>第二个是deep：其值是true或false；确认是否深入监听。（一般监听时是不能监听到对象属性值的变化的，数组的值变化可以听到。）</li> <li>第三个是immediate：其值是true或false；确认是否以当前的初始值执行handler的函数。</li> </ul> <div class="ay1code"> <pre class="brush:js;">var vm = new Vue({    data: {      a: 1,      b: 2    },    watch: {      a: function (val, oldVal) {        console.log('new: %s, old: %s', val, oldVal)      },      // 方法名      b: 'someMethod',      // 选项的对象      c: {        handler: function (val, oldVal) { /* ... */ },        deep: true，        immediate: true      }    }  })</pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-132.htm">python hdfs远程连接以及上传文件，读取文件内容，删除文件</a></p>
-                                        <p>下一个：<a href="/html/category/article-134.htm">spring 循环依赖,Bean使用@Async注解 导致项目启动失败</a></p>
+                                        <p>上一个：<a href="/html/category/article-132.htm">encodeURI()函数和encodeURIComponent()函数</a></p>
+                                        <p>下一个：<a href="/html/category/article-134.htm">node.js &#8212; 身份认证</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></h4>
-                <p>这篇将介绍如何写一个简单的基于Vue+Element的文件上传控件。 控件将具有 1. 上传队列的列表，显示文件名称，大小等信息，可以显示上传进度实时刷新 2. 取消上传  &nbsp;使用Eleme</p>
+                <h4><a href="/html/category/article-243.htm">SpringMVC访问静态资源的三种方式</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果你的DispatcherServlet拦截 *.do这样的URL，就不存在访问不到静态资源的问题。如果你的Dispatch</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
-                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-254.htm">图像处理学习笔记——BMP图片详解</a></h4>
+                <p>一、位图和调色板的概念  1.位图（Bitmap）： 例如我们常说的屏幕分辨率为 640*480，刷新频率为70Hz，意思是说每行要扫描 640 个象素，一共有 480 行，每秒重复扫描屏幕 70 次</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-227.htm">Spring Boot四大神器之CLI</a></h4>
+                <p>目录             1. Spring Boot CLI简介： 2. 安装CLI:   手动安装：   3. 运行Groovy脚本 4. CLI运行原理说明：（CLI帮我们做了什么？）   </p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
-                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
-                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
+                <h4><a href="/html/category/article-235.htm">lombok和JPA的死递归</a></h4>
+                <p>这是一个Bug JPA我觉得是一个封装的很棒的框架，至于说很臃肿这个事，我觉得在需求需要很多复杂查询的时候，不适合用JPA。因为它的封装太棒了，以致于增强了表和实体类之间的耦合。不过在一些简单查询的部</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
-                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
-                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
+                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
+                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

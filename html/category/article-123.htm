@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-123.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Centos7 离线安装 KVM，并安装 Csr1000v - EgyptAddress</title>
+    <title>k8s入门之pod - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Centos7 离线安装 KVM，并安装 Csr1000v</h1>
+                <h1 class="title" style="word-break: break-all;">k8s入门之pod</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>最近需要在客户环境搭建 csr1000v，客户环境不能联网，同时使用 kvm 管理。所以需要离线安装 kvm，在利用 kvm 安装 csr100v ，中间遇到不少坑，现记录如下。</p> <p>所有安装步骤是在 root 用户的基础上完成。</p> <p>准备好的 kvm 安装包和 csr1000v 安装包所在地址：</p> <pre><code>ip: 10.124.205.51  user: root/cisco123 [root@localhost temp]# cd /opt/temp [root@localhost temp]# ls csr1000v-universalk9.16.12.04.qcow2  kvm_pkg.tar.gz</code></pre> <p>整体安装思路如下：</p> <ol> <li>Linux 环境准备，检验系统版本以及是否具有虚拟化功能</li> <li>离线安装 kvm</li> <li>kvm 安装 csr1000v</li> <li>配置 KVM 相关网络</li> </ol> <h2 id="linux-环境准备">Linux 环境准备</h2> <p>检查 Linux 版本及内核是否一致，因为涉及到离线安装：</p> <pre><code>[root@localhost kvm_offile_pkg]# cat /etc/centos-release CentOS Linux release 7.9.2009 (Core)  [root@localhost kvm_offile_pkg]# uname -r 3.10.0-1160.el7.x86_64</code></pre> <p>关闭 Selinux</p> <pre><code>setenforce 0 vim /etc/selinux/config SELINUX=disabled</code></pre> <p>检查虚拟化功能是否开启</p> <pre><code> cat /proc/cpuinfo | egrep "vmx|svm"</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/f6c3a630276410794320873f2e8c4f7d.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <p>如果看到 vmx 或者 svm，表示虚拟化功能正常打开。</p> <p>或者也可通过如下命令, 看到 VT-x 表示正常：</p> <pre><code>[root@localhost ~]# lscpu | grep Virtualization Virtualization:      VT-x Virtualization type: full</code></pre> <h2 id="离线安装-kvm">离线安装 kvm</h2> <p>找一台可联网，相同版本的 linux 服务器，使用 yum 离线下载 kvm 相关包：</p> <pre><code>yum install --downloadonly --downloaddir=/opt/kvm qemu-kvm python-virtinst libvirt libvirt-python virt-manager libguestfs-tools bridge-utils virt-install virt-viewer</code></pre> <p>将其打包后导入离线服务器：</p> <pre><code>tar -czvf kvm_pkg.tar.gz kvm</code></pre> <p>在离线服务器解压并安装：</p> <pre><code>tar -xzvf kvm_pkg.tar.gz  # 使用 ls 查看，共有 250 个安装包 ls -l | grep "^-" | wc -l  # 安装： yum localinstall -y {Path}/kvm/*.rpm</code></pre> <p>启动 kvm</p> <pre><code>systemctl enable libvirtd systemctl start libvirtd</code></pre> <p>查看 kvm 版本信息：</p> <pre><code>yum info qemu-kvm /usr/libexec/qemu-kvm --version</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/cadf01838b0ec140d3d535a46c04ca73.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <h2 id="kvm-安装-csr1000v">kvm 安装 csr1000v</h2> <p>将下载好的 csr1000v 镜像导入服务器</p> <pre><code># 将安装包导入到 /var/lib/libvirt/images 文件夹下 mv csr1000v-universalk9.16.12.04.qcow2 /var/lib/libvirt/images</code></pre> <p>安装 csr1000v</p> <pre><code> virt-install                    \      --connect=qemu:///system   \      --name=csr_1000v           \      --os-type=linux            \      --os-variant=rhel4         \      --arch=x86_64              \      --cpu host-model                 \      --vcpus=1,sockets=1,cores=1,threads=1   \      --hvm                      \      --ram=4096                 \      --import                   \      --disk path=/var/lib/libvirt/images/csr1000v-universalk9.16.12.04.qcow2,bus=ide,format=qcow2   \      --network bridge=virbr0,model=virtio                        \      --noreboot              # --name 可以起一个自定义的名字</code></pre> <p>安装成功可看到如下内容：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/918af95907c817323f1f191ef6b945bd.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <p>打开 csr1000v</p> <pre><code>virsh --connect qemu:///system start csr_1000v</code></pre> <p>连接 csr1000v, 等等其启动完成</p> <pre><code>virsh console csr_1000v</code></pre> <p>看到如下内容，表示启动成功：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/5640e58bbfb2b652dda72974c95406ed.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <h2 id="配置-kvm-网络">配置 KVM 网络</h2> <h3 id="宿主机访问-kvm">宿主机访问 kvm</h3> <p>获取虚拟机有 DHCP 的分配 IP:</p> <pre><code>[root@localhost ~]# virsh net-dhcp-leases default  Expiry Time          MAC address        Protocol  IP address                Hostname        Client ID or DUID -------------------------------------------------------------------------------------------------------------------  2022-04-01 15:43:42  52:54:00:0d:86:d9  ipv4      192.168.122.130/24        Router          00:63:69:73:63:6f:2d:35:32:35:34:2e:30:30:32:62:2e:34:31:30:36:2d:47:69:31</code></pre> <p>如果手动配置的 IP 可以通过如下脚本来获取, 通过 mac 地址，反查 arp 表，获取分配的 ip.</p> <pre><code>#!/bin/bash running_vms=`virsh list |grep running` echo -ne "共有`echo "$running_vms"|wc -l`个虚拟机在运行.\n" for i in `echo "$running_vms" | awk '{ print $2 }'`;do mac=`virsh dumpxml $i |grep "mac address"|sed "s/.*'\(.*\)'.*/\1/g"` ip=`arp -ne |grep "$mac" |awk '{printf $1}'` printf "%-30s %-30s\n" $i $ip done  [root@localhost net-util]# bash list_vm_ip.sh 共有2个虚拟机在运行. csr_1000v                      192.168.122.130 new_csr_1000v                  192.168.122.131</code></pre> <p>由于本身是桥接到 br0 网卡上，可和宿主直接通信：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/2c951e3c006b8669abff4e050936a247.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <p>所以可在 router 配置 telnet 登录：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/0a9beea0623d4841eb60dae8e5b493d3.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/91b899807e66bb6ba0a1bc7eebb2600f.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <h3 id="外网访问-kvm">外网访问 KVM</h3> <p>上面的网络情况做到了，可以使用宿主机为 csr1000v 配置。但如果想从外部网络中，访问设备就无法做到了。</p> <p>这时就需要新创建一个的网桥，然后和 kvm 的网卡相连接。</p> <p>先介绍下网络环境：</p> <table> <thead> <tr> <th>机器名</th> <th>IP</th> <th>描述</th> </tr> </thead> <tbody> <tr> <td>宿主机</td> <td>10.124.205.51</td> <td>存储 kvm 的物理机</td> </tr> <tr> <td>csr1000v</td> <td>10.124.205.52</td> <td>用 kvm 启动的虚机</td> </tr> <tr> <td>测试机器</td> <td>10.124.205.14</td> <td>用于测试能否访问到  kvm 虚机</td> </tr> </tbody> </table> <p>整体思路如下：</p> <ol> <li>记录当前宿主机可以访问外网的网卡信息，比如 IP，网关等</li> <li>新建一个网桥</li> <li>将新建的网桥和原来的网卡想关联</li> <li>修改 kvm 虚机文件</li> <li>进入 csr1000v 绑定真实 IP</li> <li>测试</li> </ol> <p>首先记录当前物理网卡信息：</p> <p>使用 ip addr 找到带有 IP 的真实网卡，比如我这里是 ens192:</p> <pre><code>2: ens192: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP group default qlen 1000     link/ether 00:50:56:bb:93:c4 brd ff:ff:ff:ff:ff:ff     inet 10.124.205.51/24 brd 10.124.207.255 scope global noprefixroute ens192        valid_lft forever preferred_lft forever     inet6 fe80::eb4d:e564:a48:1835/64 scope link noprefixroute        valid_lft forever preferred_lft forever</code></pre> <p>记录对应配置文件的有效信息：</p> <pre><code>cat /etc/sysconfig/network-scripts/ifcfg-ens192 TYPE="Ethernet" PROXY_METHOD="none" BROWSER_ONLY="no" BOOTPROTO="none" DEFROUTE="yes" IPV4_FAILURE_FATAL="no" IPV6INIT="yes" IPV6_AUTOCONF="yes" IPV6_DEFROUTE="yes" IPV6_FAILURE_FATAL="no" IPV6_ADDR_GEN_MODE="stable-privacy" NAME="ens192" UUID="94a5dbcf-1d42-4fe1-ad0a-6f9743f0f033" DEVICE="ens192" ONBOOT="yes" IPADDR="10.124.205.51" PREFIX="24" GATEWAY="10.124.205.254" DNS1="64.104.14.184" DNS2="208.67.222.222" IPV6_PRIVACY="no"</code></pre> <p>这里将一些有用的信息，拷贝出来。之后新建网桥需要用到：</p> <pre><code>IPADDR="10.124.205.51" PREFIX="24" GATEWAY="10.124.205.254" DNS1="64.104.14.184" DNS2="208.67.222.222"</code></pre> <p>关闭网络</p> <pre><code>systemctl stop NetworkManager</code></pre> <p>因为要新建一个网桥，为了防止同名的情况，先查看下, 没有叫 br0 的网桥：</p> <pre><code>brctl show</code></pre> <p>创建新网桥，添加之前准备好的信息：</p> <pre><code>vim /etc/sysconfig/network-scripts/ifcfg-br0  DEVICE=br0 ONBOOT=yes TYPE=Bridge NM_CONTROLLED=yes BOOTPROTO=static IPADDR="10.124.205.51" PREFIX="24" GATEWAY="10.124.205.254" DNS1="64.104.14.184" DNS2="208.67.222.222"</code></pre> <p>更新原始 ens192 网卡信息，与新网桥建立连接, 记得把原始文件备份</p> <pre><code>vim /etc/sysconfig/network-scripts/ifcfg-ens192  NAME="ens192" DEVICE="ens192" ONBOOT="yes" TYPE=Ethernet ONBOOT=yes BRIDGE=br0</code></pre> <p>重启网络：</p> <pre><code>systemctl restart network</code></pre> <p>查看网卡是否生效：</p> <p>原始 IP 转移到新网卡上：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c775d7335f28725fd85444a979fac780.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <p>重启 kvm:</p> <pre><code>systemctl restart libvirtd</code></pre> <p>修改 kvm csr1000v 配置文件</p> <pre><code>virsh edit  csr_1000v  将 interface 关联的网卡，改成新网卡。  &lt;interface type='bridge'&gt;       &lt;mac address='52:54:00:0d:86:d9'/&gt;       &lt;source bridge='br0'/&gt;       &lt;model type='virtio'/&gt;       &lt;address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/&gt;  &lt;/interface&gt;  其中 type 需要改变为 bridge，bridge 绑定的名字需要改成 `br0`</code></pre> <p>重启 csr1000v</p> <pre><code>virsh reboot  csr_1000v</code></pre> <p>查看 csr_1000v 的网卡是否挂载到 br0 上:</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/5ea964950065bf007c6104dc513b8e96.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <p>这时进入到设备中，正常配置有效的 ip，因为是桥接的模式，外网就可以正常访问了。</p> <p>这里配置 IP 为<code>10.124.205.52</code>, 从另外一台物理机上可以正常 ping 通：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/49d54f8b4fa68e363256092175355402.jpg" alt="Centos7 离线安装 KVM，并安装 Csr1000v"></p> <h2 id="坑">坑</h2> <p>之前使用 kvm 安装 csr1000v 后，发现使用 console 无法登录到 router 里面，一直卡在<code>Escape character is '^]'</code>。</p> <p>使用官网文档，配置 tcp 串口依然不好用。最后是通过在 router 里面配置<code>platform console serial</code> 这句话得以用 console 访问。</p> <p>目前还存在一个问题，就是想给 router 默认刷一些 day0 配置进去，但安装官网创建 iso 镜像的方式也不太好用，后续研究后补充。</p> <h2 id="参考">参考</h2> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cisco.com/c/en/us/td/docs/routers/csr1000/software/configuration/b_CSR1000v_Configuration_Guide/b_CSR1000v_Configuration_Guide_chapter_0101.html"  target="_blank" rel="nofollow">cisco install csr1000v</a></p> 			                </div>
+                      				  				  				<p>pod是k8s项目中的最小编排单位，它是运行中的一组（一个或多个）容器，这些容器共享存储、网络、调度等资源，pod是一个逻辑概念，同一个名称空间下不同pod可以通过ip互相访问。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/12f620c24820761e06e5f5981dcc6fc7.jpg" alt="k8s入门之pod"></p> <p><strong>一、通过命令行方式管理</strong></p> <p><strong>1.创建</strong></p> <p>在dev名称空间下创建名称为mynginx的pod，如果不指定-n参数，则默认创建在default名称空间下</p> <pre><code>kubectl run mynginx --image=nginx -n dev</code></pre> <p><strong>2.查看dev名称空间下所有pod的简单信息</strong></p> <pre><code>kubectl get pod -n dev</code></pre> <p>创建pod需要时间，尤其是节点上没有该镜像时，还需要下载镜像，可以看到pod的Status状态会随着时间而改变，最后变成Running表示pod启动成功<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/c369b50f42a191447676cd2aaf73e99d.jpg" alt="k8s入门之pod"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5b5e3d1e9ff3511bfeb1ed24d146ebbc.jpg" alt="k8s入门之pod"></p> <p><strong>3.查看dev名称空间下所有pod的详细信息</strong></p> <pre><code>kubectl get pod -n dev -owide --show-labels</code></pre> <p>结果截图如下</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/17a4d65116012c49c01a140c0783b88e.jpg" alt="k8s入门之pod"></p> <p>NODE：表示该pod被调度了哪个worker节点上</p> <p>IP：k8s会为每个pod分配一个ip，集群中的任意一个机器以及任意的应用都能通过此ip来访问这个Pod</p> <p>在master节点上可以通过curl ip访问pod</p> <pre><code># 默认是80端口，所以访问的是pod中的nginx容器 curl 10.244.218.1</code></pre> <p><strong>4.根据标签检索pod</strong></p> <pre><code>kubectl get pod -n dev -owide --show-labels -l app=nginx</code></pre> <p><strong>5.查看pod的描述信息</strong></p> <pre><code>kubectl describe pod mynginx -n dev</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/790549abc03fde4ad93e5387f8fbaebb.jpg" alt="k8s入门之pod"></p> <p>其中Events事件可以查看到pod被创建的详细过程</p> <p><strong>6.查看Pod的运行日志</strong></p> <pre><code>kubectl logs mynginx -n dev</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/2ea4fbeb2fe4ded9260a6a11bfa8564b.jpg" alt="k8s入门之pod"></p> <p><strong>7.进入pod容器</strong></p> <pre><code>kubectl exec -it mynginx /bin/bash -n dev</code></pre> <p>更改nginx容器的index.html内容</p> <pre><code>echo "hello,pod" &gt;&gt; /usr/share/nginx/html/index.html</code></pre> <p>再次访问mynginx</p> <pre><code>curl 10.244.218.1</code></pre> <p>可以看到index.html首页内容已经发生了变化</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/84e7e3ff25be126fc11bb661dfe5aa39.jpg" alt="k8s入门之pod"></p> <p><strong>8.监控pod状态命令</strong></p> <p>使用k8s的-w参数</p> <pre><code>kubect get pod -n dev -w</code></pre> <p>使用linux命令</p> <pre><code>watch -n 1 kubectl get pod -n dev</code></pre> <p><strong>9.删除pod</strong></p> <pre><code>kubectl delete pod mynginx -n dev</code></pre> <p><strong>二、使用yaml管理</strong></p> <p><strong>1.在pod里部署两个容器</strong></p> <p>一个pod里面不能部署相同镜像的容器，端口冲突</p> <p>（1）创建yaml文件</p> <pre><code>vi pod-nginx-tomcat.yaml</code></pre> <p>（2）编写pod文件内容，定义两个容器，一个为nginx，一个为tomcat</p> <pre><code>apiVersion: v1 kind: Pod metadata:   labels:     web: server   name: web-server   namespace: dev spec:   containers:   - image: nginx     name: nginx   - image: tomcat:9.0</code></pre> <p>（3）使用kubectl apply创建pod</p> <pre><code>kubectl apply -f pod-nginx-tomcat.yaml</code></pre> <p>（4）自动监控创建过程</p> <pre><code>kubectl get pod -n dev -w</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/13c77c3401b63b4fe7e9dbc8be954772.jpg" alt="k8s入门之pod"></p> <p><strong>2.查看pod描述</strong></p> <pre><code>kubectl describe pod web-server -n dev</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/c56d9ca044b69c5ad16bc12d429ac215.jpg" alt="k8s入门之pod"></p> <p><strong>3.在节点上访问pod</strong></p> <p>（1）查看pod的ip</p> <pre><code>kubectl get pod -n dev -owide</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/9460954d38fe1a057c88f1025a75710a.jpg" alt="k8s入门之pod"></p> <p>（2）通过此ip访问pod中的nginx容器</p> <pre><code>curl 10.244.218.2</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/cc3c5a9561a3ac7e8c13481764c32dae.jpg" alt="k8s入门之pod"></p> <p>（3）通过此ip访问pod中的tomcat容器</p> <pre><code>curl 10.244.218.2:8080</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/e05f9739b7d4d6259fb45b9b357f6c0c.jpg" alt="k8s入门之pod"></p> <p><strong>4.进入pod里面访问服务</strong></p> <p>（1）进入pod里面的nginx容器</p> <pre><code>kubectl exec web-server --container nginx -it /bin/bash -n dev</code></pre> <p>（2）在容器内，以下命令均可访问，证明了pod里网络共享</p> <pre><code>curl localhost curl localhost:8080 curl 10.244.218.2 curl 10.244.218.2:8080</code></pre> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-122.htm">springboot接口如何控制版本？</a></p>
-                                        <p>下一个：<a href="/html/category/article-124.htm">pycharm连接sqlite</a></p>
+                                        <p>上一个：<a href="/html/category/article-122.htm">Objective-C 基础教程第九章,内存管理</a></p>
+                                        <p>下一个：<a href="/html/category/article-124.htm">在vscode中快速新建html文件的2种方法总结_C 语言</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
-                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
-                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
-                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
-                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
+                <h4><a href="/html/category/article-254.htm">图像处理学习笔记——BMP图片详解</a></h4>
+                <p>一、位图和调色板的概念  1.位图（Bitmap）： 例如我们常说的屏幕分辨率为 640*480，刷新频率为70Hz，意思是说每行要扫描 640 个象素，一共有 480 行，每秒重复扫描屏幕 70 次</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-252.htm">[js] 回调函数 回调地狱 Promise async/await</a></h4>
+                <p>1. 回调函数 callback   一种封装代码的手段   什么是 callback , 概念 =&gt; 把 函数A 当做 实参 传递到 函数B 内部 =&gt; 在 函数B 内部以 形参 的方式</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
-                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
+                <h4><a href="/html/category/article-205.htm">001、利用pyttsx3、SAPI、SpeechLib 实现文本转语音</a></h4>
+                <p>1、使用pyttsx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3 &nbsp; &nbsp; &</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
-                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-220.htm">SpringCloud&#8212;-Feign隔离和降级</a></h4>
+                <p>限流是一种预防措施，虽然限流可以尽量避免因高并发而引起的服务故障，但服务还会因为其它原因而故障。 而要将这些故障控制在一定范围，避免雪崩，就要靠线程隔离（舱壁模式）和熔断降级手段了。线程隔离：调用者在</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-155.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>foreach循环中不能使用字符串拼接 - EgyptAddress</title>
+    <title>Java中的多态 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">foreach循环中不能使用字符串拼接</h1>
+                <h1 class="title" style="word-break: break-all;">Java中的多态</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <p><strong>问题：</strong></p> <pre><code class="prism language-java">    <span class="token annotation punctuation">@Test</span>     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">forEachTest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>          String str <span class="token operator">=</span> <span class="token string">"中国你好！"</span><span class="token punctuation">;</span>          List<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> list <span class="token operator">=</span> Arrays<span class="token punctuation">.</span><span class="token function">asList</span><span class="token punctuation">(</span><span class="token string">"a"</span><span class="token punctuation">,</span><span class="token string">"b"</span><span class="token punctuation">,</span><span class="token string">"c"</span><span class="token punctuation">,</span><span class="token string">"d"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                  list<span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>item<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token punctuation">{<!-- --></span>         	<span class="token comment">//编辑错误：Variable used in lambda expression should be final or effectively final</span>             str <span class="token operator">+=</span> item<span class="token punctuation">;</span>         <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>          <span class="token comment">//可以使用增强for</span> <span class="token comment">//        for (String item : list) {<!-- --></span> <span class="token comment">//            str += item;</span> <span class="token comment">//        }</span>          System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"结果："</span> <span class="token operator">+</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span>      <span class="token punctuation">}</span> </code></pre> <p>  该编译不通过的根本原因：<code>Lambda表达式中的局部变量要使用final的问题。</code><br />   <code>因为String类型属于引用数据类型，String字符串有不可变的特性，String在进行字符串拼接时，每次都会指向不同的地址值，因此str变量不能被看作是一个final类型，也就不符合Lambda表达式的使用要求。</code></p> <p><strong>解决：</strong><br /> 使用StringBuffer或StringBuilder：</p> <pre><code class="prism language-java">    <span class="token annotation punctuation">@Test</span>     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">forEachTest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>          <span class="token comment">//String str = "中国你好！";</span>          List<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> list <span class="token operator">=</span> Arrays<span class="token punctuation">.</span><span class="token function">asList</span><span class="token punctuation">(</span><span class="token string">"a"</span><span class="token punctuation">,</span><span class="token string">"b"</span><span class="token punctuation">,</span><span class="token string">"c"</span><span class="token punctuation">,</span><span class="token string">"d"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>          StringBuffer stringbuffer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuffer</span><span class="token punctuation">(</span><span class="token string">"中国你好！"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         list<span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>item<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token punctuation">{<!-- --></span>             stringbuffer <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>          <span class="token comment">//可以使用增强for</span> <span class="token comment">//        for (String item : list) {<!-- --></span> <span class="token comment">//            str += item;</span> <span class="token comment">//        }</span>          System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"结果："</span> <span class="token operator">+</span> sb<span class="token punctuation">)</span><span class="token punctuation">;</span>      <span class="token punctuation">}</span> </code></pre> <p><strong>原理：</strong><br />   <code>StringBuffer是一个引用数据类型，在进行append()时，只是修改了内容，并没有改变地址值，这个stringbuffer变量就在编译时看成了final类型的变量，因此可以使用。</code></p> <p>Lambda表达式中的局部变量要使用final的问题：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/weixin_42921327/article/details/115657993"  rel="nofollow">https://blog.csdn.net/weixin_42921327/article/details/115657993</a></p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <h3><strong>多态：</strong></h3> <p>从字面意思理解就是多种形态。而在Java中多态是同一个行为具有多个不同表现形式或形态的能力。</p> <p><strong>多态分为:</strong></p> <p><strong>方法多态：方法的重写和重载就是方法的多态的体现形式</strong></p> <p><strong>对象多态：</strong></p> <p>1.一个对象 的编译类型和运行类型是不一样</p> <p>2.编译类型是在定义对象的时候，就已经确定好的</p> <p>3.运行类型是可以改变的</p> <p>4.编译类型看=的左边 运行类型看 =的右边</p> <p>例：<strong>Person person = new Person();</strong></p> <p><strong>注意：</strong></p> <p>1.必须有继承</p> <p>2.必须有重写</p> <p>3.等号左边是父类的引用，等号右边是子类的对象。</p> <p><strong>多态的转型：【向上转型和向下转型】</strong></p> <h3><strong>1.向上转型</strong></h3> <p>本质就是：父类的引用指向子类对象。</p> <p>语法格式：</p> <p> 父类 父类引用 = new 子类（）；</p> <pre><code class="language-java">示例：package com.qfedu.d_duotai;  class Person { 	public void eat () { 		 	} } class Student extends Person { 	@Override 	public void eat() { 		System.out.println("学生吃饭，吃披萨"); 	} 	public void sleep () { 		System.out.println("中午不谁下午崩溃！！！"); 	} } public class Demo1 { 	public static void main(String[] args) { 		Person person = new Student();//向上转型 		person.eat(); 		//person.sleep(); 	}  } </code></pre> <p>将子类的对象赋值给了父类的引用。小范围（子类） 转为大范围（父类）自动转</p> <p>父类的引用可以调用父类的所有成员方法，可以调用子类的重写父类的方法，但是不能调用子类独有的方法。</p> <h3><strong>2.向下转型</strong></h3> <p>语法格式：</p> <p>父类 父类引用 = new 子类（）；</p> <p>子类 子类引用 = （子类）父类的引用；</p> <pre><code class="language-java">实例：package com.qfedu.d_duotai;  class TestA { 	//Object 是所有类的父类 	public void test (Object obj ) { 		//必须给我打印一个String类型的狗蛋，我不要Object类型的狗蛋 //		String str = (String) obj;  //		System.out.println(str); 		int i1 = (int)obj; 		System.out.println(i1); 		 	} } public class Demo4 { 	public static void main(String[] args) { 		TestA testA = new TestA(); 		//testA.test("狗蛋"); 		Object object = "狗蛋"; 		testA.test(98); 		testA.test('狗'); 	}  } </code></pre> <h3><strong>instenceof 关键字</strong></h3> <p>是比较操作符，返回值是布尔&nbsp;<strong>Boolean</strong>类型数据</p> <p>语法格式：</p> <p>对象引用&nbsp;<strong>instenceof</strong>&nbsp;类（运行类型）</p> <p>用来判断对象的运行类型（=右边）， 是否是xx类型或者xx类型的子类</p> <p><strong>目的：是为了在强转的时候不出现问题</strong></p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-154.htm">spring-cloud之Feign服务调用降级</a></p>
-                                        <p>下一个：<a href="/html/category/article-156.htm">MySQL数据库中的Date,DateTime,TimeStamp和Time类型</a></p>
+                                        <p>上一个：<a href="/html/category/article-154.htm">Java的引用和内存</a></p>
+                                        <p>下一个：<a href="/html/category/article-156.htm">前端都应该要掌握的防抖和节流</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
-                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
+                <h4><a href="/html/category/article-254.htm">图像处理学习笔记——BMP图片详解</a></h4>
+                <p>一、位图和调色板的概念  1.位图（Bitmap）： 例如我们常说的屏幕分辨率为 640*480，刷新频率为70Hz，意思是说每行要扫描 640 个象素，一共有 480 行，每秒重复扫描屏幕 70 次</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
+                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-226.htm">Carson带你学设计模式：单例模式（Singleton）</a></h4>
+                <p>前言 今天Carson来全面总结最常用的设计模式 - 单例模式。  Carson带你学设计模式系列文章Carson带你学设计模式：这是一份全面 &amp; 详细的设计模式学习指南Carson带你学设计</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
-                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
-                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-204.htm">JavaWeb项目基于SpringBoot框架实现统一的数据返回格式 + 统一异常处理 + 统一日志处理</a></h4>
+                <p>目录 ????前言 ????统一返回格式 &nbsp;添加枚举类 &nbsp;添加统一返回格式的类 &nbsp;测试 ????统一异常处理 &nbsp;添加统一异常处理器（创建一个handler包，在</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
-                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
+                <h4><a href="/html/category/article-205.htm">001、利用pyttsx3、SAPI、SpeechLib 实现文本转语音</a></h4>
+                <p>1、使用pyttsx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3 &nbsp; &nbsp; &</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
-                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

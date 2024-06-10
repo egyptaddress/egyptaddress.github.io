@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-94.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>IndexError: tensors used as indices must be long, byte or bool tensors - EgyptAddress</title>
+    <title>史上最简便的可以直接用的登录验证码攻略（前后端都有） - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">IndexError: tensors used as indices must be long, byte or bool tensors</h1>
+                <h1 class="title" style="word-break: break-all;">史上最简便的可以直接用的登录验证码攻略（前后端都有）</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p><img fetchpriority="high" decoding="async" alt="" height="71" src="http://img.555519.xyz/uploads/20230112/d3ed489a713a414d81b85f6050bf9359.jpg"></p> <p>上面报错，添加&nbsp;.type(torch.long)</p> <p><img decoding="async" alt="" height="110" src="http://img.555519.xyz/uploads/20230112/3a4d9f169ab804657f64362a6a6065c4.jpg"></p> <p>&nbsp;</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>首先，我们要知道为什么要设置验证码、</p> <p>原因很简单：</p> <p>加验证码的目的是：必须要人工操作，防止提交错误登录信息，暴力破解密码，如果有人恶意登录，服务器压力会很大，甚至宕机。</p> <p>为了防止我们用的别人的验证码图片，各个页面的验证码串通。所以每个页面的验证码图片都需要带一个图片的token，验证码登录一旦匹配成功之后，服务器验证码信息需要删掉的，防止下次匹配还能使用。验证码不能存到数据库中，因为做验证吗的目的就是必须先通过了验证码信息，才去数据库匹配账号密码。</p> <p>说人话就是：防止数据库被恶意频繁发送请求，必须人工操作才能走到查询数据库那一步</p> <p>这里要注意的是：最好用后端验证码，前端验证码验证还是可能会受到ajax请求攻击的，可以说前端验证码起不到防止直接请求数据库的作用</p> <p>后端验证码代码实现（是一个servlet页面）</p> <pre><code>package com.qcby.servlet;   import java.awt.Color; import java.awt.Font; import java.awt.image.BufferedImage; import java.io.IOException; import java.io.OutputStream; import java.util.Random;  import javax.imageio.ImageIO; import javax.servlet.ServletException; import javax.servlet.annotation.WebServlet; import javax.servlet.http.HttpServlet; import javax.servlet.http.HttpServletRequest; import javax.servlet.http.HttpServletResponse;   /**  * Servlet implementation class CodeServlet  */ @WebServlet("/code") public class CodeServlet extends HttpServlet { 	private static final long serialVersionUID = 1L;  	/** 	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response) 	 */ 	protected void service(HttpServletRequest request, HttpServletResponse response)  			throws ServletException, IOException { 		// TODO Auto-generated method stub 		//创建空白图片 		BufferedImage image = new BufferedImage(100, 30, BufferedImage.TYPE_INT_RGB); 		//获取图片画笔 		java.awt.Graphics g = image.getGraphics(); 		Random r = new Random(); 		//设置画笔颜色 		g.setColor(new Color(r.nextInt(255),r.nextInt(255),r.nextInt(255))); 		//绘制矩形背景 		g.fillRect(0, 0, 100, 30); 		//绘制n条干扰线 		for(int i=0;i&lt;10;i++) { 			g.setColor(new Color(r.nextInt(255),r.nextInt(255),r.nextInt(255))); 			g.drawLine(r.nextInt(100),r.nextInt(30),r.nextInt(100), r.nextInt(30)); 		} 		 		//调用方法，获取长度为n的随机字符串 		String number = getNumbers(5); 		 		g.setFont(new Font(null,Font.ITALIC+Font.BOLD,24)); 		g.drawString(number,5,25); 		response.setContentType("image/jpeg"); 		OutputStream out = response.getOutputStream(); 		ImageIO.write(image, "jpeg", out); 		out.close(); 	}  	public String getNumbers(int size) { 		String string = "QWERTYUIOPASDFGHJKLZXCVBNM0123456789"; 		String number=""; 		Random r=new Random(); 		for(int i=0;i&lt;size;i++) { 			char c=string.charAt(r.nextInt(string.length())); 			number=number+c; 		} 		return number; 	} }   直接发送code请求进行测试  放前端页面查看&lt;img src="code"&gt; </code></pre> <p>前端代码写的验证码：</p> <pre><code>	var show_num = []; 	draw(show_num); 	function dj(){ 	draw(show_num);    	} 	function draw(show_num) {         var canvas_width=document.getElementById('canvas').clientWidth;         var canvas_height=document.getElementById('canvas').clientHeight;         var canvas = document.getElementById("canvas");//获取到canvas的对象，演员         var context = canvas.getContext("2d");//获取到canvas画图的环境，演员表演的舞台         canvas.width = canvas_width;         canvas.height = canvas_height;         var sCode = "A,B,C,E,F,G,H,J,K,L,M,N,P,Q,R,S,T,W,X,Y,Z,1,2,3,4,5,6,7,8,9,0,q,w,e,r,t,y,u,i,o,p,a,s,d,f,g,h,j,k,l,z,x,c,v,b,n,m";         var aCode = sCode.split(",");         var aLength = aCode.length;//获取到数组的长度 			         for (var i = 0; i &lt;= 3; i++) {             var j = Math.floor(Math.random() * aLength);//获取到随机的索引值             var deg = Math.random() * 30 * Math.PI / 180;//产生0~30之间的随机弧度             var txt = aCode[j];//得到随机的一个内容             show_num[i] = txt;             var x = 10 + i * 20;//文字在canvas上的x坐标             var y = 20 + Math.random() * 8;//文字在canvas上的y坐标             context.font = "bold 23px 微软雅黑";              context.translate(x, y);             context.rotate(deg);              context.fillStyle = randomColor();             context.fillText(txt, 0, 0);              context.rotate(-deg);             context.translate(-x, -y);         }         for (var i = 0; i &lt;= 5; i++) { //验证码上显示线条             context.strokeStyle = randomColor();             context.beginPath();             context.moveTo(Math.random() * canvas_width, Math.random() * canvas_height);             context.lineTo(Math.random() * canvas_width, Math.random() * canvas_height);             context.stroke();         }         for (var i = 0; i &lt;= 30; i++) { //验证码上显示小点             context.strokeStyle = randomColor();             context.beginPath();             var x = Math.random() * canvas_width;             var y = Math.random() * canvas_height;             context.moveTo(x, y);             context.lineTo(x + 1, y + 1);             context.stroke();         }     } 	function randomColor() {//得到随机的颜色值         var r = Math.floor(Math.random() * 256);         var g = Math.floor(Math.random() * 256);         var b = Math.floor(Math.random() * 256);         return "rgb(" + r + "," + g + "," + b + ")";     }          //定义加载数据函数 	function loadData(){ 		//发起请求 		var account = $(".account").val(); 		var password = $(".password").val(); 		var code = $("#text").val(); 		var num = show_num.join(""); 		console.log(code); 		$.cookie("tea_phone",account); 		         if(code==''){             alert('请输入验证码！');         }else if(code == num){            //document.getElementById(".input-val").val('');            // draw(show_num);            $.ajax({ 			url:"login?action=teacher", 			type:"get", 			data:{ 				"account":account, 				"password":password, 			}, 			success:function(data){ 				console.log(data); 				if(data.backcode==1){ 					layer.msg(data.msg,{ 						time:1000 					}, 					function(){ 						location.href = "router?path=教师框" 					}); 				}else{ 					layer.msg("账号不存在，请注册后登录"); 				} 			}, 			error:function(data){ 				alert("登陆失败"); 			} 		})          }else{         	layer.alert("验证码错误，请重新输入");            //layer.alert('验证码错误！\n你输入的是:  '+code+"\n正确的是:  "+num+'\n请重新输入！');             $(".code").value='';             draw(show_num);         } 	}    &lt;canvas id="canvas" onclick="dj()" &gt;&lt;/canvas&gt;  （标签显示二维码）</code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-93.htm">多线程详解 创建多线程</a></p>
-                                        <p>下一个：<a href="/html/category/article-95.htm">springboot实现定时任务-Scheduling</a></p>
+                                        <p>上一个：<a href="/html/category/article-93.htm">python访问hdfs</a></p>
+                                        <p>下一个：<a href="/html/category/article-95.htm">Python OpenCV实现3种滤镜效果实例_python_</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
-                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
-                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
+                <h4><a href="/html/category/article-255.htm">python 查看包的版本</a></h4>
+                <p>python查看包的版本  方法1：pip 使用cmd命令打开命令行，在命令行输入pip list,即可查看所有已安装的包及包的版本。  方法2：导入查看 导入包，输入包名.__version__即可</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
-                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></h4>
+                <p>问题背景 1、在spring配置中有一个【在线地址】的配置  2、有一个工具类，可以读取spring的配置  需求：将spring的配置定义为一个常量 问题分析 1、常量定义原则：要用final和st</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
-                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
+                <h4><a href="/html/category/article-252.htm">[js] 回调函数 回调地狱 Promise async/await</a></h4>
+                <p>1. 回调函数 callback   一种封装代码的手段   什么是 callback , 概念 =&gt; 把 函数A 当做 实参 传递到 函数B 内部 =&gt; 在 函数B 内部以 形参 的方式</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
-                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
+                <h4><a href="/html/category/article-261.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-259.htm">游戏开发设计模式：单例模式</a></h4>
+                <p>一、单例模式  文章目录  一、单例模式     1.1 单例模式总结介绍   1.1.1什么是单例模式 1.1.2单例模式分类 1.1.3单例类特点 1.1.4如何保证线程安全？   1.2 单例模</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

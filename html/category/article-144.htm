@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-144.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>springboot集成swagger碰到的坑（报404） - EgyptAddress</title>
+    <title>ES6基础语法之class类介绍_基础知识 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">springboot集成swagger碰到的坑（报404）</h1>
+                <h1 class="title" style="word-break: break-all;">ES6基础语法之class类介绍_基础知识</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>&nbsp; &nbsp; &nbsp; &nbsp;一：项目使用springboot集成swagger进行调试，配置swagger非常简单，主要有三步：</p> <p>1、添加swagger依赖</p> <pre class="has"><code>&lt;!-- 引入 swagger等相关依赖 --&gt; &lt;dependency&gt; 	&lt;groupId&gt;io.springfox&lt;/groupId&gt; 	&lt;artifactId&gt;springfox-swagger2&lt;/artifactId&gt; 	&lt;version&gt;2.6.1&lt;/version&gt; &lt;/dependency&gt; &lt;dependency&gt; 	&lt;groupId&gt;io.springfox&lt;/groupId&gt; 	&lt;artifactId&gt;springfox-swagger-ui&lt;/artifactId&gt; 	&lt;version&gt;2.6.1&lt;/version&gt; &lt;/dependency&gt;</code></pre> <p>2、进行swagger的配置</p> <pre class="has"><code class="language-java">package com.sailing.springbootmybatis.config;  import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import springfox.documentation.builders.ApiInfoBuilder; import springfox.documentation.builders.PathSelectors; import springfox.documentation.builders.RequestHandlerSelectors; import springfox.documentation.service.ApiInfo; import springfox.documentation.spi.DocumentationType; import springfox.documentation.spring.web.plugins.Docket; import springfox.documentation.swagger2.annotations.EnableSwagger2;  /**  * @author baibing  * @project: springboot-mybatis  * @package: com.sailing.springbootmybatis.config  * @Description: swagger2配置类  * @date 2018/9/25 15：35  */ @Configuration @EnableSwagger2 public class Swagger2Config {      @Bean     public Docket createRestApi(){         return new Docket(DocumentationType.SWAGGER_2)                 .apiInfo(apiInfo())                 .select()                 .apis(RequestHandlerSelectors.basePackage("com.sailing.springbootmybatis.controller"))                 .paths(PathSelectors.any())                 .build();     }      private ApiInfo apiInfo(){         return new ApiInfoBuilder()                 .title("SPRING-BOOT整合MYBATIS--API说明文档")                 .description("2018-8完成版本")                 .contact("Sailing西安研发中心-baibing")                 .version("1.0")                 .license("署名-非商用-相同方式共享 4.0转载请保留原文链接及作者")                 .licenseUrl("https://creativecommons.org/licenses/by-nc-sa/4.0/")                 .build();     } }</code></pre> <p>3、在controller层添加相应的注解（<strong>@Api</strong>和<strong>@ApiOperation</strong> 以及<strong>@ApiIgnore</strong>等）</p> <pre class="has"><code class="language-java">package com.sailing.springbootmybatis.controller;  import com.sailing.springbootmybatis.bean.Userinfo; import com.sailing.springbootmybatis.common.log.LogOperationEnum; import com.sailing.springbootmybatis.common.log.annotation.MyLog; import com.sailing.springbootmybatis.common.response.BuildResponseUtil; import com.sailing.springbootmybatis.common.response.ResponseData; import com.sailing.springbootmybatis.common.websocket.WebSocketServer; import com.sailing.springbootmybatis.service.RedisService; import com.sailing.springbootmybatis.service.UserinfoService; import io.swagger.annotations.Api; import io.swagger.annotations.ApiOperation; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.validation.BindingResult; import org.springframework.web.bind.annotation.*; import springfox.documentation.annotations.ApiIgnore;  import javax.validation.Valid; import java.io.IOException; import java.util.List;  /**  * @author baibing  * @project: springboot-mybatis  * @package: com.sailing.springbootmybatis.controller  * @Description: Userinfo controller 控制层  * @date 2018/9/12 10:07  */ @RestController @Api(value = "USERINFO", description = "用户信息测试controller") public class UserinfoController{      @Autowired     private UserinfoService userinfoService;      @Autowired     private WebSocketServer webSocketServer;      @Autowired     private RedisService redisService;        /**      * 查找指定id对应的用户      * @param id      * @return      */     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)     @MyLog(type = LogOperationEnum.SELECT,value = "查询指定id的用户信息")     @ApiOperation(value = "查询指定id的用户信息接口", notes = "查询指定id的用户信息接口")     public ResponseData getUser(@PathVariable(value = "id") Integer id){         return userinfoService.findById(id);     }      /**      * 查找所有用户      * @return      */     @RequestMapping(value = "/users", method = RequestMethod.GET)     @MyLog(type = LogOperationEnum.SELECT,value = "查询全部用户信息")     @ApiOperation(value = "查询所有用户信息接口", notes = "查询所有用户信息接口")     public ResponseData getAllUsers(){         return userinfoService.findAllUsers();     }      /**      * 查找所有用户（带分页）      * @param page 当前页数      * @param rows 每页显示条数      * @return      */     @RequestMapping(value = "/users/p", method = RequestMethod.GET)     @ApiOperation(value = "查询所有用户信息接口(带分页)", notes = "查询所有用户信息接口(带分页)")     public ResponseData getAllUsers(Integer page, Integer rows){         return userinfoService.findAllUsers(page, rows);     }      /**      * 新增用户 (带参数校验@Valid)      * 注意：BindingResult 对象必须在 @Valid 的紧挨着的后面，否则接收不到错误信息      * @Valid 可以校验json 也可以校验表单传递的对象属性      * @param userinfo      * @return      */     @RequestMapping(value = "/user", method = RequestMethod.POST)     @MyLog(type = LogOperationEnum.INSERT, value = "新增用户信息")     @ApiOperation(value = "新增用户接口(包含参数校验)", notes = "新增用户接口(包含参数校验)")     public ResponseData saveUserinfo(@RequestBody @Valid Userinfo userinfo, BindingResult bindingResult){         if(bindingResult.hasErrors()){             return BuildResponseUtil.buildFailResponse(bindingResult.getFieldError().getDefaultMessage());         }         return userinfoService.saveUser(userinfo);     }      /**      * 删除指定用户      * @param id 用户id      * @return      */     @RequestMapping(value = "/user/{id}", method = RequestMethod.DELETE)     @ApiOperation(value = "删除指定id的用户信息接口", notes = "删除指定id的用户信息接口")     public ResponseData deleteUser(@PathVariable Integer id){         return userinfoService.deleteUser(id);     }      /**      * 更新用户      * @param userinfo      * @return      */     @RequestMapping(value = "/user", method = RequestMethod.PUT)     @ApiOperation(value = "更新指定id用户信息接口", notes = "更新指定id用户信息接口")     public ResponseData updateUserinfo(@RequestBody Userinfo userinfo){         return userinfoService.updateUser(userinfo);     }      /**      * 给指定用户推送消息      * @param userName 用户名      * @param message 消息      * @throws IOException      */     @RequestMapping(value = "/socket", method = RequestMethod.GET)     @ApiIgnore //使用此注解忽略方法的暴露，也可以用在controller上     @ApiOperation(value = "给指定用户推送socket消息接口", notes = "给指定用户推送socket消息接口")     public void testSocket(@RequestParam String userName,@RequestParam String message){         webSocketServer.sendInfo(userName, message);     }      /**      * 测试redis接口保存String类型action      * @param address      * @return      */     @RequestMapping(value = "/redis", method = RequestMethod.POST)     @ApiIgnore //使用此注解忽略方法的暴露，也可以用在controller上     @ApiOperation(value = "redis中添加String数据接口", notes = "redis中添加String数据接口")     public ResponseData setString(@RequestBody String address){         System.out.println(address);         return redisService.setValue(address);     }      /**      * 测试redis接口保存实体类型action      * @param userinfo      * @return      */     @RequestMapping(value = "/redis/userinfo", method = RequestMethod.POST)     @ApiIgnore //使用此注解忽略方法的暴露，也可以用在controller上     @ApiOperation(value = "redis中添加Userinfo实体接口", notes = "redis中添加Userinfo实体接口")     public ResponseData setEntity(@RequestBody Userinfo userinfo){         return redisService.setEntityValue(userinfo);     }     /**      * 测试redis接口读取实体类型action      * @param key      * @return      */     @RequestMapping(value = "/redis/userinfo/{key}", method = RequestMethod.GET)     @ApiIgnore //使用此注解忽略方法的暴露，也可以用在controller上     @ApiOperation(value = "redis中读取指定key对应的数据接口", notes = "redis中读取指定key对应的数据接口")     public ResponseData getEntity(@PathVariable String key){         return redisService.getEntityValue(key);     }      /**      *      * @param list      * @return      */     @RequestMapping(value = "/redis/userList", method = RequestMethod.POST)     @ApiIgnore //使用此注解忽略方法的暴露，也可以用在controller上     @ApiOperation(value = "redis中添加包含Userinfo实体的集合接口", notes = "redis中添加包含Userinfo实体的集合接口")     public ResponseData setCollection(@RequestBody List&lt;Userinfo&gt; list){         return redisService.setCollectionValue(list);     }      /**      * 测试redis接口读取实体类型action      * @param key      * @return      */     @RequestMapping(value = "/redis/userList/{key}", method = RequestMethod.GET)     @ApiOperation(value = "redis中读取指定key对应的集合数据接口", notes = "redis中读取指定key对应的集合数据接口")     public ResponseData getCollection(@PathVariable String key){         return redisService.getCollectionValue(key);     }  }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp;二：到这里配置就结束了，访问<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://127.0.0.1:8088/yjbj/swagger-ui.html"  rel="nofollow">http://127.0.0.1:端口/项目路径/swagger-ui.html</a>&nbsp;就ok了，&nbsp;页面如下：</p> <div style="text-align:center;"> <figure class="image has"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220830/d3eebebbb024e2d2ee91ef5e30cb6449.jpg"><figcaption>    swagger-ui界面展示</figcaption></figure> </div> <p>&nbsp; &nbsp; &nbsp; &nbsp;三：项目运行了一段时间后访问上面连接突然报<span style="color:#f33b45;">404</span>错误，百思不得其解，但是可以肯定的是加了什么配置导致，最后在<strong>application.yml</strong>中发现了一个配置：</p> <pre class="has"><code class="language-java">spring.mvv.resources.add-mapping:false</code></pre> <p>将其注释掉熟悉的界面又回来了，查阅资料发现这个配置<strong>是不自动给静态资源添加路径，导致swagger-ui.html找不到资源</strong>，知道原因后摸索看能不能在保留以上配置的前提下自己手动给swagger-ui.html添加静态资源路径呢？</p> <pre class="has"><code class="language-java">package com.sailing.springbootmybatis.config;  import org.springframework.context.annotation.Configuration; import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry; import org.springframework.web.servlet.config.annotation.ViewControllerRegistry; import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;  /**  * 在SpringBoot2.0及Spring 5.0 WebMvcConfigurerAdapter已被废弃，目前找到解决方案就有  * 1 直接实现WebMvcConfigurer （官方推荐）  * 2 直接继承WebMvcConfigurationSupport  * @ https://blog.csdn.net/lenkvin/article/details/79482205  */ @Configuration public class WebMvcConfig extends WebMvcConfigurerAdapter {      @Override     public void addResourceHandlers(ResourceHandlerRegistry registry) {         registry.addResourceHandler("swagger-ui.html")                 .addResourceLocations("classpath:/META-INF/resources/");         registry.addResourceHandler("/webjars/**")                 .addResourceLocations("classpath:/META-INF/resources/webjars/");      } }</code></pre> <p>发现通过以上代码手动给swagger-ui.html指定路径也可以解决404的问题。</p> </div> 			                </div>
+                      				  				  				<h2>一、class基本语法</h2> <p>JavaScript 语言中,编写一个学生类,代码如下：（prototype可以个对象添加属性和方法）</p> <div class="ay1code"> <pre class="brush:js;">function Student(stuno,stuname)  {  	this.stuno = stuno;  	this.stuname = stuname;  }  Student.prototype.stusex = "";  Student.prototype.sayHi = function()  {  	console.log("大家好,我是"+this.stuname+",我的学号是"+this.stuno+",性别:"+this.stusex);  }  var stu = new Student("001","孙悟空");  stu.stusex = "男";  //或  // var stu = new Student();  // stu.stuno = "001";  // stu.stuname = "孙悟空";  // stu.stusex = "男";  stu.sayHi(); //大家好,我是孙悟空,我的学号是001,性别:男</pre> </div> <p>ES6提供了更接近传统语言的写法,引入了Class这个概念：</p> <p>constructor为构造函数,当创建对象的时候自动调用：</p> <div class="ay1code"> <pre class="brush:js;">class Student  {  	constructor(stuno,stuname) {  		this.stuno = stuno;  		this.stuname = stuname;  	}  	sayHi()  	{  		console.log("大家好,我是"+this.stuname+",我的学号是"+this.stuno);  	}  }  var stu = new Student("001","孙悟空");  //或  // var stu = new Student();  // stu.stuno = "001";  // stu.stuname = "孙悟空";  stu.sayHi();	//大家好,我是孙悟空,我的学号是001</pre> </div> <p>注意:类的声明第一行除了class Student外,还可以如下写法:</p> <div class="ay1code"> <pre class="brush:js;">let Student = class  let Student = class Student</pre> </div> <h2>二、类的属性和方法</h2> <p>实例属性和实例方法：</p> <div class="ay1code"> <pre class="brush:js;">class Student  {  	stuno = "";  	stuname = "";  	sayHi()  //此处方法有的地方称为原型方法  	{  		console.log("大家好,我是"+this.stuname+",我的学号是"+this.stuno);  	}  }  var stu = new Student();  stu.stuno = "001";  stu.stuname = "孙悟空";  stu.sayHi();</pre> </div> <p>静态属性和静态方法：</p> <div class="ay1code"> <pre class="brush:js;">class Student  {  	stuno = "";  	stuname = "";  	static proName = "";  //专业名称  	static proIntroduce()  	{  		console.log("专业名称:"+Student.proName);  	}  	sayHi()  	{  		console.log("大家好,我是"+this.stuname+",我的学号是"+this.stuno);  	}  }  Student.proName = "计算机";  Student.proIntroduce();</pre> </div> <h2>三、实例方法的两种写法</h2> <h3>方案一：（又称原型方法）</h3> <div class="ay1code"> <pre class="brush:js;">class Student  {  	sayHi()  	{  		console.log("hi!");  	}  }  let stu = new Student();  stu.sayHi();</pre> </div> <p>等同于ES5中：</p> <div class="ay1code"> <pre class="brush:js;">function Student(){			}  Student.prototype.sayHi=function()  {  	console.log("hi!");  }  var stu = new Student();  stu.sayHi();</pre> </div> <h3>方案二：</h3> <div class="ay1code"> <pre class="brush:js;">class Student  {  	constructor()  	{  		this.sayHi = function()  		{  			console.log("hi");  		}  	}  }  let stu = new Student();  stu.sayHi();</pre> </div> <p>等同于ES5中：</p> <div class="ay1code"> <pre class="brush:js;">function Student()  {  	this.sayHi = function()  	{  		console.log("hi");  	}  }  var stu = new Student();  stu.sayHi();</pre> </div> <p>当两个方案冲突的时候,constructor里面的函数会覆盖外面的函数：</p> <div class="ay1code"> <pre class="brush:js;">class Student  {  	sayHi()  //等同Student.prototype.sayHi=function(){...}  	{  		console.log("hi!");  	}  	constructor()  	{  		this.sayHi = function() //等同在function内部定义  		{  			console.log("hello!");  		}  	}  }  let stu = new Student();  stu.sayHi(); //hello!</pre> </div> <p>等同于ES5中：</p> <div class="ay1code"> <pre class="brush:js;">function Student()  {  	this.sayHi = function()  	{  		console.log("hello!");  	}  }  Student.prototype.sayHi=function()  {  	console.log("hi!");  }  var stu = new Student();  stu.sayHi(); //hello!</pre> </div> <h2>四、class属性封装</h2> <p>在类的内部可以使用get和set关键字,对某个属性设置存值函数和取值函数,拦截该属性的存取行为。</p> <div class="ay1code"> <pre class="brush:js;">class Student  {  	get stuAge(){  		return this._stuAge;  	}  	set stuAge(age)  	{  		if(age &gt;= 18 &amp;&amp; age &lt;= 120)  			this._stuAge = age;  		else  		{  			this._stuAge = 18;  			console.log("年龄有错误,设置默认值18!");  		}  	}  }  let stu = new Student();  stu.stuAge = 17;   //年龄有错误,设置默认值18!  console.log(stu.stuAge); //18  //------------------------------------------------------------------------------  //注意:  //(1)在get和set后的属性名不能和函数里的取值和设置值的变量名相同(stuAge和_stuAge)  //(2)getter不可单独出现  //(3)getter与setter必须同级出现(不能一个在父类,一个在子类)</pre> </div> <h2>五、继承</h2> <p>通过 extends 实现类的继承。</p> <div class="ay1code"> <pre class="brush:js;">//通过 extends 实现类的继承。  class People //父类  {  	name = "";  	sex = "";  	age = 0;  	sayHi()  	{  		console.log(`姓名:${this.name},性别:${this.sex},年龄:${this.age}`);  	}  }  class Student extends People  //子类继承父类,拥有父类的属性和方法  {  	  }  class Teacher extends People //子类继承父类,拥有父类的属性和方法  {  	salary = 0; //子类在父类基础上扩展一个属性  	sayHi() //子类在父类基础上重写父类方法  	{  		console.log(`姓名:${this.name},性别:${this.sex},年龄:${this.age},月薪:${this.salary}`);  	}  }  let stu = new Student();  stu.name = "孙悟空";  stu.sex = "男";  stu.age = 500;  stu.sayHi(); //姓名:孙悟空,性别:男,年龄:500    let tc = new Teacher();  tc.name = "唐僧";  tc.sex = "男";  tc.age = 100;  tc.salary = 6000;  tc.sayHi(); //姓名:唐僧,性别:男,年龄:100,月薪:6000</pre> </div> <h2>六、继承和构造方法</h2> <p>子类通过super()调用父类构造方法：</p> <div class="ay1code"> <pre class="brush:js;">class People  {  	constructor(name,sex,age)  	{  		this.name = name;  		this.sex = sex;  		this.age = age;  	}  	sayHi()  	{  		console.log(`姓名:${this.name},性别:${this.sex},年龄:${this.age}`);  	}  }  class Student extends People  {  	constructor(name,sex,age)  	{  		super(name,sex,age);  	}  }  class Teacher extends People  {  	constructor(name,sex,age,salary)  	{  		super(name,sex,age);  		this.salary = salary;  	}  	sayHi()  	{  		console.log(`姓名:${this.name},性别:${this.sex},年龄:${this.age},月薪:${this.salary}`);  	}  }  let stu = new Student("孙悟空","男",500);  stu.sayHi(); //姓名:孙悟空,性别:男,年龄:500    let tc = new Teacher("唐僧","男",100,6000);  tc.sayHi();	//姓名:唐僧,性别:男,年龄:100,月薪:6000  //------------------------------------------------  //注意:  //(1)子类 constructor 方法中必须有 super ，且必须出现在 this 之前。  //(2)调用父类构造函数,只能出现在子类的构造函数。  //	例如在sayHi()中调用super就会报错;</pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-143.htm">Git基础之协作模式详解</a></p>
-                                        <p>下一个：<a href="/html/category/article-145.htm">Spark原理篇之Spark Streaming转化操作和输出操作</a></p>
+                                        <p>上一个：<a href="/html/category/article-143.htm">docker-compose ports 与 expose 的区别</a></p>
+                                        <p>下一个：<a href="/html/category/article-145.htm">springboot分层打包docker镜像</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-204.htm">JavaWeb项目基于SpringBoot框架实现统一的数据返回格式 + 统一异常处理 + 统一日志处理</a></h4>
+                <p>目录 ????前言 ????统一返回格式 &nbsp;添加枚举类 &nbsp;添加统一返回格式的类 &nbsp;测试 ????统一异常处理 &nbsp;添加统一异常处理器（创建一个handler包，在</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
-                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+                <h4><a href="/html/category/article-226.htm">Carson带你学设计模式：单例模式（Singleton）</a></h4>
+                <p>前言 今天Carson来全面总结最常用的设计模式 - 单例模式。  Carson带你学设计模式系列文章Carson带你学设计模式：这是一份全面 &amp; 详细的设计模式学习指南Carson带你学设计</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
+                <h4><a href="/html/category/article-241.htm">如何保证redis和数据库的一致性</a></h4>
+                <p>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
-                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
-                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-243.htm">SpringMVC访问静态资源的三种方式</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果你的DispatcherServlet拦截 *.do这样的URL，就不存在访问不到静态资源的问题。如果你的Dispatch</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
-                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
-                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

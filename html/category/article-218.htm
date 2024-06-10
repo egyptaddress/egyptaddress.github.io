@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-218.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>到底什么是消息队列 - EgyptAddress</title>
+    <title>【SpringMVC笔记02】SpringMVC接收请求参数的几种方式 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">到底什么是消息队列</h1>
+                <h1 class="title" style="word-break: break-all;">【SpringMVC笔记02】SpringMVC接收请求参数的几种方式</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。<br /> 一、什么是消息队列<br /> 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可以更复杂，可能包含嵌入对象。<br /> 消息队列（Message Queue）是一种应用间的通信方式，消息发送后可以立即返回，有消息系统来确保信息的可靠专递，消息发布者只管把消息发布到MQ中而不管谁来取，消息使用者只管从MQ中取消息而不管谁发布的，这样发布者和使用者都不用知道对方的存在。<br /> 二、为何使用消息队列<br /> 从上面描述中可以看出消息队列是一种应用间的异步协作机制，那什么时候需要使用MQ呢？<br /> 以常见的订单系统为例子，用户点击【下单】按钮后的业务逻辑包括：扣减库存、生成相应的单据、发红包、发短信通知‘在业务发展初期这些逻辑可能放在一起同步执行，随着业务订单量增长，需要提升系统服务的性能，这时候可以将一些不需要立即生效的操作拆分出来异步执行，，比如发红包、发短信通知等。这种场景就可以用MQ，在下单的主流程（比如扣减库存、生成相应的单据）完成之后发送一条消息到MQ让主流程快速完结，而由另外的单独线程拉取MQ的消息（或者由MQ推送消息），当发现MQ中有发红包或者发短信之类的消息，执行相应的业务逻辑。<br /> 以上是用于业务解耦的情况，其他常见场景包括最终一致性、广播、错峰流控等等。<br /> 三、RabbitMQ特点<br /> RabbitMQ是一个由Erlang语言开发的AMQP的开源实现。<br /> AMQP：Advanced Meassage Queue，高级消息队列协议。它是应用层协议的一个开放标准，为面向消息的中间设计，基于此协议的客户端与消息中间件可传递消息，并不受产品、开发语言等条件限制。</p> <p>RabbitMQ最初起源于金融系统，用于分布式系统中存储转发消息，在易用性、扩展性、高可用性等方面表现不俗，具体特点：<br /> 1、可靠性（Reliablitity）<br /> RabbitMQ 使用一些机制来保证可靠性，如持久化、传输确认、发布确认。<br /> 2、灵活的路由（Flexible Routing）<br /> 在消息进入队列之前，通过 Exchange 来路由消息的。对于典型的路由功能，RabbitMQ 已经提供了一些内置的 Exchange 来实现。针对更复杂的路由功能，可以将多个 Exchange 绑定在一起，也通过插件机制实现自己的 Exchange 。<br /> 3、消息集群（Clustering）<br /> 多个 RabbitMQ 服务器可以组成一个集群，形成一个逻辑 Broker 。<br /> 4、高可用（Highly Available Queues）<br /> 队列可以在集群中的机器上进行镜像，使得在部分节点出问题的情况下队列仍然可用。<br /> 5、多种协议（Multi-protocol）<br /> RabbitMQ 支持多种消息队列协议，比如 STOMP、MQTT 等等。<br /> 6、多语言客户端（Many Clients）<br /> RabbitMQ 几乎支持所有常用语言，比如 Java、.NET、Ruby 等等。<br /> 7、管理界面（Management UI）<br /> RabbitMQ 提供了一个易用的用户界面，使得用户可以监控和管理消息 Broker 的许多方面。<br /> 8、跟踪机制（Tracing）<br /> 如果消息异常，RabbitMQ 提供了消息跟踪机制，使用者可以找出发生了什么。<br /> 9、插件机制（Plugin System）<br /> RabbitMQ 提供了许多插件，来从多方面进行扩展，也可以编写自己的插件。</p> <p>四、RabbitMQ中的概念模型<br /> 消息模型<br /> 所有 MQ 产品从模型抽象上来说都是一样的过程：<br /> 消费者（consumer）订阅某个队列。生产者（producer）创建消息，然后发布到队列（queue）中，最后将消息发送到监听的消费者。</p> <p><img decoding="async" alt="这里写图片描述" src="http://img.555519.xyz/uploads/20230109/cb80c1bd0200d71996f0249a1036fec3.jpg"><br /> RabbitMQ 基本概念<br /> 上面只是最简单抽象的描述，具体到 RabbitMQ 则有更详细的概念需要解释。上面介绍过 RabbitMQ 是 AMQP 协议的一个开源实现，所以其内部实际上也是 AMQP 中的基本概念：</p> <p><img decoding="async" alt="这里写图片描述" src="http://img.555519.xyz/uploads/20230109/8f8fba1a0bc2b8b58beb9897a18beefb.jpg"><br /> 1、Message<br /> 消息，消息是不具名的，它由消息头和消息体组成。消息体是不透明的，而消息头则由一系列的可选属性组成，这些属性包括routing-key（路由键）、priority（相对于其他消息的优先权）、delivery-mode（指出该消息可能需要持久性存储）等。<br /> 2、Publisher<br /> 消息的生产者，也是一个向交换器发布消息的客户端应用程序。<br /> 3、Exchange<br /> 交换器，用来接收生产者发送的消息并将这些消息路由给服务器中的队列。<br /> 4、Binding<br /> 绑定，用于消息队列和交换器之间的关联。一个绑定就是基于路由键将交换器和消息队列连接起来的路由规则，所以可以将交换器理解成一个由绑定构成的路由表。<br /> 5、Queue<br /> 消息队列，用来保存消息直到发送给消费者。它是消息的容器，也是消息的终点。一个消息可投入一个或多个队列。消息一直在队列里面，等待消费者连接到这个队列将其取走。<br /> 6、Connection<br /> 网络连接，比如一个TCP连接。<br /> 7、Channel<br /> 信道，多路复用连接中的一条独立的双向数据流通道。信道是建立在真实的TCP连接内地虚拟连接，AMQP 命令都是通过信道发出去的，不管是发布消息、订阅队列还是接收消息，这些动作都是通过信道完成。因为对于操作系统来说建立和销毁 TCP 都是非常昂贵的开销，所以引入了信道的概念，以复用一条 TCP 连接。<br /> 8、Consumer<br /> 消息的消费者，表示一个从消息队列中取得消息的客户端应用程序。<br /> 9、Virtual Host<br /> 虚拟主机，表示一批交换器、消息队列和相关对象。虚拟主机是共享相同的身份认证和加密环境的独立服务器域。每个 vhost 本质上就是一个 mini 版的 RabbitMQ 服务器，拥有自己的队列、交换器、绑定和权限机制。vhost 是 AMQP 概念的基础，必须在连接时指定，RabbitMQ 默认的 vhost 是 / 。<br /> 10、Broker<br /> 表示消息队列服务器实体。</p> <p>五、消息队列的应用及好处</p> <p>例如</p> <p>（1）服务员点菜快，厨师做菜慢，服务员只需要下单给厨师，然后就可以继续去服务顾客，不需要等待厨师把菜做完</p> <p>点菜单就相当于消息，放单子的位置就相当于队列</p> <p>（2）业务系统需要发短信，但短信发送模块速度跟不上，业务系统就可以把发送短信的相关信息封装为一个消息，放入队列，短信发送模块从队列中获取消息进行处理</p> <p>消息队列的好处<br /> （1）提高系统响应速度<br /> 使用消息队列，生产者一方，把消息往消息队列里一扔，就可以立马返回响应用户，无需等待处理结果<br /> （2）保证消息的传递<br /> 如果发送消息时接收者不可用，消息队列会保留消息，直到成功的传递它<br /> （3）解耦<br /> 只要信息格式不变，即使接收者的接口、位置、或者配置改变，也不会给发送者带来任何改变<br /> 消息发送者无需知道消息接收者是谁，使得系统设计更清晰<br /> 为什么需要分布式消息队列<br /> （1）多系统协作需要分布式<br /> 例如消息队列的数据需要在多个系统之间共享，所以需要提供分布式通信机制、协同机制<br /> （2）可靠<br /> 消息会被持久化到分布式存储中，这样避免了单台机器存储的消息由于机器问题导致消息丢失<br /> （3）可扩展<br /> 分布式消息队列，会随着访问量的增加而方便的增加处理服务器<br /> ————————————————<br /> &nbsp;</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <blockquote> <p><strong>这篇文章，主要介绍SpringMVC框架中接收请求参数的几种方式。</strong></p> </blockquote> <p id="main-toc"><strong>目录</strong></p> <p id="%E4%B8%80%E3%80%81SpringMVC%E6%8E%A5%E6%94%B6%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0-toc" style="margin-left:0px;"><a href="#%E4%B8%80%E3%80%81SpringMVC%E6%8E%A5%E6%94%B6%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0" rel="nofollow">一、SpringMVC接收请求参数</a></p> <p id="1.1%E3%80%81%E9%80%9A%E8%BF%87%E6%96%B9%E6%B3%95%E5%8F%82%E6%95%B0%E6%8E%A5%E6%94%B6-toc" style="margin-left:40px;"><a href="#1.1%E3%80%81%E9%80%9A%E8%BF%87%E6%96%B9%E6%B3%95%E5%8F%82%E6%95%B0%E6%8E%A5%E6%94%B6" rel="nofollow">1.1、通过方法参数接收</a></p> <p id="1.2%E3%80%81%E9%80%9A%E8%BF%87HttpServletRequest%E6%8E%A5%E6%94%B6%E5%8F%82%E6%95%B0-toc" style="margin-left:40px;"><a href="#1.2%E3%80%81%E9%80%9A%E8%BF%87HttpServletRequest%E6%8E%A5%E6%94%B6%E5%8F%82%E6%95%B0" rel="nofollow">1.2、通过HttpServletRequest接收参数</a></p> <p id="1.3%E3%80%81%40RequestParam%E6%B3%A8%E8%A7%A3%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0-toc" style="margin-left:40px;"><a href="#1.3%E3%80%81%40RequestParam%E6%B3%A8%E8%A7%A3%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0" rel="nofollow">1.3、@RequestParam注解获取参数</a></p> <p id="1.4%E3%80%81%E9%80%9A%E8%BF%87JavaBean%E5%AF%B9%E8%B1%A1%E6%8E%A5%E6%94%B6%E5%8F%82%E6%95%B0-toc" style="margin-left:40px;"><a href="#1.4%E3%80%81%E9%80%9A%E8%BF%87JavaBean%E5%AF%B9%E8%B1%A1%E6%8E%A5%E6%94%B6%E5%8F%82%E6%95%B0" rel="nofollow">1.4、通过JavaBean对象接收参数</a></p> <p id="1.5%E3%80%81%E9%80%9A%E8%BF%87%40PathVariable%E6%B3%A8%E8%A7%A3%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0-toc" style="margin-left:40px;"><a href="#1.5%E3%80%81%E9%80%9A%E8%BF%87%40PathVariable%E6%B3%A8%E8%A7%A3%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0" rel="nofollow">1.5、通过@PathVariable注解获取参数</a></p> <hr id="hr-toc"/> <h1>一、SpringMVC接收请求参数</h1> <p>这篇文章主要总结一下SpringMVC框架中，如何接收HTTP请求的参数，主要有如下几种常见的方式。</p> <h2 id="1.1%E3%80%81%E9%80%9A%E8%BF%87%E6%96%B9%E6%B3%95%E5%8F%82%E6%95%B0%E6%8E%A5%E6%94%B6">1.1、通过方法参数接收</h2> <p>SpringMVC框架里面，我们可以直接在【Controller】层对应的方法参数里面，编写我们需要接收的参数名称，这样SpringMVC框架就会自动将我们的请求参数和方法参数进行映射绑定。</p> <ul> <li><strong>编写如下测试案例。</strong></li> </ul> <pre><code class="language-java">@Controller public class ParamController {          // 请求参数和方法参数自动映射     @RequestMapping("/param01")     public String param01(String username, String password) {         System.out.println("username=" + username);         System.out.println("password=" + password);         return "hello";     }      }</code></pre> <ul> <li><strong>启动工程，浏览器访问：【http://localhost:8080/springmvc/param01】，然后查看控制台输出结果。</strong></li> <li><strong>访问时候携带参数：【http://localhost:8080/springmvc/param01?username=root&amp;password=123456】。</strong></li> </ul> <p><img fetchpriority="high" decoding="async" alt="" height="193" src="http://img.555519.xyz/uploads/20230224/82379e43f1833c864a5a8eae5e09f2f4.jpg"></p> <ul> <li> <strong>SpringMVC中，如果接收的参数名称和方法参数名称不同，那么对应的方法参数默认就是null。</strong>&nbsp;</li> </ul> <h2 id="1.2%E3%80%81%E9%80%9A%E8%BF%87HttpServletRequest%E6%8E%A5%E6%94%B6%E5%8F%82%E6%95%B0">1.2、通过HttpServletRequest接收参数</h2> <p>在SpringMVC框架中，我们的方法参数里面可以直接使用servlet中的请求对象，要使用servlet的相关api，那么我们需要引入【servlet-api】的依赖，如下所示：</p> <ul> <li><strong>添加【servlet-api】依赖，目的是为了可以在项目中使用servlet相关的类代码。</strong></li> </ul> <pre><code class="language-XML">&lt;!-- 引入servlet-api依赖 --&gt; &lt;dependency&gt;   &lt;groupId&gt;javax.servlet&lt;/groupId&gt;   &lt;artifactId&gt;servlet-api&lt;/artifactId&gt;   &lt;version&gt;2.5&lt;/version&gt;   &lt;!-- 作用域设置为已被提供: 表示servlet-api依赖会被Tomcat容器提供，   打包时候不会再将servlet-api加入到里面 --&gt;   &lt;scope&gt;provided&lt;/scope&gt; &lt;/dependency&gt;</code></pre> <ul> <li><strong>通过【HttpServletRequest】获取请求参数。</strong></li> </ul> <pre><code class="language-java">@Controller public class ParamController {      // HttpServletRequest获取参数     @RequestMapping("/param02")     public String param02(HttpServletRequest request) {         System.out.println("username=" + request.getParameter("username"));         System.out.println("password=" + request.getParameter("password"));         return "hello";     } }</code></pre> <ul> <li><strong>这种获取参数的方式就是最原始的，直接从HTTP请求里面获取。</strong></li> </ul> <h2 id="1.3%E3%80%81%40RequestParam%E6%B3%A8%E8%A7%A3%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0">1.3、@RequestParam注解获取参数</h2> <p>通过【1.1】的方式获取参数时候，如果我们的前端参数名称和后端方法参数名称不一致，就无法获取到对应的参数值，为了解决前后端参数名称不一致的问题，SpringMVC框架提供了<span style="color:#fe2c24;"><strong>【@RequestParam】</strong></span>注解，解决参数名称不一致的问题。</p> <pre><code class="language-java">@Controller public class ParamController {      // HttpServletRequest获取参数     @RequestMapping("/param03")     public String param03(@RequestParam("uname") String username, @RequestParam("pass") String password) {         System.out.println("username=" + username);         System.out.println("password=" + password);         return "hello";     }      }</code></pre> <ul> <li><strong>浏览器访问地址：【http://localhost:8080/springmvc/param01?<span style="color:#fe2c24;">uname</span>=root&amp;<span style="color:#fe2c24;">pass</span>=123456】。</strong></li> <li><strong>注意：浏览器的请求参数名称是uname、pass，而后端方法参数名称是：username、password。</strong></li> </ul> <p><img decoding="async" alt="" class="left" height="316" src="http://img.555519.xyz/uploads/20230224/95f05d8ff548cd84da63d04747e2676f.jpg"></p> <h2 id="1.4%E3%80%81%E9%80%9A%E8%BF%87JavaBean%E5%AF%B9%E8%B1%A1%E6%8E%A5%E6%94%B6%E5%8F%82%E6%95%B0">1.4、通过JavaBean对象接收参数</h2> <p>存在这样一种情况，当我们的前端参数数量特别多的时候，如果按照方法参数来接收，那么此时一个方法里面可能就需要写几十个参数名称，显然这样是不合理的，解决这个问题的办法就是通过一个对象来接收前端所有的参数，这个对象就是我们说的一个JavaBean，也就是pojo实体类对象。</p> <ul> <li><strong>创建【User】实体类。</strong></li> </ul> <pre><code class="language-java">public class User {     private String username;     private String password;      public String getUsername() {         return username;     }     public void setUsername(String username) {         this.username = username;     }     public String getPassword() {         return password;     }     public void setPassword(String password) {         this.password = password;     } }</code></pre> <ul> <li><strong>通过【Bean】对象接收参数。</strong></li> </ul> <pre><code class="language-java">@Controller public class ParamController {      // HttpServletRequest获取参数     @RequestMapping("/param04")     public String param04(User user) {         System.out.println("username=" + user.getUsername());         System.out.println("password=" + user.getPassword());         return "hello";     }  }</code></pre> <ul> <li><strong>浏览器访问：【http://localhost:8080/springmvc/param04?username=root&amp;password=123456】。</strong></li> <li><strong>可以发现，后端依然可以获取到对应的参数值。</strong></li> </ul> <p><img decoding="async" alt="" class="left" height="283" src="http://img.555519.xyz/uploads/20230224/1a8314e82c17e19b39607e0eaea0a6b3.jpg"></p> <h2 id="1.5%E3%80%81%E9%80%9A%E8%BF%87%40PathVariable%E6%B3%A8%E8%A7%A3%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0">1.5、通过@PathVariable注解获取参数</h2> <p>在Restful风格的HTTP请求里面，有些请求参数会直接放在请求路径里面，并且没有参数名称，对于这种在请求路径中并且没有参数名称的请求参数，SpringMVC框架提供了<span style="color:#fe2c24;"><strong>【@PathVariable】</strong></span>注解进行获取，这种获取参数的方式，叫做：<strong>【路径参数】</strong>。</p> <ul> <li><strong>路径参数，类似于：【/api/param01/<span style="color:#fe2c24;">root</span>/<span style="color:#fe2c24;">123456</span>】。（红色字体表示参数值，其余表示请求路径）。</strong></li> <li><strong>SpringMVC里面，路径参数语法格式如下：</strong></li> </ul> <blockquote> <p><strong>路径参数：【/请求路径/<span style="color:#fe2c24;">{参数名称1}</span>/<span style="color:#fe2c24;">{参数名称2}</span>】</strong></p> <ul> <li><strong>路径参数需要使用【{}】花括号括起来，参数名称任意。</strong></li> </ul> </blockquote> <pre><code class="language-java">@Controller public class ParamController {      // HttpServletRequest获取参数     @RequestMapping("/param05/{username}/{password}")     public String param05(@PathVariable String username, @PathVariable String password) {         System.out.println("username=" + username);         System.out.println("password=" + password);         return "hello";     }  }</code></pre> <ul> <li><strong>路径参数中的参数名称需要和方法参数名称一致，这样SpringMVC才能够将其进行映射；</strong></li> <li><strong>也可以通过指定【@PathVariable】注解的【value】属性值来关联路径参数。</strong></li> </ul> <pre><code class="language-java">@Controller public class ParamController {      // HttpServletRequest获取参数     @RequestMapping("/param05/{uname}/{pass}") {     public String param05(@PathVariable("uname") String username, @PathVariable("pass") String password) {         System.out.println("username=" + username);         System.out.println("password=" + password);         return "hello";     }  }</code></pre> <ul> <li><strong>上面两种方式都可以，但是实际开发中，还是采用第二种，尽量指定【@PathVariable】注解的【value】属性值，因为这样更容易理解，并且可以确保不出错。</strong></li> </ul> <p><img loading="lazy" decoding="async" alt="" class="left" height="468" src="http://img.555519.xyz/uploads/20230224/68c7aed9b9e3022a169e1c263e7d4c20.jpg"></p> <blockquote> <p><strong>综上，这篇文章结束了，主要介绍SpringMVC框架中接收请求参数的几种常见方式。</strong></p> </blockquote> <p><strong>【源代码地址：<a class="link-info" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://gitee.com/zhuyoubin/ssm_code/tree/master/spring-mvc/springmvc-demo02"  title="https://gitee.com/zhuyoubin/ssm_code/tree/master/spring-mvc/springmvc-demo02" rel="nofollow">https://gitee.com/zhuyoubin/ssm_code/tree/master/spring-mvc/springmvc-demo02</a>】。</strong></p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-217.htm">vue项目模拟假数据</a></p>
-                                        <p>下一个：<a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></p>
+                                        <p>上一个：<a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></p>
+                                        <p>下一个：<a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
-                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
-                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-205.htm">001、利用pyttsx3、SAPI、SpeechLib 实现文本转语音</a></h4>
+                <p>1、使用pyttsx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3 &nbsp; &nbsp; &</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-233.htm">echarts根据数据动态生成不同条数的折线图</a></h4>
+                <p>一、功能需求背景 1、后台可自定义折线图的折线名称、数据、数量（几条） 2、满足不同折线图之间随意切换 3、折线图可鼠标拖动缩放和滚动条收缩查看 4、同一页面涉及多个echarts 二、功能涉及ech</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-251.htm">C# 有关List&lt;T&gt;的Contains与Equals方法_在线工具</a></h4>
+                <p>【以下内容仅为本人在学习中的所感所想，本人水平有限目前尚处学习阶段，如有错误及不妥之处还请各位大佬指正，请谅解，谢谢！】 #Updated【2022.5.2 修复移动端排版混乱的问题】 ！！！观前提醒</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
-                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
-                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
-                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

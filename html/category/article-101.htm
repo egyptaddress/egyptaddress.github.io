@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-101.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>判断数A中是否存在一棵同构于B的子树 - EgyptAddress</title>
+    <title>BeanDefinitionRegistryPostProcessor和BeanFactoryPostProcessor以及BeanPostProcessor执行先后顺序 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">判断数A中是否存在一棵同构于B的子树</h1>
+                <h1 class="title" style="word-break: break-all;">BeanDefinitionRegistryPostProcessor和BeanFactoryPostProcessor以及BeanPostProcessor执行先后顺序</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p><span style="font-size:18px">树的同构：我理解的同构应该是树若干个结点平行交换形成与原树结构相同的树。但看到网上的一些实现都是认为树的同构必须是树的先序遍历是相同的。先贴上自己的代码。</span></p> <pre><code class="language-cpp">/* struct TreeNode { &nbsp;&nbsp;&nbsp;&nbsp;int val; &nbsp;&nbsp;&nbsp;&nbsp;struct TreeNode *left; &nbsp;&nbsp;&nbsp;&nbsp;struct TreeNode *right; &nbsp;&nbsp;&nbsp;&nbsp;TreeNode(int x) : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val(x), left(NULL), right(NULL) { &nbsp;&nbsp;&nbsp;&nbsp;} };*/ &nbsp; class IdenticalTree { public: &nbsp;&nbsp;&nbsp;&nbsp;bool chkIdentical(TreeNode* A, TreeNode* B) { &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// write code here &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(A==NULL||B==NULL) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return false; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string s1; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string s2; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s1=toTranslate(A); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s2=toTranslate(B); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(string::npos!=s1.find(s2))return true; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return false; &nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;string toTranslate(TreeNode *A) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(A==NULL)return "#!"; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string s; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s=to_string(A-&gt;val)+"!"; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s+=toTranslate(A-&gt;left); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s+=toTranslate(A-&gt;right); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return s; &nbsp;&nbsp;&nbsp;&nbsp;} };</code></pre> <pre><code class="language-cpp">bool chkIdentical(TreeNode* A, TreeNode* B)</code></pre> <p>上面的函数就是比较A中是否存在一棵同构于B的子树。其实程序的结构为：对A、B分别进行先序遍历，求得其先序遍历序列。然后利用string类型的find()函数查找s1序列中是否囊括s2序列，由此判断出<span style="font-size:18px">A中是否存在一棵同构于B的子树。记录一下几个知识点：</span></p> <p><span style="font-size:18px">先序遍历：即某节点----&gt;左子树-----&gt;右子树。采用递归来遍历输出先序序列。</span></p> <p><span style="font-size:18px">string.find()函数：</span></p> <p><span style="font-size:18px"></span></p> <div style="margin:0px; padding:0px; color:rgb(54,46,43); font-family:Arial; font-size:14px; line-height:26px">   string中 find()的应用&nbsp; （<span style="margin:0px; padding:0px; color:rgb(255,0,0)">rfind()</span>&nbsp;类似，只是从反向查找）</div> <div style="margin:0px; padding:0px; color:rgb(54,46,43); font-family:Arial; font-size:14px; line-height:26px">   原型如下：</div> <div style="margin:0px; padding:0px; font-family:Arial; line-height:26px"> <div style="color:rgb(54,46,43); font-size:14px; margin:0px; padding:0px">   （1）size_t find (const string&amp; str, size_t pos =&nbsp;0) const;&nbsp; //查找对象--<span style="margin:0px; padding:0px; color:rgb(255,0,0)">string类对象</span></div> <div style="color:rgb(54,46,43); font-size:14px; margin:0px; padding:0px">   （2）size_t find (const char* s, size_t pos = 0) const; //查找对象--<span style="margin:0px; padding:0px; color:rgb(255,0,0)">字符串</span></div> <div style="color:rgb(54,46,43); font-size:14px; margin:0px; padding:0px">   （3）size_t find (const char* s, size_t pos, size_t n) const;&nbsp; //查找对象--<span style="margin:0px; padding:0px; color:rgb(255,0,0)">字符串的前n个字符</span></div> <div style="color:rgb(54,46,43); font-size:14px; margin:0px; padding:0px">   （4）size_t find (char c, size_t pos = 0) const;&nbsp; //查找对象--<span style="margin:0px; padding:0px; color:rgb(255,0,0)">字符</span></div> <div style="color:rgb(54,46,43); font-size:14px; margin:0px; padding:0px"><span style="margin:0px; padding:0px; color:rgb(255,0,0)">结果：找到 -- 返回 第一个字符的索引</span></div> <div style="color:rgb(54,46,43); font-size:14px; margin:0px; padding:0px"><span style="margin:0px; padding:0px; color:rgb(255,0,0)">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 没找到--返回&nbsp;&nbsp; string::npos</span></div> <div style="margin:0px; padding:0px"><span style="margin:0px; padding:0px"><span style="color:#333333">to_string():将整型数转化为string类型的。</span></span></div> </div> <p></p> <p><span style="font-size:18px"><br /></span></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>1、BeanDefinitionRegistryPostProcessor和BeanFactoryPostProcessor以及BeanPostProcessor都属于Spring的后置处理器，可以实现它们以达到动态注册bean定义，动态修改bean定义，以及动态修改bean。</p> <p>2、BeanDefinitionRegistryPostProcessor继承接口BeanFactoryPostProcessor，该接口新增postProcessBeanDefinitionRegistry方法，方法参数是BeanDefinitionRegistry对象，BeanDefinitionRegistry对象是bean定义的保存中心。</p> <p>3、BeanFactoryPostProcessor是一个接口，它允许自定义修改应用程序上下文的bean定义，在基于bean factory上调整上下文的bean属性值。BeanFactoryPostProcessor可以与bean交互并修改bean定义，但从不使用bean实例。</p> <p>4、BeanPostProcessor也是一个接口，它允许动态修改应用程序上下文的bean，这时候bean已经实例化成功。</p> <p>5、三者执行顺序：BeanDefinitionRegistryPostProcessor优先于BeanFactoryPostProcessor执行，BeanFactoryPostProcessor优先于BeanPostProcessor执行。</p> <p>6、代码示例：</p> <p>BeanDefinitionRegistryPostProcessor实现类</p> <p><img fetchpriority="high" decoding="async" alt="" class="has" height="361" src="http://img.555519.xyz/uploads/20230217/3735b7f0251d63ad716dd8f6792545f2.jpg"></p> <p>BeanFactoryPostProcessor实现类</p> <p><img decoding="async" alt="" class="has" height="261" src="http://img.555519.xyz/uploads/20230217/e06b8debd9616573d6c8c8010e9e7831.jpg"></p> <p>BeanPostProcessor实现类</p> <p><img decoding="async" alt="" class="has" height="490" src="http://img.555519.xyz/uploads/20230217/3ae0dcc66437d5015e853e440d7cc128.jpg"></p> <p>执行结果：</p> <p><img loading="lazy" decoding="async" alt="" class="has" height="228" src="http://img.555519.xyz/uploads/20230217/844adf4d7d06dbd8f5b76c7a7cabc4c1.jpg"></p> <p><img loading="lazy" decoding="async" alt="" class="has" height="161" src="http://img.555519.xyz/uploads/20230217/89950aaaa47c8b2188cce6ac54863560.jpg"></p> <p><img loading="lazy" decoding="async" alt="" class="has" height="157" src="http://img.555519.xyz/uploads/20230217/b56df9d32b8185011946345842b1577d.jpg"></p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-100.htm">spring boot web项目</a></p>
-                                        <p>下一个：<a href="/html/category/article-102.htm">微信小程序自定义导航栏组件(完美适配手机),可自定义实现任何你想要的功能</a></p>
+                                        <p>上一个：<a href="/html/category/article-100.htm">css文本垂直居中详解</a></p>
+                                        <p>下一个：<a href="/html/category/article-102.htm">MyBatis-Plus 高级功能多租户功能实现</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
-                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
-                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
-                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
+                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
+                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
-                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
+                <h4><a href="/html/category/article-252.htm">[js] 回调函数 回调地狱 Promise async/await</a></h4>
+                <p>1. 回调函数 callback   一种封装代码的手段   什么是 callback , 概念 =&gt; 把 函数A 当做 实参 传递到 函数B 内部 =&gt; 在 函数B 内部以 形参 的方式</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
-                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
-                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
-                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
-                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

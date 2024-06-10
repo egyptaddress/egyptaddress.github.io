@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-132.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>python hdfs远程连接以及上传文件，读取文件内容，删除文件 - EgyptAddress</title>
+    <title>encodeURI()函数和encodeURIComponent()函数 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">python hdfs远程连接以及上传文件，读取文件内容，删除文件</h1>
+                <h1 class="title" style="word-break: break-all;">encodeURI()函数和encodeURIComponent()函数</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p id="main-toc"><strong>目录</strong></p> <p id="%E4%B8%80%E3%80%81python%E8%BF%9E%E6%8E%A5%E6%93%8D%E4%BD%9Chdfs-toc" style="margin-left:0px;"><a href="#%E4%B8%80%E3%80%81python%E8%BF%9E%E6%8E%A5%E6%93%8D%E4%BD%9Chdfs" rel="nofollow">一、python连接操作hdfs</a></p> <p id="1%20%E5%BE%80hdfs%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6-toc" style="margin-left:40px;"><a href="#1%20%E5%BE%80hdfs%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6" rel="nofollow">1 往hdfs上传文件</a></p> <p id="2%20%E5%A4%84%E7%90%86%E5%B9%B6%E5%AD%98%E5%82%A8%E5%88%B0hdfs-toc" style="margin-left:40px;"><a href="#2%20%E5%A4%84%E7%90%86%E5%B9%B6%E5%AD%98%E5%82%A8%E5%88%B0hdfs" rel="nofollow">2 处理并存储到hdfs</a></p> <p id="3%20%E8%AF%BB%E5%8F%96hdfs%E4%B8%8A%E7%9A%84txt%E6%96%87%E4%BB%B6-toc" style="margin-left:40px;"><a href="#3%20%E8%AF%BB%E5%8F%96hdfs%E4%B8%8A%E7%9A%84txt%E6%96%87%E4%BB%B6" rel="nofollow">3 读取hdfs上的txt文件</a></p> <hr id="hr-toc"/> <p>这里使用的是 pip 安装，很方便：</p> <pre><code class="language-python">pip install hdfs</code></pre> <h1 id="%E4%B8%80%E3%80%81python%E8%BF%9E%E6%8E%A5%E6%93%8D%E4%BD%9Chdfs">一、python连接操作hdfs</h1> <pre><code class="language-python">from hdfs.client import Client client = Client("http://LocalHost:Port")  client.makedirs('/ml/zmingmingmng')#建立文件夹 client.delete('/ml/zmming')#删除文件夹 client.upload("/ml/zmingmingmng/zm.txt","E:/ttt/testhdfs.txt")#上传文件 client.download("/ml/zmingmingmng/zm.txt","E:/ming.txt")#下载文件 </code></pre> <pre><code class="language-python"># -*- encoding=utf-8 -*- from hdfs.client import Client   client = Client("http://XXX.XXX.XX.XX:50070")  # 创建目录 def mkdirs(client, hdfs_path):     client.makedirs(hdfs_path)   # 删除hdfs文件 def delete_hdfs_file(client, hdfs_path):     client.delete(hdfs_path)   # 上传文件到hdfs def put_to_hdfs(client, local_path, hdfs_path):     client.upload(hdfs_path, local_path, cleanup=True)   # 从hdfs获取文件到本地 def get_from_hdfs(client, hdfs_path, local_path):     client.download(hdfs_path, local_path, overwrite=False)   # 追加数据到hdfs文件 def append_to_hdfs(client, hdfs_path, data):     client.write(hdfs_path, data, overwrite=False, append=True)   # 覆盖数据写到hdfs文件 def write_to_hdfs(client, hdfs_path, data):     client.write(hdfs_path, data, overwrite=True, append=False)   # 移动或者修改文件 def move_or_rename(client, hdfs_src_path, hdfs_dst_path):     client.rename(hdfs_src_path, hdfs_dst_path)   # 返回目录下的文件 def list(client, hdfs_path):     return client.list(hdfs_path, status=False)   if __name__ == '__main__':     # 调用     kk=list(client,"/user/admin/deploy/user_lable_dimension/")     for each in kk:         print(each)   </code></pre> <p>&nbsp;</p> <h2 id="1%20%E5%BE%80hdfs%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6">1 往hdfs上传文件</h2> <pre><code class="language-python">from hdfs.client import Client  """往hdfs上传文件"""  # TODO 往hdfs上传文件 client = Client("http://XXX.XXX.XX.XX:50070")  # 新建文件夹 hdfs_path ="【文件要存放的目录路径,eg:/a/b/c】" client.makedirs(hdfs_path)  print("uploading data...") client.upload(hdfs_path, "intersection.xlsx", overwrite=True)	# 资源中心上传的文件 </code></pre> <p>&nbsp;</p> <h2 id="2%20%E5%A4%84%E7%90%86%E5%B9%B6%E5%AD%98%E5%82%A8%E5%88%B0hdfs">2 处理并存储到hdfs</h2> <pre><code class="language-python"># TODO 先得到结果列表。eg:i_list  # TODO 把结果列表存储成文件上传到hdfs print("===============================================") i_df = pd.DataFrame(i_list) client = Client("http://XXX.XXX.XX.XX:50070")  fout = "【文件要存放的路径,eg:/a/b/c.csv】"  # hdfs下的目录 with client.write(fout, encoding='utf-8') as writer:     i_df.to_csv(writer) print("存储成功")</code></pre> <p>&nbsp;</p> <h2 id="3%20%E8%AF%BB%E5%8F%96hdfs%E4%B8%8A%E7%9A%84txt%E6%96%87%E4%BB%B6">3 读取hdfs上的txt文件</h2> <pre><code class="language-python">from hdfs.client import Client import json from kafka import KafkaConsumer import time import pyhdfs  def  GetEncodingSheme(_filename):     """ 查看文本编码方式 """     with open(_filename, 'rb') as file:         buf = file.read()     result = chardet.detect(buf)     return result['encoding']   def read_hdfs_file(client, filename):     """读取hdfs文件内容,将每行存入数组返回"""     lines = []     print("开始读取txt数据")     with client.open(filename, delimiter='\n') as reader:         for line in reader:             lines.append(line.decode("GB2312").strip())     return lines   def deleteHDFSfile(client, hdfs_path):     """删除hdfs文件,删除文件夹时该文件夹必须为空"""     client.delete(hdfs_path)    if __name__ == "__main__": 	print(GetEncodingSheme('intersection.xlsx'))    # GB2312          # hdfs连接     client = pyhdfs.HdfsClient(hosts="http://xxxxxx:50070,http://xxxxxx:50070", user_name="xxxxxx")      # TODO 读取hdfs文件内容,将每行存入数组返回     hdfs_path = "【文件路径,eg:/a/b/c.xlsx】"    # hdfs存储目录     print("===============================================")     print("开始读取hdfs上的txt文件")     lines = read_hdfs_file(client, hdfs_path)     print(lines)     print("读取完成")     print("===============================================")       # TODO 删除hdfs存储目录下的文件     hdfs_path = "【文件路径】"     deleteHDFSfile(client, hdfs_path)</code></pre> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>encodeURI()和encodeURIComponent()都是Javascript中对URL编码的函数。<br /> 但是区别在于：<br /> encodeURI()着眼于对整个URL进行编码，特殊含义的符号"; / ? : @ &amp; = + $ , #“不进行编码<br /> encodeURIComponent()对URL的组成部分进行个别编码，所以”; / ? : @ &amp; = + $ , #"在这里是可以进行编码</p> <p>测试代码</p> <pre><code>&lt;html&gt; &lt;body&gt;  &lt;script type="text/javascript"&gt;  document.write(encodeURI("http://www.w3school.com.cn")+ "&lt;br /&gt;") document.write(encodeURI("http://www.w3school.com.cn/My first/")+ "&lt;br /&gt;") document.write(encodeURI(",/?:@&amp;=+$#")+ "&lt;br /&gt;")  document.write(encodeURIComponent("http://www.w3school.com.cn")+ "&lt;br /&gt;") document.write(encodeURIComponent("http://www.w3school.com.cn/My first/")+ "&lt;br /&gt;") document.write(encodeURIComponent(",/?:@&amp;=+$#")+ "&lt;br /&gt;") &lt;/script&gt;  &lt;/body&gt; &lt;/html&gt;</code></pre> <p>编码结果</p> <pre><code>//使用encodeURI  http://www.w3school.com.cn http://www.w3school.com.cn/My%20first/ ,/?:@&amp;=+$#  //使用encodeURIComponent  http%3A%2F%2Fwww.w3school.com.cn http%3A%2F%2Fwww.w3school.com.cn%2FMy%20first%2F %2C%2F%3F%3A%40%26%3D%2B%24%23</code></pre> <p>所以我一般进行设置时候，会在http路径采用encodeURI进行编码，但是在路径中携带的参数采用encodeURIComponent进行编码</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-131.htm">c语言查看文件详细信息</a></p>
-                                        <p>下一个：<a href="/html/category/article-133.htm">PHP重载</a></p>
+                                        <p>上一个：<a href="/html/category/article-131.htm">Java-NIO之Channel（通道）</a></p>
+                                        <p>下一个：<a href="/html/category/article-133.htm">vue中watch监听器的触发时机(watch的坑及解决)_vue.js_</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
-                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
-                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
-                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
-                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
-                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-230.htm">Vuex的各个模块封装</a></h4>
+                <p>一、各个模块的作用：   state 用来数据共享数据存储  mutation 用来注册改变数据状态（同步）  getters 用来对共享数据进行过滤并计数操作  action 解决异步改变共享数据（</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
-                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
+                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
+                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

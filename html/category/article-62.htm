@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-62.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Vue中的路由守卫 - EgyptAddress</title>
+    <title>YARN线上动态资源调优 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Vue中的路由守卫</h1>
+                <h1 class="title" style="word-break: break-all;">YARN线上动态资源调优</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <ol> <li>作用：对路由进行权限控制</li> <li>分类：全局守卫、独享守卫、组件内守卫</li> </ol> <h1>1.全局守卫</h1> <h2><span style="color:#0d0016;"><strong>1.1 全局前置守卫</strong></span></h2> <p><span style="color:#0d0016;">顾名思义，前置守卫主要是在你进行路由跳转之前根据你的状态去 进行一系列操作<strong>（全局前置是为在路由初始化以及跳转之前都会触发）</strong></span></p> <p><span style="color:#0d0016;">你可以使用<strong>router.beforeEach</strong>注册一个全局前置守卫（Each：每个，即在任意一个路由跳转的时候都会触发）</span></p> <p>每个守卫方法接收三个参数：</p> <ul> <li><span style="color:#fe2c24;"><strong>to:Route</strong></span>:即将进入目标的路由对象</li> <li><span style="color:#fe2c24;"><strong>from:Route</strong></span>：当前导航正要离开的路由</li> <li><span style="color:#fe2c24;"><strong>next:function</strong></span>:一定要调用该方法来resolve这个钩子。执行效果依赖<span style="color:#fe2c24;"><strong>next</strong></span>方法的调用参数</li> </ul> <p>&nbsp; &nbsp; &nbsp; &nbsp; 1.<strong>next()</strong>：进行管道中的额下一个钩子（to）。如果钩子执行完了，则导航状态就是confirmed(确认的)</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 2.<strong>next(false)</strong>：中断当前的导航。如果浏览器的URL改变了（可能用户手动或者浏览器按后退按钮），那么地址会重置到from路由对应的地址。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 3<strong>.next('/")</strong>或者<strong>next( { path: '/' } )</strong>：跳转到一个同的地址。当前的导航被中断，然后进行下一个新的导航。你可以想<span style="color:#fe2c24;">next传递任意对象</span>，且允许设置诸如replace:true、name:’home‘ 之类的选项以及任何用下router-link的 to prop或者router.push中的选项</p> <p>确保next函数在任何给定的导航守卫中被严格调用一次，它可以出现多余一次，但是只能在所有的逻辑路径都不重叠的情况下，否则钩子永远都不会被解析或者错误。</p> <h3>1.1.1 使用</h3> <ul> <li>可以打印出from、to、next看他们究竟会保存那些信息</li> </ul> <p><img fetchpriority="high" decoding="async" alt="" height="879" src="http://img.555519.xyz/uploads3/20220604/6cd38be3902c686165d033bc6a5f0f65.jpg"></p> <ul> <li>举例</li> </ul> <pre><code class="language-javascript">import Vue from 'vue' import VueRouter from 'vue-router' import Home from '../views/Home.vue' import About from '../views/About.vue' import News from '../views/News.vue' import Message from '../views/Message.vue'  Vue.use(VueRouter)  const routes = [{     path: '/home',     name: 'Home',     component: Home,     children:[       {         path: 'message', //此处不要写成：/news         component: Message       }     ]   },   {     path: '/about',     name: 'aboutName',     component: About,     children: [{ //通过children配置子级路由       path: 'news', //此处不要写成：/news       component: News     }]   } ]  const router = new VueRouter({   routes })  //全局前置路由守卫---初始化的时候被调用、每次路由切换的时候被调用 router.beforeEach((to, from, next) =&gt; {   console.log(to);   //这里是一个简单的例子   //即判断用户是否进入了需要鉴权的路由下（这里距离为news和message）   if (to.path == '/home/message' || to.path === '/about/news') {     //如果进入了，那就判断本地是否缓存了信息（这里模拟登录的token)     if (localStorage.getItem('name') === 'haungzhizhen') {       next()     }   }else{     //如果不是，则直接放心即可     next()   } }) export default router</code></pre> <p>&nbsp;上面这个例子有个不足之处是，当需要鉴权的路由很多的时候，那你需要一个一个的去判断？那大可不必，因此这里引入路由的另一属性，即meta，可以在每个路由中进行配置，一般用来标识具有标识性的属性，可以用力啊同意判断，具体如下：</p> <p><img decoding="async" alt="" height="692" src="http://img.555519.xyz/uploads3/20220604/2b11dfc2b1fda17bc4697d7fda9036bf.jpg"></p> <pre><code class="language-javascript">//使用meta router.beforeEach((to, from, next) =&gt; {   console.log(to);   if (to.meta.isAuth) {//判断是否需要鉴权     if (localStorage.getItem('name') === 'haungzhizhen') {       next()     }   } else {     next()   } })</code></pre> <h1>1.2 全局后置路由守卫</h1> <pre><code class="language-javascript">//全局后置路由守卫---初始化的时候被调用、每次路由切换之后被调用 router.afterEach((to, from) =&gt; {   if (to.meta.title) {     document.title = to.meta.title || '路由跳转举例'//修改网页的title   }else{     document.title = 'vue_test'   } })</code></pre> <h2>1.3 整合</h2> <p><img decoding="async" alt="" height="750" src="http://img.555519.xyz/uploads3/20220604/7dc481e3ead7b14b47f9b6bfc5759fb1.jpg"></p> <h1>2. 路由独享的守卫</h1> <p>你可以在路由配置直接定义beforeEnter守卫，这些参数与全局前置守卫的方法参数是一样的</p> <pre><code class="language-javascript">const router = new VueRouter({   routes: [     {       path: '/foo',       component: Foo,       beforeEnter: (to, from, next) =&gt; {         // ...       }     }   ] })</code></pre> <h1>3.组件内的守卫</h1> <p>最后，你可以在路由组件内直接定义一下路由导航守卫：</p> <ul> <li>beforeRouterEnter</li> <li>beforeRouterUpdate</li> <li>beforeRouterLeave</li> </ul> <pre><code class="language-javascript">const Foo = {   template: `...`,   beforeRouteEnter(to, from, next) {     // 在渲染该组件的对应路由被 confirm 前调用     // 不！能！获取组件实例 `this`     // 因为当守卫执行前，组件实例还没被创建   },   beforeRouteUpdate(to, from, next) {     // 在当前路由改变，但是该组件被复用时调用     // 举例来说，对于一个带有动态参数的路径 /foo/:id，在 /foo/1 和 /foo/2 之间跳转的时候，     // 由于会渲染同样的 Foo 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。     // 可以访问组件实例 `this`   },   beforeRouteLeave(to, from, next) {     // 导航离开该组件的对应路由时调用     // 可以访问组件实例 `this`   } }</code></pre> </div> 			                </div>
+                      				  				  				<h1 class="md-end-block md-heading"><span class="md-plain md-expand">背景</span></h1> <p class="md-end-block md-p"><span class="md-plain">线上Hadoop集群资源严重不足，可能存在添加磁盘，添加CPU，添加节点的操作，那么在添加这些硬件资源之后，我们的集群是不能立马就利用上这些资源的，需要修改集群Yarn资源配置，然后使其生效。</span></p> <h1 class="md-end-block md-heading"><span class="md-plain">现有环境</span></h1> <p class="md-end-block md-p"><span class="md-plain">服务器：12台，内存64Gx12=768G，物理cpu16x12=192，磁盘12Tx12=144T</span></p> <p class="md-end-block md-p"><span class="md-plain">组件：Hadoop-2.7.7，Hive-2.3.4，Presto-220，Dolphinscheduler-1.3.6，Sqoop-1.4.7</span></p> <p class="md-end-block md-p"><span class="md-pair-s"><strong><span class="md-plain">分配策略</span></strong></span></p> <p class="md-end-block md-p"><span class="md-plain">由于我们的版本是Hadoop-2.7.7，有些默认配置是固定一个值，好比可用内存8G，可用CPU核数8核，如果调优就需要我们配置的东西比较多。</span></p> <p class="md-end-block md-p"><span class="md-plain">官方Yarn参数配置：</span><span class="md-link md-pair-s" spellcheck="false"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://hadoop.apache.org/docs/r2.7.7/hadoop-yarn/hadoop-yarn-common/yarn-default.xml"  rel="nofollow">https://hadoop.apache.org/docs/r2.7.7/hadoop-yarn/hadoop-yarn-common/yarn-default.xml</a></span></p> <p class="md-end-block md-p md-focus"><span class="md-plain md-expand">未来的版本(Hadoop-3.0+)其实是有自动检测硬件资源的机制，需要开启配置：</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.detect-hardware-capabilities</code></span><span class="md-plain">，然后会自动计算资源配置，不过这个是默认关闭的，每个节点的NodeManager可用内存配置</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.memory-mb</code></span><span class="md-plain"> 和CPU核数</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.cpu-vcores</code></span><span class="md-plain"> 也是受此配置影响， 默认配置都是-1，则可用内存为8G，CPU核数为8核。如果开启了自动监测硬件资源，其他配置则可以忽略不用配置，简化了配置。</span></p> <p class="md-end-block md-p"><span class="md-plain">官方Yarn参数配置：</span><span class="md-link md-pair-s" spellcheck="false"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-common/yarn-default.xml"  rel="nofollow">https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-common/yarn-default.xml</a></span></p> <p class="md-end-block md-p"><span class="md-plain">还有一个重要的配置</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.vmem-pmem-ratio</code></span><span class="md-plain"> ，表示NodeManager上的Container物理内存不足时，可用使用虚拟内存，默认为物理内存的2.1倍。</span></p> <h1 class="md-end-block md-heading"><span class="md-plain">修改配置</span></h1> <h2 class="md-end-block md-heading"><span class="md-plain">yarn-site.xml</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改yarn-site.xml，有则修改，没有则添加，这里我们设置单个节点可用内存30G，可用CPU核数为16</span></p> <pre class="md-fences md-end-block ty-contain-cm modeLoaded" lang="xml" spellcheck="false"><code>&lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.nodemanager.resource.memory-mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;30720&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;每个节点可用内存,默认8192M(8G),这里设置30G&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.scheduler.minimum-allocation-mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;1024&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;单个任务可申请最少内存，默认1024MB&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.scheduler.maximum-allocation-mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;20480&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;单个任务可申请最大内存，默认8192M(8G),这里设置20G&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.app.mapreduce.am.resource.mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;2048&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;默认为1536。MR运行于YARN上时，为AM分配多少内存。默认值通常来说过小，建议设置为2048或4096等较大的值。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.nodemanager.resource.cpu-vcores&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;16&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;默认为8。每个节点可分配多少虚拟核给YARN使用，通常设为该节点定义的总虚拟核数即可。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.scheduler.maximum-allocation-vcores&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;32&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;分别为1/32，指定RM可以为每个container分配的最小/最大虚拟核数，低 于或高于该限制的核申请，会按最小或最大核数来进行分配。默认值适合 一般集群使用。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.scheduler.minimum-allocation-vcores&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;1&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;分别为1/32，指定RM可以为每个container分配的最小/最大虚拟核数，低 于或高于该限制的核申请，会按最小或最大核数来进行分配。默认值适合 一般集&gt;群使用。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp;&lt;name&gt;yarn.nodemanager.vcores-pcores-ratio&lt;/name&gt;  &nbsp;&lt;value&gt;2&lt;/value&gt;  &nbsp;&lt;discription&gt;每使用一个物理cpu，可以使用的虚拟cpu的比例，默认为2&lt;/discription&gt; &lt;/property&gt;  &lt;property&gt;  &nbsp;&lt;name&gt;yarn.nodemanager.vmem-pmem-ratio&lt;/name&gt;  &nbsp;&lt;value&gt;5.2&lt;/value&gt;  &nbsp;&lt;discription&gt;物理内存不足时,使用的虚拟内存，默认是2.1，表示每使用1MB的物理内存，最多可以使用2.1MB的虚拟内存总量。&lt;/discription&gt; &lt;/property&gt;</code></pre> <h2 class="md-end-block md-heading"><span class="md-plain">mapred-site.xml</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改mapred-site.xml，有则修改，没有则添加</span></p> <p class="md-end-block md-p"><span class="md-plain">给单个任务设置内存资源，注意这里的值不能大于上面对应的内存</span><span class="md-pair-s" spellcheck="false"><code>yarn.scheduler.maximum-allocation-mb</code></span></p> <pre class="md-fences md-end-block ty-contain-cm modeLoaded" lang="xml" spellcheck="false"><code>&lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;mapreduce.map.memory.mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;2048&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;默认均为1024，调度器为每个map/reduce task申请的内存数。各Job也可以单独指定。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;mapreduce.reduce.memory.mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;2048&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;默认均为1024，调度器为每个map/reduce task申请的内存数。各Job也可以单独指定。&lt;/discription&gt; &lt;/property&gt;</code></pre> <h1 class="md-end-block md-heading"><span class="md-plain">集群生效</span></h1> <h2 class="md-end-block md-heading"><span class="md-plain">分发</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改完配置后，一定要将配置分发到其他集群节点，使用 scp 或者 xsync 工具分发到其他节点，这里举例分发到一个节点</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>cd /data/soft/hadoop/hadoop-2.7.7/etc/hadoop</code></span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>scp -r yarn-site.xml mapred-site.xml data002:`pwd`</code></span></p> <h2 class="md-end-block md-heading"><span class="md-plain">动态重启</span></h2> <p class="md-end-block md-p"><span class="md-plain">为了不影响集群使用，我们单独启停Yarn，Yarn的服务主要有两个NodeManager和ResourceManager，单独启停命令</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh stop nodemanager</code></span><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh start nademanager</code></span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh stop resourcemanager</code></span><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh start resourcemanager</code></span></p> <p class="md-end-block md-p"><span class="md-plain">根据集群节点逐个执行以上命令，ResourceManager对应的节点执行对应的命令。这样我们就保证了集群资源的动态调优。</span></p> <p class="md-end-block md-p"><span class="md-plain">当然，如果单个重启麻烦，也可以执行Yarn的重启命令</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>stop-yarn.sh</code></span><span class="md-pair-s" spellcheck="false"><code>start-yarn.sh</code></span></p> <p class="md-end-block md-p"><span class="md-plain">ResourceManager对应的从节点单独启停即可。</span></p> <blockquote> <p class="md-end-block md-p"><span class="md-plain md-expand">更多请在公号平台搜索：选手一号位，本文编号：2004，回复即可获取。</span></p> </blockquote> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-61.htm">Dapr 远程调试之 Nocalhost</a></p>
-                                        <p>下一个：<a href="/html/category/article-63.htm">win11系统如何更改管理员头像</a></p>
+                                        <p>上一个：<a href="/html/category/article-61.htm">快速学会SpringBoot的秘诀，看这篇就懂了</a></p>
+                                        <p>下一个：<a href="/html/category/article-63.htm">【定义+用法+区别+使用场景】escape(),encodeURI(),encodeURIComponent()</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
-                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
-                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
+                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
+                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></h4>
-                <p>vue父组件向子组件传值与传递方法 学习笔记 1、父组件向子组件传值（props）  在子组件中，默认是无法访问到父组件中的data上的数据和methods中的方法 父组件可以在引用子组件的时候，通过</p>
+                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
+                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
-                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
+                <h4><a href="/html/category/article-213.htm">C/C++内存申请函数总结</a></h4>
+                <p>#include &lt;stdlib.h&gt; new char[size] void* malloc(unsigned size); void* realloc(void* ptr, unsig</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
-                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
-                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
-                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
-                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
-                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

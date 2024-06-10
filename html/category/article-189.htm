@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-189.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>如何从javascript中的集合中删除所有元素？ - EgyptAddress</title>
+    <title>gin结合gorm实现mysql增删改查 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">如何从javascript中的集合中删除所有元素？</h1>
+                <h1 class="title" style="word-break: break-all;">gin结合gorm实现mysql增删改查</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>JavaScript中的Set类提供了一种清除方法，可从给定set对象中删除所有元素。此方法可以如下使用-</p> <h2>示例</h2> <pre>let&nbsp;mySet&nbsp;=&nbsp;new&nbsp;Set(); mySet.add(1); mySet.add(2); mySet.add(1); mySet.add(3); mySet.add("a"); console.log(mySet) mySet.clear(); console.log(mySet)</pre> <p>输出结果</p> <pre>Set&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;'a'&nbsp;} Set&nbsp;{&nbsp;}</pre> <p>您还可以通过遍历元素来分别删除它们。</p> <h2>示例</h2> <pre>let&nbsp;mySet&nbsp;=&nbsp;new&nbsp;Set(); mySet.add(1); mySet.add(2); mySet.add(1); mySet.add(3); mySet.add("a"); console.log(mySet) for(let&nbsp;i&nbsp;of&nbsp;mySet)&nbsp;{ &nbsp;&nbsp;&nbsp;console.log(i) &nbsp;&nbsp;&nbsp;mySet.delete(i) } console.log(mySet)</pre> <p>输出结果</p> <pre>Set&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;'a'&nbsp;} Set&nbsp;{&nbsp;}</pre> <div></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://gin-gonic.com/"  rel="nofollow">https://gin-gonic.com/</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://gorm.io/zh_CN/docs/index.html"  rel="nofollow">https://gorm.io/zh_CN/docs/index.html</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/gin-gonic/gin/"  rel="nofollow">https://github.com/gin-gonic/gin/</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/go-gorm/gorm"  rel="nofollow">https://github.com/go-gorm/gorm</a></p> <p>集成</p> <p>go mod方式</p> <pre><code class="language-Go">require ( 	github.com/gin-contrib/sessions v0.0.3 	github.com/gin-gonic/gin v1.6.2 	github.com/go-sql-driver/mysql v1.5.0 	gorm.io/driver/mysql v1.0.3 	gorm.io/gorm v1.20.5 ) </code></pre> <p>链接mysql</p> <pre><code class="language-Go">package core  import ( 	"gorm.io/driver/mysql"   "gorm.io/gorm" )  func Connection() (*gorm.DB) { 	dsn := "root:123456@tcp(127.0.0.1:3306)/goblog?charset=utf8&amp;parseTime=True&amp;loc=Local" 	db, err := gorm.Open(mysql.Open(dsn), &amp;gorm.Config{}) 	if err !=  nil { 		panic(err) 	} 	return db }</code></pre> <p>&nbsp;</p> <p>使用</p> <p>model</p> <pre><code class="language-Go">package models  type Post struct { 	ID         int64  	CategoryId int64 `form:"category_id"` 	Title      string `form:"title"` 	Image      string `form:"image"` 	Content    string `form:"content"` 	Sort       int `form:"sort"` 	Status     int `form:"status"` 	CreatedAt  int64 	UpdatedAt  int64 } </code></pre> <p>增删改查</p> <pre><code class="language-Go">package logics  import ( 	"myweb/app/models" )  func ListPost(datas []models.Post, page int) ([]models.Post, int64, error) { 	var pageSize = 2 	offset := (page - 1) * pageSize 	result := db.Order("id desc").Offset(offset).Limit(pageSize).Find(&amp;datas) 	return datas, result.RowsAffected, result.Error }  func CreatePost(data models.Post) (int64, error) { 	result := db.Create(&amp;data)  	return data.ID, result.Error }  func FindPost(id int64) (models.Post, error) { 	var model models.Post 	result := db.First(&amp;model, id) 	return model, result.Error }  func UpdatePost(data models.Post, id int64) (int64, error) { 	var model models.Post 	row := db.First(&amp;model, id) 	if row.Error == nil { 		result := db.Model(&amp;model).Updates(&amp;data) 		return model.ID, result.Error 	} 	return 0, row.Error }  func DeletePost(id int64) (int64, error) { 	var model models.Post 	result := db.Delete(&amp;model, id) 	return result.RowsAffected, result.Error }</code></pre> <p>&nbsp;</p> <p>congroller</p> <pre><code class="language-Go">package controllers  import (     "github.com/gin-gonic/gin"     "net/http"     "myweb/app/logics" 		"myweb/app/models" 		"myweb/app/utils" 		"strconv" 		"path" )   func ListPost(c *gin.Context) { 	page, _ := strconv.Atoi(c.Query("page")) 	if page == 0 { 		page = 1 	}   var list []models.Post 	res, rows, err := logics.ListPost(list, page) 	if err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=文章错误&amp;href=/home&amp;err=" + err.Error())   } 	c.HTML(http.StatusOK, "post_list.html", gin.H{"title": "文章列表", "list": res, "pageTotal": rows}) }  func NewPost(c *gin.Context) { 	var list []models.Category 	categories, err := logics.ListCategory(list) 	if err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=分类错误&amp;href=/home&amp;err=" + err.Error())   } 	c.HTML(http.StatusOK, "post_new.html", gin.H{"title": "新增文章", "categories": categories}) }  func CreatePost(c *gin.Context) { 	var model models.Post 	file, err := c.FormFile("file") 	if err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=请选择文件&amp;href=/posts/new&amp;err=" + err.Error()) 	} 	if err := c.Bind(&amp;model); err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=新增文章错误&amp;href=/posts/new&amp;err=" + err.Error()) 	} 	if file != nil { 		// 获取后缀 		fileSuffix := path.Ext(file.Filename) 		// 新文件名称 		newFileName := utils.GetRoundName(12) + fileSuffix 		// 创建保存文件夹 		saveDir := utils.GetSaveDir("app/static/upload") 		SaveFile := saveDir + "/" + newFileName 		c.SaveUploadedFile(file, SaveFile) 		model.Image = SaveFile 	} 	 	if _, err := logics.CreatePost(model); err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=新增文章错误&amp;href=/posts/new&amp;err=" + err.Error())   }   c.Redirect(http.StatusMovedPermanently, "/posts") }  func EditPost(c *gin.Context) {   id, _ := strconv.ParseInt(c.Param("id"), 10, 64) 	res, err := logics.FindPost(id) 	if err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=获取文章错误&amp;href=/posts&amp;err=" + err.Error())   } 	var list []models.Category 	categories, err := logics.ListCategory(list) 	if err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=分类错误&amp;href=/home&amp;err=" + err.Error())   } 	c.HTML(http.StatusOK, "post_edit.html", gin.H{"title": "修改文章", "id": id, "model": res, "categories": categories}) }  func UpdatePost(c *gin.Context) {   id, _ := strconv.ParseInt(c.Param("id"), 10, 64) 	var model models.Post 	file, err := c.FormFile("file") 	if err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=请选择文件&amp;href=/posts/new&amp;err=" + err.Error())   } 	if file != nil { 		// 获取后缀 		fileSuffix := path.Ext(file.Filename) 		// 新文件名称 		newFileName := utils.GetRoundName(12) + fileSuffix 		// 创建保存文件夹 		saveDir := utils.GetSaveDir("app/static/upload") 		SaveFile := saveDir + "/" + newFileName 		c.SaveUploadedFile(file, SaveFile) 		model.Image = SaveFile 	} 	if err := c.Bind(&amp;model); err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=更新文章错误&amp;href=/posts/edit/"+ strconv.FormatInt(id,10) +"&amp;err=" + err.Error()) 	} 	if _, err := logics.UpdatePost(model, id); err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=更新文章错误&amp;href=/posts/edit/"+ strconv.FormatInt(id,10) +"&amp;err=" + err.Error()) 	}   c.Redirect(http.StatusMovedPermanently, "/posts") 	return }  func DeletePost(c *gin.Context) {   id, _ := strconv.ParseInt(c.Param("id"), 10, 64)   if _, err := logics.DeletePost(id); err != nil {     c.Redirect(http.StatusMovedPermanently, "/error?title=删除文章错误&amp;href=/posts&amp;err=" + err.Error())   }   c.Redirect(http.StatusMovedPermanently, "/posts") 	return }</code></pre> <p>&nbsp;</p> <p>路由</p> <pre><code class="language-Go">package routers  import (     "github.com/gin-gonic/gin"     "myweb/app/controllers" )  func InitRouter() *gin.Engine {      router := gin.Default()     router.Static("/static", "app/static")     router.LoadHTMLGlob("app/templates/*")      router.GET("/error",controllers.ErrorPage)      router.GET("/categories",controllers.ListCategory)     router.GET("/categories/new",controllers.NewCategory)     router.POST("/categories/create",controllers.CreateCategory)     router.GET("/categories/edit/:id",controllers.EditCategory)     router.POST("/categories/update/:id",controllers.UpdateCategory)     router.GET("/categories/delete/:id",controllers.DeleteCategory)      router.GET("/posts",controllers.ListPost)     router.GET("/posts/new",controllers.NewPost)     router.POST("/posts/create",controllers.CreatePost)     router.GET("/posts/edit/:id",controllers.EditPost)     router.POST("/posts/update/:id",controllers.UpdatePost)     router.GET("/posts/delete/:id",controllers.DeletePost)      	     return router  }</code></pre> <p>&nbsp;</p> <p>列表页面</p> <pre><code class="language-html">{<!-- -->{ range .list }}         &lt;tr&gt;           &lt;td&gt;{<!-- -->{ .ID }}&lt;/td&gt;           &lt;td&gt;{<!-- -->{ .Title }}&lt;/td&gt;           &lt;td&gt;{<!-- -->{ .Sort }}&lt;/td&gt;           &lt;td&gt;{<!-- -->{ .UpdatedAt }}&lt;/td&gt;           &lt;td&gt;             &lt;a class="layui-btn layui-btn-xs" lay-event="edit" href="/posts/edit/{<!-- -->{ .ID }}"&gt;编辑&lt;/a&gt;              &lt;a class="layui-btn layui-btn-danger layui-btn-xs" href="/posts/delete/{<!-- -->{ .ID }}"&gt;删除&lt;/a&gt;           &lt;/td&gt;         &lt;/tr&gt;         {<!-- -->{end}}</code></pre> <p>&nbsp;</p> <p>入口</p> <pre><code class="language-Go">package main  import ( 	"myweb/app/core" 	"myweb/app/routers" )  func main() { 	core.Connection() 	router := routers.InitRouter() 	//静态资源 	router.Run(":8081") }</code></pre> <p>&nbsp;</p> <p>&nbsp;</p> <p>项目地址：&nbsp;<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/tang05709/gin-learn"  rel="nofollow">https://github.com/tang05709/gin-learn</a></p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-188.htm">Element修改弹窗类组件的层级</a></p>
-                                        <p>下一个：<a href="/html/category/article-190.htm">Semaphore简单使用</a></p>
+                                        <p>上一个：<a href="/html/category/article-188.htm">解决：“/****/kafka_2.13-3.0.0/bin/kafka-run-class.sh: line 342: exec: java: not found ”问题</a></p>
+                                        <p>下一个：<a href="/html/category/article-190.htm">MySQL中一条SQL查询语句是如何执行的_Mysql</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
-                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
-                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
+                <h4><a href="/html/category/article-235.htm">lombok和JPA的死递归</a></h4>
+                <p>这是一个Bug JPA我觉得是一个封装的很棒的框架，至于说很臃肿这个事，我觉得在需求需要很多复杂查询的时候，不适合用JPA。因为它的封装太棒了，以致于增强了表和实体类之间的耦合。不过在一些简单查询的部</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
-                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
+                <h4><a href="/html/category/article-241.htm">如何保证redis和数据库的一致性</a></h4>
+                <p>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
-                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
+                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
+                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
-                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
-                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
+                <h4><a href="/html/category/article-259.htm">游戏开发设计模式：单例模式</a></h4>
+                <p>一、单例模式  文章目录  一、单例模式     1.1 单例模式总结介绍   1.1.1什么是单例模式 1.1.2单例模式分类 1.1.3单例类特点 1.1.4如何保证线程安全？   1.2 单例模</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
-                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
-                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
+                <h4><a href="/html/category/article-209.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

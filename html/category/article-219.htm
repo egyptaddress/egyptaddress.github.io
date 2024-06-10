@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-219.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>如何使用HTML5 SVG绘制正弦波？ - EgyptAddress</title>
+    <title>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">如何使用HTML5 SVG绘制正弦波？</h1>
+                <h1 class="title" style="word-break: break-all;">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。</p> <h2>示例</h2> <pre>&lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &nbsp;&nbsp;&nbsp;&lt;head&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;SVG&lt;/title&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset&nbsp;=&nbsp;"utf-8"&nbsp;/&gt; &nbsp;&nbsp;&nbsp;&lt;/head&gt; &nbsp;&nbsp;&nbsp;&lt;body&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h2&nbsp;align&nbsp;=&nbsp;"center"&gt;HTML5&nbsp;SVG&nbsp;Sine&nbsp;Waves&lt;/h2&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;svg&nbsp;width&nbsp;=&nbsp;"150px"&nbsp;height&nbsp;=&nbsp;"200px"&nbsp;viewBox&nbsp;=&nbsp;"0&nbsp;0&nbsp;100&nbsp;100"&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;path&nbsp;stroke&nbsp;=&nbsp;"#00FF00"&nbsp;fill&nbsp;=&nbsp;"none"&nbsp;d&nbsp;=&nbsp;"M0,0&nbsp;C36.42,0,70.58,100,100,100"&nbsp;/&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/svg&gt; &nbsp;&nbsp;&nbsp;&lt;/body&gt; &lt;/html&gt;</pre> <div></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1> <a id="GolangQuery_ParamsPath_Variables_0" rel="nofollow"></a>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</h1> <div class="toc"> <h3>目录</h3> <ul> <li><a href="#GolangQuery_ParamsPath_Variables_0" rel="nofollow">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></li> <li> <ul> <li><a href="#_2" rel="nofollow">背景</a></li> <li><a href="#Golang_30" rel="nofollow">Golang实现</a></li> <li><a href="#_99" rel="nofollow">总结</a></li> </ul> </li> </ul> </div> <h2> <a id="_2" rel="nofollow"></a>背景</h2> <p>后端向web页面请求参数时，通常会有两种方式，1、<code>Query Params</code>；2、<code>Path Variables</code>，他们的区别在哪里呢？</p> <p>一、<code>Query Params</code></p> <p>顾名思义，请求参数。由前端通过k-v键值对的形式传入，其值并不是通过url本身获取，例如</p> <p><code>http://localhost:8080/Local/user?userName="nick"&amp;age=12</code></p> <p>上述链接可以分两段来理解，<code>？</code>前为路径，<code>？</code>后为路径传入的参数</p> <p>路径：<code>http://localhost:8080/Local/user</code></p> <p>参数：<code>userName="nick"</code>,<code>age=12</code></p> <p>二、<code>Path Variables</code></p> <p>路径参数。直接在<code>url</code>中获取的参数，例如</p> <p><code>http://localhost:8080/Local/user/nick</code></p> <p>上述链接就是一条路径，变量<code>nick</code>通过路径获取</p> <p>后端接口会表示为</p> <p><code>http://localhost:8080/Local/user/:userName</code></p> <h2> <a id="Golang_30" rel="nofollow"></a>Golang实现</h2> <p>在gin框架中，通过<code>context.go</code>封装了获取上述两种参数的方法，需通过<code>Context</code>结构体调用。</p> <p><strong>什么是<code>Context</code></strong></p> <p>官方的说法是，<code>Context</code>是gin框架中最重要的部分，它使得我们可以在中间件中传递参数、管理数据流，验证JSON请求，渲染JSON返回流。其中封装了非常多的功能，详细阅读请查看源码或文档。</p> <pre><code>// Context is the most important part of gin. It allows us to pass variables between middleware, // manage the flow, validate the JSON of a request and render a JSON response for example. </code></pre> <p>1、获取<code>Query Params</code></p> <p>提供了方法<code>Query</code>，gin中部分源码如下</p> <pre><code class="prism language-go"><span class="token comment">// Query returns the keyed url query value if it exists,</span> <span class="token comment">// otherwise it returns an empty string `("")`.</span> <span class="token comment">// It is shortcut for `c.Request.URL.Query().Get(key)`</span> <span class="token comment">//     GET /path?id=1234&amp;name=Manu&amp;value=</span> <span class="token comment">// 	   c.Query("id") == "1234"</span> <span class="token comment">// 	   c.Query("name") == "Manu"</span> <span class="token comment">// 	   c.Query("value") == ""</span> <span class="token comment">// 	   c.Query("wtf") == ""</span> <span class="token keyword">func</span> <span class="token punctuation">(</span>c <span class="token operator">*</span>Context<span class="token punctuation">)</span> <span class="token function">Query</span><span class="token punctuation">(</span>key <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token builtin">string</span> <span class="token punctuation">{<!-- --></span> 	value<span class="token punctuation">,</span> <span class="token boolean">_</span> <span class="token operator">:=</span> c<span class="token punctuation">.</span><span class="token function">GetQuery</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span> 	<span class="token keyword">return</span> value <span class="token punctuation">}</span> <span class="token comment">//查看GetQury方法实现，底层通过map去接收参数，获取第一个参数值并返回</span> <span class="token comment">// 	   It is shortcut for `c.Request.URL.Query().Get(key)`</span> <span class="token comment">//     GET /?name=Manu&amp;lastname=</span> <span class="token comment">//     ("Manu", true) == c.GetQuery("name")</span> <span class="token comment">//     ("", false) == c.GetQuery("id")</span> <span class="token comment">//     ("", true) == c.GetQuery("lastname")</span> <span class="token keyword">func</span> <span class="token punctuation">(</span>c <span class="token operator">*</span>Context<span class="token punctuation">)</span> <span class="token function">GetQuery</span><span class="token punctuation">(</span>key <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">bool</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> 	<span class="token keyword">if</span> values<span class="token punctuation">,</span> ok <span class="token operator">:=</span> c<span class="token punctuation">.</span><span class="token function">GetQueryArray</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span> ok <span class="token punctuation">{<!-- --></span> 		<span class="token keyword">return</span> values<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> ok 	<span class="token punctuation">}</span> 	<span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token boolean">false</span> <span class="token punctuation">}</span>  </code></pre> <p>1、获取<code>Path Variables</code></p> <p>提供了方法<code>Param</code></p> <pre><code class="prism language-go"><span class="token comment">// Param returns the value of the URL param.</span> <span class="token comment">// It is a shortcut for c.Params.ByName(key)</span> <span class="token comment">//     router.GET("/user/:id", func(c *gin.Context) {<!-- --></span> <span class="token comment">//         // a GET request to /user/john</span> <span class="token comment">//         id := c.Param("id") // id == "john"</span> <span class="token comment">//     })</span> <span class="token keyword">func</span> <span class="token punctuation">(</span>c <span class="token operator">*</span>Context<span class="token punctuation">)</span> <span class="token function">Param</span><span class="token punctuation">(</span>key <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token builtin">string</span> <span class="token punctuation">{<!-- --></span> 	<span class="token keyword">return</span> c<span class="token punctuation">.</span>Params<span class="token punctuation">.</span><span class="token function">ByName</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span> <span class="token punctuation">}</span>  <span class="token comment">//继续查看调用方法，使用Params结构体封装</span> <span class="token comment">// ByName returns the value of the first Param which key matches the given name.</span> <span class="token comment">// If no matching Param is found, an empty string is returned.</span> <span class="token keyword">func</span> <span class="token punctuation">(</span>ps Params<span class="token punctuation">)</span> <span class="token function">ByName</span><span class="token punctuation">(</span>name <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">(</span>va <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> 	va<span class="token punctuation">,</span> <span class="token boolean">_</span> <span class="token operator">=</span> ps<span class="token punctuation">.</span><span class="token function">Get</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span> 	<span class="token keyword">return</span> <span class="token punctuation">}</span> </code></pre> <h2> <a id="_99" rel="nofollow"></a>总结</h2> <p>1、从微观角度看，两者区别在于<code>Path Variables</code>通过slice获取，而<code>Query Params</code>通过map获取，关键点为是否构成k-v结构，所以当所请求参数为空值的时候，作为切片的<code>Path Variables</code>是无法成功获取参数的，而map可以通过例如<code>"name"=""</code>来接收参数，然后后台可以根据这个<code>""</code>继续处理后续接口。</p> <p>2、从宏观角度看，两者在参数获取形式上有区别。<code>Path Variables</code>通过url获取，<code>Query Params</code>通过请求参数获取。</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-218.htm">到底什么是消息队列</a></p>
-                                        <p>下一个：<a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></p>
+                                        <p>上一个：<a href="/html/category/article-218.htm">【SpringMVC笔记02】SpringMVC接收请求参数的几种方式</a></p>
+                                        <p>下一个：<a href="/html/category/article-220.htm">SpringCloud&#8212;-Feign隔离和降级</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
-                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
+                <h4><a href="/html/category/article-244.htm">Redis事务详解</a></h4>
+                <p>大家好，我是七淅。 如果你了解过关系型数据库事务的话，相信这篇文章对你来说是很容易理解的了。具体什么是事务我就不说不多了，直接讲 Redis 事务相关的部分。 首先，我们先来看下，Redis 是怎么执</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
-                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
-                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
-                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
+                <h4><a href="/html/category/article-209.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
-                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
-                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
-                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
+                <h4><a href="/html/category/article-207.htm">restTemplate配置及使用</a></h4>
+                <p>文章目录      1 场景 2 依赖 3 配置 4 使用   4.1 GET请求   4.1.1 普通访问 4.1.2 返回HTTP状态 4.1.3 映射请求参数   4.2 POST请求   4.</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
-                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
-                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
+                <h4><a href="/html/category/article-252.htm">[js] 回调函数 回调地狱 Promise async/await</a></h4>
+                <p>1. 回调函数 callback   一种封装代码的手段   什么是 callback , 概念 =&gt; 把 函数A 当做 实参 传递到 函数B 内部 =&gt; 在 函数B 内部以 形参 的方式</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

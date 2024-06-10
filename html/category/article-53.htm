@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-53.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>java如何对Map进行排序 - EgyptAddress</title>
+    <title>vue+echarts实现数据实时更新_vue.js_ - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">java如何对Map进行排序</h1>
+                <h1 class="title" style="word-break: break-all;">vue+echarts实现数据实时更新_vue.js_</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h2><a id="Mapkeyvalue_0" rel="nofollow"></a><strong>Map排序（按key排序，按value排序）</strong></h2> <p>主要分两种，按键排序、按值排序。 而且，按key排序主要用于TreeMap，而按value排序则对于Map的子类们都适用。</p> <h2><a id="_4" rel="nofollow"></a>一、按键排序</h2> <p>按Key排序主要用于TreeMap，可以实现按照Key值的大小，在对象插入时直接插入到合适的位置，保持Map的顺序性。</p> <p>来看TreeMap的构造函数：<code>TreeMap(Comparator&lt;? super K&gt; comparator)：</code>构造一个新的、空的树映射，该映射根据给定比较器进行排序。</p> <p>这里的比较器是key的比较器。所以定义比较器时用于比较的两个参数是Key的数据类型的对象。</p> <p>实例代码如下：</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">MapSortTest</span><span class="token punctuation">{<!-- --></span><span class="token keyword">public</span><span class="token keyword">static</span><span class="token keyword">void</span><span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token class-name">Map</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">,</span><span class="token class-name">String</span><span class="token punctuation">&gt;</span></span> stu<span class="token operator">=</span><span class="token keyword">new</span><span class="token class-name">TreeMap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token keyword">new</span><span class="token class-name">MyComparator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//传进来一个key的比较器对象来构造treemap</span> 　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"apple"</span><span class="token punctuation">,</span><span class="token string">"55"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"boy"</span><span class="token punctuation">,</span><span class="token string">"32"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"cat"</span><span class="token punctuation">,</span><span class="token string">"22"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"dog"</span><span class="token punctuation">,</span><span class="token string">"12"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"egg"</span><span class="token punctuation">,</span><span class="token string">"11"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//map的遍历：把key抽取出来用set存放，然后用迭代器遍历keyset，同时用map.get(KEY)获取key所对应的value。</span><span class="token class-name">Set</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">&gt;</span></span> keySet<span class="token operator">=</span>stu<span class="token punctuation">.</span><span class="token function">keySet</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token class-name">Iterator</span> it<span class="token operator">=</span>keySet<span class="token punctuation">.</span><span class="token function">iterator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">while</span><span class="token punctuation">(</span>it<span class="token punctuation">.</span><span class="token function">hasNext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token class-name">String</span> next<span class="token operator">=</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">)</span>it<span class="token punctuation">.</span><span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>next<span class="token operator">+</span><span class="token string">","</span><span class="token operator">+</span>stu<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>next<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token comment">//定义key的比较器，比较算法根据第一个参数o1,小于、等于或者大于o2分别返回负整数、0或者正整数，来决定二者存放的先后位置：返回负数则o1在前，正数则o2在前。</span><span class="token keyword">class</span><span class="token class-name">MyComparator</span><span class="token keyword">implements</span><span class="token class-name">Comparator</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{<!-- --></span><span class="token keyword">public</span><span class="token keyword">int</span><span class="token function">compare</span><span class="token punctuation">(</span><span class="token class-name">String</span> o1<span class="token punctuation">,</span><span class="token class-name">String</span> o2<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span> o1<span class="token punctuation">.</span><span class="token function">compareTo</span><span class="token punctuation">(</span>o2<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p>**</p> <h2><a id="_44" rel="nofollow"></a>二、按值排序</h2> <p>与按值排序只使用TreeMap不同，按值排序由于其方法所用到的类型的统一性，所以能用于Map的所有子类。</p> <p>主要用到的知识点有;</p> <p><strong>1:map.entrySet()将map里的每一个键值对取出来封装成一个Entry对象并存放到一个Set里面。</strong></p> <p>2：泛型Map.Entry&lt;type1,type2&gt; 因为Key-value对组成Entry对象，此处指明Entry对象中这两个成员的数据类型。</p> <p>3：Collections.sort(List list, Comparator&lt;? super T&gt; c) 集合类的排序方法，通过自定义的比较器进行排序。这里的list存放的对象是entry对象。定义比较器对entry对象中的value属性进行比较。</p> <p>实例代码如下：</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">MapSortTest</span><span class="token punctuation">{<!-- --></span><span class="token keyword">public</span><span class="token keyword">static</span><span class="token keyword">void</span><span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token class-name">Map</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">,</span><span class="token class-name">String</span><span class="token punctuation">&gt;</span></span> stu<span class="token operator">=</span><span class="token keyword">new</span><span class="token class-name">TreeMap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//用TreeMap储存</span><span class="token comment">// Map&lt;String,String&gt; stu=new HashMap&lt;&gt;();//用HashMap储存</span>  　　　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"apple"</span><span class="token punctuation">,</span><span class="token string">"55"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 　　　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"boy"</span><span class="token punctuation">,</span><span class="token string">"32"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 　　　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"cat"</span><span class="token punctuation">,</span><span class="token string">"22"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 　　　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"dog"</span><span class="token punctuation">,</span><span class="token string">"12"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 　　　　stu<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"egg"</span><span class="token punctuation">,</span><span class="token string">"11"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//1：把map转换成entryset，再转换成保存Entry对象的list。</span><span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Map<span class="token punctuation">.</span>Entry</span><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">,</span><span class="token class-name">String</span><span class="token punctuation">&gt;</span><span class="token punctuation">&gt;</span></span> entrys<span class="token operator">=</span><span class="token keyword">new</span><span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span>stu<span class="token punctuation">.</span><span class="token function">entrySet</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//2：调用Collections.sort(list,comparator)方法把Entry-list排序</span><span class="token class-name">Collections</span><span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>entrys<span class="token punctuation">,</span><span class="token keyword">new</span><span class="token class-name">MyComparator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//3：遍历排好序的Entry-list，可得到按顺序输出的结果</span><span class="token keyword">for</span><span class="token punctuation">(</span><span class="token class-name">Map<span class="token punctuation">.</span>Entry</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">,</span><span class="token class-name">String</span><span class="token punctuation">&gt;</span></span> entry<span class="token operator">:</span>entrys<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>entry<span class="token punctuation">.</span><span class="token function">getKey</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">","</span><span class="token operator">+</span>entry<span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token comment">//自定义Entry对象的比较器。每个Entry对象可通过getKey()、getValue()获得Key或Value用于比较。换言之：我们也可以通过Entry对象实现按Key排序。</span><span class="token keyword">class</span><span class="token class-name">MyComparator</span><span class="token keyword">implements</span><span class="token class-name">Comparator</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Map<span class="token punctuation">.</span>Entry</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">{<!-- --></span><span class="token keyword">public</span><span class="token keyword">int</span><span class="token function">compare</span><span class="token punctuation">(</span><span class="token class-name">Map<span class="token punctuation">.</span>Entry</span> o1<span class="token punctuation">,</span><span class="token class-name">Map<span class="token punctuation">.</span>Entry</span> o2<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">)</span>o1<span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">compareTo</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">)</span>o2<span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> </div> 			                </div>
+                      				  				  				<p>本文实例为大家分享了vue+echarts实现数据实时更新的具体代码，供大家参考，具体内容如下</p> <p>今天在管理后台新增一个图表，用了echarts，记录一下</p> <p>根据数据实时更新</p> <p><strong>安装</strong></p> <div class="ay1code"> <pre class="brush:js;">npm install echarts --save</pre> </div> <p>然后在main.js中配置一下</p> <div class="ay1code"> <pre class="brush:js;">import echarts from 'echarts'  Vue.prototype.$echarts = echarts</pre> </div> <p>可以了，接下来就是在你需要用的页面写了</p> <div class="ay1code"> <pre class="brush:xhtml;">// html 宽高还是尽量固定吧，不然会出现一些奇奇怪怪的问题  &lt;div id="previewChart" :style="{width: '600px', height: '600px'}"&gt;&lt;/div&gt;</pre> </div> <div class="ay1code"> <pre class="brush:js;">data () {      return {          echartUser: '',          echartRegistered: '',          echartOnline: '',      }  }</pre> </div> <div class="ay1code"> <pre class="brush:js;">// js  // 这个是一个漏斗图   drawLine () {         let previewChart = this.$echarts.init(document.getElementById('previewChart'))         previewChart.setOption({             color: ['#4f8f98', '#233541', '#b32124'],             title: { text: '漏斗图' },             tooltip: {                 trigger: 'item',                 formatter: "{a} &lt;br/&gt;{b} : {c}人"             },             toolbox: {                 feature: {                     dataView: {readOnly: false},                     restore: {},                     saveAsImage: {}                 }             },             series: [                 {                     name:'数据统计',                     type:'funnel',                     left: '10%',                     top: 60,                     //x2: 80,                     bottom: 60,                     width: '80%',                     // height: {totalHeight} - y - y2,                     min: 0,                     max: 100,                     minSize: '0%',                     maxSize: '100%',                     sort: 'descending',                     gap: 2,                     label: {                         show: true,                         position: 'inside'                     },                     labelLine: {                         length: 10,                         lineStyle: {                             width: 1,                             type: 'solid'                         }                     },                     itemStyle: {                         borderColor: '#fff',                         borderWidth: 1                     },                     emphasis: {                         label: {                             fontSize: 18                         }                     },                     // 更新数据的时候，更新的是这个位置的数据                     data: [                         {value: this.echartUser, name: '用户人数'},                         {value: this.echartRegistered, name: '注册人数'},                         {value: this.echartOnline, name: '在线听力测试人数'},                     ]                 }             ]       })  },</pre> </div> <div class="ay1code"> <pre class="brush:js;">// 获取数据  getTable () {      let startTime = this.searchMsg.startTime      let endTime = this.searchMsg.endTime      let channel = ''      previewList(startTime, endTime, channel).then(resp =&gt;{          if (resp.errCode == 0) {              // 在这个位置使用nextTick              // 漏斗图数据              this.$nextTick( ()=&gt;{                  this.echartRegistered = resp.data.previewCount.phoneCount                  this.echartUser = resp.data.previewCount.createCount                  this.echartOnline = resp.data.previewCount.testCount                  // 方法一，直接调用前面定义的drawLine（）方法，然后给这个方法传参，然后在方法里面吧需要动态改变的地方替换成传参的这个变量达到动态改变数据的目的                  this.drawLine(this.echartRegistered , this.echartUser, this.echartOnline)                  // 方法二 ，最笨的办法，重新写一遍实例化echarts的方法咯                   let previewChart = this.$echarts.init(document.getElementById('previewChart'))                  previewChart.setOption({                       series: [{                          data: [                             {value: resp.data.previewCount.createCount, name: '用户人数'},                             {value: resp.data.previewCount.phoneCount, name: '注册人数'},                             {value: resp.data.previewCount.testCount, name: '在线听力测试人数'},                          ]                       }]                   })              })          }else {              this.$message.error(resp.msg)          }      })  },</pre> </div> <p>搞定，这样子就不用在去定义watch方法了，简单粗暴的完成了vue + echrats的数据实时更新。</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-52.htm">C/C++ 缓冲区问题、计时循环和基于范围的for循环</a></p>
-                                        <p>下一个：<a href="/html/category/article-54.htm">java sm3国密算法加密、验证工具类</a></p>
+                                        <p>上一个：<a href="/html/category/article-52.htm">docker搭建confluence（wiki）</a></p>
+                                        <p>下一个：<a href="/html/category/article-54.htm">删除PicGo的右键菜单的方法</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
-                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
+                <h4><a href="/html/category/article-207.htm">restTemplate配置及使用</a></h4>
+                <p>文章目录      1 场景 2 依赖 3 配置 4 使用   4.1 GET请求   4.1.1 普通访问 4.1.2 返回HTTP状态 4.1.3 映射请求参数   4.2 POST请求   4.</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
-                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
+                <h4><a href="/html/category/article-205.htm">001、利用pyttsx3、SAPI、SpeechLib 实现文本转语音</a></h4>
+                <p>1、使用pyttsx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3 &nbsp; &nbsp; &</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
+                <h4><a href="/html/category/article-230.htm">Vuex的各个模块封装</a></h4>
+                <p>一、各个模块的作用：   state 用来数据共享数据存储  mutation 用来注册改变数据状态（同步）  getters 用来对共享数据进行过滤并计数操作  action 解决异步改变共享数据（</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
-                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></h4>
-                <p>vue父组件向子组件传值与传递方法 学习笔记 1、父组件向子组件传值（props）  在子组件中，默认是无法访问到父组件中的data上的数据和methods中的方法 父组件可以在引用子组件的时候，通过</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
-                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
-                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

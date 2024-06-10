@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-77.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>SpringBoot+Redis实现消息的发布与订阅的示例代码_java - EgyptAddress</title>
+    <title>排查线上问题的9种方式 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">SpringBoot+Redis实现消息的发布与订阅的示例代码_java</h1>
+                <h1 class="title" style="word-break: break-all;">排查线上问题的9种方式</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.什么是redis的发布与订阅</a></li> <li><a href="#_label1" rel="nofollow">2.Redis发布订阅</a></li> <li><a href="#_label2" rel="nofollow">3.命令行实现功能</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_2_0" rel="nofollow">订阅主题</a></li> <li><a href="#_lab2_2_1" rel="nofollow">模式匹配订阅</a></li> <li><a href="#_lab2_2_2" rel="nofollow">发布消息</a></li> <li><a href="#_lab2_2_3" rel="nofollow">取消订阅</a></li> <li><a href="#_lab2_2_4" rel="nofollow">测试</a></li> </ul> <li><a href="#_label3" rel="nofollow">4.SpringBoot实现功能</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_3_5" rel="nofollow">Springboot整合Redis</a></li> <li><a href="#_lab2_3_6" rel="nofollow">配置消息监听</a></li> <li><a href="#_lab2_3_7" rel="nofollow">测试</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.什么是redis的发布与订阅</h2> <p>在官网的文档介绍中有一行介绍：Redis是一个快速稳定的发布/订阅消息系统。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.Redis发布订阅</h2> <p>机制</p> <p>Redis提供了发布与订阅的功能，可以用于消息的传输，Redis的发布订阅机制包括三部分，发布者、订阅者和Channel（主题或者队列）。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/d564a53fab47e10c53ce5b912a4d256f.jpg"></p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.命令行实现功能</h2> <p class="maodian"><a name="_lab2_2_0" rel="nofollow"></a></p> <h3>订阅主题</h3> <p>Redis采用SUBSCRIBE channel命令订阅某个主题，返回的参数subscribe表示已经成功订阅主题，第二个参数表示订阅的主题名称，第三个表示当前订阅数</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; SUBSCRIBE ORDER-PAY-SUCCESS  Reading messages... (press Ctrl-C to quit)  1) "subscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_1" rel="nofollow"></a></p> <h3>模式匹配订阅</h3> <p>模式匹配功能是允许客户端订阅匹配某种模式的频道，Redis采用PSUBSCRIBE channel命令订阅匹配某种模式的所有频道，用*表示模式，*可以被任意值代替。</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; PSUBSCRIBE ORDER-PAY-*  Reading messages... (press Ctrl-C to quit)  1) "psubscribe"  2) "ORDER-PAY-*"  3) (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_2" rel="nofollow"></a></p> <h3>发布消息</h3> <p>Redis采用PUBLISH channel message命令在某个主题上发布消息，返回的参数是接收到消息的订阅者个数</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; PUBLISH ORDER-PAY-SUCCESS DD202109071525  (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_3" rel="nofollow"></a></p> <h3>取消订阅</h3> <p>Redis采用UNSUBSCRIBE channel或PUNSUBSCRIBE channel命令取消某个主题的订阅，由于Redis的订阅操作是阻塞式的，因此一旦客户端订阅了某个频道或模式，就将会一直处于订阅状态直到退出。在 SUBSCRIBE，PSUBSCRIBE，UNSUBSCRIBE 和 PUNSUBSCRIBE 命令中，其返回值都包含了该客户端当前订阅的频道和模式的数量，当这个数量变为0时，该客户端会自动退出订阅状态。</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; UNSUBSCRIBE ORDER-PAY-SUCCESS  1) "unsubscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 0  127.0.0.1:6379&gt; PUNSUBSCRIBE ORDER-PAY-SUCCESS  1) "punsubscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 0  </pre> </div> <p class="maodian"><a name="_lab2_2_4" rel="nofollow"></a></p> <p class="maodian"><a name="_lab2_3_7" rel="nofollow"></a></p> <h3>测试</h3> <p>首先三个订阅者订阅ORDER-PAY-SUCCESS主题，当发送者在这个主题内发送订单号时，所有的订阅者都会收到这个主题的消息。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/615a3510bb29bac13626b72774c41e64.jpg"></p> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>4.SpringBoot实现功能</h2> <p class="maodian"><a name="_lab2_3_5" rel="nofollow"></a></p> <h3>Springboot整合Redis</h3> <p>引入依赖包</p> <div class="ay1code"> <pre class="brush:xml;">&lt;dependencies&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;              &lt;version&gt;2.2.10.RELEASE&lt;/version&gt;          &lt;/dependency&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;              &lt;version&gt;2.2.10.RELEASE&lt;/version&gt;          &lt;/dependency&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;              &lt;version&gt;2.4.1&lt;/version&gt;          &lt;/dependency&gt;      &lt;/dependencies&gt;  </pre> </div> <p>配置yaml文件</p> <div class="ay1code"> <pre class="brush:plain;">server:    port: 8888    spring:    application:      name: spring-boot-redis    redis:      host: 127.0.0.1      port: 6379</pre> </div> <p class="maodian"><a name="_lab2_3_6" rel="nofollow"></a></p> <h3>配置消息监听</h3> <div class="ay1code"> <pre class="brush:java;">import com.demo.redis.listener.MessageListener;  import org.springframework.context.annotation.Bean;  import org.springframework.context.annotation.Configuration;  import org.springframework.data.redis.connection.RedisConnectionFactory;  import org.springframework.data.redis.core.StringRedisTemplate;  import org.springframework.data.redis.listener.PatternTopic;  import org.springframework.data.redis.listener.RedisMessageListenerContainer;  import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;    /**   * @author Bai   * @date 2021/4/29 上午 11:17   * @description   */  @Configuration  public class RedisMessageConfig {        /**       * 监听订单支付完成主题       */      private static final String ORDER_PAY_SUCCESS = "ORDER-PAY-SUCCESS";        /**       * 注入消息监听适配器       * @param messageListener       * @return {@link MessageListenerAdapter}       * @throws       * @author Bai       * @date 2021/9/7 下午 03:54       */      @Bean      public MessageListenerAdapter getMessageListenerAdapter(MessageListener messageListener){          return new MessageListenerAdapter(messageListener, "onMessage");      }        /**       * 注入消息监听容器       * @param redisConnectionFactory       * @param messageListenerAdapter       * @return {@link RedisMessageListenerContainer}       * @throws       * @author Bai       * @date 2021/9/7 下午 03:54       */      @Bean      public RedisMessageListenerContainer getRedisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory, MessageListenerAdapter messageListenerAdapter){          RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();          redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);            //订阅订单支付成功主题          redisMessageListenerContainer.addMessageListener(messageListenerAdapter, new PatternTopic(ORDER_PAY_SUCCESS));          return redisMessageListenerContainer;      }        /**       * 处理内容       * @param connectionFactory       * @return {@link StringRedisTemplate}       * @throws       * @author Bai       * @date 2021/9/7 下午 04:01       */      @Bean      StringRedisTemplate template(RedisConnectionFactory connectionFactory) {          return new StringRedisTemplate(connectionFactory);      }  }</pre> </div> <p>接收消息</p> <div class="ay1code"> <pre class="brush:java;">import org.springframework.stereotype.Component;    /**   * @author Bai   * @date 2021/9/7 下午 03:51   * @description   */  @Component  public class MessageListener {        public void onMessage(String message){          System.out.println("接收消息：" + message);      }  }</pre> </div> <h3>测试</h3> <p>发送订单支付成功的消息</p> <div class="ay1code"> <pre class="brush:java;">import org.junit.Test;  import org.junit.runner.RunWith;  import org.springframework.boot.test.context.SpringBootTest;  import org.springframework.data.redis.core.StringRedisTemplate;  import org.springframework.test.context.junit4.SpringRunner;    import javax.annotation.Resource;    /**   * @author Bai   * @date 2021/9/7 下午 04:32   * @description   */  @RunWith(value = SpringRunner.class)  @SpringBootTest  public class RedisPubTest {        /**       * 订单支付完成主题       */      private static final String ORDER_PAY_SUCCESS = "ORDER-PAY-SUCCESS";        @Resource      private StringRedisTemplate stringRedisTemplate;        /**       * 模拟发送5调订单支付完成的消息       * @throws       * @author Bai       * @date 2021/9/7 下午 04:57       */      @Test      public void sendMessage(){          for (int i = 0; i &lt; 5; i++) {              stringRedisTemplate.convertAndSend(ORDER_PAY_SUCCESS,"DD" + System.currentTimeMillis());          }      }  }</pre> </div> <p>接收到订单支付成功的消息</p> <blockquote> <p>  .   ____          _            __ _ _<br /> /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \<br />( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \<br /> \\/  ___)| |_)| | | | | || (_| |  ) ) ) )<br />  '  |____| .__|_| |_|_| |_\__, | / / / /<br /> =========|_|==============|___/=/_/_/_/<br /> :: Spring Boot ::       (v2.2.10.RELEASE)</p> <p>2021-09-07 16:56:54.729  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : Starting RedisSubPubApplication on DESKTOP-595LI4G with PID 3712 (D:\Bai\Sources\spring-boot-demo\redis-sub-pub\target\classes started by 1 in D:\Bai\Sources\spring-boot-demo)<br />2021-09-07 16:56:54.735  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : No active profile set, falling back to default profiles: default<br />2021-09-07 16:56:55.205  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode!<br />2021-09-07 16:56:55.207  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.<br />2021-09-07 16:56:55.229  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 11 ms. Found 0 Redis repository interfaces.<br />2021-09-07 16:56:55.557  INFO 3712 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8888 (http)<br />2021-09-07 16:56:55.565  INFO 3712 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]<br />2021-09-07 16:56:55.565  INFO 3712 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.38]<br />2021-09-07 16:56:55.669  INFO 3712 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext<br />2021-09-07 16:56:55.669  INFO 3712 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 895 ms<br />2021-09-07 16:56:56.032  INFO 3712 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'<br />2021-09-07 16:56:56.950  INFO 3712 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8888 (http) with context path ''<br />2021-09-07 16:56:56.952  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : Started RedisSubPubApplication in 2.557 seconds (JVM running for 3.436)<br />接收消息：DD1631005025949<br />接收消息：DD1631005025964<br />接收消息：DD1631005025965<br />接收消息：DD1631005025967<br />接收消息：DD1631005025968</p> </blockquote> 			                </div>
+                      				  				  				<p>德国科技管理专家斯坦门茨早年移居美国，他以非凡的才能成为美国企业界的佼佼者。一次，美国著名的福特公司的一组电机发生故障，在束手无策之时，公司请斯坦门茨出马解决问题。</p> <p>斯坦门茨在电机旁仔细观察，经过计算，用粉笔在电机外壳划了一条线，说：“从这里打开，把里面的线圈减少16圈。”工人们照他说的一试，电机果然运转如初，福特公司给他酬金时，他索价一万美元。</p> <p>公司老板觉得一条线要一万美元未免漫天要价。斯坦门茨回答：“用粉笔划一条线一美元，而知道在哪里划要9999美元。”公司老板认为言之有理，乃照付一万美元。</p> <p>这个励志故事告诉咱们要懂得如何排查问题的重要价值。今天咱们就来总结一下排查问题的9种方法：</p> <p><strong>基础方法</strong></p> <p><strong>监控告警</strong></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/2a28dbba9cf07ed6ae5c07ad9c165d7f.jpg" alt="排查线上问题的9种方式"></p> <p>问题发生常用的手段有生产测试、监控告警和人工客诉。人工客诉是咱们最不愿意看到的，那就需要在产生业务影响前及早发现。监控告警是发现问题的有效手段，具体可以参考《<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247485677&amp;idx=1&amp;sn=c9993454549f177d3dd0fecfab1c3369&amp;chksm=fafde243cd8a6b5562931fc718321c5fb1adf5be615518d0c641bf18a7d98945f74168c1da5d&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>通知&amp;告警治理(降噪)的7种方法</strong></a>》这篇文章。</p> <p><strong>日志埋点</strong></p> <p>埋点是了解用户行为的重要步骤，但更重要的目的是识别用户的关键路径。注入特定的代码以记录关键指标是提升应用性能的重要步骤。</p> <p>日志和埋点之间存在着细微的差别。埋点可以看作是日志的子集。被埋点的任何数据都应该记录在日志中。</p> <p>埋点承担了为聚合分析发布关键性能数据的职责，日志则提供了用户在不同级别跟踪应用的细节信息，从低到高依次为:</p> <ul class="list-paddingleft-1"> <li> <p>Verbose:几乎提供了所有的细节，主要用于跟踪执行过程中控制流</p> </li> <li> <p>Debug:表示数据主要用于调试</p> </li> <li> <p>Info:表示非错误信息</p> </li> <li> <p>Warning:表示可恢复的错误</p> </li> <li> <p>Error：表示不可恢复的错误</p> </li> </ul> <p>日志的记录会贯穿应用的整个生命周期，而埋点只应该用在开发的特定阶段。通过埋点，可以把特定类型或有有价值的信息素材收集起来，基于这些素材可以做非常多的有价值的分析、追踪。</p> <p><strong>问题复现</strong></p> <p>这个不用多解释，聊聊复现的步骤：</p> <p>● 确保所有的步骤都被记录。记录下所做的每一件事、每一个步骤、每一个停顿。无意间丢失一个步骤或者增加一个多余步骤，可能导致无法再现软件缺陷。在尝试运行测试用例时，可以利用录制工具确切地记录执行步骤。所有的目标是确保导致软件缺陷所需的全部细节是可见的。</p> <p>● 特定条件和时间。软件缺陷仅在特定时刻出现吗？软件缺陷在特定条件下产生吗？产生软件缺陷是网络忙吗？在较差和较好的硬件设备上运行测试用例会有不同的结果吗？</p> <p>● 压力和负荷、内存和数据溢出相关的边界条件。执行某个测试能导致产生缺陷的数据被覆盖，而只有在试图使用脏数据时才会再现。在重启 BUG 复现方法总结机器后，软件缺陷消失，当执行其他测试之后又出现这类软件缺陷，需要注意某些软件缺陷可能是在无意中产生的。</p> <p>● 考虑资源依赖性包括内存、网络和硬件共享的相互作用等。软件缺陷是否仅在运行其他软件并与其他硬件通信的“繁忙”系统上出现？软件缺陷可能最终证实跟硬件资源、网络资源有相互的作用，审视这些影响有利于分离和再现软件缺陷。</p> <p>● 不能忽视硬件。与软件不同，硬件Hi按预定方式工作。板卡松动、内存条损坏或者CPU过热都可能导致像是软件缺陷的失败。设法在不同硬件不再现软件缺陷。在执行配置或者兼容性测试时特别重要。判定软件缺陷是在一个系统上还是在多个系统上产生。</p> <p><strong>抓包分析</strong></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247484873&amp;idx=1&amp;sn=96cd0c3d3ccb0b0414d871080b9b8350&amp;chksm=fafdef67cd8a6671acc7735a42619f41970ea1888fb6fc3f4617307b378dd632f3e8407772ad&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>tcpdump命令</strong></a>配合Wiresshark等解析工具可对网络问题做初步的排查。比如http请求是明文传输，可以抓到完整的请求内容。但是如果是加密的，至少可以看到有没有RST等异常。或者原本应该观察的到返回包有没有，判断是哪个链路出的问题。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/3e4f23acf018379cb501ef48f3003448.jpg" alt="排查线上问题的9种方式"></p> <p>这需要对网络知识有比较深的了解。可通过《<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247487130&amp;idx=1&amp;sn=5f2c3cf04a8cf0b461bd7f9fbc78ff72&amp;chksm=fafde434cd8a6d22bb6a5c8e9947fe8249f8364121a6f6726bb9cdad4be5055cbabf9c73b582&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>网络通信知识地图</strong></a>》进行学习，特别是《<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247486403&amp;idx=1&amp;sn=9dbbda3df1deeb5f43c8b7f2cdd87b97&amp;chksm=fafde16dcd8a687be735bf315fa50773cd61ac48f47cd1a1304c792bc1fafa31b4a3705dd9a3&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>白话TCP/IP原理</strong></a>》要了解。</p> <p><strong>高危方法</strong></p> <p><strong>linux命令</strong></p> <p>有点命令危险性不高，比如TOP，使用方法可参考：《<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247486487&amp;idx=1&amp;sn=0cff83eead864825e415811ddc215420&amp;chksm=fafde6b9cd8a6fafb71bef95e6a8c6dc870c89f2e9b487064078d89e23215c8e2a948acfc634&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>时刻掌握系统运行状态-深度理解top命令</strong></a>》。但是在线上不能随便用。比如程序正在写一个文件，这时候用命令行执行vim，可能导致fd文件描述符失效。关于文件描述符可参考《<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247486330&amp;idx=1&amp;sn=e85e201059c1c5575481e03531b06212&amp;chksm=fafde1d4cd8a68c235ef3cbed83bf0b6ac3a80052c0a492d8c2a217006cf4fa530f2f74f01c3&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>白话linux操作系统原理</strong></a>》或《<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247486601&amp;idx=1&amp;sn=6fbd0d4177372af2ab00dd1e3043cd7d&amp;chksm=fafde627cd8a6f312e5587e6fd60bff64b3130fdd9eb5339f81702f9ab8264799bd2c2ab47ac&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>趣谈IO多路复用的本质</strong></a>》。</p> <p>感兴趣的朋友甚至可以自己实现一下fd文件描述符失效：</p> <p>第一步：进程打开日志文件,使用lsof -p pid</p> <p>第二步：vim没打开文件前(或者打开vim没进行wq保存)</p> <p>第三步：当vim 修改文件后wq时,会提示</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/27cbc7fa07da6821614eb56fd9317dad.jpg" alt="排查线上问题的9种方式"></p> <p>提示文件在读期间被修改了,我们选择yes</p> <p>第四步：此时再使用lsof -p pid命令来查看打开的文件描述符，进程打开的文件描述符的状态变为了deleted状态。</p> <p>linux命令可以作为排查问题的利器，比如我在《<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247486103&amp;idx=1&amp;sn=943c5b7f3558df78164321806f273c8f&amp;chksm=fafde039cd8a692f86f0ac97b0e1e05ece075de3e4f33e6a5ec90b269c51aed1963ff3107e0e&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>懂得三境界-使用dubbo时请求超过问题</strong></a>》里提到的netstat -s&nbsp;，但是要注意不要对线上造成影响。</p> <p>下面用图来总结常用命令使用场景，图小需要手工放大看：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/726cc27a41a78efc0b1e6ee0e709a785.jpg" alt="排查线上问题的9种方式"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/39c9265298fc3e8d6e449fcf35f0b1f2.jpg" alt="排查线上问题的9种方式"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/0cefdee85538ce06fa3aceea38337e3c.jpg" alt="排查线上问题的9种方式"></p> <p><strong>留后门法</strong></p> <p>很久之前我们使用Redis，但是管理端做的不太好，我就在程序里留了后门：可以通过http接口对Redis的进行增删改查操作。但是用http接口做管理，意味着没有标准的权限控制和操作标准流程，很容易受到攻击或者误操作。</p> <p>更正统的方法是用标准的运维工具代替这些后门。</p> <p><strong>线上调试</strong></p> <p>举个例子，有次我们在进行测试环境演练，出现了个怪异的问题。后来有同事说其他一个同事也在用这个环境做调试，所以才会调用哪个接口的地方卡住，出现问题。这种问题要是出现在线上，就是故障了。</p> <p><strong>高级方法</strong></p> <p><strong>代码走查</strong></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mp.weixin.qq.com/s?__biz=MzUzNjAxODg4MQ==&amp;mid=2247485045&amp;idx=2&amp;sn=8634e83567b7f335ecf7dc40e79f3eba&amp;chksm=fafdecdbcd8a65cde7cd3c9da3046bed25fe6c0f9b619af2c1132e03e117b06e04b309b3864e&amp;scene=21#wechat_redirect"  target="_blank" data-itemshowtype="0" data-linktype="2" rel="nofollow"><strong>排查问题的最高境界是只通过review代码来发现问题</strong></a></p> <p><strong>逻辑推理</strong></p> <p>但很多大神的解决步骤是：第一，听别人讲述问题现象；第二，提出问题以求证；第三，推理出大致原因并给出可选方案及方案的注意点；第四，自己、更多情况下是他人进行验证。为啥是他人，能达到这种境界多是领导或者帮别人排查问题的救火队长，问题发生和自己并没有直接关系。</p> <p>想达到这种境界还是需要平时的积累和深入理解和深耕。源码和网络知识学起来~~</p> <p><strong>总结</strong></p> <p>一张图总结今天介绍的方法:</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/a87b38f2c58bf7bb7d34220887f69a4f.jpg" alt="排查线上问题的9种方式"></p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-76.htm">深入理解mmap&#8211;内核代码分析及驱动demo示例</a></p>
-                                        <p>下一个：<a href="/html/category/article-78.htm">jackson   json对象、实体类相互转换</a></p>
+                                        <p>上一个：<a href="/html/category/article-76.htm">SpringCloud Feign客户端应用</a></p>
+                                        <p>下一个：<a href="/html/category/article-78.htm">一文了解axios和vue的整合操作_vue.js</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
-                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
-                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
+                <h4><a href="/html/category/article-228.htm"># kubernetes调度之nodeName与NodeSelector</a></h4>
+                <p>系列目录  Kubernetes的调度有简单，有复杂，指定NodeName和使用NodeSelector调度是最简单的，可以将Pod调度到期望的节点上。 本文主要介绍kubernetes调度框架中的N</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
-                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
+                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
+                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
-                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
+                <h4><a href="/html/category/article-207.htm">restTemplate配置及使用</a></h4>
+                <p>文章目录      1 场景 2 依赖 3 配置 4 使用   4.1 GET请求   4.1.1 普通访问 4.1.2 返回HTTP状态 4.1.3 映射请求参数   4.2 POST请求   4.</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
+                <h4><a href="/html/category/article-261.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
-                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
+                <h4><a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></h4>
+                <p>Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现  目录  Golang学习之网络参数请求-Query Params及Path Variables</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
-                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
-                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
-                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

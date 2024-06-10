@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-84.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Caused by: java.lang.ClassNotFoundException: springfox.documentation.schema.ModelReference 错误解决 - EgyptAddress</title>
+    <title>不太一样的Go Web框架—编程范式 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Caused by: java.lang.ClassNotFoundException: springfox.documentation.schema.ModelReference 错误解决</h1>
+                <h1 class="title" style="word-break: break-all;">不太一样的Go Web框架—编程范式</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>造成这种错误的原因是父类的pom中&lt;dependecies&gt;&lt;/dependecies&gt;有springfox的依赖，在这里面的依赖是的所有工程都必须继承这个，因此会导致不需要这个或说没有用到swagger注解的工程，在执行导致上面的类找不到的错误。</p> <p>解决方法， 是将这个springfox移除&lt;dependecies&gt;&lt;/dependecies&gt; 放入&nbsp;&nbsp; &nbsp;&lt;dependencyManagement&gt;&nbsp;&nbsp; &nbsp;&lt;/dependencyManagement&gt;让需要它进行声明继承和使用。</p> <p>&lt;dependencies&gt;和&lt;dependencyManagement&gt;作用和区别见</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/liutengteng130/article/details/46991829"  rel="nofollow">https://blog.csdn.net/liutengteng130/article/details/46991829</a></p> <p>这个链接的文章说明。</p> </div> 			                </div>
+                      				  				  				<p>项目地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/Codexiaoyi/linweb"  target="_blank" rel="nofollow">https://github.com/Codexiaoyi/linweb</a></p> <h5 id="这是一个系列文章">这是一个系列文章：</h5> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/codexiaoyi/p/16153910.html"  target="_blank" rel="nofollow">不太一样的Go Web框架—总览</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/codexiaoyi/p/16153914.html"  target="_blank" rel="nofollow">不太一样的Go Web框架—编程范式</a></li> </ul> <h2 id="前言">前言</h2> <blockquote> <p>上文说过，linweb不追求性能，相比而言注重编程范式。本人也是dotneter，个人觉得.net那种注解定义路由的方式更为舒服，并且接口文件统一规定在Controller文件夹下，以 XxxController 命名。<br /> 当然，在Go中也是可以实现这样的方式，但是将用到大量反射，所以势必会降低性能，所以说"不太一样的Web框架"。</p> </blockquote> <h2 id="基本范式">基本范式</h2> <p>所谓编程范式，也就是你的框架定义规范，使用用户按照你的规范写逻辑业务。</p> <h4 id="路由">路由</h4> <p>路由解析是一个web框架不可避免的模块，我们看gin是如何定义路由的。</p> <pre><code class="language-go">func main() { 	router := gin.Default()  	// Simple group: v1 	v1 := router.Group("/v1") 	{ 		v1.POST("/login", loginEndpoint) 		v1.POST("/submit", submitEndpoint) 		v1.POST("/read", readEndpoint) 	}  	// Simple group: v2 	v2 := router.Group("/v2") 	{ 		v2.POST("/login", loginEndpoint) 		v2.POST("/submit", submitEndpoint) 		v2.POST("/read", readEndpoint) 	}  	router.Run(":8080") }</code></pre> <p>在应用gin的时候，我们通常会将路由定义与接口方法对应写在一起，统一管理，这样管理方便，也是Go的web框架多数采用的方式。<br /> 相比之下，linweb更希望路由定义和方法放在一起，然后以定义Controller的方式，路由地址更加直观。</p> <pre><code class="language-go">package controllers  import ( 	"github.com/Codexiaoyi/linweb/interfaces" )  type BlogController struct { }  //[GET("/blog/:id")] func (blog *BlogController) GetBlog(c interfaces.IContext) {  }</code></pre> <p><strong>在根目录下创建一个 controllers 文件夹，所有的api都定义在controllers包中。根据不同的 controller 名称区分文件。</strong></p> <h2 id="自定义插件">自定义插件</h2> <p>linweb中所有功能与主流程间的依赖都是解耦的，所有实现都面向接口，完全遵守依赖倒置原则。<br /> 要实现这样的方式也不难：</p> <ul> <li><strong>定义一套接口</strong>，使得实现相应接口的结构体都可以运行在linweb中。</li> <li><strong>完成默认实现</strong>，默认应用默认实现在linweb中。</li> <li><strong>开放传入自定义插件实现的方法</strong>。</li> </ul> <h4 id="代码实现">代码实现</h4> <p>在Go语言框架中大量使用<strong>Option模式</strong>实现上述的需求（完整代码详见github）。<br /> 1.首先我们定义一个自定义插件类型，并写一个默认的插件函数。</p> <pre><code class="language-go">//自定义插件类型，返回可以传入Linweb的函数 type CustomizePlugins func(lin *Linweb)  func defaultPlugins() CustomizePlugins { 	return func(lin *Linweb) { 		lin.markRouter = router.New() 		lin.markContext = &amp;context.Context{} 		lin.markMiddleware = &amp;middleware.Middleware{} 		lin.markInject = injector.Instance() 		lin.markCache = cache.Instance() 		lin.markModel = &amp;model.Model{} 	} }</code></pre> <p>2.定义各个插件模块对应的快捷入口函数。</p> <pre><code class="language-go">// Customize router plugin.这里参数传入自定义的Router实现 func RouterPlugin(router interfaces.IRouter) CustomizePlugins { 	return func(lin *Linweb) { 		lin.markRouter = router 	} }  // Customize context plugin. func ContextPlugin(context interfaces.IContext) CustomizePlugins { 	return func(lin *Linweb) { 		lin.markContext = context 	} }  ......</code></pre> <p>3.在linweb包的New初始化函数中，传入用户自定义的CustomizePlugins。</p> <pre><code class="language-go">// Create a new Linweb. // Add customize plugins with method of plugins.go, otherwise use default plugins. func NewLinweb(plugins ...CustomizePlugins) *Linweb { 	lin := &amp;Linweb{}     //应用默认插件 	defaultPlugins()(lin)     //根据传入的用户自定义插件覆盖默认插件 	for _, plugin := range plugins { 		plugin(lin) 	} 	pluginsModel = lin.markModel 	Cache = lin.markCache 	return lin }</code></pre> <h4 id="如何应用">如何应用</h4> <p>在linweb项目中的linweb_test.go中，用到了mock框架（后续测试部分会介绍）模拟接口实现：</p> <pre><code class="language-go">	// Arrange:mock data 	ctrl := gomock.NewController(t) 	defer ctrl.Finish()  	// mock a new context instance 	mock_context := mocks.NewMockIContext(ctrl)  	//Act 	linweb := NewLinweb(ContextPlugin(mock_context))</code></pre> <p>如代码所见，我们调用linweb的ContextPlugin函数传入自定义插件，再将返回值传入NewLinweb初始化函数中。</p> <h2 id="总结">总结</h2> <p>本文，介绍了linweb的基本的编程范式，也实现了自定义插件功能。<br /> 接下来，我们需要根据<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/codexiaoyi/p/16153910.html"  target="_blank" rel="nofollow">前文</a>说的功能逐步添加到linweb中。</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-83.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></p>
-                                        <p>下一个：<a href="/html/category/article-85.htm">Java时间 之 Instant</a></p>
+                                        <p>上一个：<a href="/html/category/article-83.htm">shell编程中for循环语句的实现过程及案例_linux shell_</a></p>
+                                        <p>下一个：<a href="/html/category/article-85.htm">软件的23种设计模式的通俗解释</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
-                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
+                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
+                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
-                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
+                <h4><a href="/html/category/article-211.htm">Java并发 &#8211; 并发容器类</a></h4>
+                <p>多线程环境下，不安全的容器有哪些？为什么？  （1）List publicvoidtest1(){List&lt;String&gt; list=newArrayList&lt;&gt;();for(</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
-                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
-                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
-                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
+                <h4><a href="/html/category/article-259.htm">游戏开发设计模式：单例模式</a></h4>
+                <p>一、单例模式  文章目录  一、单例模式     1.1 单例模式总结介绍   1.1.1什么是单例模式 1.1.2单例模式分类 1.1.3单例类特点 1.1.4如何保证线程安全？   1.2 单例模</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
-                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+                <h4><a href="/html/category/article-207.htm">restTemplate配置及使用</a></h4>
+                <p>文章目录      1 场景 2 依赖 3 配置 4 使用   4.1 GET请求   4.1.1 普通访问 4.1.2 返回HTTP状态 4.1.3 映射请求参数   4.2 POST请求   4.</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
-                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
-                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
+                <h4><a href="/html/category/article-226.htm">Carson带你学设计模式：单例模式（Singleton）</a></h4>
+                <p>前言 今天Carson来全面总结最常用的设计模式 - 单例模式。  Carson带你学设计模式系列文章Carson带你学设计模式：这是一份全面 &amp; 详细的设计模式学习指南Carson带你学设计</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
-                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
+                <h4><a href="/html/category/article-254.htm">图像处理学习笔记——BMP图片详解</a></h4>
+                <p>一、位图和调色板的概念  1.位图（Bitmap）： 例如我们常说的屏幕分辨率为 640*480，刷新频率为70Hz，意思是说每行要扫描 640 个象素，一共有 480 行，每秒重复扫描屏幕 70 次</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>

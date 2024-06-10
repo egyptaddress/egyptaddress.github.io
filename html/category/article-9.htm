@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-9.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>JVM将初始和最大内存大小设置为相同值的好处 - EgyptAddress</title>
+    <title>在打包vue项目时报错的问题解决 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">JVM将初始和最大内存大小设置为相同值的好处</h1>
+                <h1 class="title" style="word-break: break-all;">在打包vue项目时报错的问题解决</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				  			 <div id="log-box">  				<div id="catalog"><ul id="catalog-ul"> <li><i class="be be-arrowright"></i> <a href="#title-0" title="操作系统的内存分配和解除分配">操作系统的内存分配和解除分配</a></li> </ul><span class="log-zd"><span class="log-close"><a title="隐藏目录"><i class="be be-cross"></i><strong>目录</strong></a></span></span></div>  			</div> <blockquote> <p>微信公众号：<strong>Java大家族</strong></p> </blockquote> <h3>JVM将初始和最大内存大小设置为相同值的好处</h3> <p>&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;启动应用程序时，我们指定初始内存大小和最大内存大小。对于在 JVM（Java 虚拟机）上运行的应用程序，初始和最大内存大小通过 “-Xms” 和 “-Xmx” 参数指定。如果 Java 应用程序在容器上运行，则通过“-XX：InitialRAMPercentage”和“-XX：MaxRAMPercentage”参数指定它。大多数企业将初始内存大小设置为低于最大内存大小的值。与这种普遍接受的做法相反，将初始内存大小设置为与最大内存大小相同具有如下优势。让我们在这篇文章中讨论它们。</p> <h3>1. 可用性</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;假设您正在启动应用程序，初始堆大小为 2GB，最大堆大小为 24GB。这意味着当应用程序启动时，操作系统将为您的应用程序分配 2GB 的内存。从那时起，当应用程序开始处理新请求时，将分配额外的内存，直到达到最大 24GB。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;假设当您的应用程序的内存消耗正在从2GB增长到24GB的过程中，此时，服务器启动了其他一些进程，并且这些进程开始消耗内存。这种情况在生产/云环境中非常常见，尤其是在应用程序与其他进程（如自定义脚本、cron 作业、监视代理等）一起运行时。</p> <p>发生这种情况时，您的应用程序将遇到以下情况：</p> <p>“java.lang.OutOfMemoryError：Java heap space”<br />操作系统将终止您的应用程序，并显示“内存不足：杀死进程。<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;这意味着您的应用程序将在事务过程中崩溃。如果应用程序在启动期间以最大内存启动，则应用程序将是安全的。操作系统将仅终止内存消耗正在增长的新启动的脚本/cron 作业，而不会终止在启动期间内存已完全分配的应用程序。</p> <h3>2. 性能</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;我们还观察到，以相同的初始堆大小和最大堆大小启动的应用程序往往比以较低的初始堆大小启动的应用程序的性能相对较好。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;这是一个真实的案例研究：我们使用记忆密集型应用程序进行测试。此应用程序处理非常大的二进制堆转储文件并生成分析报告。在这个应用程序中，我们反复分析一个11GB大小的二进制文件，这样它就会给操作系统带来内存压力。</p> <p>我们进行了两个测试场景：</p> <p>方案 1：我们将初始堆大小设置为 2GB，最大堆大小设置为 24GB。<br />方案 2：我们将初始堆大小和最大堆大小都设置为 24GB。<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在场景 1 中，我们观察到平均响应时间为 385.32 秒，而在场景 2 中，我们观察到平均响应时间为 366.55 秒。响应时间缩短了 5.11%。响应时间的这种改善是由于以下两个原因：</p> <span class="directory"></span><h4 id="title-0">操作系统的内存分配和解除分配</h4> <p>GC 暂停时间影响<br />让我们在这里讨论它们：</p> <p>从操作系统分配和解除分配内存<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当您为初始堆大小和最大堆大小设置了不同的大小时，JVM 将不得不与操作系统协商，以便在需要时分配内存。同样，当应用程序对内存的需求在运行时出现故障时，操作系统将占用分配的内存。这种持续的分配和解除分配将增加应用程序的开销。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/3fcb5a6294a52473838f2dbe0e1f511c.jpg" alt="JVM将初始和最大内存大小设置为相同值的好处"></p> <p>&nbsp;场景 1：内存分配波动（按 GCeasy 绘制的图表）</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上图显示了场景 1 JVM 的已分配和已解除分配的内存。从图表中，您可以注意到内存在不断波动（在 2GB 到 24GB 之间波动）。当应用程序处理堆转储时，内存最多可达 24GB。处理后，内存将回落到 2GB。当它再次处理新的堆转储时，内存会回弹到 24GB。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/0fe4cc5fbfd9cc1a6a7c8644fcdaba95.jpg" alt="JVM将初始和最大内存大小设置为相同值的好处"></p> <h5>场景 2：内存分配常量（由 GCeasy 绘制）</h5> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上图显示了场景 2 JVM 在其生命周期内分配的内存。你可以看到没有波动。内存是在启动期间从操作系统保留的，从那时起，没有波动。无论应用程序中的活动如何，它始终保持在24GB。此行为有可能在一定程度上提高应用程序的性能。</p> <h5>GC 暂停时间影响</h5> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当垃圾回收运行时，它会暂停应用程序，这将对客户产生负面影响。我们使用 GCeasy 工具研究了两种方案的垃圾回收性能。结果如下：</p> <h5>垃圾回收性能结果</h5> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;我们注意到 GC 吞吐量和 GC 暂停时间略有下降。在方案 1 中，GC 吞吐量为 96.59%，而在方案 2 中，GC 吞吐量略好 （97.83%）。同样，在场景 1 中，Max GC 的暂停时间为 5.23 秒，而在场景 2 中仅为 1.65 秒。。</p> <p><strong>应用程序启动时间</strong><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如果将初始堆大小设置为与最大堆大小相同，则应用程序的启动时间也会更好。以下是 Oracle 文档的摘录：</p> <p><strong>“</strong><strong>如果初始堆太小，Java 应用程序的启动速度会变慢，因为 JVM 被迫频繁地执行垃圾回收，直到堆增长到更合理的大小。为获得最佳启动性能，请将初始堆大小设置为与最大堆大小相同。</strong><strong>"</strong></p> <h3>4. 成本</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;无论您将初始堆大小 （-Xms） 和最大堆大小 （-Xmx） 设置为相同值还是其他值，您支付给云托管提供商的计算成本都不会更改。假设您正在使用阿里云、腾讯云等云厂商的实例，那么无论设置初始堆大小和最大堆大小的值如何，您最终都将支付固定小时的费用。云提供商不会根据您在该计算机中使用的内存量向您收费。它们仅根据您使用实例的时间收费。因此，将初始堆大小设置为低于最大堆大小不会节省成本。</p> <h3>结论</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在配置线程池或连接池时，将初始堆大小配置为小于最大堆大小是有意义的。在这些资源中，过度分配会产生不必要的影响，但是，内存并非如此。因此，如果要构建企业应用程序，强烈建议将初始堆大小和最大堆大小设置为相同的值。</p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>下图就是打包过程中遇到的错误，根据字面意思理解是 semver.js的版本问题，经查阅资料，确实很多人遇到了这个问题，解决的方式记录下，方便自己日常工作。在对应路径下找到对应的文件semver.js,找到对应的函数：Range.prototype.test&nbsp;=&nbsp;function&nbsp;(version)&nbsp;{}</p> <p>在校验版本的时候出现了问题，比较好的办法，是执行该函数时，直接return true，直接退出本函数。这个问题就解决了。</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220604/c450d23ad9c232674bcae0dfc63855fe.jpg"></p> <p>还有就是打包的时候要将页面中的调试debugger去掉，&nbsp;不然会报错的。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-8.htm">Python调用C语言方法</a></p>
-                                        <p>下一个：<a href="/html/category/article-10.htm">Eureka详解系列(四)&#8211;Eureka Client部分的源码和配置</a></p>
+                                        <p>上一个：<a href="/html/category/article-8.htm">C#使用RestClient调用Web API_C#教程</a></p>
+                                        <p>下一个：<a href="/html/category/article-10.htm">Python中将字典转为成员变量详解</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
-                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
-                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
+                <h4><a href="/html/category/article-210.htm">Java8 LocalDate、LocalDateTime、LocalTime、Instant</a></h4>
+                <p>Java8日期时间API，新增了LocalDate、LocalDateTime、LocalTime等线程安全类，下面简单介绍他们的使用及Date与LocalDate互转。  &nbsp;1、Local</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
-                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
+                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
+                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
-                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+                <h4><a href="/html/category/article-213.htm">C/C++内存申请函数总结</a></h4>
+                <p>#include &lt;stdlib.h&gt; new char[size] void* malloc(unsigned size); void* realloc(void* ptr, unsig</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
-                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
+                <h4><a href="/html/category/article-230.htm">Vuex的各个模块封装</a></h4>
+                <p>一、各个模块的作用：   state 用来数据共享数据存储  mutation 用来注册改变数据状态（同步）  getters 用来对共享数据进行过滤并计数操作  action 解决异步改变共享数据（</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></h4>
-                <p>Redis的数据淘汰策略  volatile-lru（least recently used）：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰 vol</p>
+                <h4><a href="/html/category/article-233.htm">echarts根据数据动态生成不同条数的折线图</a></h4>
+                <p>一、功能需求背景 1、后台可自定义折线图的折线名称、数据、数量（几条） 2、满足不同折线图之间随意切换 3、折线图可鼠标拖动缩放和滚动条收缩查看 4、同一页面涉及多个echarts 二、功能涉及ech</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
-                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
+                <h4><a href="/html/category/article-255.htm">python 查看包的版本</a></h4>
+                <p>python查看包的版本  方法1：pip 使用cmd命令打开命令行，在命令行输入pip list,即可查看所有已安装的包及包的版本。  方法2：导入查看 导入包，输入包名.__version__即可</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
-                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
+                <h4><a href="/html/category/article-227.htm">Spring Boot四大神器之CLI</a></h4>
+                <p>目录             1. Spring Boot CLI简介： 2. 安装CLI:   手动安装：   3. 运行Groovy脚本 4. CLI运行原理说明：（CLI帮我们做了什么？）   </p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
-                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
+                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
+                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
-                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -194,11 +194,11 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
                             </div>
         </div>
     </div>
