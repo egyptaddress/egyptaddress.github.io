@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-189.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Spring MVC 自定义拦截器 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">Spring MVC 自定义拦截器</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-dracula"> <h2><a id="_0" rel="nofollow"></a>拦截器</h2> <p>Spring MVC 的处理器拦截器类似于 Servlet 开发中的过滤器 Filter，用于对处理器进行预处理和后处理。</p> <p>预处理：在访问controller之前执行的代码<br /> 后处理：在访问controller返回之后执行的代码</p> <p>拦截器链（Interceptor Chain）：拦截器链就是将拦截器按一定的顺序联结成一条链。在访问被拦截的方法或字段时，拦截器链中的拦截器就会按其之前定义的顺序被调用。</p> <p>可以自定义实现拦截器，需要实现<code>HandlerInterceptor 接口</code></p> <p><strong>拦截器和过滤器的区别</strong>：</p> <ul> <li>过滤器是 servlet 规范中的一部分， 任何 java web 工程都可以使用。</li> <li>拦截器是 SpringMVC 框架自己的，只有使用了 SpringMVC 框架的工程才能用。</li> <li>过滤器在 url-pattern 中配置了/*之后，可以对所有要访问的资源拦截。</li> <li>拦截器它是只会拦截访问的控制器方法，如果访问的是 jsp，html，css，image或者 js 是不会进行拦<br /> 截的</li> </ul> <h2><a id="_17" rel="nofollow"></a>自定义拦截器</h2> <p>在resources/springmvc.xml文件中配置拦截器：</p> <pre><code class="prism language-java"><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>配置拦截器<span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span>mvc<span class="token operator">:</span>interceptors<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>配置拦截器<span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span>mvc<span class="token operator">:</span>interceptor<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>要拦截的具体的方法，当请求路径前缀是<span class="token operator">/</span>user时拦截<span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span>mvc<span class="token operator">:</span>mapping path<span class="token operator">=</span><span class="token string">"/user/*"</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>不要拦截的方法<span class="token operator">&lt;</span>mvc<span class="token operator">:</span>exclude<span class="token operator">-</span>mapping path<span class="token operator">=</span><span class="token string">""</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>配置拦截器对象<span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span>bean<span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"包名.MyInterceptor1"</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>mvc<span class="token operator">:</span>interceptor<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>配置第二个拦截器<span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span>mvc<span class="token operator">:</span>interceptor<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>要拦截的具体的方法，所有的请求都拦截<span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span>mvc<span class="token operator">:</span>mapping path<span class="token operator">=</span><span class="token string">"/**"</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>不要拦截的方法<span class="token operator">&lt;</span>mvc<span class="token operator">:</span>exclude<span class="token operator">-</span>mapping path<span class="token operator">=</span><span class="token string">""</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>配置拦截器对象<span class="token operator">--</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span>bean<span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"包名.MyInterceptor2"</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>mvc<span class="token operator">:</span>interceptor<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>mvc<span class="token operator">:</span>interceptors<span class="token operator">&gt;</span></code></pre> <p>第一个拦截器：</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">MyInterceptor1</span><span class="token keyword">implements</span><span class="token class-name">HandlerInterceptor</span><span class="token punctuation">{<!-- --></span><span class="token comment">/**      * 预处理，controller方法执行前      * return true 放行，执行下一个拦截器，如果没有，执行controller中的方法      * return false不放行      * @param request      * @param response      * @param handler      * @return      * @throws Exception      */</span><span class="token keyword">public</span><span class="token keyword">boolean</span><span class="token function">preHandle</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span>         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyInterceptor1-preHandle-执行"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">return</span><span class="token boolean">true</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token comment">/**      * 后处理方法，controller方法执行后，success.jsp执行之前      * @param request      * @param response      * @param handler      * @param modelAndView      * @throws Exception      */</span><span class="token keyword">public</span><span class="token keyword">void</span><span class="token function">postHandle</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">,</span> ModelAndView modelAndView<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span>         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyInterceptor1-postHandle-执行"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token comment">/**      * success.jsp页面执行后，该方法会执行      * @param request      * @param response      * @param handler      * @param ex      * @throws Exception      */</span><span class="token keyword">public</span><span class="token keyword">void</span><span class="token function">afterCompletion</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">,</span> Exception ex<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span>         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyInterceptor1-afterCompletion-执行"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">MyInterceptor2</span><span class="token keyword">implements</span><span class="token class-name">HandlerInterceptor</span><span class="token punctuation">{<!-- --></span><span class="token comment">/**      * 预处理，controller方法执行前      * return true 放行，执行下一个拦截器，如果没有，执行controller中的方法      * return false不放行      * @param request      * @param response      * @param handler      * @return      * @throws Exception      */</span><span class="token keyword">public</span><span class="token keyword">boolean</span><span class="token function">preHandle</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span>         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyInterceptor2-preHandle-执行"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">return</span><span class="token boolean">true</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token comment">/**      * 后处理方法，controller方法执行后，success.jsp执行之前      * @param request      * @param response      * @param handler      * @param modelAndView      * @throws Exception      */</span><span class="token keyword">public</span><span class="token keyword">void</span><span class="token function">postHandle</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">,</span> ModelAndView modelAndView<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span>         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyInterceptor2-postHandle-执行"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token comment">/**      * success.jsp页面执行后，该方法会执行      * @param request      * @param response      * @param handler      * @param ex      * @throws Exception      */</span><span class="token keyword">public</span><span class="token keyword">void</span><span class="token function">afterCompletion</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">,</span> Exception ex<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span>         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyInterceptor2-afterCompletion-执行"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p>UserController :</p> <pre><code class="prism language-java"><span class="token annotation punctuation">@Controller</span><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/user"</span><span class="token punctuation">)</span><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">UserController</span><span class="token punctuation">{<!-- --></span><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/testInterceptor"</span><span class="token punctuation">)</span><span class="token keyword">public</span> String<span class="token function">testInterceptor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"UserController.testInterceptor控制器-执行"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//success.jsp页面</span><span class="token keyword">return</span><span class="token string">"success"</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p>success.jsp：</p> <pre><code class="prism language-java"><span class="token operator">&lt;</span><span class="token operator">%</span> System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"success.jsp-执行"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token operator">%</span><span class="token operator">&gt;</span></code></pre> <p>当请求/user/testInterceptor时，控制台打印结果：<br /> MyInterceptor1-preHandle-执行<br /> MyInterceptor2-preHandle-执行<br /> UserController.testInterceptor控制器-执行<br /> MyInterceptor2-postHandle-执行<br /> MyInterceptor1-postHandle-执行<br /> success.jsp-执行<br /> MyInterceptor2-afterCompletion-执行<br /> MyInterceptor1-afterCompletion-执行</p> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-188.htm">用JS实现一个秒表计时器</a></p>
+                                        <p>下一个：<a href="/html/category/article-190.htm">仅用四步就整合好SpringSecurity+JWT实现登录认证！</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
+                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
+                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
+                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
+                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
+                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
+                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
+                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
+                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
+                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

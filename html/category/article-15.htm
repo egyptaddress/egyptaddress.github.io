@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-15.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>CPF 使用C#的Native AOT 发布程序 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">CPF 使用C#的Native AOT 发布程序</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<p>微软已经将AOT的包移到Nuget了，之前是在实验测试服务器上的。并且由之前的alpha版本改成了preview版本。</p> <p>C#的开发效率，接近C++的运行效率，而且可以防止反编译，可以支持大部分反射功能。还有几个小问题，暂时不能支持x86，win7上运行aot的程序可能需要打补丁！</p> <p>CPF里使用AOT需要将项目改成net5以上版本，因为net5之后才有COM的包装器，如果你只是给自己的控制台程序AOT的话，可以用低版本的netcore（.NET 7 Preview 3 开始，NativeAOT 将只支持 .NET 6+）</p> <p>使用方式很简单，编辑csproj，加入下面一段代码，另外CPF的包版本需要换成最新的</p> <div class="cnblogs_code"> <pre><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">PropertyGroup</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">IlcOptimizationPreference</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>Size<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">IlcOptimizationPreference</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">IlcGenerateStackTraceData</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>false<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">IlcGenerateStackTraceData</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">PropertyGroup</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">ItemGroup</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">RdXmlFile</span><span style="color: rgba(255, 0, 0, 1)">Include</span><span style="color: rgba(0, 0, 255, 1)">="rd.xml"</span><span style="color: rgba(0, 0, 255, 1)">/&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">PackageReference</span><span style="color: rgba(255, 0, 0, 1)">Include</span><span style="color: rgba(0, 0, 255, 1)">="Microsoft.DotNet.ILCompiler"</span><span style="color: rgba(255, 0, 0, 1)"> Version</span><span style="color: rgba(0, 0, 255, 1)">="7.0.0-preview.2.22152.2"</span><span style="color: rgba(0, 0, 255, 1)">/&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">ItemGroup</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span></pre> </div> <blockquote> <p>一般建议根据发布平台的注释掉其他平台的适配器，以及删除其他平台的引用，用来减少发布的程序大小。比如如果发布Windows上的，可以把Mac和Linux的注释掉。</p> <p>另外需要注意的是使用AOT方式发布的话，需要到对应系统上发布，比如发布Linux的程序，就需要到Linux上发布。不支持跨操作系统编译。</p> </blockquote> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b3dc8d20a5032b425336853decf70a71.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c52a70a44a32a9c83da19dfe055b6f4c.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>项目里增加个rd.xml文件，你可以根据需要添加一些反射的元数据描述</p> <div class="cnblogs_code"> <pre><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">Directives</span><span style="color: rgba(255, 0, 0, 1)">xmlns</span><span style="color: rgba(0, 0, 255, 1)">="http://schemas.microsoft.com/netfx/2013/01/metadata"</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">Application</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">Assembly</span><span style="color: rgba(255, 0, 0, 1)">Name</span><span style="color: rgba(0, 0, 255, 1)">="CPF"</span><span style="color: rgba(255, 0, 0, 1)"> Dynamic</span><span style="color: rgba(0, 0, 255, 1)">="Required All"</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">Type</span><span style="color: rgba(255, 0, 0, 1)">Name</span><span style="color: rgba(0, 0, 255, 1)">="CPF.Animation.KeyFrame`1[[CPF.Drawing.Color,CPF]]"</span><span style="color: rgba(255, 0, 0, 1)"> Dynamic</span><span style="color: rgba(0, 0, 255, 1)">="Required All"</span><span style="color: rgba(0, 0, 255, 1)">/&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">Assembly</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">Assembly</span><span style="color: rgba(255, 0, 0, 1)">Name</span><span style="color: rgba(0, 0, 255, 1)">="CPF.Windows"</span><span style="color: rgba(255, 0, 0, 1)"> Dynamic</span><span style="color: rgba(0, 0, 255, 1)">="Required All"</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">Type</span><span style="color: rgba(255, 0, 0, 1)">Name</span><span style="color: rgba(0, 0, 255, 1)">="CPF.Windows.OpenGL.WglCreateContextAttribsARBDelegate"</span><span style="color: rgba(255, 0, 0, 1)"> MarshalDelegate</span><span style="color: rgba(0, 0, 255, 1)">="Required All"</span><span style="color: rgba(0, 0, 255, 1)">/&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">Assembly</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">Application</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">Directives</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span></pre> </div> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/993cee7e1fe4f1efed1212eeffa7555d.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>一般的，项目右键，选择发布。 如果你喜欢用命令行也是可以的。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/64dd680e95dff59af122b05acfa704be.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>选择文件夹</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/00b7154f353d978f525ccbb2e444117f.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>设置好发布路径，完成。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/e64f6b3f319b01c91c0e2714cb859d6b.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/563abeb12fc66b075a475877e6f12503.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>需要注意的是Windows端暂时只能用x64的，x86的好像还不行。需要用Release方式，Debug模式效果不好。设置好了之后，直接点发布。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/dfede5e82a72cd14887fbff60006c753.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>之后一般等待一两分钟就行，你可以看到输出那边的相关信息</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b9d6d523005a1dee331e049b9c015639.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>发布成功之后的程序，双击启动秒开，比非AOT发布的启动速度快多了。主程序小于30M，另外依赖一个7M的skia的dll</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/f4773c86279940f30ac9bb7d3cec385e.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/94d42b2445a953239fd6df2880012951.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c378915c1079eb391d0247763890c05f.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>&nbsp;AOT后的程序也是可以调试的，带上对应的pdb文件，然后采用附加进程的方式附加刚才启动的程序，然后就可以进入断点了</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/7c85615866717155f2a66679f9af2925.jpg" alt="CPF 使用C#的Native AOT 发布程序"></p> <p>如果出现无法启动程序的情况，你可以先把项目输出类型改成控制台再AOT之后运行，这样就可以看到相关异常信息。比如反射类型缺失什么的，你可以编辑rd.xml文档</p> <p>更加详细说明可以看看微软的文档&nbsp;&nbsp;https://github.com/dotnet/runtime/tree/main/src/coreclr/nativeaot/docs</p> <p><audio controls="controls" style="display: none" rel="nofollow"></audio></p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-14.htm">vue3中 setup注意点</a></p>
+                                        <p>下一个：<a href="/html/category/article-16.htm">C# 实现登录并跳转界面</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
+                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
+                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
+                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
+                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在日常开发中，我学使用原生JavaScript获取元素的时候，最常用的方法就document.getEl</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
+                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
+                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
+                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
+                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

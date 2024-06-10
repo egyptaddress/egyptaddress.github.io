@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-68.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>面试题：NIO/Netty 中的零拷贝体现在哪里？ - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">面试题：NIO/Netty 中的零拷贝体现在哪里？</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-tomorrow-night"> <div class="toc"> <h3>目录</h3> <ul> <li><a href="#_1" rel="nofollow">前言</a></li> <li><a href="#_6" rel="nofollow">相关知识</a></li> <li><a href="#DirectByteBuffer__HeapByteBuffer__15" rel="nofollow">DirectByteBuffer 与 HeapByteBuffer 的关系</a></li> <li><a href="#NIO__111" rel="nofollow">面试题：NIO 的零拷贝体现在哪里？</a></li> <li><a href="#Netty__116" rel="nofollow">面试题：Netty 的零拷贝体现在哪里？</a></li> <li><a href="#_122" rel="nofollow">关于文件传输</a></li> <li><a href="#_TCP__130" rel="nofollow">关于 TCP 缓冲区的思考</a></li> <li><a href="#_138" rel="nofollow">参考文章</a></li> </ul> </div> <h1><a id="_1" rel="nofollow"></a>前言</h1> <p>关于 NIO 里的零拷贝，很多博客提及的都是关于磁盘到网络的拷贝，他们写得很清楚了。总结起来就是，关于磁盘到网络（或磁盘到磁盘）的拷贝，与底层系统有关，Java 做的是封装。这种零拷贝是不能给我们 Java 程序操作数据的。因为 Java 程序在这里面起到的作用仅仅是发一个“系统调用”（以及封装），其它工作都是内核完成的。</p> <p>现在的 Java 程序员，更多关注地是 Java 程序（内存）到网络之间的拷贝。因为关于磁盘的读写往往是通过数据库来做的，而不是通过 FileChannel 来读文件。本文想讲明白的，就是<strong>内存到网络</strong>的零拷贝。</p> <h1><a id="_6" rel="nofollow"></a>相关知识</h1> <p><strong>内核</strong><br /> 内核是操作系统的软件，它封装了最底层的细节，提供接口，保证安全。Java 程序要调用内核的接口，就涉及 2 次模式切换。调用：从用户模式到内核模式；返回：从内核模式到用户模式。这是耗性能的。内核模式（也叫内核态）拥有比用户模式更大的权限。</p> <p><strong>系统调用</strong><br /> 关于 Java 里的 IO 这一块，相关代码大量调用了 JNI（Java Native Interface），JNI 是由 c/c++ 写的。而这些底层语言关于 IO 这一块，调用的是“系统调用”，“系统调用”是系统内核提供的接口。</p> <p><strong>虚拟内存</strong><br /> 对于 Linux 系统，每个进程分配的内存是虚拟内存，虚拟内存以<strong>页</strong>为单位分配，并且有页表能找到物理内存的位置。虚拟内存让进程以为自己有连续的内存空间。</p> <h1><a id="DirectByteBuffer__HeapByteBuffer__15" rel="nofollow"></a>DirectByteBuffer 与 HeapByteBuffer 的关系</h1> <p>我们创建一个 DirectByteBuffer：<br /> 类 ByteBuffer</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">static</span> ByteBuffer<span class="token function">allocateDirect</span><span class="token punctuation">(</span><span class="token keyword">int</span> capacity<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span><span class="token keyword">new</span><span class="token class-name">DirectByteBuffer</span><span class="token punctuation">(</span>capacity<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p>底层是通过 c++ 的 malloc 方法分配内存。这个内存是<strong>堆外内存</strong>，也就是<strong>直接内存</strong>。</p> <p>SocketChannelImpl 的源码得在 OpenJDK 中看，它里面有 write 和 read 方法，我们只看 write，因为它们是类似的。</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">int</span><span class="token function">write</span><span class="token punctuation">(</span>ByteBuffer buf<span class="token punctuation">)</span><span class="token keyword">throws</span> IOException<span class="token punctuation">{<!-- --></span><span class="token keyword">if</span><span class="token punctuation">(</span>buf<span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token keyword">throw</span><span class="token keyword">new</span><span class="token class-name">NullPointerException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">synchronized</span><span class="token punctuation">(</span>writeLock<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token function">ensureWriteOpen</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">int</span> n<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span><span class="token keyword">try</span><span class="token punctuation">{<!-- --></span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">synchronized</span><span class="token punctuation">(</span>stateLock<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">isOpen</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token keyword">return</span><span class="token number">0</span><span class="token punctuation">;</span>                 writerThread<span class="token operator">=</span> NativeThread<span class="token punctuation">.</span><span class="token function">current</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">for</span><span class="token punctuation">(</span><span class="token punctuation">;</span><span class="token punctuation">;</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token comment">//这里</span>                 n<span class="token operator">=</span> IOUtil<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> buf<span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> nd<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>n<span class="token operator">==</span> IOStatus<span class="token punctuation">.</span>INTERRUPTED<span class="token punctuation">)</span><span class="token operator">&amp;&amp;</span><span class="token function">isOpen</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token keyword">continue</span><span class="token punctuation">;</span><span class="token keyword">return</span> IOStatus<span class="token punctuation">.</span><span class="token function">normalize</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token keyword">finally</span><span class="token punctuation">{<!-- --></span><span class="token function">writerCleanup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token function">end</span><span class="token punctuation">(</span>n<span class="token operator">&gt;</span><span class="token number">0</span><span class="token operator">||</span><span class="token punctuation">(</span>n<span class="token operator">==</span> IOStatus<span class="token punctuation">.</span>UNAVAILABLE<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">synchronized</span><span class="token punctuation">(</span>stateLock<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>n<span class="token operator">&lt;=</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token operator">&amp;&amp;</span><span class="token punctuation">(</span><span class="token operator">!</span>isOutputOpen<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token keyword">throw</span><span class="token keyword">new</span><span class="token class-name">AsynchronousCloseException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">assert</span> IOStatus<span class="token punctuation">.</span><span class="token function">check</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p>类 IOUtil</p> <pre><code class="prism language-java"><span class="token keyword">static</span><span class="token keyword">int</span><span class="token function">write</span><span class="token punctuation">(</span>FileDescriptor fd<span class="token punctuation">,</span> ByteBuffer src<span class="token punctuation">,</span><span class="token keyword">long</span> position<span class="token punctuation">,</span>                      NativeDispatcher nd<span class="token punctuation">)</span><span class="token keyword">throws</span> IOException<span class="token punctuation">{<!-- --></span><span class="token comment">//如果是DirectBuffer</span><span class="token keyword">if</span><span class="token punctuation">(</span>src<span class="token keyword">instanceof</span><span class="token class-name">DirectBuffer</span><span class="token punctuation">)</span><span class="token keyword">return</span><span class="token function">writeFromNativeBuffer</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> src<span class="token punctuation">,</span> position<span class="token punctuation">,</span> nd<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//不是DirectBuffer，就是一种堆内Buffer,Java里没有HeapBuffer这个接口</span><span class="token comment">// Substitute a native buffer</span><span class="token keyword">int</span> pos<span class="token operator">=</span> src<span class="token punctuation">.</span><span class="token function">position</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">int</span> lim<span class="token operator">=</span> src<span class="token punctuation">.</span><span class="token function">limit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">assert</span><span class="token punctuation">(</span>pos<span class="token operator">&lt;=</span> lim<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">int</span> rem<span class="token operator">=</span><span class="token punctuation">(</span>pos<span class="token operator">&lt;=</span> lim<span class="token operator">?</span> lim<span class="token operator">-</span> pos<span class="token operator">:</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//还是要创建一个临时的DirectBuffer</span>     ByteBuffer bb<span class="token operator">=</span> Util<span class="token punctuation">.</span><span class="token function">getTemporaryDirectBuffer</span><span class="token punctuation">(</span>rem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">try</span><span class="token punctuation">{<!-- --></span>         bb<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>src<span class="token punctuation">)</span><span class="token punctuation">;</span>         bb<span class="token punctuation">.</span><span class="token function">flip</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// Do not update src until we see how many bytes were written</span>         src<span class="token punctuation">.</span><span class="token function">position</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//还是要调用这个方法</span><span class="token keyword">int</span> n<span class="token operator">=</span><span class="token function">writeFromNativeBuffer</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> bb<span class="token punctuation">,</span> position<span class="token punctuation">,</span> nd<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">if</span><span class="token punctuation">(</span>n<span class="token operator">&gt;</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token comment">// now update src</span>             src<span class="token punctuation">.</span><span class="token function">position</span><span class="token punctuation">(</span>pos<span class="token operator">+</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">return</span> n<span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">finally</span><span class="token punctuation">{<!-- --></span>         Util<span class="token punctuation">.</span><span class="token function">offerFirstTemporaryDirectBuffer</span><span class="token punctuation">(</span>bb<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <ol> <li>如果src为DirectBuffer，那么就直接调用writeFromNativeBuffer</li> <li>否则src为一个HeapBuffer（Java中没有这个接口），先通过getTemporaryDirectBuffer创建一个临时的DirectBuffer，然后将HeapBuffer中的数据拷贝到这个临时的DirectBuffer，最后再调用writeFromNativeBuffer发送数据</li> </ol> <p>writeFromNative本质是JVM发起了系统调用，将<strong>直接内存</strong>地址给内核操作。内核由于权限最高，所以可以通过我们发起JNI调用时传递的直接内存地址来帮我们直接操作堆外内存，也就减少了我们正常方式中需要将数据从用户态内存（堆内内存和堆外内存）拷贝到内核态内存。</p> <p>为什么不能让内核系统直接操作堆内内存?因为 JVM 不让。</p> <p><strong>总结</strong>一下上面的内容：<br /> 在 NIO 里，通过 Buffer 的方式，Java 程序与外设（网卡、磁盘）交流，必须通过堆外内存。</p> <p>如果不用 DirectBuffer 的内存复制过程：<strong>堆内内存 =&gt; 堆外内存 == 内核内存=&gt; 外设</strong>（磁盘或者网卡缓存，它们与内核之间的数据读写不由 CPU 完成）<br /> 其中，<strong>堆外内存 == 内核内存</strong> 是因为：用户态的逻辑地址和内核态的逻辑地址使用的是同一个物理空间，内核态直接操作了用户态内存。</p> <h1><a id="NIO__111" rel="nofollow"></a>面试题：NIO 的零拷贝体现在哪里？</h1> <p>从上面的内容就可以知道 NIO 的零拷贝是怎么回事了：</p> <ol> <li>使用 DirectBuffer 不仅省去了数据在堆内内存与堆外内存之间的拷贝</li> <li>而且用户态的逻辑地址和内核态的逻辑地址使用的是同一个物理空间，内核态直接操作了用户态内存，省去了数据在用户态与内核态之间的拷贝。<strong>CPU不需要为数据在内存之间的拷贝消耗资源</strong>。</li> </ol> <h1><a id="Netty__116" rel="nofollow"></a>面试题：Netty 的零拷贝体现在哪里？</h1> <p>Netty 是基于 NIO 的，所以上面的两点要先答出来。除了这两点外，Netty 还有自己的一点：</p> <ul> <li>Netty 提供了组合 Buffer 对象，可以聚合多个 ByteBuffer 对象，用户可以像操作一个 Buffer 那样方便的对组合 Buffer 进行操作，避免了传统通过内存拷贝的方式将几个小 Buffer 合并成一个大的 Buffer。</li> </ul> <h1><a id="_122" rel="nofollow"></a>关于文件传输</h1> <p>其实答完上面几点就已经能让面试官刮目相看了。但文章看开头也说了，本文讲述的是<strong>内存到网络</strong>的零拷贝，还有关于<strong>磁盘到网络</strong>/<strong>磁盘到磁盘</strong>的零拷贝在文章开头大致讲述了一下。在这里简单总结一下怎么讲给面试官：</p> <ul> <li>关于<strong>磁盘到网络</strong>/<strong>磁盘到磁盘</strong>的零拷贝，NIO/Netty 是通过 transferTo 完成的，transferTo 发出系统调用，零拷贝由系统内核完成。（也就是说零拷贝能到那种程度，取决于你的操作系统）</li> </ul> <p>更多详情请看文章末尾的参考文章</p> <h1><a id="_TCP__130" rel="nofollow"></a>关于 TCP 缓冲区的思考</h1> <p><strong>堆内内存 =&gt; 堆外内存 == 内核内存=&gt; 网卡</strong> 的过程中，TCP 缓冲区在哪儿？</p> <p>TCP 缓冲区在内核中，这是可以肯定的。但问题是现在内核操作的内存其实是 Java 申请的堆外内存，之后就要传输数据到网卡了，也没有再复制到 TCP 缓冲区这一步，那么 TCP 缓冲区到底在哪里呢？</p> <p>其实，TCP 缓冲区保存的也是内存的地址。这样来看，似乎就没什么问题了。堆外内存，内核内存，TCP 缓冲区用了同一块物理内存。</p> <p>如果有误，欢迎指正。</p> <h1><a id="_138" rel="nofollow"></a>参考文章</h1> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/localhost01/article/details/83422888"  rel="nofollow">浅谈NIO与零拷贝</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/weixin_40864891/article/details/105272616"  rel="nofollow">Linux 虚拟内存、Java直接内存和内存映射</a></p> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-67.htm">Spring如何快速上手</a></p>
+                                        <p>下一个：<a href="/html/category/article-69.htm">SpringCloud——安全认证（Security）</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
+                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
+                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
+                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
+                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
+                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
+                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
+                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
+                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
+                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-147.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>vue+element-ui+axios多文件上传的实现并显示整体进度_vue.js - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">vue+element-ui+axios多文件上传的实现并显示整体进度_vue.js</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">element-ui+axios多文件上传并显示进度</a></li> <li><a href="#_label1" rel="nofollow">解决element ui多文件上传的问题</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_0" rel="nofollow">业务场景</a></li> <li><a href="#_lab2_1_1" rel="nofollow">解决办法</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>element-ui+axios多文件上传并显示进度</h2> <p>element-ui自带的多文件上传是做成了多文件多次上传,公司有需求需要选取多个文件一次上传全部.</p> <p><strong>代码部分</strong></p> <div class="ay1code"> <pre class="brush:xhtml;">&lt;template&gt;    &lt;d2-container&gt;      &lt;el-form ref="form" :model="formData" label-width="120px"&gt;        &lt;el-row&gt;          &lt;el-col :span="10"&gt;            &lt;el-form-item label="图片"  prop="mediaFileUrl"&gt;              &lt;el-upload style="width: 100%;"                class="upload-demo"                ref="uploadMul"                multiple                action                drag                :limit="maxUploadSize"                :on-exceed="uploadLimit"                :http-request="uploadFile"                :file-list="fileList"                :auto-upload="false"                :on-remove="handleRemove"                :before-upload="beforeUpload"                :on-change="uploadChange"              &gt;                &lt;i class="el-icon-upload"&gt;&lt;/i&gt;                &lt;div class="el-upload__text"&gt;将文件拖到此处，或&lt;em&gt;点击上传&lt;/em&gt;&lt;/div&gt;                &lt;div class="el-upload__tip" slot="tip"&gt;支持上传jpg/png/gif文件，且不超过100M&lt;/div&gt;              &lt;/el-upload&gt;              &lt;div v-show="progressFlag" class="head-img"&gt;                &lt;el-progress :text-inside="true" :stroke-width="14" :percentage="progressPercent" status="success"&gt;&lt;/el-progress&gt;              &lt;/div&gt;              &lt;el-button size="mini" type="success" @click="submitUpload"&gt;上传到服务器&lt;/el-button&gt;              &lt;el-button v-if="this.fileList.length &gt; 0" size="mini" type="warning" @click="clearFiles"&gt;清空&lt;/el-button&gt;            &lt;/el-form-item&gt;          &lt;/el-col&gt;          &lt;el-col :offset="4"&gt;&lt;/el-col&gt;        &lt;/el-row&gt;      &lt;/el-form&gt;    &lt;/d2-container&gt;  &lt;/template&gt;</pre> </div> <div class="ay1code"> <pre class="brush:js;">&lt;script&gt;  import axios from 'axios'  export default {    data () {      return {        maxUploadSize: 10,        progressFlag: false,        progressPercent: 10,        innerVisible: false,        fileList: [],        isViewDisabled: false,        formData: {},        param: {} // 上传文件主要参数      }    },    methods: {      submitUpload () {        if (this.fileList.length &lt; 1) {          this.$message.warning('请选择文件!')          return false        }        this.$refs.uploadMul.submit()        if (this.param instanceof FormData) {          // 附加参数          this.param.append('expirationsec', 0)          this.param.append('fileproperty', 'publicfiles')          // const config = {          //   headers: { 'content-type': 'multipart/form-data' }          // }          // axios.post('/api/oss/ossUploadObject', this.param, config).then(res =&gt; {          //   if (res.status === 200 &amp;&amp; res.data.status === 200) {          //     this.$message.success('上传成功!')          //     let result = res.data.body.data          //     console.log(result)          //   }          //   this.$refs.uploadMul.clearFiles()          //   this.param = {}          // })          let that = this          that.progressFlag = true          axios({            url: '/api/oss/ossUploadObject',            method: 'post',            data: that.param,            headers: { 'Content-Type': 'multipart/form-data' },            onUploadProgress: progressEvent =&gt; {              // progressEvent.loaded:已上传文件大小              // progressEvent.total:被上传文件的总大小              // 进度条              that.progressPercent = ((progressEvent.loaded / progressEvent.total) * 100).toFixed(0) | 0            }          }).then(res =&gt; {            this.param = {}            this.fileList = []            console.log(res)            if (res.data.status === 200 &amp;&amp; that.progressPercent === 100) {              setTimeout(function () {                that.$message({                  message: '上传成功！',                  type: 'success',                  duration: '2000'                })                that.progressFlag = false                that.progressPercent = 0                that.$refs.uploadMul.clearFiles()              }, 1000)              let result = res.data.body.data              console.log(result)            } else {              setTimeout(function () {                that.$message({                  message: res.data.msg,                  type: 'error',                  duration: '2000'                })                that.progressFlag = false                that.progressPercent = 0                that.$refs.uploadMul.clearFiles()              }, 1000)            }          }).catch(() =&gt; {            that.progressFlag = false            that.progressPercent = 0            that.$refs.uploadMul.clearFiles()            that.$message({              message: '上传失败！',              type: 'error',              duration: '2000'            })          })        } else {          console.log(this.param instanceof FormData)        }      },      handleRemove (file, fileList) {        this.$message.warning(`已移除文件:  ${file.name}!`)        // 每移除一个文件,param重新赋值        this.param = new FormData()        this.fileList = [...fileList]        this.fileList.forEach((file, index) =&gt; {          this.param.append(`file`, file.raw) // 把单个文件重命名，存储起来（给后台）        })      },      uploadChange (file, fileList) {        // const videoType = ['image/gif', 'image/png', 'image/jpeg', 'video/mp4', 'video/flv', 'video/avi', 'video/rmvb']        // if (videoType.indexOf(file.raw.type) === -1) {        //   this.$message.error(`不支持此文件格式${file.raw.type}`)        //   this.$refs.uploadMul.clearFiles()        //   return false        // }        this.param = new FormData()        this.fileList = [...fileList]        this.fileList.forEach((file, index) =&gt; {          this.param.append(`file`, file.raw) // 把单个文件重命名，存储起来（给后台）        })      },      // 超出上传个数时调用      uploadLimit (files, fileList) {        this.$message.error(`最多允许同时上传${this.maxUploadSize}个文件!`)        // files.forEach((file, index) =&gt; {        //   console.log(index)        // })      },      beforeUpload (file) {      },      uploadFile (file) {        // 该方法需存在,防止空action时element-ui报404异常      },      clearFiles () {        this.fileList = []        this.param = {}        this.$refs.uploadMul.clearFiles()      },      // 初始化表单数据      init () {      }    }  }  &lt;/script&gt;  &lt;style lang="scss" scoped&gt;  &lt;/style&gt;    </pre> </div> <p>后端代码(模拟)</p> <div class="ay1code"> <pre class="brush:java;">@RequestMapping("/oss/ossUploadObject")  public ApiResponse&lt;FileDto&gt; uploadObject(@RequestParam("file") MultipartFile[] file, FileVo fileVo){      //...code      FileDto dto = new FileDto();      dto.setUrl("");      dto.setFileId("");      return ApiResponse.success(FileDto);  }</pre> </div> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>解决element ui多文件上传的问题</h2> <p class="maodian"><a name="_lab2_1_0" rel="nofollow"></a></p> <h3>业务场景</h3> <p>在使用vue+elementui 实现文件上传的时候，我发现官网给的组件每次都会自动上传，而且一次上传一个文件。但是我实际的业务是，一次上传多个文件。</p> <p class="maodian"><a name="_lab2_1_1" rel="nofollow"></a></p> <h3>解决办法</h3> <p>前端代码：</p> <div class="ay1code"> <pre class="brush:xhtml;">&lt;template&gt;    &lt;div&gt;  &lt;!--    文件上传组件--&gt;  &lt;!--      :auto-upload="false" 这里设置为不自动上传 ，所以:action="BASE_API+'/upload'“ 失效--&gt;    &lt;el-upload      name="files"      class="upload-demo"      :on-change="OnChange"      :multiple="true"         :action="BASE_API+'/upload'"      :on-preview="handlePreview"      :before-remove="beforeRemove"      :file-list="list"      :auto-upload="false"      list-type="picture"&gt;      &lt;i class="el-icon-plus"&gt;&lt;/i&gt;      &lt;div slot="tip" class="el-upload__tip"&gt;只能上传jpg/png文件，且不超过500kb&lt;/div&gt;    &lt;/el-upload&gt;    &lt;el-dialog :visible.sync="dialogVisible"&gt;      &lt;img width="100%" :src="dialogImageUrl" alt=""&gt;    &lt;/el-dialog&gt;    &lt;el-button type="" @click="fun"&gt;点击查看filelist&lt;/el-button&gt;    &lt;el-button type="" @click="onSubmit"&gt;提交&lt;/el-button&gt;    &lt;/div&gt;     &lt;/template&gt;</pre> </div> <div class="ay1code"> <pre class="brush:js;">&lt;script&gt;    import upload from "@/api/upload"    import request from "@/utils/request"       export default {      data() {        return {          param: new FormData(),          form:{},          count:0,          list:[],          dialogVisible:false,          dialogImageUrl:'',          BASE_API: process.env.BASE_API, // 接口API地址        };      },      methods: {        handlePreview(file) {          this.dialogImageUrl = file.url;          this.dialogVisible = true;        },        beforeRemove(file, fileList) {          return this.$confirm(`确定移除 ${ file.name }？`);        },        OnChange(file,fileList){             console.log(fileList)          this.list=fileList           },        OnRemove(file,fileList){          this.list=fileList        },        fun(){          console.log('------------------------')          console.log(this.list)        },        onSubmit(){             // this.form={          //   a:1,          //   b:2,          //   c:3          // }          // let file=''          // for(let x in this.form){          //   this.param.append(x,this.form[x])          // }          // for(let i=0;i&lt;this.list.length;i++){          //    const file='file'+this.count          //   this.count++          //   this.param.append(file,this.list[i].raw)          // }          // console.log(this.param)             console.log(this.list[0])             let formData = new FormData();          let file1 = this.list[0]          let file2 = this.list[1]          console.log(file1)          console.log(file2)          // 这里必须是 .raw 不然后端springboot multipart 获取到的文件为 null          // 单个文件的话 后端接口写 Multipart file          // 多个文件的话 后端接口写 Multipart [] files          // 文件名需要对应          formData.append('files', file1.raw);          formData.append('files', file2.raw);          // formData.append('name', 'zhangsan');          // formData.append('files[]', file2);             request.post('/upload',formData,{            headers: {              'Content-Type': 'multipart/form-data'            }}).then(res=&gt;{            console.log(res)          })             // request.post('/testabc?name='+formData.get("name")).then(res=&gt;{          //   console.log(res)          // })             // upload.uploadfile(formData).then(res=&gt;{          //   console.log(res)          // })          // batchTagInfo(this.param)          //   .then(res=&gt;{          //     alert(res)          //   })        }      }    }  &lt;/script&gt;     &lt;style scoped&gt;  &lt;/style&gt;</pre> </div> <p>后端接口代码：</p> <div class="ay1code"> <pre class="brush:java;">package com.yj.wiki.controller;  import org.springframework.web.bind.annotation.CrossOrigin;  import org.springframework.web.bind.annotation.PostMapping;  import org.springframework.web.bind.annotation.RestController;  import org.springframework.web.multipart.MultipartFile;     @RestController  @CrossOrigin  public class UploadFileController {         @PostMapping("/upload")      public String upload(MultipartFile[] files){             for (MultipartFile file : files) {              System.out.println(file.getOriginalFilename());             }             return "ok";      }         @PostMapping("/testabc")      public String upload(String name){             System.out.println(name    );             return "ok";      }  }</pre> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-146.htm">resttemplate  返回中文乱码解决</a></p>
+                                        <p>下一个：<a href="/html/category/article-148.htm">什么是JavaSpring框架?</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
+                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
+                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
+                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-260.htm">vue的自动化路由+分模块管理+路由懒加载</a></h4>
+                <p>近期单独做了一个系统项目，项目不大但是页面太多了，为了后期维护管理容易，做了个自动化加载路由以及模块化的管理。在此记录一下。 直接撸代码 1.首先看目录  router下的index.js是路由配置文</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
+                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在日常开发中，我学使用原生JavaScript获取元素的时候，最常用的方法就document.getEl</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
+                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
+                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
+                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
+                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

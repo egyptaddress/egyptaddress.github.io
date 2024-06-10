@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-65.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>解决Error response from daemon: Get “https://registry-1.docker.io/v2/“: read: connection refused问题 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">解决Error response from daemon: Get “https://registry-1.docker.io/v2/“: read: connection refused问题</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>在用docker容器下载rabbitmq时出现报错如下<br /> Error response from daemon: Get “https://registry-1.docker.io/v2/”: dial tcp: lookup registry-1.docker.io on [::1]:53: read udp [::1]:50086-&gt;[::1]:53: read: connection refused<br /> 因为之前用docker下载过redis，mysql,nginx都没出现过问题，这次下载消息队列中间件却出现问题<br /> 当我ping IP地址的时候可以ping通，但是ping域名却不可以。上网搜了好多答案，大多说是由于dns服务器没有配置导致的问题。 可以直接在系统中点击设置里面的网络管理，然后添加dns服务器就可以了。<br /><strong>1、</strong> vi /ect/syconfig/network-scripts/ifcfg-ens33<br /> 往配置文件里最后一行写入<br /> DNS1=8.8.8.8<br /><strong>2、</strong> vi /etc/resolv.conf<br /> 同样 往配置文件里最后一行写入<br /> nameserver 8.8.8.8<br /><strong>3、</strong> 重启网络服务和docker</p> <pre><code class="prism language-powershell">service network restart</code></pre> <pre><code class="prism language-powershell">service docker restar</code></pre> <p>使用docker 命令拉取rabbitmq又出现如下错误<br /> Error response from daemon: Get “https://index.docker.io/v1/search?q=redis&amp;n=25”: dial tcp: lookup index.docker.io on 8.8.8.8:53: dial udp 8.8.8.8:53: connect: network is unreachable<br /> 此时发现ping8.8.8.8还是ping不通，而且ping www.baidu.com 也不行<br /> 查看Linux的ens33配置</p> <pre><code class="prism language-powershell">vi<span class="token operator">/</span>etc<span class="token operator">/</span>sysconfig<span class="token operator">/</span>network<span class="token operator">-</span>scripts<span class="token operator">/</span>ifcfg<span class="token operator">-</span>ens33</code></pre> <p>这是我的一些配置</p> <pre><code class="prism language-powershell"><span class="token function">TYPE</span>=Ethernet PROXY_METHOD=none BROWSER_ONLY=no BOOTPROTO=none DEFROUTE=yes IPADDR=192<span class="token punctuation">.</span>168<span class="token punctuation">.</span>55<span class="token punctuation">.</span>132 IPV4_FAILURE_FATAL=no IPV6INIT=yes IPV6_AUTOCONF=yes IPV6_DEFROUTE=yes IPV6_FAILURE_FATAL=no IPV6_ADDR_GEN_MODE=stable<span class="token operator">-</span>privacy NAME=ens33 UUID=59e02662<span class="token operator">-</span>6456<span class="token operator">-</span>4acf<span class="token operator">-</span>94fe<span class="token operator">-</span>c81dcfaeac00 DEVICE=ens33 ONBOOT=yes PREFIX=24 DNS1=8<span class="token punctuation">.</span>8<span class="token punctuation">.</span>8<span class="token punctuation">.</span>8</code></pre> <p>下面这是完整的配置信息</p> <pre><code class="prism language-powershell"><span class="token function">TYPE</span>=Ethernet<span class="token comment">#网卡类型:为以太网</span> PROXY_ METHOD=none<span class="token comment">#代理方式:关闭状态</span> BROWSER_ ONLY=no<span class="token comment">#只是浏览器:否</span> BOOTPROTO=static<span class="token comment">#网卡协议DHCP动态主机配置协议</span> DEFROUTE=yes<span class="token comment">#默认路由:是</span> IPV4_ FAILURE_ FATAL=no<span class="token comment">#否开启IPV4致命错误检测:否</span> PV6INIT=yes<span class="token comment"># IPV6是否自动初始化:是</span> IPV6_ AUTOCONF=<span class="token string">"yes"</span>IPV6是否自动配置:是 IPV6_ ADDR _GEN _MODE=stable<span class="token operator">-</span> privacy<span class="token comment"># IPV6地址生成模型</span> stable<span class="token operator">-</span>privacy是一种生成IPV6的策略 NAME=ens33<span class="token comment">#网卡名字(与DEVICE- 致)</span> UUID=6ac17c2b<span class="token operator">-</span>473e<span class="token operator">-</span><span class="token operator">-</span>4894<span class="token operator">-</span>811b<span class="token operator">-</span>4940ee7bf455<span class="token comment">#唯一标识码</span> DEVICE=ens33<span class="token comment">#网卡设备</span> ONBOOT=yes<span class="token comment">#否激活网卡</span> IPADDR=192<span class="token punctuation">.</span>168<span class="token punctuation">.</span>20<span class="token punctuation">.</span>20<span class="token comment">#ip地址(static设置 )</span> NETMASK=255<span class="token punctuation">.</span>255<span class="token punctuation">.</span>255<span class="token punctuation">.</span>0<span class="token comment">#子网掩码</span> GATEWAY= 192<span class="token punctuation">.</span>168<span class="token punctuation">.</span>20<span class="token punctuation">.</span>2<span class="token comment">#网关</span> DNS1=114<span class="token punctuation">.</span>114<span class="token punctuation">.</span>114<span class="token punctuation">.</span>114<span class="token comment">#dns地址解析</span></code></pre> <p>发现少了BOOTPROTO=static #网卡协议DHCP动态主机配置协议、NETMASK=255.255.255.0#子网掩码与GATEWAY= 192.168.55.2#网关关键信息<br /> 子网IP、子网掩码、网关IP三项信息可以通过虚拟机上看到，<br /><strong>打开编辑&gt;虚拟网络编辑器&gt;NAT设置</strong><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220606/853efccdd5a72919d5e1add9531e8829.jpg" alt="解决Error response from daemon: Get “https://registry-1.docker.io/v2/“: read: connection refused问题"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220606/e57ba919cb8457106741ae6dc26cabeb.jpg" alt="解决Error response from daemon: Get “https://registry-1.docker.io/v2/“: read: connection refused问题"><br /> 记住NAT设置中的子网IP、子网掩码、网关IP三项往ens33配置文件里填写即可。<br /> 最后重启网络服务service network restart就可以成功ping通外网，解决网络问题。<br /> 解决完拒绝网络连接问题就可以通过docker成功安装rabbitmq了。</p> <pre><code class="prism language-powershell">docker run<span class="token operator">-</span>d<span class="token operator">--</span>name rabbitmq<span class="token operator">-</span>p 5671:5671<span class="token operator">-</span>p 5672:5672<span class="token operator">-</span>p 4369:4369<span class="token operator">-</span>p 25672:25672<span class="token operator">-</span>p 15671:15671<span class="token operator">-</span>p 15672:15672 rabbitmq:management</code></pre> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-64.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></p>
+                                        <p>下一个：<a href="/html/category/article-66.htm">Java 超详细讲解ThreadLocal类的使用_java</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
+                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
+                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
+                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
+                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-260.htm">vue的自动化路由+分模块管理+路由懒加载</a></h4>
+                <p>近期单独做了一个系统项目，项目不大但是页面太多了，为了后期维护管理容易，做了个自动化加载路由以及模块化的管理。在此记录一下。 直接撸代码 1.首先看目录  router下的index.js是路由配置文</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
+                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
+                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
+                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

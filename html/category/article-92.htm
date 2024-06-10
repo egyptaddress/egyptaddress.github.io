@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-92.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>MySQL 5.7的Homebrew安装 &#8211; MacOS - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">MySQL 5.7的Homebrew安装 &#8211; MacOS</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-atelier-sulphurpool-light"> <blockquote> <p>写在前面：博主是一只经过实战开发历练后投身培训事业的“小山猪”，昵称取自动画片《狮子王》中的“彭彭”，总是以乐观、积极的心态对待周边的事物。本人的技术路线从Java全栈工程师一路奔向大数据开发、数据挖掘领域，如今终有小成，愿将昔日所获与大家交流一二，希望对学习路上的你有所助益。同时，博主也想通过此次尝试打造一个完善的技术图书馆，任何与文章技术点有关的异常、错误、注意事项均会在末尾列出，欢迎大家通过各种方式提供素材。</p> </blockquote> <ul> <li>对于文章中出现的任何错误请大家批评指出，一定及时修改。</li> <li>有任何想要讨论和学习的问题可联系我：zhuyc@vip.163.com。</li> <li>发布文章的风格因专栏而异，均自成体系，不足之处请大家指正。</li> </ul> <h1><a id="MySQL_57Homebrew__MacOS_6" rel="nofollow"></a>MySQL 5.7的Homebrew安装 - MacOS</h1> <p><strong>本文关键字：MySQL、数据库、5.7版本、MacOS、Homebrew</strong></p> <div class="toc"> <h3>文章目录</h3> <ul> <li><a href="#MySQL_57Homebrew__MacOS_6" rel="nofollow">MySQL 5.7的Homebrew安装 - MacOS</a></li> <li> <ul> <li><a href="#MySQL_9" rel="nofollow">一、MySQL简介</a></li> <li><a href="#_13" rel="nofollow">二、版本选择</a></li> <li> <ul> <li><a href="#1__14" rel="nofollow">1. 应用场景</a></li> <li><a href="#2_MySQL_23" rel="nofollow">2. MySQL版本</a></li> </ul> </li> <li><a href="#_28" rel="nofollow">三、安装步骤</a></li> <li> <ul> <li><a href="#1__30" rel="nofollow">1. 查询软件信息</a></li> <li><a href="#2__37" rel="nofollow">2. 执行安装命令</a></li> <li><a href="#3__44" rel="nofollow">3. 检查服务状态</a></li> <li><a href="#4__54" rel="nofollow">4. 初始化配置</a></li> <li><a href="#5__81" rel="nofollow">5. 终端登陆测试</a></li> <li><a href="#6__91" rel="nofollow">6. 连接工具测试</a></li> </ul> </li> </ul> </li> </ul> </div> <h2><a id="MySQL_9" rel="nofollow"></a>一、MySQL简介</h2> <p>MySQL是一个典型的关系数据库，目前是Oracle公司产品之一，也是目前主流使用的关系型数据库之一。使用MySQL可以进行最基本的数据存储、管理、查询等操作，也可以方便的组建数据库集群，配置读写分离。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/4e70dc56bfb5a262218251e7b5ba5e1b.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> MySQL数据库同样使用SQL（结构化查询语言）来进行操作，同时MySQL数据库自身也有很多可以直接使用的内置函数，在部分操作的语法上和其他数据库会存在区别。</p> <h2><a id="_13" rel="nofollow"></a>二、版本选择</h2> <h3><a id="1__14" rel="nofollow"></a>1. 应用场景</h3> <ul> <li>社区版</li> </ul> <p>在学习阶段，可以使用免费的社区版，这也是中小型企业会选用的一个版本，可以在官方网站直接进行下载。在社区版中，除了提供数据库服务端以外，同样提供了社区版相关组件，如官方的可视化工具、MySQL集群、各开发语言数据库驱动等，可以根据需要直接下载。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/ffd7d9db3f701a624e19314de0860f7e.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"></p> <ul> <li>企业版</li> </ul> <p>MySQL企业版是提供了商用的解决方案，相关的产品除了数据库服务外，还包括：MySQL云服务、企业级数据备份、企业级防火墙、企业级数据加密等。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/1f6107b7c435596347eab7b43ae4d649.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"></p> <h3><a id="2_MySQL_23" rel="nofollow"></a>2. MySQL版本</h3> <p>目前MySQL官网主要提供了两个大版本的支持：5.7.x、8.0.x，但是从5.0.x至今的版本依然可以全部下载到。至于说为什么直接从5.x跳到8.x笔者不得而知，但是从官网透露出的信息可以知道8.x版本相较于5.7版本，在性能方面做出了较大的改进和优化：2x Faster than MySQL 5.7!<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/d0833cab126c8fbaf881e9b2b0723750.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> 但是笔者要在这里提醒大家的是，在8.0的MySQL数据库中，对某些常用语法的细节部分也做了调整，<strong>如果准备进行升级，一定要注意兼容性的问题</strong>。<br /> 而5.7版本相较于5.6版本而言，主要是进行了性能上的优化，并提供了更丰富的设置。如：新增了优化器、原生JSON支持、GIS扩展等。</p> <h2><a id="_28" rel="nofollow"></a>三、安装步骤</h2> <p>使用Homebrew进行MySQL数据库的安装需要MacOS系统中已经安装了相关环境，这部分可以参考：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://sandtower.blog.csdn.net/article/details/123279213"  rel="nofollow">MacOS安装Homebrew与Oh-My-Zsh</a>，完成后打开终端继续以下操作。</p> <h3><a id="1__30" rel="nofollow"></a>1. 查询软件信息</h3> <p>首先使用<strong>search</strong>命令搜索MySQL数据库完整名称：</p> <pre><code class="prism language-shell">brew search mysql</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/7f5a353c38a9630b2812adee84da59b1.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> 可以看到5.7版本的MySQL数据库完整名称是<strong>mysql@5.7</strong>。</p> <h3><a id="2__37" rel="nofollow"></a>2. 执行安装命令</h3> <p>使用<strong>install</strong>命令进行软件安装：</p> <pre><code class="prism language-shell">brew<span class="token function">install</span> mysql@5.7</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/65e97eebf29d37be6afeb1e4af9843fe.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> 安装过程不需要其它操作，等待安装完成即可。</p> <h3><a id="3__44" rel="nofollow"></a>3. 检查服务状态</h3> <p>第一次安装MySQL，服务是未开启状态，使用<strong>services</strong>命令进行检查：</p> <pre><code class="prism language-shell">brew services list</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/3e16eb9eb3d3c4460258ea5c5b85b48d.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> 使用<strong>start</strong>指令开启服务，执行后每次开机都会自动启动该服务：</p> <pre><code class="prism language-shell">brew services start mysql@5.7</code></pre> <h3><a id="4__54" rel="nofollow"></a>4. 初始化配置</h3> <p>安装完成后需要执行一次配置才能够正常使用，执行如下命令：</p> <pre><code class="prism language-shell">mysql_secure_installation</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/9a2371b75d8c6e9e98b057473aa78150.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> 如果是个人使用，这里可以<strong>不开启密码校验插件</strong>，这样我们可以使用较为简单的密码组合，方便记忆，因此输入<strong>n</strong>。</p> <ul> <li>设置密码</li> </ul> <p>为数据库的root用户（最高权限用户）设置密码，需要输入两次，输入时没有光标显示，是正常的。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/6f7274e2207de2b3868dfc30d6145ac4.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"></p> <ul> <li>选择是否移除用户</li> </ul> <p>这一步可以将不需要的匿名用户移除，输入<strong>y</strong>回车即可。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/34a82daa216a3dc353f0f50f2dcf0954.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"></p> <ul> <li>开启root用户远程连接</li> </ul> <p>默认给出的选项是不允许通过root用户远程连接，因为root用户拥有最高权限，学习阶段可以开启方便虚拟机或局域网调试（如果开启需要输入<strong>n</strong>）。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/2aa2475e1ab5557072552a8614677813.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"></p> <ul> <li>选择是否保留测试数据集</li> </ul> <p>安装是默认附带一个<strong>test</strong>数据集，这里可以根据需要选择是否保留（如果需要移除则输入<strong>y</strong>）。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/611d1909ab3fe668cdf9d990c6b8b602.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"></p> <ul> <li>立即刷新权限</li> </ul> <p>输入<strong>y</strong>使得密码和权限设置立即生效，否则需要重新启动数据库服务。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/1fee9cc8fa1d40a32c337c6469760d84.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"></p> <h3><a id="5__81" rel="nofollow"></a>5. 终端登陆测试</h3> <p>使用刚刚设置的密码测试登陆：</p> <pre><code class="prism language-shell">mysql -uroot -p</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/1868656a512a8e1da9d1f79cc5b0f339.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> 也可以在命令中使用明文密码直接登陆，如（密码为root）：</p> <pre><code class="prism language-shell">mysql -uroot -proot</code></pre> <h3><a id="6__91" rel="nofollow"></a>6. 连接工具测试</h3> <p>以Navicat为例，首先新建一个连接：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/4de341fb1e7dc0ecfee073fe0dd3744c.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> 填写连接名和密码创建一个新的连接：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220608/3eeeb4485728f4744c9e330e9eafea90.jpg" alt="MySQL 5.7的Homebrew安装 - MacOS"><br /> 对于Navicat的基本功能介绍可以参考：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://sandtower.blog.csdn.net/article/details/105821598"  rel="nofollow">MySQL数据库界面化工具 - Navicat的常用功能</a>。</p> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-91.htm">Blazor 使用拖放（drag and drop）上传文件 , 粘贴文件上传</a></p>
+                                        <p>下一个：<a href="/html/category/article-93.htm">实际业务处理 Kafka 消息丢失、重复消费和顺序消费的问题</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
+                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
+                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
+                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
+                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
+                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
+                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
+                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
+                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
+                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

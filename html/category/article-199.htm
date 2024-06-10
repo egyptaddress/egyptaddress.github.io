@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-199.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Mina IoBuffer的特性介绍 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">Mina IoBuffer的特性介绍</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="htmledit_views"> <p><span style="font-size:12px">原文地址：<a target="_blank" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mina.apache.org/mina-project/userguide/ch8-iobuffer/ch8-iobuffer.html"  rel="nofollow"><u><span style="color:#35a1d4">Mina IoBuffer(Apache Mina user guide Chapter8 IoBuffer)</span></u></a></span></p> <p><span style="font-size:12px; color:#313131">一个字节缓冲区</span><span style="font-size:12px; color:#313131">被<span style="font-family:Arial">Mina</span></span><span style="font-size:12px; color:#313131">的应用程序</span><span style="font-size:12px; color:#313131">所使用。</span><span style="font-size:12px">这是一个<a target="_blank" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://java.sun.com/j2se/1.5.0/docs/api/java/nio/ByteBuffer.html"  rel="nofollow"><u><span style="color:#35a1d4">ByteBuffer</span></u></a>的替代类。<span style="color:#990000">Mina不直接使用<span style="font-family:Arial">NIOByteBuffer,</span><span style="font-family:宋体">有两个原因</span><span style="font-family:Arial">:</span></span></span></p> <ul> <li><span style="font-size:12px; color:#FF6600">它不提供有用的<span style="font-family:Arial">getter</span>s和putters<span style="font-family:宋体">方法</span>,<span style="font-family:宋体">如</span>fill/ putString,get/ putAsciiInt()<span style="font-family:宋体">。</span></span></li> <li><span style="font-size:12px; color:#FF6600">由于其固定容量很难写变长数据.</span></li> </ul> <p><span style="font-size:12px; color:#313131"></span></p> <p><span style="font-size:12px; color:#FF6600">这将在<span style="font-family:Arial">Mina3</span>改变。Mina有自己的包装主要原因是拓展nio ByteBuffer实现可扩展的缓冲区。这是一个非常糟糕的决定。缓冲区缓冲<span style="font-family:Arial">:</span><span style="font-family:宋体">临时存储临时数据</span><span style="font-family:Arial">,</span><span style="font-family:宋体">之前使用它。存在许多其他的解决方案</span><span style="font-family:Arial">,</span><span style="font-family:宋体">比如定义一个包装器</span><span style="font-family:Arial">,</span><span style="font-family:宋体">依靠</span><span style="font-family:Arial">NIO bytebuffer</span><span style="font-family:宋体">的列表</span><span style="font-family:Arial">,</span><span style="font-family:宋体">而不是复制现有的缓冲区更大的一个仅仅因为我们希望延长缓冲能力。</span></span></p> <p><span style="font-size:12px; color:#FF6600"></span></p> <p><span style="font-size:12px; color:#FF6600">它也可能是更舒适使用<span style="font-family:Arial">InputStream</span><span style="font-family:宋体">而不是一个字节缓冲区的过滤器</span><span style="font-family:Arial">,</span><span style="font-family:宋体">因为它并不意味着对存储数据的性质</span><span style="font-family:Arial">:</span><span style="font-family:宋体">它可以是一个字节数组</span><span style="font-family:Arial">,</span><span style="font-family:宋体">字符串</span><span style="font-family:Arial">,</span><span style="font-family:宋体">消息</span><span style="font-family:Arial">……</span></span></p> <p><span style="font-size:12px; color:#FF6600"></span></p> <p><span style="font-size:12px; color:#FF6600">最后<span style="font-family:Arial">,</span><span style="font-family:宋体">同样重要的是</span><span style="font-family:Arial">,</span><span style="font-family:宋体">当前实现失败的一个目标</span><span style="font-family:Arial">:</span><span style="font-family:宋体">零拷贝策略</span><span style="font-family:Arial">(</span><span style="font-family:宋体">例如</span><span style="font-family:Arial">,</span><span style="font-family:宋体">一旦我们从套接字读取数据</span><span style="font-family:Arial">,</span><span style="font-family:宋体">稍后我们不想做一个副本</span><span style="font-family:Arial">)</span><span style="font-family:宋体">。我们使用可扩展字节缓冲区</span><span style="font-family:Arial">,</span><span style="font-family:宋体">我们将肯定复制这些数据如果我们有处理大消息。假设</span>Mina<span style="font-family:宋体">的</span>ByteBuffer<span style="font-family:宋体">只是一个包装器</span><span style="font-family:Arial">NIO ByteBuffer</span><span style="font-family:宋体">之上</span><span style="font-family:Arial">,</span>在使用直接缓冲区时这可能是一个真正的问题。</span></p> <h3><span style="font-size:12px">1.1.1.<strong>IoBuffer<span style="font-family:宋体">操作</span></strong></span></h3> <h4><span style="font-size:12px">1.1.1.1.<strong>分配一个新的缓冲区</strong></span></h4> <p><span style="font-size:12px; color:#313131"><span style="color:#990000">IoBuffer<span style="font-family:宋体">是一个抽象类</span><span style="font-family:Arial">,</span></span><span style="font-family:宋体"><span style="color:#990000">因此不能直接实例化。</span>分配</span><span style="font-family:Arial">IoBuffer,</span><span style="font-family:宋体">我们需要使用两个</span></span><span style="font-size:12px; color:#313131">allocate</span><span style="font-size:12px; color:#313131">()<span style="font-family:宋体">方法</span></span><span style="font-size:12px; color:#313131">中的一个</span><span style="font-size:12px; color:#313131">。</span></p> <pre><code class="language-java">&lt;span style="font-size:12px;"&gt;// Allocates a new buffer with a specific size, defining its type (direct or heap) public static IoBuffer allocate(int capacity, boolean direct)  // Allocates a new buffer with a specific size public static IoBuffer allocate(int capacity)&lt;/span&gt;</code></pre> <p><span style="font-size:12px; color:#990000">allocate()<span style="font-family:宋体">方法接受一个或两个参数。第一个</span>结构需要两个参数<span style="font-family:Arial">:</span></span></p> <p><span style="font-size:12px">·<strong>capacity</strong>&nbsp;- 缓冲区的容量大小</span></p> <p><span style="font-size:12px">·<strong>direct</strong>&nbsp;-<span style="color:#313131"> 类型的缓冲区。</span><span style="color:#313131">true</span><span style="color:#313131">直接</span><span style="color:#313131">使用</span><span style="color:#313131">缓冲区<span style="font-family:Arial">,</span></span><span style="color:#313131">false<span style="font-family:宋体">使用</span></span><span style="color:#313131">堆缓冲区</span></span></p> <p><span style="font-size:12px; color:#313131">默认的缓冲区分配是由</span><span style="font-size:12px"><a target="_blank" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mina.apache.org/mina-project/xref/org/apache/mina/core/buffer/SimpleBufferAllocator.html"  rel="nofollow"><u><span style="color:#35a1d4">SimpleBufferAllocator</span></u></a><span style="color:#313131">处理</span><span style="color:#313131">的。</span></span></p> <p><span style="font-size:12px; color:#313131"></span></p> <p><span style="font-size:12px; color:#313131">另外<span style="font-family:Arial">,</span><span style="font-family:宋体">还可以使用以下形式</span></span><span style="font-size:12px; color:#313131">：</span></p> <pre><code class="language-java">&lt;span style="font-size:12px;"&gt;// Allocates heap buffer by default. IoBuffer.setUseDirectBuffer(false);  // A new heap buffer is returned. IoBuffer buf = IoBuffer.allocate(1024);&lt;/span&gt;</code></pre> <p><span style="font-size:12px; color:#990000">使用第二种形式时<span style="font-family:Arial">,</span><span style="font-family:宋体">别忘了之前设置默认缓冲类型</span><span style="font-family:Arial">,</span><span style="font-family:宋体">否则您将得到默认堆缓冲区。</span></span></p> <h3><span style="font-size:12px">1.1.2.<strong>创建自动扩展的缓冲区</strong></span></h3> <p><span style="font-size:12px; color:#313131">创建</span><span style="font-size:12px; color:#313131">自动</span><span style="font-size:12px; color:#313131">扩大缓冲与<span style="font-family:Arial">java NIO API</span><span style="font-family:宋体">不是很容易</span><span style="font-family:Arial">,</span><span style="font-family:宋体">因为固定大小的缓冲区。有一个缓冲区</span><span style="font-family:Arial">,</span><span style="font-family:宋体">可以自动扩展需要的是网络应用的一大亮点。为了解决这个问题</span><span style="font-family:Arial">,IoBuffer</span><span style="font-family:宋体">引入了</span><span style="font-family:Arial">autoExpand</span><span style="font-family:宋体">属性。它会自动扩大容量和极限值。</span></span></p> <p><span style="font-size:12px; color:#313131">让我们看看如何创建一个自动扩大缓冲区<span style="font-family:Arial">:</span></span></p> <pre><code class="language-java">&lt;span style="font-size:12px;"&gt;IoBuffer buffer = IoBuffer.allocate(8);  buffer.setAutoExpand(true);  buffer.putString("12345678", encoder);  // Add more to this buffer  buffer.put((byte)10);&lt;/span&gt;</code></pre> <p><span style="font-size:12px; color:#313131">底层<span style="font-family:Arial">ByteBuffer</span></span><span style="font-size:12px; color:#313131">在</span><span style="font-size:12px; color:#313131">幕后</span><span style="font-size:12px; color:#313131">重新分配是<span style="font-family:Arial">IoBuffer</span></span><span style="font-size:12px; color:#313131">。</span><span style="font-size:12px; color:#313131">如果编码数据大于<span style="font-family:Arial">8</span><span style="font-family:宋体">个字节在上面的例子中。</span></span><span style="font-size:12px; color:#313131">容量大小</span><span style="font-size:12px; color:#313131">将翻倍<span style="font-family:Arial">,</span><span style="font-family:宋体">其限制将增加到最后位置的字符串。这种行为非常类似于</span><span style="font-family:Arial">StringBuffer</span><span style="font-family:宋体">类的工作方式。</span></span></p> <p><span style="font-size:12px; color:#FF6600">这种机制很可能是远离Mina3.0,<span style="font-family:宋体">因为它不是最好的方式来处理增加的缓冲区大小。取而代之的应该是类似</span><span style="font-family:Arial">InputStream</span><span style="font-family:宋体">隐藏列表或一个固定大小的</span><span style="font-family:Arial">bytebuffer)</span><span style="font-family:宋体">数组。</span></span></p> <h3><span style="font-size:12px">1.1.3.<strong>创建自动收缩的缓冲区</strong></span></h3> <p><span style="font-size:12px; color:#313131">有些情况下</span><span style="font-size:12px; color:#313131">，调用</span><span style="font-size:12px; color:#313131">释放另外分配的字节缓冲区</span><span style="font-size:12px; color:#313131">以</span><span style="font-size:12px; color:#313131">保存</span><span style="font-size:12px; color:#313131">到内存</span><span style="font-size:12px; color:#313131">。<span style="font-family:Arial">IoBuffer</span><span style="font-family:宋体">提供</span><span style="font-family:Arial">autoShrink</span></span><span style="font-size:12px; color:#313131">属性</span><span style="font-size:12px; color:#313131">处理的需要。如果<span style="font-family:Arial">autoShrink</span><span style="font-family:宋体">打开</span><span style="font-family:Arial">,IoBuffer</span><span style="font-family:宋体">半紧凑时缓冲区的容量</span><span style="font-family:Arial">()</span><span style="font-family:宋体">调用</span><span style="font-family:Arial">,</span><span style="font-family:宋体">只有</span><span style="font-family:Arial">1/4</span><span style="font-family:宋体">或少使用当前的能力。手动收缩缓冲区</span><span style="font-family:Arial">,</span><span style="font-family:宋体">使用</span></span><span style="font-size:12px; color:#313131">shrink</span><span style="font-size:12px; color:#313131">()<span style="font-family:宋体">方法。</span></span></p> <p><span style="font-size:12px; color:#313131">让我们看看这</span><span style="font-size:12px; color:#313131">种方式：</span></p> <pre><code class="language-java">&lt;span style="font-size:12px;"&gt;IoBuffer buffer = IoBuffer.allocate(16); buffer.setAutoShrink(true); buffer.put((byte)1); System.out.println("Initial Buffer capacity = "+buffer.capacity()); buffer.shrink(); System.out.println("Initial Buffer capacity after shrink = "+buffer.capacity()); buffer.capacity(32); System.out.println("Buffer capacity after incrementing capacity to 32 = "+buffer.capacity()); buffer.shrink(); System.out.println("Buffer capacity after shrink= "+buffer.capacity());&lt;/span&gt;</code></pre> <p><span style="font-size:12px; color:#313131">我们最初分配一个容量为<span style="font-family:Arial">16,autoShrink</span><span style="font-family:宋体">属性设置为</span></span><span style="font-size:12px; color:#313131">true</span><span style="font-size:12px; color:#313131">。</span></p> <p><span style="font-size:12px; color:#313131">我们来看它的输出：</span></p> <pre><code class="language-java">&lt;span style="font-size:12px;"&gt;Initial Buffer capacity = 16 Initial Buffer capacity after shrink = 16 Buffer capacity after incrementing capacity to 32 = 32 Buffer capacity after shrink= 16&lt;/span&gt;</code></pre> <p><span style="font-size:12px; color:#313131">让</span><span style="font-size:12px; color:#313131">我们</span><span style="font-size:12px; color:#313131">休息</span><span style="font-size:12px; color:#313131">一下</span><span style="font-size:12px; color:#313131">和分析输出</span><span style="font-size:12px; color:#313131">：</span></p> <ul> <li><span style="font-size:12px; color:#FF6600">初始缓冲容量是<span style="font-family:Arial">16,</span><span style="font-family:宋体">我们创建的缓冲能力。内部这变成了最低的缓冲能力</span></span></li> <li><span style="font-size:12px; color:#FF6600">调用后shrink(),<span style="font-family:宋体">能力仍然是</span><span style="font-family:Arial">16,</span><span style="font-family:宋体">能力永远不会小于最小能力</span></span></li> <li><span style="font-size:12px; color:#FF6600">增加<span style="font-family:Arial">32</span><span style="font-family:宋体">的能力后</span><span style="font-family:Arial">,</span><span style="font-family:宋体">变成了</span><span style="font-family:Arial">32</span><span style="font-family:宋体">的能力</span></span></li> <li><span style="font-size:12px; color:#FF6600">shrink()<span style="font-family:宋体">的调用</span><span style="font-family:Arial">,</span><span style="font-family:宋体">减少能力</span><span style="font-family:Arial">16,</span><span style="font-family:宋体">从而消除额外的存储</span></span></li> </ul> <p><span style="font-size:12px; color:#313131"></span></p> <p><span style="font-size:12px; color:#FF6600">同样，这种应该是一个默认机制<span style="font-family:Arial">,</span><span style="font-family:宋体">无需影响告诉缓冲</span><span style="font-family:Arial">,</span><span style="font-family:宋体">它可以缩小。</span></span></p> <h3><span style="font-size:12px">1.1.4.<strong>缓冲区分配</strong></span></h3> <p><span style="font-size:12px; color:#313131">IoBufferAllocater<span style="font-family:宋体">负责分配和管理缓冲区。精确控制缓冲区分配策略</span><span style="font-family:Arial">,</span><span style="font-family:宋体">实现</span><span style="font-family:Arial">IoBufferAllocater</span><span style="font-family:宋体">接口。</span></span></p> <p><span style="font-size:12px; color:#313131">Mina</span><span style="font-size:12px; color:#313131">附带<span style="font-family:Arial">IoBufferAllocater</span><span style="font-family:宋体">的实现</span></span><span style="font-size:12px; color:#313131">：</span></p> <ul> <li><span style="font-size:12px; color:#FF6600">SimpleBufferAllocator(<span style="font-family:宋体">默认</span><span style="font-family:Arial">),</span><span style="font-family:宋体">每次都创建一个新的缓冲区</span></span></li> <li><span style="font-size:12px; color:#FF6600">CachedBufferAllocator——<span style="font-family:宋体">缓存缓冲区可能被重用扩张</span></span></li> </ul> <p><span style="font-size:12px; color:#313131"></span></p> <p><span style="font-size:12px; color:#FF6600">在新的可用的JVM<span style="font-family:宋体">中</span><span style="font-family:Arial">,</span><span style="font-family:宋体">使用缓存</span><span style="font-family:Arial">IoBuffer</span><span style="font-family:宋体">很可能提高性能。</span></span></p> <p><span style="font-size:12px; color:#313131"></span></p> <p><span style="font-size:12px; color:#313131">您可以实现您自己的实现<span style="font-family:Arial">IoBufferAllocator</span><span style="font-family:宋体">并调用</span><span style="font-family:Arial">setAllocator</span></span><span style="font-size:12px; color:#313131">()</span><span style="font-size:12px; color:#313131"></span><span style="font-size:12px; color:#313131">在</span><span style="font-size:12px; color:#313131">IoBuffer<span style="font-family:宋体">使用相同。</span></span></p> <p><span style="font-size:12px; color:#313131"></span></p> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-198.htm">分布式之一行代码解决缓存击穿问题</a></p>
+                                        <p>下一个：<a href="/html/category/article-200.htm">Java-NIO之Channel（通道）</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
+                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
+                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
+                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
+                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></h4>
+                <p>???? 个人网站:【 海拥】【小霸王游戏机】 ???? 风趣幽默的前端学习课程：????28个案例趣学前端 ???? 想寻找共同学习交流、摸鱼划水的小伙伴，请点击【摸鱼学习交流群】 ???? 免费且</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
+                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></h4>
+                <p>博客目录 1、union(合并结果集) 2、limit(获取一张表中某部分数据) 3、表——创建表、删除表 4、关于MySQL中的数据类型  一、union(合并结果集)  将两个查询结果合并(可以是</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
+                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
+                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
+                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

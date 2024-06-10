@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-97.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>python 调用 C/C++ 详解 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">python 调用 C/C++ 详解</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-dracula"> <p>关于gcc以及python的版本配置建议大家去看我之前的一篇文章，里面比较详细地点明了关于32位和64的一些坑。</p> <p>接下来将简单介绍python如何调用C和C++。包括调用整型，数组等情况。</p> <h1> <a id="python_C_4" rel="nofollow"></a>python 调用C</h1> <h4> <a id="Cint_5" rel="nofollow"></a>C函数返回整型int</h4> <p>c代码 test.c</p> <pre><code class="prism language-C">#include &lt;stdio.h&gt; #include &lt;stdlib.h&gt; int func(int a, int b) { 	int ans = a + b; 	printf("You input %d and %d\n", a, b); 	printf("The result is %d\n", ans); 	return ans; } </code></pre> <p>编译成so包</p> <pre><code>gcc -o testpycll_64.so -shared -fPIC test.c </code></pre> <p>其中参数‘-fPIC’：当产生共享库的时候，应该创建位置无关的代码，这会让共享库使用任意的地址而不是固定的地址，要实现这个功能，需要使用-fPIC参数。</p> <p>python代码</p> <pre><code class="prism language-python"><span class="token keyword">import</span> ctypes <span class="token keyword">import</span> platform  ll <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>cdll<span class="token punctuation">.</span>LoadLibrary lib <span class="token operator">=</span> ll<span class="token punctuation">(</span><span class="token string">"./testpycll_64.so"</span><span class="token punctuation">)</span> lib<span class="token punctuation">.</span>func<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token comment"># platform.architecture()</span> </code></pre> <p>运行之后的结果：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221207/0cfeeadd082eb1825f3f031b981cc8c4.jpg" alt="python 调用 C/C++ 详解"><br /> 这里有一个问题，我是在jupyter notebook下的，只显示了C函数的返回值，对于过程打印语句并没有输出。但在命令行下是可以输出的，如下所示：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221207/c2574d6a882395ac050d65aa994bd4f1.jpg" alt="python 调用 C/C++ 详解"><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://mypy.py"  rel="nofollow">mypy.py</a> 是python文件名。</p> <h4> <a id="C_int_41" rel="nofollow"></a>C函数返回整型数组 int[]</h4> <p>C代码：</p> <pre><code class="prism language-C">#include &lt;stdio.h&gt; #include &lt;stdlib.h&gt; int* func(int a, int b) { 	int* res = (int *)malloc(3*sizeof(int)); 	int ans = a + b; 	printf("You input %d and %d\n", a, b); 	printf("The result is %d\n", ans);  	res[0] = a; 	res[1] = b; 	res[2] = ans; 	return res;  	//return ans; } </code></pre> <p><strong>python 代码：需要用到numpy包</strong><br /> （这里原先一直返回失败，也是试了非常多的方法才解决）</p> <pre><code class="prism language-python"><span class="token keyword">import</span> ctypes <span class="token keyword">import</span> platform <span class="token keyword">from</span> numpy<span class="token punctuation">.</span>ctypeslib <span class="token keyword">import</span> ndpointer  ll <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>cdll<span class="token punctuation">.</span>LoadLibrary lib <span class="token operator">=</span> ll<span class="token punctuation">(</span><span class="token string">"./testpycll_64.so"</span><span class="token punctuation">)</span>  lib<span class="token punctuation">.</span>func<span class="token punctuation">.</span>restype <span class="token operator">=</span> ndpointer<span class="token punctuation">(</span>dtype<span class="token operator">=</span>ctypes<span class="token punctuation">.</span>c_int<span class="token punctuation">,</span> shape<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span> res <span class="token operator">=</span> lib<span class="token punctuation">.</span>func<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span> </code></pre> <p>运行之后的结果：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221207/d7d042cfa7aab090843504e5c5eef017.jpg" alt="python 调用 C/C++ 详解"></p> <h4> <a id="C_int_81" rel="nofollow"></a>C函数传入整型数组 int[]</h4> <p>C代码</p> <pre><code class="prism language-C">#include &lt;stdio.h&gt; #include &lt;stdlib.h&gt; int func(int a[], int n) { 	int sum = 0; 	for(int i=0; i&lt;n; i++) 		sum += a[i]; 	 	return sum; } </code></pre> <p>python代码：<br /> 有多种写法，这里给出几种：<br /> （1）</p> <pre><code class="prism language-python">ll <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>cdll<span class="token punctuation">.</span>LoadLibrary lib <span class="token operator">=</span> ll<span class="token punctuation">(</span><span class="token string">"./testpycll_64.so"</span><span class="token punctuation">)</span>  INPUT <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>c_int <span class="token operator">*</span> <span class="token number">4</span><span class="token punctuation">;</span> <span class="token comment"># 实例化一个长度为2的整型数组</span> inputdata <span class="token operator">=</span> INPUT<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> inputdata<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> inputdata<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> inputdata<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span> inputdata<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">;</span>  lib<span class="token punctuation">.</span>func<span class="token punctuation">.</span>restype <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>c_int<span class="token punctuation">;</span> res <span class="token operator">=</span> lib<span class="token punctuation">.</span>func<span class="token punctuation">(</span>inputdata<span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment"># res = lib.func2(1,2);</span> <span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span> </code></pre> <p>（2）</p> <pre><code class="prism language-python">ll <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>cdll<span class="token punctuation">.</span>LoadLibrary lib <span class="token operator">=</span> ll<span class="token punctuation">(</span><span class="token string">"./testpycll_64.so"</span><span class="token punctuation">)</span>  pyarray <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">]</span> carray <span class="token operator">=</span> <span class="token punctuation">(</span>ctypes<span class="token punctuation">.</span>c_int <span class="token operator">*</span> <span class="token builtin">len</span><span class="token punctuation">(</span>pyarray<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token operator">*</span>pyarray<span class="token punctuation">)</span>  res <span class="token operator">=</span> lib<span class="token punctuation">.</span>func<span class="token punctuation">(</span>carray<span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>pyarray<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span>  </code></pre> <p>（3）搭配numpy数组</p> <pre><code class="prism language-python"><span class="token keyword">import</span> ctypes <span class="token keyword">import</span> platform <span class="token keyword">from</span> numpy<span class="token punctuation">.</span>ctypeslib <span class="token keyword">import</span> ndpointer <span class="token keyword">import</span> numpy <span class="token keyword">as</span> np  ll <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>cdll<span class="token punctuation">.</span>LoadLibrary<span class="token punctuation">;</span> lib <span class="token operator">=</span> ll<span class="token punctuation">(</span><span class="token string">"./testpycll_64.so"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   pyarray <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">7</span><span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span><span class="token string">"int32"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> lib<span class="token punctuation">.</span>func<span class="token punctuation">.</span>argtypes <span class="token operator">=</span> <span class="token punctuation">[</span>ndpointer<span class="token punctuation">(</span>ctypes<span class="token punctuation">.</span>c_int<span class="token punctuation">,</span> shape<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">,</span> <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> ctypes<span class="token punctuation">.</span>c_int<span class="token punctuation">]</span><span class="token punctuation">;</span> lib<span class="token punctuation">.</span>func<span class="token punctuation">.</span>restype <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>c_int<span class="token punctuation">;</span> res <span class="token operator">=</span> lib<span class="token punctuation">.</span>func<span class="token punctuation">(</span>pyarray<span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>pyarray<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment"># print (np.array(pyarray))</span>  <span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span> </code></pre> <p><strong>其余的数据类型就举一反三啦，ctypes下有很多数据类型，例如c_int, c_bool等，大家可以自己去尝试。</strong></p> <h1> <a id="python_C_152" rel="nofollow"></a>python 调用C++</h1> <p>调用方法和C类似，只是需要加上</p> <pre><code class="prism language-C++">extern "C"  {     ... } </code></pre> <p>C++ 代码</p> <pre><code class="prism language-C++">#include &lt;iostream&gt; #include &lt;string&gt; using namespace std; class TestClass { public:     char* func(); };  char* TestClass::func()  {     cout &lt;&lt; "In func without argument" &lt;&lt; endl;     char* temp = "In func without argument";     return temp;     }   extern "C"  {     TestClass A;     char* myfunc1()      {         return A.func();      }  } </code></pre> <p>生成so包指令：注意变成g++</p> <pre><code>g++ -o testpycll_64.so -shared -fPIC test.cpp </code></pre> <p>python代码</p> <pre><code class="prism language-python"><span class="token keyword">import</span> ctypes <span class="token keyword">import</span> platform <span class="token keyword">from</span> numpy<span class="token punctuation">.</span>ctypeslib <span class="token keyword">import</span> ndpointer <span class="token keyword">import</span> numpy <span class="token keyword">as</span> np  ll <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>cdll<span class="token punctuation">.</span>LoadLibrary<span class="token punctuation">;</span> lib <span class="token operator">=</span> ll<span class="token punctuation">(</span><span class="token string">"./testpycll_64.so"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  lib<span class="token punctuation">.</span>myfunc1<span class="token punctuation">.</span>restype <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>c_uint64<span class="token punctuation">;</span> res <span class="token operator">=</span> lib<span class="token punctuation">.</span>myfunc1<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> res <span class="token operator">=</span> ctypes<span class="token punctuation">.</span>string_at<span class="token punctuation">(</span>res<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <p>运行结果：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221207/d063a0485ecb61c54541be9a6e857c0c.jpg" alt="python 调用 C/C++ 详解"></p> <p>以上大致是python调用C/C++的方法，有不足之处还望大家指出。</p> </p></div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-96.htm">SQL SERVER使用表分区优化性能_MsSql</a></p>
+                                        <p>下一个：<a href="/html/category/article-98.htm">JavaScript如何将字符串的字母映射到数组的对象</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
+                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
+                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
+                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
+                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
+                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
+                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-250.htm">Springboot 设置过滤器以及重复读取request里的body</a></h4>
+                <p>需求：request的content-type为applciation/json，进入controller之前需要把body中的参数取出来做一次处理，然后和hearder中的另一个参数做对比。 思路：</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

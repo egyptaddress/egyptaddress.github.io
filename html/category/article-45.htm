@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-45.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>LevelDB 学习笔记5：版本控制_在线工具 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">LevelDB 学习笔记5：版本控制_在线工具</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<h1 id="leveldb-学习笔记5版本控制">LevelDB 学习笔记5：版本控制</h1> <ul> <li>由于压缩是在后台线程异步进行的，所以会出现新老 sstable 同时存在的状态</li> <li>但合并完成后，老的 sstable 并不能直接删除，必须等到没有人引用它们，才可以删除</li> <li>因此数据库可能同时存在多个 Version，它们的集合是 VersionSet <ul> <li>所有的 version 组织在一个双向链表里，最新的 version 称为 current</li> </ul> </li> </ul> <h2 id="版本变更">版本变更</h2> <ul> <li>VersionEdit 是新 Version 相较于旧 Version 变动的内容 <ul> <li>VersionOld + VersionEdit = VersionNew</li> <li>VersionEdit 对应 MANIFEST 文件里的一条记录 <ul> <li> <code>EncodeTo()</code> 和 <code>DecodeFrom()</code> 方法分别用于将 VersionEdit 序列化为 manifest 记录和从 MANIFEST 记录中反序列化出 VersionEdit</li> </ul> </li> </ul> </li> <li>MANIFEST 文件本质上也是日志文件，格式和 redo log 是相同的 <ul> <li>第一条记录是全量的 LevelDB 版本信息</li> <li>后续每一条记录都是 LevelDB 版本变更信息</li> <li>重启后能通过 MANIFEST 文件恢复版本信息</li> </ul> </li> <li>调用 <code>LogAndApply()</code> 把 VersionEdit 应用到当前版本上，并新增一条记录 <ul> <li>以下几种情况下会被调用 <ul> <li>打开 DB 的时候，从 MANIFEST 文件中恢复出版本信息后，会在新的 MANIFEST 文件中提交一条全量的版本信息</li> <li>minor compaction 完成后，提交新增的 sstable</li> <li>major compaction 完成后，提交 sstable 变动</li> </ul> </li> </ul> </li> <li> <code>VersionSet::Builder</code></p> <ul> <li>帮助执行版本变更的工具类</li> <li>以某个版本为基础，不断 Apply 版本变更，得到最终的版本</li> <li> <code>LogAndApply()</code> 和从 manifest 文件中恢复版本信息的时候都会用到它<br /><img decoding="async" src="https://img2022.cnblogs.com/blog/1099671/202204/1099671-20220418233012211-1847290373.png" alt="LevelDB 学习笔记5：版本控制_在线工具"> </li> </ul> </li> </ul> <h2 id="从重启中恢复">从重启中恢复</h2> <p>从重启中恢复需要做两件事</p> <ul> <li>恢复版本信息</li> <li>重做 WAL 中记录的操作恢复 memtable 中的内容</li> </ul> <h3 id="恢复版本信息">恢复版本信息</h3> <ul> <li>主要逻辑在 <code>VersionSet::Recover()</code> 中</li> <li>读取 current 文件的内容找到 MANIFEST 文件名</li> <li>遍历 manifest 文件，将所有记录 Apply 到 Version Builder 上</li> <li>从 Builder 中获得最终的 Version，将它加入 VersionSet，并作为当前版本使用</li> <li>检查现存的 MANIFEST 文件能否重用 <ul> <li>如果旧的 MANIFEST 文件大小不是太大就可以重用它</li> <li>因为重启是唯一一处 MANIFEST 文件大小缩小的地方，我们不想让 MANIFEST 文件大小无限增长</li> </ul> </li> <li>如果不能重用，就会提交一条 MANIFEST 记录到新的 MANIFEST 文件里，包含了当前版本的全量信息</li> </ul> <h3 id="恢复-memtable-中的内容">恢复 memtable 中的内容</h3> <ul> <li>主要逻辑在 <code>DBImpl::Recover()</code> 的后半部分</li> <li>收集需要 redo 的日志文件 <ul> <li>做 minor compaction 后，修改记录会被写到 MANIFEST 文件中，其中包括日志文件的文件号</li> <li>因此 MANIFEST 中最新记录的日志文件号就是最后被写入磁盘的 memtable 的日志文件号，文件号大于它的日志文件都视为需要 redo 的</li> </ul> </li> <li>redo <ul> <li>根据文件号顺序，遍历所有需要 redo 的日志文件</li> <li>将日志记录转换为 WriteBatch</li> <li>redo 过程中，如果发现 memtable 大小超过阈值，直接对它做 minor compaction</li> </ul> </li> </ul> <h2 id="repairer">Repairer</h2> <p>如果 MANIFEST 文件丢失，那么能否恢复出版本信息呢？</p> <p>答案是可以的，LevelDB 提供了 <code>Repairer</code> 类用来从日志文件和 sstable 文件中恢复出版本信息</p> <ul> <li>所有日志文件都会被转换为 sstable 文件</li> <li>扫描所有 sstable 文件并计算 <ul> <li>最大最小 key</li> <li>最大序列号</li> </ul> </li> <li>用这些信息恢复上次运行的版本信息</li> </ul> <p>恢复过程遍历了整个 DB 的全部文件，所以是相当耗时的过程</p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-44.htm">CRUSE: Convolutional Recurrent U-net for Speech Enhancement &#8211; WenzheLiu</a></p>
+                                        <p>下一个：<a href="/html/category/article-46.htm">PowerDesigner默认双向关联修改为单向关联</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
+                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
+                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
+                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
+                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-237.htm">Spring Security教程（13）&#8212;- 验证码功能的实现</a></h4>
+                <p>有三中方法可以实现验证码的功能 第一种是自定义一个filter，放在SpringSecurity过滤器之前，在用户登录的时候会先经过这个filter，然后在这个filter中实现对验证码进行验证的功能</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
+                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
+                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
+                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
+                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-234.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>数据传输POST心法分享，做前端的你还解决不了这个bug？ - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">数据传输POST心法分享，做前端的你还解决不了这个bug？</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<h3 id="背景">背景</h3> <p>随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。</p> <p>由于代码没有发生任何变动，前端相关依赖也没有升级，服务端java版本也没有变化，所以我们可以推定为环境问题；进一步仔细检查，经过反复对比后突然发现服务端收到的压缩内容变长了；和前端请求内容进行对比，发现所有的\r和\n都变成了\r\n。</p> <p>综合以上分析我们初步判断：问题出在了浏览器转译之中。为了验证猜想是否正确，葡萄将chrome版本回退到92版，异常消失，服务端接收的内容也没有被替换。</p> <p>问题是顺利解决了，但是Chrome POST数据内容居然会在传输过程中发生变化。一直擅长大前端技术的葡萄绝不认输，为了弄明白这一原因，我们来看看POST的细节操作到底有什么。<br /> 控制字符<br /> 首先我们需要搞清楚几个控制字符的含义。</p> <ul> <li>回车符（CR）和换行符（LF）是文本文件用于标记换行的控制字符（control characters）或字节码（bytecode）。</li> <li>CR = Carriage Return，回车符号（\r，十六进制 ascii 码为0x0D，十进制 ascii 码为13），用于将鼠标移动到行首，并不前进至下一行。</li> <li>LF = Line Feed，换行符号（ \n, 十六进制 ascii 码为 0x0A，十进制 ascii 码为10）。<br /> 紧邻的 CR 和 LF（组成 CRLF，\r\n，或十六进制 0x0D0A）将鼠标移动到下一行行首。（Windows 操作系统默认的文本换行符为 CRLF；Linux 以及 macOS 系统默认使用 LF，早期的 mac os 系统使用 CR 换行。）</li> </ul> <p>在代码管理中，在不同操作系统下CRLF会有很大不同。下面在不同系统中为大家实际演示一下：<br /> 在Mac Visual Code中新建一个文档默认为LF，而Windows中为CRLF，可以选择切换行尾序列的内容的类型。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/20f0f6dbc568b27e342172e15e11fec6.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"><br /> Mac版Visual Code</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5b90cc40f0afbff5a392674266874bd1.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"><br /> Windows 版</p> <p>面对这种情况，需要开发者统一CRLF，以免不同操作系统开发导致代码管理的混乱。</p> <h3 id="post传输的数据变化">POST传输的数据变化</h3> <p>弄明白了在不同系统中，控制字符会出现不同的原因，接下来我们就需要搞清楚为什么POST的数据在传输过程中发生了变化。</p> <p></p> <p>我们来写个简单Demo测试一下。先在页面上放一个允许换行的textarea， 输入带换行的文本，获取内容看到只有\n转译。通过FormData直接post数据到服务端，然后直接返回，看到\n全部变成了\r\n。</p> <pre><code>            var uploadData = document.getElementById("ta").value             var formData = new FormData();             formData.append("data", uploadData)             fetch("http://localhost:8088/spread/getpdf", {                     body: formData,                     method: "POST"                 }).then(resp =&gt; resp.text())                 .then(text =&gt; {                     console.log(JSON.stringify(text));                     document.getElementById("result").innerHTML= JSON.stringify(text)                 })</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/b61c1f6c5b484f405522f3cd233ff9e8.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"></p> <p>浏览器标识：</p> <pre><code>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36</code></pre> <p>回退Chrome到92版本，发送和接收文本此时编为一致：</p> <pre><code>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36</code></pre> <p>深入探究这一原因，我们了解到互联网请求意见稿2046（RFC 2046）4.1.1.中有明确说明：</p> <pre><code> “ The canonical form of any MIME‘text’ subtype MUST always represent a    line break as a CRLF sequence. “</code></pre> <p>这里我们可以看到所有的文本类型都要使用CRLF，而Chrome只是修复了一个“bug”，对于用户而言，在普通文本中用户感知不到CR、LF和CRLF的区别，但是当使用场景转换到解压的文本内容就变得十分重要。</p> <h3 id="三种解决方式">三种解决方式</h3> <p>大家都知道POST是HTTP的一个常用方法，而另一个我们常用的方法是GET。<br /> 关于GET和POST区别以及使用相关问题这里不做赘述，要解决POTS传输的数据变化问题，最相关的是Content-Type。</p> <p>首先我们来了解Content-Type和MIME分别是什么：<br /> Content-Type，内容类型，一般是指网页中存在的Content-Type，用于定义网络文件的类型和网页的编码，决定浏览器将以什么形式、什么编码读取这个文件，这就是经常看到一些Asp网页点击的结果却是下载到的一个文件或一张图片的原因。</p> <p>在POST中常用的Content-Type有application/x-www-form-urlencoded、multipart/form-data和application/json。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/439fc658d40caf3b64a6ea1a8a791151.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"></p> <p>1、 application/x-www-form-urlencoded<br /> 将需要内容提交表单后，内容会按照name1=value1&amp;name2=value2的方式编码，并且key和valu  e都会进行URL转码。<br /> 对于"\n"和"\r" 会被转码为'%0A'和'%0D'，通过这种传输方式，避免了浏览器的对CRLF的修正可以解决以上问题。<br /> 但是这样转码会增加文本长度，原本1个字符变成了3个，结果是压缩的文本又变长了。</p> <p>2、multipart/form-data<br /> 当需要想服务器提交文件时，就需要使用这种方式。前面代码中我们可以看到当formData是普通文本是会被修正，为了解决这个情况我们可以将string内容封装到Blob中作为文件流传输，来避免修正。<br /> 这样传输，服务端会以文件方式收到内容，直接读取Stream内容；对于压缩文本，这种处理方式最优。</p> <pre><code>           var formData = new FormData();             formData.append("data", uploadData)             formData.append("data1", new Blob( [uploadData]))</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/bef64d1a957f758b36121392276c6a95.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"></p> <p>上图展示了同样的内容，使用不同方式进行传输。</p> <p>3、 application/json<br /> Json也是目前比较流行的传输方式，json的内容在post传输中也不会被改变，如果文本内容不长，也是不错的方式。</p> <pre><code>          fetch("http://localhost.charlesproxy.com:8088/spread/postjson", {                     headers: {                         'Content-Type': 'application/json',                     },                     body: JSON.stringify({data: uploadData}),                     method: "POST"                 }).then(resp =&gt; resp.text())                 .then(text =&gt; {                     console.log(JSON.stringify(text));                     document.getElementById("result").innerHTML= JSON.stringify(text)                 })</code></pre> <h3 id="总结">总结</h3> <p>作为一个前端er，除了HTML、CSS和Javascript三大件，熟练使用Axios等类库调用API，更不可忽视的是要了解如何调试网络请求，在项目出现问题时能快速定位到问题的所在。</p> <p>这里提供了在 Angular 框架下动态加载js文件时返回 Content-Type 为text/html 的Demo，大家感兴趣的可以自行下载试试。</p> <p>Demo 地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://gcdn.grapecity.com.cn/forum.php?mod=attachment&amp;aid=NDc5OTJ8YmU1Mjk0NDN8MTY1MDI2MTI0M3wxfDUwOTgw"  target="_blank" rel="nofollow">https://gcdn.grapecity.com.cn/forum.php?mod=attachment&amp;aid=NDc5OTJ8YmU1Mjk0NDN8MTY1MDI2MTI0M3wxfDUwOTgw</a></p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></p>
+                                        <p>下一个：<a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
+                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
+                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
+                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
+                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
+                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
+                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
+                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
+                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
+                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
+                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-17.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>SpringBoot+Redis实现消息的发布与订阅的示例代码_java - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">SpringBoot+Redis实现消息的发布与订阅的示例代码_java</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.什么是redis的发布与订阅</a></li> <li><a href="#_label1" rel="nofollow">2.Redis发布订阅</a></li> <li><a href="#_label2" rel="nofollow">3.命令行实现功能</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_2_0" rel="nofollow">订阅主题</a></li> <li><a href="#_lab2_2_1" rel="nofollow">模式匹配订阅</a></li> <li><a href="#_lab2_2_2" rel="nofollow">发布消息</a></li> <li><a href="#_lab2_2_3" rel="nofollow">取消订阅</a></li> <li><a href="#_lab2_2_4" rel="nofollow">测试</a></li> </ul> <li><a href="#_label3" rel="nofollow">4.SpringBoot实现功能</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_3_5" rel="nofollow">Springboot整合Redis</a></li> <li><a href="#_lab2_3_6" rel="nofollow">配置消息监听</a></li> <li><a href="#_lab2_3_7" rel="nofollow">测试</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.什么是redis的发布与订阅</h2> <p>在官网的文档介绍中有一行介绍：Redis是一个快速稳定的发布/订阅消息系统。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.Redis发布订阅</h2> <p>机制</p> <p>Redis提供了发布与订阅的功能，可以用于消息的传输，Redis的发布订阅机制包括三部分，发布者、订阅者和Channel（主题或者队列）。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/d564a53fab47e10c53ce5b912a4d256f.jpg"></p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.命令行实现功能</h2> <p class="maodian"><a name="_lab2_2_0" rel="nofollow"></a></p> <h3>订阅主题</h3> <p>Redis采用SUBSCRIBE channel命令订阅某个主题，返回的参数subscribe表示已经成功订阅主题，第二个参数表示订阅的主题名称，第三个表示当前订阅数</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; SUBSCRIBE ORDER-PAY-SUCCESS  Reading messages... (press Ctrl-C to quit)  1) "subscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_1" rel="nofollow"></a></p> <h3>模式匹配订阅</h3> <p>模式匹配功能是允许客户端订阅匹配某种模式的频道，Redis采用PSUBSCRIBE channel命令订阅匹配某种模式的所有频道，用*表示模式，*可以被任意值代替。</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; PSUBSCRIBE ORDER-PAY-*  Reading messages... (press Ctrl-C to quit)  1) "psubscribe"  2) "ORDER-PAY-*"  3) (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_2" rel="nofollow"></a></p> <h3>发布消息</h3> <p>Redis采用PUBLISH channel message命令在某个主题上发布消息，返回的参数是接收到消息的订阅者个数</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; PUBLISH ORDER-PAY-SUCCESS DD202109071525  (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_3" rel="nofollow"></a></p> <h3>取消订阅</h3> <p>Redis采用UNSUBSCRIBE channel或PUNSUBSCRIBE channel命令取消某个主题的订阅，由于Redis的订阅操作是阻塞式的，因此一旦客户端订阅了某个频道或模式，就将会一直处于订阅状态直到退出。在 SUBSCRIBE，PSUBSCRIBE，UNSUBSCRIBE 和 PUNSUBSCRIBE 命令中，其返回值都包含了该客户端当前订阅的频道和模式的数量，当这个数量变为0时，该客户端会自动退出订阅状态。</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; UNSUBSCRIBE ORDER-PAY-SUCCESS  1) "unsubscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 0  127.0.0.1:6379&gt; PUNSUBSCRIBE ORDER-PAY-SUCCESS  1) "punsubscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 0  </pre> </div> <p class="maodian"><a name="_lab2_2_4" rel="nofollow"></a></p> <p class="maodian"><a name="_lab2_3_7" rel="nofollow"></a></p> <h3>测试</h3> <p>首先三个订阅者订阅ORDER-PAY-SUCCESS主题，当发送者在这个主题内发送订单号时，所有的订阅者都会收到这个主题的消息。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/615a3510bb29bac13626b72774c41e64.jpg"></p> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>4.SpringBoot实现功能</h2> <p class="maodian"><a name="_lab2_3_5" rel="nofollow"></a></p> <h3>Springboot整合Redis</h3> <p>引入依赖包</p> <div class="ay1code"> <pre class="brush:xml;">&lt;dependencies&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;              &lt;version&gt;2.2.10.RELEASE&lt;/version&gt;          &lt;/dependency&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;              &lt;version&gt;2.2.10.RELEASE&lt;/version&gt;          &lt;/dependency&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;              &lt;version&gt;2.4.1&lt;/version&gt;          &lt;/dependency&gt;      &lt;/dependencies&gt;  </pre> </div> <p>配置yaml文件</p> <div class="ay1code"> <pre class="brush:plain;">server:    port: 8888    spring:    application:      name: spring-boot-redis    redis:      host: 127.0.0.1      port: 6379</pre> </div> <p class="maodian"><a name="_lab2_3_6" rel="nofollow"></a></p> <h3>配置消息监听</h3> <div class="ay1code"> <pre class="brush:java;">import com.demo.redis.listener.MessageListener;  import org.springframework.context.annotation.Bean;  import org.springframework.context.annotation.Configuration;  import org.springframework.data.redis.connection.RedisConnectionFactory;  import org.springframework.data.redis.core.StringRedisTemplate;  import org.springframework.data.redis.listener.PatternTopic;  import org.springframework.data.redis.listener.RedisMessageListenerContainer;  import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;    /**   * @author Bai   * @date 2021/4/29 上午 11:17   * @description   */  @Configuration  public class RedisMessageConfig {        /**       * 监听订单支付完成主题       */      private static final String ORDER_PAY_SUCCESS = "ORDER-PAY-SUCCESS";        /**       * 注入消息监听适配器       * @param messageListener       * @return {@link MessageListenerAdapter}       * @throws       * @author Bai       * @date 2021/9/7 下午 03:54       */      @Bean      public MessageListenerAdapter getMessageListenerAdapter(MessageListener messageListener){          return new MessageListenerAdapter(messageListener, "onMessage");      }        /**       * 注入消息监听容器       * @param redisConnectionFactory       * @param messageListenerAdapter       * @return {@link RedisMessageListenerContainer}       * @throws       * @author Bai       * @date 2021/9/7 下午 03:54       */      @Bean      public RedisMessageListenerContainer getRedisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory, MessageListenerAdapter messageListenerAdapter){          RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();          redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);            //订阅订单支付成功主题          redisMessageListenerContainer.addMessageListener(messageListenerAdapter, new PatternTopic(ORDER_PAY_SUCCESS));          return redisMessageListenerContainer;      }        /**       * 处理内容       * @param connectionFactory       * @return {@link StringRedisTemplate}       * @throws       * @author Bai       * @date 2021/9/7 下午 04:01       */      @Bean      StringRedisTemplate template(RedisConnectionFactory connectionFactory) {          return new StringRedisTemplate(connectionFactory);      }  }</pre> </div> <p>接收消息</p> <div class="ay1code"> <pre class="brush:java;">import org.springframework.stereotype.Component;    /**   * @author Bai   * @date 2021/9/7 下午 03:51   * @description   */  @Component  public class MessageListener {        public void onMessage(String message){          System.out.println("接收消息：" + message);      }  }</pre> </div> <h3>测试</h3> <p>发送订单支付成功的消息</p> <div class="ay1code"> <pre class="brush:java;">import org.junit.Test;  import org.junit.runner.RunWith;  import org.springframework.boot.test.context.SpringBootTest;  import org.springframework.data.redis.core.StringRedisTemplate;  import org.springframework.test.context.junit4.SpringRunner;    import javax.annotation.Resource;    /**   * @author Bai   * @date 2021/9/7 下午 04:32   * @description   */  @RunWith(value = SpringRunner.class)  @SpringBootTest  public class RedisPubTest {        /**       * 订单支付完成主题       */      private static final String ORDER_PAY_SUCCESS = "ORDER-PAY-SUCCESS";        @Resource      private StringRedisTemplate stringRedisTemplate;        /**       * 模拟发送5调订单支付完成的消息       * @throws       * @author Bai       * @date 2021/9/7 下午 04:57       */      @Test      public void sendMessage(){          for (int i = 0; i &lt; 5; i++) {              stringRedisTemplate.convertAndSend(ORDER_PAY_SUCCESS,"DD" + System.currentTimeMillis());          }      }  }</pre> </div> <p>接收到订单支付成功的消息</p> <blockquote> <p>  .   ____          _            __ _ _<br /> /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \<br />( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \<br /> \\/  ___)| |_)| | | | | || (_| |  ) ) ) )<br />  '  |____| .__|_| |_|_| |_\__, | / / / /<br /> =========|_|==============|___/=/_/_/_/<br /> :: Spring Boot ::       (v2.2.10.RELEASE)</p> <p>2021-09-07 16:56:54.729  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : Starting RedisSubPubApplication on DESKTOP-595LI4G with PID 3712 (D:\Bai\Sources\spring-boot-demo\redis-sub-pub\target\classes started by 1 in D:\Bai\Sources\spring-boot-demo)<br />2021-09-07 16:56:54.735  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : No active profile set, falling back to default profiles: default<br />2021-09-07 16:56:55.205  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode!<br />2021-09-07 16:56:55.207  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.<br />2021-09-07 16:56:55.229  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 11 ms. Found 0 Redis repository interfaces.<br />2021-09-07 16:56:55.557  INFO 3712 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8888 (http)<br />2021-09-07 16:56:55.565  INFO 3712 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]<br />2021-09-07 16:56:55.565  INFO 3712 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.38]<br />2021-09-07 16:56:55.669  INFO 3712 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext<br />2021-09-07 16:56:55.669  INFO 3712 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 895 ms<br />2021-09-07 16:56:56.032  INFO 3712 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'<br />2021-09-07 16:56:56.950  INFO 3712 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8888 (http) with context path ''<br />2021-09-07 16:56:56.952  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : Started RedisSubPubApplication in 2.557 seconds (JVM running for 3.436)<br />接收消息：DD1631005025949<br />接收消息：DD1631005025964<br />接收消息：DD1631005025965<br />接收消息：DD1631005025967<br />接收消息：DD1631005025968</p> </blockquote> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-16.htm">C# 实现登录并跳转界面</a></p>
+                                        <p>下一个：<a href="/html/category/article-18.htm">c++堆内存默认大小_线上内存暴涨问题定位和解决</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
+                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
+                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
+                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
+                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
+                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
+                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-260.htm">vue的自动化路由+分模块管理+路由懒加载</a></h4>
+                <p>近期单独做了一个系统项目，项目不大但是页面太多了，为了后期维护管理容易，做了个自动化加载路由以及模块化的管理。在此记录一下。 直接撸代码 1.首先看目录  router下的index.js是路由配置文</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
+                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
+                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

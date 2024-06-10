@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-49.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>controller使用map接收参数注意事项 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">controller使用map接收参数注意事项</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>#关于前端使用map去接收参数的问题</p> <pre><code class="prism language-java"><span class="token annotation punctuation">@PostMapping</span><span class="token punctuation">(</span><span class="token string">"test01"</span><span class="token punctuation">)</span> <span class="token annotation punctuation">@ResponseBody</span>                        <span class="token comment">// 如果这里不加@RequestBody，那么springmvc默认创建的是BindAwareModelMap</span> <span class="token keyword">public</span> Object <span class="token function">test01</span><span class="token punctuation">(</span> Map dataMap<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> <span class="token comment">// 对象，并且都参数都不会封装进去</span>     System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>dataMap<span class="token punctuation">)</span><span class="token punctuation">;</span>     dataMap <span class="token operator">=</span> null<span class="token punctuation">;</span>     <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">BindingAwareModelMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 如果返回BindingAwareModelMap对象,就会抛出异常</span> <span class="token punctuation">}</span> </code></pre> <p>#正确封装姿势</p> <pre><code class="prism language-java"><span class="token annotation punctuation">@Controller</span> <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"map"</span><span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MapController</span> <span class="token punctuation">{<!-- --></span>      <span class="token annotation punctuation">@PostMapping</span><span class="token punctuation">(</span><span class="token string">"test01"</span><span class="token punctuation">)</span>     <span class="token annotation punctuation">@ResponseBody</span>                                    <span class="token comment">// 如果加了@RequestBody，那么创建的是LinkedHashMap</span>     <span class="token keyword">public</span> Object <span class="token function">test01</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestBody</span> Map dataMap<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> <span class="token comment">// 并且参数都封装了进去(url路径参数和json参数都会封装进去)</span>         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>dataMap<span class="token punctuation">)</span><span class="token punctuation">;</span>         dataMap<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"msg"</span><span class="token punctuation">,</span> <span class="token string">"ojbk"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token keyword">return</span> dataMap<span class="token punctuation">;</span>     <span class="token punctuation">}</span>  <span class="token punctuation">}</span> </code></pre> <p>// 结论：如果使用map接收前端参数，那么一定要加@Requestbody才行</p> <pre><code class="prism language-java">#mybatis使用map封装参数， <span class="token annotation punctuation">@Select</span><span class="token punctuation">(</span><span class="token string">"select * from t_product where pid = #{pid} or pname = #{pname}"</span><span class="token punctuation">)</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>Product<span class="token punctuation">&gt;</span></span> <span class="token function">getByMap</span><span class="token punctuation">(</span>Map map<span class="token punctuation">)</span><span class="token punctuation">;</span>      #mybatisplus中有写好的方法 List<span class="token generics function"><span class="token punctuation">&lt;</span>T<span class="token punctuation">&gt;</span></span> <span class="token function">selectByMap</span><span class="token punctuation">(</span><span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"cm"</span><span class="token punctuation">)</span> Map<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span> Object<span class="token punctuation">&gt;</span></span> columnMap<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <pre><code class="prism language-java">#正确封装姿势<span class="token number">2</span> <span class="token annotation punctuation">@Data</span> <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Page</span> <span class="token punctuation">{<!-- --></span>     <span class="token keyword">private</span> Map dataMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 这里可以不用初始化，加了@RequestBody，默认创建LinkdedHashMap</span> <span class="token punctuation">}</span>  <span class="token annotation punctuation">@Controller</span> <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"map"</span><span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MapController</span> <span class="token punctuation">{<!-- --></span>      <span class="token annotation punctuation">@PostMapping</span><span class="token punctuation">(</span><span class="token string">"test01"</span><span class="token punctuation">)</span>     <span class="token annotation punctuation">@ResponseBody</span>     <span class="token keyword">public</span> Object <span class="token function">test01</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestBody</span> Page page<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> <span class="token comment">// 一定要加@RequestBody，否则封装不进去</span>         <span class="token keyword">return</span> page<span class="token punctuation">;</span>     <span class="token punctuation">}</span>  <span class="token punctuation">}</span> 前端需要使用json传参格式： <span class="token punctuation">{<!-- --></span>     <span class="token string">"dataMap"</span><span class="token operator">:</span><span class="token punctuation">{<!-- --></span>         <span class="token string">"name"</span><span class="token operator">:</span><span class="token string">"zzhua"</span>     <span class="token punctuation">}</span> <span class="token punctuation">}</span> </code></pre> </p></div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-48.htm">MySQL GET_FORMAT()函数的用途是什么？</a></p>
+                                        <p>下一个：<a href="/html/category/article-50.htm">ElementUI el-upload 断点续传文件</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
+                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
+                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
+                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
+                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
+                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
+                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
+                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
+                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
+                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

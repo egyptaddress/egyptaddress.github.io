@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-256.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Vue3项目中的骨架屏 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">Vue3项目中的骨架屏</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:</p> <p><img fetchpriority="high" decoding="async" alt="" height="839" src="http://img.555519.xyz/uploads3/20220610/2d4593aa60d8480504ae5d88aea0d11d.jpg"><img decoding="async" alt="" height="779" src="http://img.555519.xyz/uploads3/20220610/d0a25fd7bfc056ba46af6a8dacecbd6d.jpg"></p> <p>&nbsp;实现步骤:</p> <p>1.设置通用组件骨架屏(可以设置的属性:<span style="color:#fe2c24;">高，宽，背景颜色，是否有闪动画</span>)</p> <p>基本传值如下图:</p> <p><img decoding="async" alt="" height="137" src="http://img.555519.xyz/uploads3/20220610/332d826c23c8236cbe526a99a061c55b.jpg"></p> <p>2.设置业务组件骨架屏</p> <p>1).设置通用组件骨架屏基本构建</p> <p>&nbsp;src/components/library/Skeleton.vue</p> <pre><code class="language-html">&lt;template&gt; &lt;div class="skeleton" :style="{width,height}" :class="{shan:animated}"&gt; &lt;!-- 1 盒子--&gt; &lt;div class="block" :style="{backgroundColor:bg}"&gt;&lt;/div&gt;  //一个盒子包含了另一个盒子,样式写在                                                                                                                              // 一个div中也是可以的 &lt;!-- 2 闪效果 xtx-skeleton 伪元素 ---&gt; &lt;/div&gt; &lt;/template&gt; &lt;script&gt; export default { name: 'Skeleton', // 使用的时候需要动态设置 高度，宽度，背景颜色，是否闪下 props: { bg: { type: String, default: '#efefef' }, width: { type: String, default: '100px' }, height: { type: String, default: '100px' }, animated: { type: Boolean, default: false } } } &lt;/script&gt; &lt;style scoped lang="less"&gt; .skeleton { display: inline-block; position: relative; overflow: hidden; vertical-align: middle; .block { width: 100%; height: 100%; border-radius: 2px; } } .shan { &amp;::after { content: ""; position: absolute; animation: shan 1.5s ease 0s infinite; top: 0; width: 50%; height: 100%; background: linear-gradient( to left, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100% ); transform: skewX(-45deg); } } @keyframes shan { 0% { left: -100%; } 100% { left: 120%; } } &lt;/style&gt;</code></pre> <p>&nbsp;全局注册(main.js中记得导入这个文件,并用Vue中use注册)</p> <p>src/componets/library/index.j</p> <pre><code class="language-javascript">import Skeleton from './Skeleton.vue'  export default { install (app) {  app.component(Skeleton.name, XtxSkeleton) } }</code></pre> <p>实现第一个图</p> <p><img loading="lazy" decoding="async" alt="" height="181" src="http://img.555519.xyz/uploads3/20220610/69c0d7cf461b6204f9fbb5cd42cebffa.jpg"></p> <p>&nbsp;src/views/home/components/home-cate.vue</p> <pre><code class="language-javascript">&lt;ul class="menu"&gt; &lt;li :class="{active:categoryId===item.id}" v-for="item in list" :key="item.id" @mouseenter="categoryId=item.id"&gt; &lt;RouterLink to="/"&gt;{<!-- -->{item.name}}&lt;/RouterLink&gt; &lt;template v-if="item.children"&gt; &lt;RouterLink to="/" v-for="sub in item.children" :key="sub.id"&gt;{<!-- -->{sub.name}}&lt;/RouterLink&gt; &lt;/template&gt;  &lt;span v-else&gt;  &lt;Skeleton width="60px" height="18px" style="margin-right:5px" bg="rgba(255,255,255,0.2)" /&gt;  &lt;Skeleton width="50px" height="18px" bg="rgba(255,255,255,0.2)" /&gt;  &lt;/span&gt; &lt;/li&gt; &lt;/ul&gt;</code></pre> <p>封装业务组件src/views/home/components/home-skeleton.vue,实现第二图的效果</p> <p><img loading="lazy" decoding="async" alt="" height="408" src="http://img.555519.xyz/uploads3/20220610/55086381dd679ce9efa7581d2a1dd212.jpg"></p> <pre><code class="language-html">&lt;template&gt; &lt;div class='home-skeleton'&gt; &lt;div class="item" v-for="i in 4" :key="i" :style="{backgroundColor:bg}"&gt; &lt;Skeleton bg="#e4e4e4" width="306px" height="306px" animated /&gt; &lt;Skeleton bg="#e4e4e4" width="160px" height="24px" animated /&gt; &lt;Skeleton bg="#e4e4e4" width="120px" height="24px" animated /&gt; &lt;/div&gt; &lt;/div&gt; &lt;/template&gt;  &lt;script&gt; export default { name: 'HomeSkeleton', props: { bg: { type: String, default: '#fff' } } } &lt;/script&gt;  &lt;style scoped lang='less'&gt; .home-skeleton { width: 1240px; height: 406px; display: flex; justify-content: space-between; .item { width: 306px; .xtx-skeleton ~ .xtx-skeleton{ display: block; margin: 16px auto 0; } } } &lt;/style&gt;</code></pre> <p>在需要用的组件中,导入业务组件使用</p> <pre><code class="language-html">&lt;HomePanel title="人气推荐" sub-title="人气爆款 不容错过"&gt;  &lt;Transition name="fade"&gt;  // 配合了vue中的淡入淡出的动画  &lt;ul v-if="goods.length" ref="pannel" class="goods-list"&gt;  // v-if有数据显示数据 &lt;li v-for="item in goods" :key="item.id"&gt; &lt;RouterLink to="/"&gt; &lt;img :src="item.picture" alt=""&gt; &lt;p class="name"&gt;{<!-- -->{item.title}}&lt;/p&gt; &lt;p class="desc"&gt;{<!-- -->{item.alt}}&lt;/p&gt; &lt;/RouterLink&gt; &lt;/li&gt; &lt;/ul&gt;  &lt;HomeSkeleton v-else /&gt;   // 没有数据就显示骨架  &lt;/Transition&gt;  &lt;/div&gt; &lt;/HomePanel&gt;</code></pre> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-255.htm">vue动态获取ref方式</a></p>
+                                        <p>下一个：<a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
+                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
+                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
+                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
+                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
+                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在日常开发中，我学使用原生JavaScript获取元素的时候，最常用的方法就document.getEl</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
+                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
+                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
+                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

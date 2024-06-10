@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-122.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>实现可以拖动的悬浮框 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">实现可以拖动的悬浮框</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1> <a id="_0" rel="nofollow"></a>实现可以拖动的悬浮框</h1> <h2> <a id="_1" rel="nofollow"></a>直接上代码，有注释</h2> <pre><code class="prism language-javascript"><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token constant">DOCTYPE</span> html<span class="token operator">&gt;</span> <span class="token operator">&lt;</span>html lang<span class="token operator">=</span><span class="token string">"en"</span><span class="token operator">&gt;</span> <span class="token operator">&lt;</span>head<span class="token operator">&gt;</span>     <span class="token operator">&lt;</span>meta charset<span class="token operator">=</span><span class="token string">"UTF-8"</span><span class="token operator">&gt;</span>     <span class="token operator">&lt;</span>meta name<span class="token operator">=</span><span class="token string">"viewport"</span> content<span class="token operator">=</span><span class="token string">"width=device-width, initial-scale=1.0"</span><span class="token operator">&gt;</span>     <span class="token operator">&lt;</span>title<span class="token operator">&gt;</span>实现可以拖动的悬浮框<span class="token operator">&lt;</span><span class="token operator">/</span>title<span class="token operator">&gt;</span>     <span class="token operator">&lt;</span>style<span class="token operator">&gt;</span>         body<span class="token punctuation">{<!-- --></span>             height<span class="token punctuation">:</span> <span class="token number">100</span><span class="token operator">%</span><span class="token punctuation">;</span>             width<span class="token punctuation">:</span> <span class="token number">100</span><span class="token operator">%</span><span class="token punctuation">;</span>             position<span class="token punctuation">:</span> relative<span class="token punctuation">;</span>         <span class="token punctuation">}</span>         <span class="token punctuation">.</span>btn<span class="token punctuation">{<!-- --></span>             width<span class="token punctuation">:</span> <span class="token number">200</span>px<span class="token punctuation">;</span>             margin<span class="token punctuation">:</span> <span class="token number">0</span> auto<span class="token punctuation">;</span>             text<span class="token operator">-</span>align<span class="token punctuation">:</span> center<span class="token punctuation">;</span>         <span class="token punctuation">}</span>         <span class="token punctuation">.</span>main<span class="token punctuation">{<!-- --></span>             <span class="token comment">/* 因为下面要用到所以绝对定位 */</span>             position<span class="token punctuation">:</span> absolute<span class="token punctuation">;</span>             left<span class="token punctuation">:</span> <span class="token number">50</span><span class="token operator">%</span><span class="token punctuation">;</span>             transform<span class="token punctuation">:</span> <span class="token function">translate</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">50</span><span class="token operator">%</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>             width<span class="token punctuation">:</span> <span class="token number">300</span>px<span class="token punctuation">;</span>             height<span class="token punctuation">:</span> <span class="token number">300</span>px<span class="token punctuation">;</span>             background<span class="token operator">-</span>color<span class="token punctuation">:</span> skyblue<span class="token punctuation">;</span>             text<span class="token operator">-</span>align<span class="token punctuation">:</span> center<span class="token punctuation">;</span>             line<span class="token operator">-</span>height<span class="token punctuation">:</span> <span class="token number">300</span>px<span class="token punctuation">;</span>             display<span class="token punctuation">:</span> none<span class="token punctuation">;</span>             z<span class="token operator">-</span>index<span class="token punctuation">:</span> <span class="token number">100</span><span class="token punctuation">;</span>         <span class="token punctuation">}</span>         <span class="token punctuation">.</span>close<span class="token operator">-</span>btn<span class="token punctuation">{<!-- --></span>             position<span class="token punctuation">:</span> absolute<span class="token punctuation">;</span>             right<span class="token punctuation">:</span> <span class="token operator">-</span><span class="token number">20</span>px<span class="token punctuation">;</span>             top<span class="token punctuation">:</span> <span class="token operator">-</span><span class="token number">20</span>px<span class="token punctuation">;</span>             width<span class="token punctuation">:</span> <span class="token number">50</span>px<span class="token punctuation">;</span>             height<span class="token punctuation">:</span> <span class="token number">50</span>px<span class="token punctuation">;</span>             line<span class="token operator">-</span>height<span class="token punctuation">:</span> <span class="token number">50</span>px<span class="token punctuation">;</span>             border<span class="token operator">-</span>radius<span class="token punctuation">:</span> <span class="token number">50</span><span class="token operator">%</span><span class="token punctuation">;</span>             background<span class="token operator">-</span>color<span class="token punctuation">:</span> #ccc<span class="token punctuation">;</span>             color<span class="token punctuation">:</span> #ffffff<span class="token punctuation">;</span>         <span class="token punctuation">}</span>         <span class="token punctuation">.</span>mask<span class="token punctuation">{<!-- --></span>             height<span class="token punctuation">:</span> <span class="token number">100</span><span class="token operator">%</span><span class="token punctuation">;</span>             width<span class="token punctuation">:</span> <span class="token number">100</span><span class="token operator">%</span><span class="token punctuation">;</span>             position<span class="token punctuation">:</span> fixed<span class="token punctuation">;</span>             top<span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">;</span>             left<span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">;</span>             background<span class="token operator">-</span>color<span class="token punctuation">:</span> <span class="token function">rgba</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">.3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>             display<span class="token punctuation">:</span> none<span class="token punctuation">;</span>             z<span class="token operator">-</span>index<span class="token punctuation">:</span> <span class="token number">99</span><span class="token punctuation">;</span>         <span class="token punctuation">}</span>     <span class="token operator">&lt;</span><span class="token operator">/</span>style<span class="token operator">&gt;</span> <span class="token operator">&lt;</span><span class="token operator">/</span>head<span class="token operator">&gt;</span> <span class="token operator">&lt;</span>body<span class="token operator">&gt;</span>     <span class="token operator">&lt;</span>div <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"btn"</span><span class="token operator">&gt;</span>点击出现悬浮框<span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">&gt;</span>     <span class="token operator">&lt;</span>div <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"main"</span><span class="token operator">&gt;</span>         <span class="token operator">&lt;</span>span<span class="token operator">&gt;</span>这就是出现的悬浮框<span class="token operator">&lt;</span><span class="token operator">/</span>span<span class="token operator">&gt;</span>         <span class="token operator">&lt;</span>span <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"close-btn"</span><span class="token operator">&gt;</span>关闭<span class="token operator">&lt;</span><span class="token operator">/</span>span<span class="token operator">&gt;</span>     <span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">&gt;</span>     <span class="token operator">&lt;</span>div <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"mask"</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">&gt;</span>     <span class="token operator">&lt;</span>script<span class="token operator">&gt;</span>         <span class="token comment">// 获取元素</span>         <span class="token keyword">let</span> btn<span class="token operator">=</span>document<span class="token punctuation">.</span><span class="token function">querySelector</span><span class="token punctuation">(</span><span class="token string">'.btn'</span><span class="token punctuation">)</span>         <span class="token keyword">let</span> main<span class="token operator">=</span>document<span class="token punctuation">.</span><span class="token function">querySelector</span><span class="token punctuation">(</span><span class="token string">'.main'</span><span class="token punctuation">)</span>         <span class="token keyword">let</span> closeBtn<span class="token operator">=</span>document<span class="token punctuation">.</span><span class="token function">querySelector</span><span class="token punctuation">(</span><span class="token string">'.close-btn'</span><span class="token punctuation">)</span>         <span class="token keyword">let</span> mask<span class="token operator">=</span>document<span class="token punctuation">.</span><span class="token function">querySelector</span><span class="token punctuation">(</span><span class="token string">'.mask'</span><span class="token punctuation">)</span>         <span class="token comment">// 点击显示悬浮框和mask蒙层</span>         btn<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'click'</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>             main<span class="token punctuation">.</span>style<span class="token punctuation">.</span>display<span class="token operator">=</span><span class="token string">'block'</span>             mask<span class="token punctuation">.</span>style<span class="token punctuation">.</span>display<span class="token operator">=</span><span class="token string">'block'</span>         <span class="token punctuation">}</span><span class="token punctuation">)</span>         <span class="token comment">// 点击隐藏悬浮框和mask蒙层</span>         closeBtn<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'click'</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>             main<span class="token punctuation">.</span>style<span class="token punctuation">.</span>display<span class="token operator">=</span><span class="token string">'none'</span>             mask<span class="token punctuation">.</span>style<span class="token punctuation">.</span>display<span class="token operator">=</span><span class="token string">'none'</span>         <span class="token punctuation">}</span><span class="token punctuation">)</span>         <span class="token comment">// 鼠标按下</span>         main<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'mousedown'</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>             <span class="token comment">// 获得鼠标在盒子里的坐标</span>             <span class="token comment">// console.log(event.pageX)</span>             <span class="token comment">// console.log(main.offsetLeft)</span>             <span class="token keyword">let</span> x<span class="token operator">=</span>event<span class="token punctuation">.</span>pageX<span class="token operator">-</span>main<span class="token punctuation">.</span>offsetLeft             <span class="token keyword">let</span> y<span class="token operator">=</span>event<span class="token punctuation">.</span>pageY<span class="token operator">-</span>main<span class="token punctuation">.</span>offsetTop             document<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'mousemove'</span><span class="token punctuation">,</span>move<span class="token punctuation">)</span>             <span class="token comment">// 也可以吧document换成main都行</span>             <span class="token keyword">function</span> <span class="token function">move</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>                 <span class="token comment">// 盒子距离body的距离=鼠标距离body的距离-鼠标距离盒子的距离</span>                 main<span class="token punctuation">.</span>style<span class="token punctuation">.</span>left<span class="token operator">=</span>event<span class="token punctuation">.</span>pageX<span class="token operator">-</span>x<span class="token operator">+</span><span class="token string">'px'</span>                 main<span class="token punctuation">.</span>style<span class="token punctuation">.</span>top<span class="token operator">=</span>event<span class="token punctuation">.</span>pageY<span class="token operator">-</span>y<span class="token operator">+</span><span class="token string">'px'</span>             <span class="token punctuation">}</span>             <span class="token comment">// 鼠标抬起</span>             document<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'mouseup'</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>                 document<span class="token punctuation">.</span><span class="token function">removeEventListener</span><span class="token punctuation">(</span><span class="token string">'mousemove'</span><span class="token punctuation">,</span>move<span class="token punctuation">)</span>             <span class="token punctuation">}</span><span class="token punctuation">)</span>         <span class="token punctuation">}</span><span class="token punctuation">)</span>     <span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span> <span class="token operator">&lt;</span><span class="token operator">/</span>body<span class="token operator">&gt;</span> <span class="token operator">&lt;</span><span class="token operator">/</span>html<span class="token operator">&gt;</span> </code></pre> <h6> <a id="_103" rel="nofollow"></a>做为一个锻炼自己的过程，有什么错误欢迎指正</h6> </p></div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-121.htm">PHP索引数组详解</a></p>
+                                        <p>下一个：<a href="/html/category/article-123.htm">Redis 主从同步原理解析</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
+                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
+                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
+                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
+                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
+                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-237.htm">Spring Security教程（13）&#8212;- 验证码功能的实现</a></h4>
+                <p>有三中方法可以实现验证码的功能 第一种是自定义一个filter，放在SpringSecurity过滤器之前，在用户登录的时候会先经过这个filter，然后在这个filter中实现对验证码进行验证的功能</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
+                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
+                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
+                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

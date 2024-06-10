@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-237.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Spring Security教程（13）&#8212;- 验证码功能的实现 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">Spring Security教程（13）&#8212;- 验证码功能的实现</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>有三中方法可以实现验证码的功能</p> <p>第一种是自定义一个filter，放在SpringSecurity过滤器之前，在用户登录的时候会先经过这个filter，然后在这个filter中实现对验证码进行验证的功能，这种方法不推荐，因为它已经脱离了SpringSecurity</p> <p>第二种是自定义一个filter让它继承自UsernamePasswordAuthenticationFilter，然后重写attemptAuthentication方法在这个方法中实现验证码的功能，如果验证码错误就抛出一个继承自AuthenticationException的验证吗错误的异常比如（CaptchaException），然后这个异常就会被SpringSecurity捕获到并将异常信息返回到前台，这种实现起来比较简单</p> <pre><code class="language-java">	@Override 	public Authentication attemptAuthentication(HttpServletRequest request, 			HttpServletResponse response) throws AuthenticationException { 		 		String requestCaptcha = request.getParameter(this.getCaptchaFieldName()); 		String genCaptcha = (String)request.getSession().getAttribute("code"); 		 		logger.info("开始校验验证码，生成的验证码为："+genCaptcha+" ，输入的验证码为："+requestCaptcha); 		 		if( !genCaptcha.equals(requestCaptcha)){ 			throw new CaptchaException( 					this.messageSource.getMessage("AbstractUserDetailsAuthenticationProvider.badCaptcha",null,"Default",null)); 		} 		return super.attemptAuthentication(request, response); 	}</code></pre> <p>然后在配置文件中配置下</p> <pre><code class="language-html">	&lt;bean id="loginFilter" class="com.zrhis.system.security.DefaultUsernamePasswordAuthenticationFilter"&gt; 		&lt;property name="authenticationManager"  ref="authenticationManager"&gt;&lt;/property&gt; 		&lt;property name="authenticationSuccessHandler"&gt; 			&lt;bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler"&gt; 				&lt;property name="defaultTargetUrl" value="/index.jsp"&gt;&lt;/property&gt; 			&lt;/bean&gt; 		&lt;/property&gt; 		&lt;property name="authenticationFailureHandler"&gt; 			&lt;bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler"&gt; 				&lt;property name="defaultFailureUrl" value="/login.jsp"&gt;&lt;/property&gt; 			&lt;/bean&gt; 		&lt;/property&gt; 	&lt;/bean&gt;</code></pre> <p>最后在http中加入custom-filter配置，将这个filter放在SpringSecurity的FORM_LOGIN_FILTER之前</p> <pre><code class="language-html">&lt;custom-filter ref="loginFilter" before="FORM_LOGIN_FILTER"/&gt;</code></pre> <p>最后一种是直接替换掉SpringSecurity的UsernamePasswordAuthenticationFilter，这种比较复杂，但是更为合理，也是我现在正在用的。</p> <p>如果用这种方法那么http 中的auto-config就必须去掉，而form-login配置也必须去掉，因为这个不需要了，里面的属性都需要我们自行注入。</p> <p>首先需要创建一个EntryPoint</p> <pre><code class="language-html">	&lt;bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint"&gt; 		&lt;property name="loginFormUrl" value="/login.jsp" /&gt; 	&lt;/bean&gt;</code></pre> <p>然后在http中配置下</p> <pre><code class="language-html">&lt;sec:http access-decision-manager-ref="accessDecisionManager" 		entry-point-ref="authenticationEntryPoint"&gt;</code></pre> <p>然后我们来写CaptchaAuthenticationFilter，同样需要继承自UsernamePasswordAuthenticationFilter</p> <pre><code class="language-java">public class CaptchaAuthenticationFilter extends UsernamePasswordAuthenticationFilter{ 	 	public static final String SPRING_SECURITY_FORM_CAPTCHA_KEY = "j_captcha"; 	public static final String SESSION_GENERATED_CAPTCHA_KEY = Constant.SESSION_GENERATED_CAPTCHA_KEY; 	 	private String captchaParameter = SPRING_SECURITY_FORM_CAPTCHA_KEY; 	 	public Authentication attemptAuthentication(HttpServletRequest request, 			HttpServletResponse response) throws AuthenticationException { 		 		String genCode = this.obtainGeneratedCaptcha(request); 		String inputCode = this.obtainCaptcha(request); 		if(genCode == null) 			throw new CaptchaException(this.messages.getMessage("LoginAuthentication.captchaInvalid")); 		if(!genCode.equalsIgnoreCase(inputCode)){ 			throw new CaptchaException(this.messages.getMessage("LoginAuthentication.captchaNotEquals")); 		} 		 		return super.attemptAuthentication(request, response); 	} 	 	protected String obtainCaptcha(HttpServletRequest request){ 		return request.getParameter(this.captchaParameter); 	} 	 	protected String obtainGeneratedCaptcha (HttpServletRequest request){ 		return (String)request.getSession().getAttribute(SESSION_GENERATED_CAPTCHA_KEY); 	} 	 }</code></pre> <p>在配置文件中配置CaptchaAuthenticationFilter</p> <pre><code class="language-html">	&lt;bean id="captchaAuthenticaionFilter" class="com.zrhis.system.security.CaptchaAuthenticationFilter"&gt; 		&lt;property name="authenticationManager" ref="authenticationManager" /&gt; 		&lt;property name="authenticationFailureHandler" ref="authenticationFailureHandler" /&gt; 		&lt;property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" /&gt; 		&lt;property name="filterProcessesUrl" value="/login.do" /&gt; 	&lt;/bean&gt; 	 	&lt;bean id="authenticationSuccessHandler" class="com.zrhis.system.security.SimpleLoginSuccessHandler"&gt; 		&lt;property name="defaultTargetUrl" value="/WEB-INF/app.jsp"&gt;&lt;/property&gt; 		&lt;property name="forwardToDestination" value="true"&gt;&lt;/property&gt; 	&lt;/bean&gt; 	&lt;bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler"&gt; 		&lt;property name="defaultFailureUrl" value="/login.jsp" /&gt; 	&lt;/bean&gt;</code></pre> <p>从配置文件中就可以看出来authenticationManager、authenticationFailureHandler、authenticationSuccessHandler、filterProcessesUrl等都需要我们自行注入了。</p> <p>filterProcessesUrl定义的是登录验证的地址，默认的是j_spring_security_check这里我们改成login.do</p> <p>authenticationSuccessHandler中的defaultTargetUrl定义的是登录成功后跳转到的页面</p> <p>authenticationFailureHandler中的defaultTargetUrl定义的是登录失败后跳转到的页面</p> <p>我们的首页app.jsp在/WEB-INF下所以需要使用服务器跳转，所以需要将forwardToDestination设为true，因为客户端跳转是不能直接访问WEB-INF下的内容的。</p> <p>最后在http中将FORM_LOGIN_FILTER替换掉，最终http中完整的配置就变成了下面的内容</p> <pre><code class="language-html">	&lt;sec:http access-decision-manager-ref="accessDecisionManager" 		entry-point-ref="authenticationEntryPoint"&gt; 		 		&lt;sec:access-denied-handler ref="accessDeniedHandler"/&gt; 		 		&lt;sec:session-management invalid-session-url="/login.jsp" /&gt; 		 		&lt;sec:custom-filter ref="filterSecurityInterceptor" before="FILTER_SECURITY_INTERCEPTOR"/&gt; 		&lt;sec:custom-filter ref="captchaAuthenticaionFilter" position="FORM_LOGIN_FILTER"/&gt; 	&lt;/sec:http&gt;</code></pre> <p>custom-filter中before是在这个filter之前，after是之后，position是替换。</p> <p> 这样就可以实现对验证码的验证了，效果如下 </p> <div style="text-align:center">  <img decoding="async" src="http://img.555519.xyz/uploads/20230217/e56069b5c53bde8f80dc6b01b17b7af6.jpg" alt="Spring Security教程（13）---- 验证码功能的实现"> </div> <p></p> </p></div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></p>
+                                        <p>下一个：<a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
+                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
+                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
+                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
+                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-250.htm">Springboot 设置过滤器以及重复读取request里的body</a></h4>
+                <p>需求：request的content-type为applciation/json，进入controller之前需要把body中的参数取出来做一次处理，然后和hearder中的另一个参数做对比。 思路：</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
+                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
+                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
+                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></h4>
+                <p>博客目录 1、union(合并结果集) 2、limit(获取一张表中某部分数据) 3、表——创建表、删除表 4、关于MySQL中的数据类型  一、union(合并结果集)  将两个查询结果合并(可以是</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

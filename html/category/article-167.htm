@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-167.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>C++ STL 中的数值算法示例讲解_C 语言 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">C++ STL 中的数值算法示例讲解_C 语言</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.iota</a></li> <li><a href="#_label1" rel="nofollow">2.accumulate</a></li> <li><a href="#_label2" rel="nofollow">3.partial_sum</a></li> <li><a href="#_label3" rel="nofollow">4.adjacent_difference</a></li> <li><a href="#_label4" rel="nofollow">5.inner_product</a></li> </ul> </div> <p>以下算法均包含在头文件 numeric 中</p> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.iota</h2> <p>该函数可以把一个范围内的序列从给定的初始值开始累加<br />先看用法。<br />例：<br />假设我需要一个长度为10，从5开始递增的序列</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(10);      iota(begin(a), end(a), 5);        for (auto x : a) {          cout &lt;&lt; x &lt;&lt; " ";      }  </pre> </div> <p>输出：</p> <blockquote> <p>5 6 7 8 9 10 11 12 13 14</p> </blockquote> <p>这样就可以很方便的创建一个递增的序列，而不用使用for循环<br />此外，该函数是使用连续的支持 operator++()的 T 类型值填充序列<br />也就是说double类型也可以使用，string类型也可以使用。<br />只要是重载了++运算符的类型都可以使用。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.accumulate</h2> <p>曾经在算法比赛中看见别人使用accumulate函数计算出了一个数组的和。<br />觉得特别的优雅，像这样：</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(10);      iota(begin(a), end(a), 1);        cout &lt;&lt; accumulate(begin(a), end(a), 0) &lt;&lt; "\n";  // 计算从1加到10的和，从0开始加  </pre> </div> <p>输出：</p> <blockquote> <p>55</p> </blockquote> <p>从那天起，每当我要求一个序列的和的时候，我都会使用这个方法...<br />但是今天，当我看到accumulate的源码之后：</p> <div class="ay1code"> <pre class="brush:cpp;">template &lt;class InputIterator, class T&gt;     T accumulate (InputIterator first, InputIterator last, T init)  {    while (first!=last) {      init = init + *first;  // or: init=binary_op(init,*first) for the binary_op version      ++first;    }    return init;  }  </pre> </div> <p>注意看这里：</p> <p style="text-align:center"><img decoding="async" alt="" src="//img.jbzj.com/file_images/article/202204/%0D%0A202204080826522.png"></p> <p>哇哦，它竟然还支持二元仿函数，<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.jb51.net/article/243625.htm"  target="_blank" rel="nofollow">详解C++ functional库中的仿函数使用方法</a><br />于是，我有了一个大胆的想法。<br />求一个数组的乘积</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(10);      iota(begin(a), end(a), 1);        cout &lt;&lt; accumulate(begin(a), end(a), 1, multiplies&lt;int&gt;()) &lt;&lt; "\n";  // 计算从1加到10的乘积，从1开始乘  </pre> </div> <p>输出：</p> <blockquote> <p>3628800</p> </blockquote> <p>同理，还可以求数组的减，数组的除，数组的模????</p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.partial_sum</h2> <p>这个函数可以用来求前缀和，前缀和指一个数组的某下标之前的所有数组元素的和（包含其自身）。</p> <p>例如，1、2、3、4、5的前缀和数组为 1 3 6 10 15</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(5);      iota(begin(a), end(a), 1);        partial_sum(begin(a), end(a), begin(a)); // 求a的前缀和，赋值给a数组（第三个参数）        for (auto x : a) {          cout &lt;&lt; x &lt;&lt; " ";      }  </pre> </div> <p>输出：</p> <blockquote> <p>1 3 6 10 15</p> </blockquote> <p>有了上一个函数的经验，我们还可以求一个数组的前缀乘、除等</p> <p>例：</p> <div class="ay1code"> <pre class="brush:cpp;">    partial_sum(begin(a), end(a), begin(a), multiplies&lt;int&gt;());  </pre> </div> <p>输出：</p> <blockquote> <p>1 2 6 24 120</p> </blockquote> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>4.adjacent_difference</h2> <p>这个函数可以对一个序列里相邻两个元素进行运算，通过differerce这个词可以看出来，默认是计算相邻两元素的差</p> <div class="ay1code"> <pre class="brush:cpp;">vector&lt;int&gt; a{1, 4, 5, 100, 40};    adjacent_difference(begin(a), end(a), begin(a)); // 求a数组相邻元素的差，赋值给a数组（第三个参数）    for (auto x : a) {      cout &lt;&lt; x &lt;&lt; " ";  }  </pre> </div> <p>输出：</p> <blockquote> <p>1 3 1 95 -60</p> </blockquote> <p>今天我想计算相邻两元素的乘积</p> <div class="ay1code"> <pre class="brush:cpp;">adjacent_difference(begin(a), end(a), begin(a), multiplies&lt;int&gt;());  </pre> </div> <p>输出：</p> <p>1 4 20 500 4000</p> <p class="maodian"><a name="_label4" rel="nofollow"></a></p> <h2>5.inner_product</h2> <p>这个函数默认情况下可以求序列中每个元素的内积之和：</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(3);      iota(begin(a), end(a), 1);        cout &lt;&lt; inner_product(begin(a), end(a), begin(a), 10) &lt;&lt; "\n"; // 从初值10开始加上序列各元素的内积  </pre> </div> <p>输出：</p> <blockquote> <p>24</p> </blockquote> <p>还可以用来求两个序列元素两两相乘再相加的结果</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a{1, 2, 3};      vector&lt;int&gt; b{2, 3, 4};        // 1 * 2 + 2 * 3 + 3 * 4      cout &lt;&lt; inner_product(begin(a), end(a), begin(b), 0) &lt;&lt; "\n";  </pre> </div> <p>输出：</p> <blockquote> <p>20</p> </blockquote> <p>此外，还可以通过仿函数来替代上述的两个操作符 + 和 *</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a{1, 2, 3};      vector&lt;int&gt; b{2, 3, 4};        cout &lt;&lt; inner_product(begin(a), end(a), begin(b), 1                          , multiplies&lt;int&gt;(), minus&lt;int&gt;()) &lt;&lt; "\n";                              // 原来的加法 +  // 原来的乘法 *                              // 计算 (1 - 2) * (2 - 3) * (3 - 4) = -1  </pre> </div> <p>输出：</p> <blockquote> <p>-1</p> </blockquote> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-166.htm">SpringBoot常用拦截器（HandlerInterceptor，ClientHttpRequestInterceptor，RequestInterceptor）</a></p>
+                                        <p>下一个：<a href="/html/category/article-168.htm">JavaScript定时器的各种案例</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
+                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
+                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
+                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
+                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
+                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-250.htm">Springboot 设置过滤器以及重复读取request里的body</a></h4>
+                <p>需求：request的content-type为applciation/json，进入controller之前需要把body中的参数取出来做一次处理，然后和hearder中的另一个参数做对比。 思路：</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
+                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

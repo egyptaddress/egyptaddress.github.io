@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-138.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>详解Android如何实现自定义的动画曲线_Android_ - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">详解Android如何实现自定义的动画曲线_Android_</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">前言</a></li> <li><a href="#_label1" rel="nofollow">Curve 类定义</a></li> <li><a href="#_label2" rel="nofollow">实例解析</a></li> <li><a href="#_label3" rel="nofollow">正弦动画曲线</a></li> <li><a href="#_label4" rel="nofollow">总结</a></li> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>前言</h2> <p>最近在写动画相关的篇章，经常会用到 <code>Curve</code> 这个动画曲线类，那这个类到底怎么实现的？如果想自己来一个自定义的动画曲线该怎么弄？本篇我们就来一探究竟。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/0550fcdebf63391572273aa4a0612d6c.jpg"></p> <p style="text-align:center">曲线</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>Curve 类定义</h2> <p>查看源码， <code>Curve</code> 类定义如下：</p> <div class="ay1code"> <pre class="brush:java;">abstract class Curve extends ParametricCurve&lt;double&gt; {    const Curve();      @override    double transform(double t) {      if (t == 0.0 || t == 1.0) {        return t;      }      return super.transform(t);    }        Curve get flipped =&gt; FlippedCurve(this);  }    </pre> </div> <p>看上去好像没定义什么， 实际这里只是做了两个处理，一个是明确的数据类型为 <code>double</code>，另一个是对 <code>transform</code> 做了重载，也只是对参数 t 做了特殊处理，保证参数 t 的范围在0-1之间，且起点值0.0和终点值1.0不被转换函数转换。主要定义在上一层的<code>ParametricCurve</code>。文档是建议子类重载<code>transformInternal</code>方法，那我们就继续往上看<code>ParametricCurve</code>这个类的实现，代码如下：</p> <div class="ay1code"> <pre class="brush:java;">abstract class ParametricCurve&lt;T&gt; {    const ParametricCurve();      T transform(double t) {      assert(t != null);      assert(t &gt;= 0.0 &amp;&amp; t &lt;= 1.0, 'parametric value $t is outside of [0, 1] range.');      return transformInternal(t);    }      @protected    T transformInternal(double t) {      throw UnimplementedError();    }      @override    String toString() =&gt; objectRuntimeType(this, 'ParametricCurve');  }  </pre> </div> <p>可以看到，实际上 <code>transform</code> 方法除了做参数合法性验证以外，其实就是调用了<code>transformInternal</code>方法，因此子类必须要实现该方法，否则会抛出<code>UnimplementedError</code>异常。</p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>实例解析</h2> <p>上面的源码可以看到，关键在于参数 <code>t</code>。这个参数 <code>t</code> 代表什么呢？注释里说的是：</p> <blockquote> <p>Returns the value of the curve at point <code>t</code>. — 返回 t 点的曲线对应的值。</p> </blockquote> <p>因此 <code>t</code> 可以认为是曲线的横坐标，而为了保证曲线的一致性，做了归一化处理，也就是<code>t</code>的取值都是在0-1之间。这么说可能有点抽象，我们来看2个例子来对比就明白了，先看最简单<code> Curves.linear</code> 的实现。</p> <div class="ay1code"> <pre class="brush:java;">class _Linear extends Curve {    const _Linear._();      @override    double transformInternal(double t) =&gt; t;  }  </pre> </div> <p>超级简单吧，直接返回 t，其实对应我们的数学的函数就是：</p> <div class="ay1code"> <pre class="brush:java;">y = f(t) = t  </pre> </div> <p>对应的曲线就是一条斜线。也就是说在设定的动画时间内，会完成从0-1的线性转变，也就是变化是均匀的。线性这个很好理解，我们再来看一个减速曲线<code>decelerate</code>的实现。</p> <div class="ay1code"> <pre class="brush:java;">class _DecelerateCurve extends Curve {    const _DecelerateCurve._();      @override    double transformInternal(double t) {      t = 1.0 - t;      return 1.0 - t * t;    }  }  </pre> </div> <p>我们先看一下_DecelerateCurve 的计算表达式是什么。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/e0c9809df9b3af728e5d2b8c4971d9ee.jpg"></p> <p>回忆一下我们高中物理学的匀减速运动，加速度为负（即减速）的距离计算公式：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/08b8990f17587c22f5049ec146dccd4f.jpg"></p> <p>上面的减速曲线其实就可以看做是初始速度是2，加速度也是2的减速运动。为什么要是2这个值呢，这是因为 t 的取值范围是0-1，这样计算完的结果的取值范围还是0-1。你肯定会问，<strong>为什么要保证曲线的计算结果要是0-1</strong>？我们来假设计算结果不为0-1会发生什么情况，比如我们要在屏幕上移动一个组件为60像素。假设动画曲线初始值不为0。那就意味着一开始的移动距离是跳变的。同样的，如果结束值不为1.0，意味着在最后一个点的距离值不是60.0，那么就意味着结束时需要从最后一个点跳到最终的60像素的位置（动画需要保证最终的移动距离是60像素）这样意味着动画会出现跳变的效果，绘制曲线的话会是下面的样子（绿色是正常的，红线是异常的）。<strong>这样的动画体验是很糟糕的！因此，这是一个关键点，如果你的自定义曲线的 <code>transformInternal</code> 方法的返回值范围不是0-1，就意味着动画会出现跳变，导致动画缺帧的感觉。</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/cbab1f16d160957f801d736b91117759.jpg"></p> <p style="text-align:center">image.png</p> <p>有了这个基础，我们就可以解释动画曲线的基本机制了，实际上就是在给定的动画时间（<code>Duration</code>）范围内，完成组件的初始状态到结束状态的转变，这个转变是沿着设定的 <code>Curve</code> 类完成的，而其横坐标是0-1.0，曲线的初始值和结束值分别是0和1.0，而至于中间值是可以低于0或超过1的。我们可以想像是我们沿着设定的曲线运动，最终无论如何都会达到设定的目的地，而至于怎么走，拐多少道弯，速度怎么变化都是曲线控制的。但是，如果你的曲线初始值不为0或结束值不为1，就像是跳悬崖的那种感觉！</p> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>正弦动画曲线</h2> <p>我们来一个正弦曲线的动画验证一下上面的说法。</p> <div class="ay1code"> <pre class="brush:java;">class SineCurve extends Curve {    final int count;    const SineCurve({this.count = 1}) : assert(count &gt; 0);      @override    double transformInternal(double t) {      return sin(2 * count* pi * t);    }  }  </pre> </div> <p>count 参数用于控制周期，即达到目的地之前可以多来几个来回。这里我们发现，初始值是0，但是一个周期（2π）结束值也是0，这样在动画结束前会出现跳变的结果。来看一下示例代码，这个示例是让圆形向下移动60像素。</p> <div class="ay1code"> <pre class="brush:java;">AnimatedContainer(    decoration: BoxDecoration(      color: Colors.blue,      borderRadius: BorderRadius.circular(30.0),    ),    transform: Matrix4.identity()..translate(0.0, up ? 60.0 : 0.0, 0.0),    duration: Duration(milliseconds: 3000),    curve: SineCurve(count: 1),    child: ClipOval(      child: Container(        width: 60.0,        height: 60.0,        color: Colors.blue,      ),    ),  )  </pre> </div> <p>运行效果如下，注意看最后一帧从0的位置直接跳到了60的位置。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/bfbdbfaeedd750dbd72e9d72e6d2e169.jpg"></p> <p style="text-align:center">跳动动画</p> <p>这个怎么调呢，我们来看一下正弦曲线的样子。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/c973bb8e097c06038e157ee377bd06ff.jpg"></p> <p style="text-align:center">正弦曲线</p> <p>如果我们要满足0-1范围的要求，那么要往后再移动90度才能够达到。但是，这样还有个问题，这样破坏了周期性，比如设置 <code>count=2</code>的时候结果又不对了。我们来看一下规律，实际上只有第一个周期需要多移动90度（图中箭头指向的点），后面的都是按360度（即2π）为周期了。也就是角度其实是按2.5π，4.5π，6.5π……规律来的，对应的角度公式其实就是：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/f45c95383c27ee61f6bceaefaf4823d1.jpg"></p> <p>所以调整后的正弦曲线代码为：</p> <div class="ay1code"> <pre class="brush:java;">class SineCurve extends Curve {    final int count;    const SineCurve({this.count = 1}) : assert(count &gt; 0);      @override    double transformInternal(double t) {      // 需要补偿pi/2个角度，使得起始值是0.终止值是1，避免出现最后突然回到0      return sin(2 * (count + 0.25) * pi * t);    }  }  </pre> </div> <p>再看调整后的效果，是不是丝滑般地过渡了？</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/e283e3cdf7ac3127b3fb465275788903.jpg"></p> <p class="maodian"><a name="_label4" rel="nofollow"></a></p> <h2>总结</h2> <p>本篇介绍了 Flutter 动画曲线类的原理和控制动画的机制，实际上 Curve 类就是在指定的时间内，沿曲线完成从起点到终点的过渡。但是为了保证动画平滑过渡，应该保证自定义曲线的<code>transformInternal</code>方法返回值的起始值和结束值分别是0和1。</p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-137.htm">springboot 小技巧(一)(restful接口参数校验，自定义校验规则)</a></p>
+                                        <p>下一个：<a href="/html/category/article-139.htm">底层实现dropout——【torch学习笔记】</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
+                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
+                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
+                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
+                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
+                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
+                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
+                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
+                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

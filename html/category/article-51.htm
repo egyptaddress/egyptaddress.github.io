@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-51.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>利用QEMU+GDB搭建Linux内核调试环境 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">利用QEMU+GDB搭建Linux内核调试环境</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<h2 id="前言">前言</h2> <p>对用户态进程，利用gdb调试代码是很方便的手段。而对于内核态的问题，可以利用crash等工具基于coredump文件进行调试。</p> <p>其实我们也可以利用一些手段对Linux内核代码进行gdb调试，qemu就是一种。</p> <p>qemu是一款完全软件模拟(Binary translation)的虚拟化软件，在虚拟化的实现中性能相对较差。但利用它在测试环境中gdb调试Linux内核代码，是熟悉Linux内核代码的一个好方法。</p> <p>本文实验环境：</p> <ul> <li>ubuntu 20.04</li> <li>busybox-1.32.1</li> <li>Linux kernel 4.9.3</li> <li>QEMU</li> <li>GDB 10.1</li> </ul> <h2 id="编译内核源码">编译内核源码</h2> <pre><code class="language-bash">git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git tar -xvzf linux-4.9.301.tar.gz cd linux-4.9.301 make menuconfig</code></pre> <p>在内核编译选项中，开启如下"Compile the kernel with debug info"</p> <pre><code class="language-bash">Kernel hacking ---&gt;   Compile-time checks and compiler options ---&gt;     [ ] Compile the kernel with debug info</code></pre> <p>示意图如下，利用键盘选中debug选项，然后敲"Y"勾选：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/06d7ee110d713ccbbc408806f329d7e3.jpg" alt="利用QEMU+GDB搭建Linux内核调试环境"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/539389e6d9b130f435696901288d63b8.jpg" alt="利用QEMU+GDB搭建Linux内核调试环境"></p> <p>以上配置完成后会在当前目录生成<code>.config</code> 文件，我们可以使用<code>grep</code> 进行验证：</p> <pre><code>grep CONFIG_DEBUG_INFO .config CONFIG_DEBUG_INFO=y</code></pre> <p>编译内核</p> <pre><code class="language-bash">make bzImage -j4</code></pre> <p>编译完成后，会在当前目录下生成vmlinux，这个在 gdb 的时候需要加载，用于读取 symbol 符号信息，包含了所有调试信息，所以比较大。</p> <p>压缩后的镜像文件为bzImage， 在arch/x86/boot/目录下。</p> <pre><code class="language-bash">➜  linux-4.9.301 ls -hl vmlinux -rwxrwxr-x 1 ubuntu ubuntu 578M Apr 15 08:14 vmlinux  ➜  linux-4.9.301 ls -hl ./arch/x86_64/boot/bzImage lrwxrwxrwx 1 ubuntu ubuntu 22 Apr 15 08:15 ./arch/x86_64/boot/bzImage -&gt; ../../x86/boot/bzImage  ➜  linux-4.9.301 ls -hl ./arch/x86/boot/bzImage  -rw-rw-r-- 1 ubuntu ubuntu 9.3M Apr 15 08:15 ./arch/x86/boot/bzImage</code></pre> <blockquote> <p>几种linux内核文件的区别:</p> <p>vmlinux 编译出来的最原始的内核文件，未压缩。</p> <p>zImage  是vmlinux经过gzip压缩后的文件。</p> <p>bzImage bz表示“big zImage”，不是用bzip2压缩的。两者的不同之处在于，zImage解压缩内核到低端内存(第一个640K)。</p> <p>bzImage解压缩内核到高端内 存(1M以上)。如果内核比较小，那么采用zImage或bzImage都行，如果比较大应该用bzImage。</p> <p>uImage  U-boot专用的映像文件，它是在zImage之前加上一个长度为0x40的tag。</p> <p>vmlinuz 是bzImage/zImage文件的拷贝或指向bzImage/zImage的链接。</p> <p>initrd  是“initial ramdisk”的简写。一般被用来临时的引导硬件到实际内核vmlinuz能够接管并继续引导的状态。</p> </blockquote> <h2 id="编译busybox">编译busybox</h2> <p>Linux系统启动阶段，boot loader加载完内核文件vmlinuz后，内核紧接着需要挂载磁盘根文件系统，但如果此时内核没有相应驱动，无法识别磁盘，就需要先加载驱动。</p> <p>而驱动又位于<code>/lib/modules</code>，得挂载根文件系统才能读取，这就陷入了一个两难境地，系统无法顺利启动。</p> <p>于是有了initramfs根文件系统，其中包含必要的设备驱动和工具，bootloader加载initramfs到内存中，内核会将其挂载到根目录<code>/</code>,然后运行<code>/init</code>脚本，挂载真正的磁盘根文件系统。</p> <p>这里借助BusyBox构建极简initramfs，提供基本的用户态可执行程序。</p> <p>可以从<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.busybox.net/"  target="_blank" rel="nofollow">busybox官网地址</a>下载最新版本，或者直接使用wget下载我使用的版本。</p> <pre><code class="language-bash">wget https://busybox.net/downloads/busybox-1.32.1.tar.bz2 $ tar -xvf busybox-1.32.1.tar.bz2 $ cd busybox-1.32.1/ $ make menuconfig</code></pre> <p>在编译busybox之前，我们需要对其进行设置，执行make menuconfig，如下</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/425a5e13c1b9a76dd891675e1dae268b.jpg" alt="利用QEMU+GDB搭建Linux内核调试环境"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/d91a0ff286a37d79202bf88abef28859.jpg" alt="利用QEMU+GDB搭建Linux内核调试环境"></p> <p>这里一定要选择<strong>静态编译</strong>，编译好的可执行文件<code>busybox</code>不依赖动态链接库，可以独立运行，方便构建initramfs。</p> <p>之后选择Exit退出，到这里我们就可以编译busybox了，执行下面的命令</p> <pre><code class="language-bash">make -j 8 # 安装完成后生成的相关文件会在 _install 目录下 make &amp;&amp; make install</code></pre> <h3 id="构建initramfs根文件系统">构建initramfs根文件系统</h3> <pre><code class="language-bash">[root@localhost temp]# ls busybox-1.29.0  busybox-1.29.0.tar.bz2 [root@localhost temp]# mkdir initramfs [root@localhost temp]# cd initramfs [root@localhost initramfs]# cp ../busybox-1.32.1/_install/* -rf ./ [root@localhost initramfs]# mkdir dev proc sys [root@localhost initramfs]# sudo cp -a /dev/{null,console,tty,tty1,tty2,tty3,tty4} dev/ [root@localhost initramfs]# rm -f linuxrc [root@localhost initramfs]# vim init [root@localhost initramfs]# chmod a+x init [root@localhost initramfs]# ls bin  dev  init  proc  sbin  sys  usr</code></pre> <p>其中init的内容如下</p> <pre><code class="language-bash">#!/bin/busybox sh echo "{==DBG==} INIT SCRIPT" mount -t proc none /proc mount -t sysfs none /sys  echo -e "{==DBG==} Boot took $(cut -d' ' -f1 /proc/uptime) seconds" exec /sbin/init</code></pre> <h3 id="打包initramfs">打包initramfs</h3> <pre><code class="language-bash">find . -print0 | cpio --null -ov --format=newc | gzip -9 &gt; ../initramfs.cpio.gz [root@localhost initramfs]# ls ../ busybox-1.29.0  busybox-1.29.0.tar.bz2  initramfs  initramfs.cpio.gz</code></pre> <h2 id="安装qemu">安装QEMU</h2> <pre><code class="language-bash">apt install qemu qemu-utils qemu-kvm virt-manager libvirt-daemon-system libvirt-clients bridge-utils</code></pre> <h2 id="安装gdb">安装GDB</h2> <pre><code class="language-bash">wget https://ftp.gnu.org/gnu/gdb/gdb-10.1.tar.gz tar -xzvf gdb-10.1.tar.gz cd  gdb-10.1 ./configure # 必需要安装这两个库 sudo apt-get install texinfo sudo apt-get install build-essential make -j 8 sudo make install</code></pre> <h2 id="qemu启动调试内核">QEMU启动调试内核</h2> <pre><code class="language-bash">➜  linux-4.9.301 qemu-system-x86_64 -kernel ./arch/x86/boot/bzImage -initrd ../initramfs.cpio.gz -append "nokaslr console=ttyS0" -s -S -nographic</code></pre> <ul> <li><code>-kernel ./arch/x86/boot/bzImage</code>：指定启用的内核镜像；</li> <li><code>-initrd ../initramfs.cpio.gz</code>：指定启动的内存文件系统；</li> <li><code>-append "nokaslr console=ttyS0"</code> ：附加参数，其中<code>nokaslr</code> 参数<strong>必须添加进来</strong>，防止内核起始地址随机化，这样会导致 gdb 断点不能命中；</li> <li><code>-s</code> ：监听在 gdb 1234 端口；</li> <li><code>-S</code> ：表示启动后就挂起，等待 gdb 连接；</li> <li><code>-nographic</code>：不启动图形界面，调试信息输出到终端与参数<code>console=ttyS0</code> 组合使用；</li> </ul> <p>在另一个窗口中，输入gdb，即可开启调试。</p> <pre><code class="language-bash">(gdb) target remote localhost:1234 Remote debugging using localhost:1234 warning: Can not parse XML target description; XML support was disabled at compile time Remote 'g' packet reply is too long (expected 560 bytes, got 608 bytes): 0000000000000000000000000000000000000000000000006306000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f0ff0000000000000200000000f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007f0300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000801f0000 (gdb) Remote debugging using localhost:1234 Undefined command: "Remote".  Try "help". (gdb) warning: Can not parse XML target description; XML support was disabled at compile timeQuit</code></pre> <p>但是，在启动GDP调试时报错了，在查阅了诸多资料后，很多博客都给出了修复方法：源码重新安装gdb，并修改gdb/remote.c文件的一段代码。但是我尝试了，发现行不通。</p> <p>出现该问题的原因是：编译 的是64 位模式的内核代码，但是运行是在 32 位保护模式下。64 位代码将无法在该环境中正常运行。</p> <p>终于在stackflow上找到了修复方法：具体可以参考下面两篇文章。</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://stackoverflow.com/questions/48620622/how-to-solve-qemu-gdb-debug-error-remote-g-packet-reply-is-too-long"  target="_blank" rel="nofollow">https://stackoverflow.com/questions/48620622/how-to-solve-qemu-gdb-debug-error-remote-g-packet-reply-is-too-long</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://wiki.osdev.org/QEMU_and_GDB_in_long_mode"  target="_blank" rel="nofollow">https://wiki.osdev.org/QEMU_and_GDB_in_long_mode</a></p> <p>文章中给出了三种修复方法，我这里只列出了一种，即修改GDB源码，重新编译安装。</p> <pre><code class="language-c">--- gdb/remote.c  	2016-04-14 11:13:49.962628700 +0300 +++ gdb/remote.c	2016-04-14 11:15:38.257783400 +0300 @@ -7181,8 +7181,28 @@    buf_len = strlen (rs-&gt;buf);      /* Further sanity checks, with knowledge of the architecture.  */ +// HACKFIX for changing architectures for qemu. It's ugly. Don't use, unless you have to. +  // Just a tiny modification of the patch of Matias Vara (http://forum.osdev.org/viewtopic.php?f=13&amp;p=177644)    if (buf_len &gt; 2 * rsa-&gt;sizeof_g_packet) -    error (_("Remote 'g' packet reply is too long: %s"), rs-&gt;buf); +    { +      warning (_("Assuming long-mode change. [Remote 'g' packet reply is too long: %s]"), rs-&gt;buf); +      rsa-&gt;sizeof_g_packet = buf_len ; + +      for (i = 0; i &lt; gdbarch_num_regs (gdbarch); i++) +        { +          if (rsa-&gt;regs[i].pnum == -1) +            continue; + +          if (rsa-&gt;regs[i].offset &gt;= rsa-&gt;sizeof_g_packet) +            rsa-&gt;regs[i].in_g_packet = 0; +          else +            rsa-&gt;regs[i].in_g_packet = 1; +        } + +      // HACKFIX: Make sure at least the lower half of EIP is set correctly, so the proper +      // breakpoint is recognized (and triggered). +      rsa-&gt;regs[8].offset = 16*8; +    }      /* Save the size of the packet sent to us by the target.  It is used       as a heuristic when determining the max size of packets that the</code></pre> <pre><code class="language-bash">cd gdb-10.1 ./configure make -j 8 sudo make install</code></pre> <p>接着就可以敲gdb 启动调试。</p> <pre><code class="language-bash">➜  linux-4.9.301 gdb                                                                                                                              GNU gdb (GDB) 10.1 Copyright (C) 2020 Free Software Foundation, Inc. License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt; This is free software: you are free to change and redistribute it. There is NO WARRANTY, to the extent permitted by law. Type "show copying" and "show warranty" for details. This GDB was configured as "x86_64-pc-linux-gnu". Type "show configuration" for configuration details. For bug reporting instructions, please see: &lt;https://www.gnu.org/software/gdb/bugs/&gt;. Find the GDB manual and other documentation resources online at:     &lt;http://www.gnu.org/software/gdb/documentation/&gt;.  For help, type "help". Type "apropos word" to search for commands related to "word". (gdb) file vmlinux Reading symbols from vmlinux... (gdb) target remote localhost:1234 Remote debugging using localhost:1234 warning: Can not parse XML target description; XML support was disabled at compile time warning: Assuming long-mode change. [Remote 'g' packet reply is too long: PU] 0x000000000000fff0 in exception_stacks () (gdb) break start_kernel Breakpoint 1 at 0xffffffff81fc6a95: file init/main.c, line 486. (gdb) break  rest_init Breakpoint 2 at 0xffffffff818aa1e1: file init/main.c, line 385. (gdb) c Continuing.  Breakpoint 1, start_kernel () at init/main.c:486 486             set_task_stack_end_magic(&amp;init_task); (gdb) c Continuing.  Breakpoint 2, rest_init () at init/main.c:385 385     { (gdb)</code></pre> <p>在start_kernel 和 rest_init 打了两个断点， 两个断点都成功命中了。</p> <h2 id="本文参考">本文参考</h2> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.shuzhiduo.com/A/kjdw2a2q5N/"  target="_blank" rel="nofollow">https://www.shuzhiduo.com/A/kjdw2a2q5N/</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://cloud.tencent.com/developer/article/1793157"  target="_blank" rel="nofollow">https://cloud.tencent.com/developer/article/1793157</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/alexanderwang7/article/details/113180447"  target="_blank" rel="nofollow">https://blog.csdn.net/alexanderwang7/article/details/113180447</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/sjc2870/article/details/122017247"  target="_blank" rel="nofollow">https://blog.csdn.net/sjc2870/article/details/122017247</a></p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-50.htm">ElementUI el-upload 断点续传文件</a></p>
+                                        <p>下一个：<a href="/html/category/article-52.htm">vue 修饰符</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
+                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
+                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
+                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
+                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
+                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
+                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
+                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
+                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
+                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-83.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>聊一聊Vue3.2中setup语法糖+volar - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">聊一聊Vue3.2中setup语法糖+volar</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-dracula"> <h2><a id="_1" rel="nofollow"></a>前言</h2> <p>现在，Vue3已经成为默认版本了。Vue3与Vue2相比较，变化还是比较大的。由原来的的组合式API变为选项式API。所以代码风格变化也是比较大的。为什么会有选项式API？我个人觉得very good！。</p> <p>要使用Vue3，那必须得会setup，因为setup是组合式API表演的舞台。而Vue3.2之后官方就退出setup语法糖，使我们在写代码的时候更爽！！！</p> <h2><a id="volar_6" rel="nofollow"></a>安装volar</h2> <p>如果你的VScode之前安装有<code>vuter</code>插件，请先把他禁用或者卸载掉，然后安装<code>volar</code>。因为，<code>vuter</code>插件是针对Vue2的，而Vue3的写法跟Vue3是有区别的，特别是使用setup语法糖之后，所以写代码的时候可能会有报错(编译不会)什么的。<code>volar</code>插件则是针对Vue3的。安装之后就不报错，而且有提示出来。而且点击右上角的小图标，还可以将html代码、js代码和css代码做分开展示，特别好！！！</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220610/4192374d9b6aa4b6207d6cfa0db9cd5a.jpg" alt="聊一聊Vue3.2中setup语法糖+volar"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220610/c71d76267bad8a89357a934cd6b18e54.jpg" alt="聊一聊Vue3.2中setup语法糖+volar"></p> <h2><a id="Vue3_14" rel="nofollow"></a>Vue3中变量和方法</h2> <h3><a id="_16" rel="nofollow"></a>之前的用法</h3> <p>通过这个例子，我们可以知道，Vue3中HTML模板<strong>不再需要一个根标签</strong>了，数据也不用在<code>data</code>中定义，方法也不需要在<code>methods</code>中定义。而且，模板中需要的数据、方法必须在<code>setup</code>中<strong>返回(return)</strong>。</p> <pre><code class="prism language-js"><span class="token comment">// components/Demo.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h2<span class="token operator">&gt;</span>Vue3<span class="token punctuation">.</span><span class="token number">2</span>中setup语法糖的使用<span class="token operator">&lt;</span><span class="token operator">/</span>h2<span class="token operator">&gt;</span><span class="token operator">&lt;</span>button @click<span class="token operator">=</span><span class="token string">"increment"</span><span class="token operator">&gt;</span>舔我<span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span> count<span class="token punctuation">}</span><span class="token punctuation">}</span> 次了<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script<span class="token operator">&gt;</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">export</span><span class="token keyword">default</span><span class="token punctuation">{<!-- --></span><span class="token function">setup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">let</span> count<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">increment</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>       count<span class="token punctuation">.</span>value<span class="token operator">++</span><span class="token punctuation">}</span><span class="token keyword">return</span><span class="token punctuation">{<!-- --></span>       count<span class="token punctuation">,</span>       increment<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <h3><a id="setup_44" rel="nofollow"></a>现在的用法(setup语法糖)</h3> <p>在&lt;script setup&gt;中，需要在<strong>script标签加上setup属性</strong>，就<strong>不再需要写setup</strong>函数，而且模板中用到的变量和方法不需要<strong>返回(return)</strong>。代码一对比，是不是觉得有点东西了呢？</p> <pre><code class="prism language-javascript"><span class="token comment">// components/Demo.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h2<span class="token operator">&gt;</span>Vue3<span class="token punctuation">.</span><span class="token number">2</span>中setup语法糖的使用<span class="token operator">&lt;</span><span class="token operator">/</span>h2<span class="token operator">&gt;</span><span class="token operator">&lt;</span>button @click<span class="token operator">=</span><span class="token string">"increment"</span><span class="token operator">&gt;</span>舔我<span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span> count<span class="token punctuation">}</span><span class="token punctuation">}</span> 次了<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script setup<span class="token operator">&gt;</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">let</span> count<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">increment</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span> 		count<span class="token punctuation">.</span>value<span class="token operator">++</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220610/9f97d56d4a037764b21312344c794593.jpg" alt="聊一聊Vue3.2中setup语法糖+volar"></p> <h2><a id="Vue3_70" rel="nofollow"></a>Vue3中使用组件</h2> <h3><a id="_72" rel="nofollow"></a>之前的用法</h3> <pre><code class="prism language-js"><span class="token comment">// App.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>demo<span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script<span class="token operator">&gt;</span><span class="token keyword">import</span> Demo<span class="token keyword">from</span><span class="token string">'./components/Demo.vue'</span><span class="token keyword">export</span><span class="token keyword">default</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">components</span><span class="token operator">:</span><span class="token punctuation">{<!-- --></span> Demo<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <h3><a id="setup_90" rel="nofollow"></a>现在的用法(setup语法糖)</h3> <p>在&lt;script setup&gt;中，只需要在引入组件即可在模板中使用，不再需要自己去注册组件。</p> <pre><code class="prism language-javascript"><span class="token comment">// App.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>demo<span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script setup<span class="token operator">&gt;</span><span class="token keyword">import</span> Demo<span class="token keyword">from</span><span class="token string">'./components/Demo.vue'</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <h2><a id="Vue3Props__defineProps_108" rel="nofollow"></a>Vue3中接收Props --&gt; defineProps()</h2> <h4><a id="_110" rel="nofollow"></a>之前的用法</h4> <p>传递数据给组件，传递的方式不变，接收时，需要在props中定义接收。setup函数被调用接收到的以第一个参数就是props。</p> <pre><code class="prism language-js"><span class="token comment">// App.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>demo msg<span class="token operator">=</span><span class="token string">"hi Demo, I'm your father!"</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script setup<span class="token operator">&gt;</span><span class="token keyword">import</span> Demo<span class="token keyword">from</span><span class="token string">'./components/Demo.vue'</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <pre><code class="prism language-js"><span class="token comment">// components/Demo.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h2<span class="token operator">&gt;</span>Vue3<span class="token punctuation">.</span><span class="token number">2</span>中setup语法糖的使用<span class="token operator">&lt;</span><span class="token operator">/</span>h2<span class="token operator">&gt;</span><span class="token operator">&lt;</span>button @click<span class="token operator">=</span><span class="token string">"increment"</span><span class="token operator">&gt;</span>舔我<span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span> count<span class="token punctuation">}</span><span class="token punctuation">}</span> 次了<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h3<span class="token operator">&gt;</span><span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span>msg<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>h3<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script<span class="token operator">&gt;</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">export</span><span class="token keyword">default</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">props</span><span class="token operator">:</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">msg</span><span class="token operator">:</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">type</span><span class="token operator">:</span> String<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token function">setup</span><span class="token punctuation">(</span><span class="token parameter">props</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">let</span> count<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">increment</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span> 				count<span class="token punctuation">.</span>value<span class="token operator">++</span><span class="token punctuation">}</span>  			console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>props<span class="token punctuation">.</span>msg<span class="token punctuation">)</span><span class="token keyword">return</span><span class="token punctuation">{<!-- --></span> 				count<span class="token punctuation">,</span> 				increment<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <h4><a id="setup_164" rel="nofollow"></a>现在的用法(setup语法糖)</h4> <p>在&lt;script setup&gt;中，我们没有机会写setup函数，就接收不到他调用时传递的参数。所以有一个新的API<code>defineProps</code>它是一个函数。<code>defineProps</code>会返回一个对象，其中包含了可以传递给组件的所有 props。</p> <pre><code class="prism language-js"><span class="token comment">// components/Demo.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h2<span class="token operator">&gt;</span>Vue3<span class="token punctuation">.</span><span class="token number">2</span>中setup语法糖的使用<span class="token operator">&lt;</span><span class="token operator">/</span>h2<span class="token operator">&gt;</span><span class="token operator">&lt;</span>button @click<span class="token operator">=</span><span class="token string">"increment"</span><span class="token operator">&gt;</span>舔我<span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span> count<span class="token punctuation">}</span><span class="token punctuation">}</span> 次了<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h3<span class="token operator">&gt;</span><span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span>msg<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>h3<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script setup<span class="token operator">&gt;</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">,</span> defineProps<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">const</span> props<span class="token operator">=</span><span class="token function">defineProps</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'msg'</span><span class="token punctuation">]</span><span class="token punctuation">)</span> 	 	console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>props<span class="token punctuation">.</span>msg<span class="token punctuation">)</span><span class="token keyword">let</span> count<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">increment</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span> 		count<span class="token punctuation">.</span>value<span class="token operator">++</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220610/2f746890c0b3329701d64a12e0ede360.jpg" alt="聊一聊Vue3.2中setup语法糖+volar"></p> <h2><a id="Vue3__defineEmits_197" rel="nofollow"></a>Vue3中射出自定义事件 --&gt; defineEmits()</h2> <h4><a id="_199" rel="nofollow"></a>之前的用法</h4> <p>子组件射出自定义事件给父组件，则需要通过<code>emits</code>定义好要传递的事件，setup函数中的第二个参数就是上下文对象(<em>这里我们不详细介绍了</em>)，然后通过这个对象去调用<code>emit</code>方法就可以射出自定义事件了。</p> <pre><code class="prism language-js"><span class="token comment">// components/Demo.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h2<span class="token operator">&gt;</span>Vue3<span class="token punctuation">.</span><span class="token number">2</span>中setup语法糖的使用<span class="token operator">&lt;</span><span class="token operator">/</span>h2<span class="token operator">&gt;</span><span class="token operator">&lt;</span>button @click<span class="token operator">=</span><span class="token string">"increment"</span><span class="token operator">&gt;</span>舔我<span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span> count<span class="token punctuation">}</span><span class="token punctuation">}</span> 次了<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h3<span class="token operator">&gt;</span><span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span>msg<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>h3<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script<span class="token operator">&gt;</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">export</span><span class="token keyword">default</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">props</span><span class="token operator">:</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">msg</span><span class="token operator">:</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">type</span><span class="token operator">:</span> String<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token literal-property property">emits</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token string">'hanlde-count'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token function">setup</span><span class="token punctuation">(</span><span class="token parameter">props<span class="token punctuation">,</span> centext</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">let</span> count<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">increment</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span> 				count<span class="token punctuation">.</span>value<span class="token operator">++</span> 				centext<span class="token punctuation">.</span><span class="token function">emit</span><span class="token punctuation">(</span><span class="token string">'hanlde-count'</span><span class="token punctuation">,</span> count<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span>  			console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>props<span class="token punctuation">.</span>msg<span class="token punctuation">)</span><span class="token keyword">return</span><span class="token punctuation">{<!-- --></span> 				count<span class="token punctuation">,</span> 				increment<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <pre><code class="prism language-js"><span class="token comment">// App.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>demo     msg<span class="token operator">=</span><span class="token string">"hi Demo, I'm your father!"</span>     @hanlde<span class="token operator">-</span>count<span class="token operator">=</span><span class="token string">"hanldeCount"</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script<span class="token operator">&gt;</span><span class="token keyword">import</span> Demo<span class="token keyword">from</span><span class="token string">'./components/Demo.vue'</span><span class="token keyword">export</span><span class="token keyword">default</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">components</span><span class="token operator">:</span><span class="token punctuation">{<!-- --></span> Demo<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token function">setup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">const</span><span class="token function-variable function">hanldeCount</span><span class="token operator">=</span><span class="token parameter">count</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>       console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>count<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token keyword">return</span><span class="token punctuation">{<!-- --></span>       hanldeCount<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <h4><a id="setup_270" rel="nofollow"></a>现在的用法(setup语法糖)</h4> <p>在&lt;script setup&gt;中，子组件想要射出自定义事件时，则需要通过<code>defineEmits</code>来定义自定义事件。</p> <pre><code class="prism language-js"><span class="token comment">// components/Demo.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h2<span class="token operator">&gt;</span>Vue3<span class="token punctuation">.</span><span class="token number">2</span>中setup语法糖的使用<span class="token operator">&lt;</span><span class="token operator">/</span>h2<span class="token operator">&gt;</span><span class="token operator">&lt;</span>button @click<span class="token operator">=</span><span class="token string">"increment"</span><span class="token operator">&gt;</span>舔我<span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span> count<span class="token punctuation">}</span><span class="token punctuation">}</span> 次了<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h3<span class="token operator">&gt;</span><span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span>msg<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>h3<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script setup<span class="token operator">&gt;</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">,</span> defineProps<span class="token punctuation">,</span> defineEmits<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">const</span> props<span class="token operator">=</span><span class="token function">defineProps</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'msg'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token keyword">const</span> emit<span class="token operator">=</span><span class="token function">defineEmits</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'hanlde-count'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>  	console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>props<span class="token punctuation">.</span>msg<span class="token punctuation">)</span><span class="token keyword">let</span> count<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">increment</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span> 		count<span class="token punctuation">.</span>value<span class="token operator">++</span><span class="token function">emit</span><span class="token punctuation">(</span><span class="token string">'hanlde-count'</span><span class="token punctuation">,</span> count<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220610/0b53f32204ae04b4d0adba64df3c3157.jpg" alt="聊一聊Vue3.2中setup语法糖+volar"></p> <h2><a id="Vue3__defineExpose_306" rel="nofollow"></a>Vue3中父组件获取组件的数据或方法 --&gt; defineExpose()</h2> <h4><a id="_308" rel="nofollow"></a>之前的用法</h4> <p>在子组件中，暴露组件变量或者方法时，不用做其他操作，只需要确保<code>setup</code>函数中<code>return</code>该变量或方法。因为在<code>script</code>标签中所有代码都使用<code>expost default</code>暴露了。而在父组件中需要通过给子组件添加<code>ref</code>属性，然后在<code>onMounted</code>生命周期函数中获取子组件的<code>dom</code>即可获得子组件的变量和方法。</p> <p><font color="red"><strong>注意：获取dom是，一定在<code>onMounted</code>声明周期获取，因为页面没有渲染，就获取不要dom</strong></font></p> <pre><code class="prism language-js"><span class="token comment">// components/Demo.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h2<span class="token operator">&gt;</span>Vue3<span class="token punctuation">.</span><span class="token number">2</span>中setup语法糖的使用<span class="token operator">&lt;</span><span class="token operator">/</span>h2<span class="token operator">&gt;</span><span class="token operator">&lt;</span>button @click<span class="token operator">=</span><span class="token string">"increment"</span><span class="token operator">&gt;</span>舔我<span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span> count<span class="token punctuation">}</span><span class="token punctuation">}</span> 次了<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h3<span class="token operator">&gt;</span><span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span>msg<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>h3<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script<span class="token operator">&gt;</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">export</span><span class="token keyword">default</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">props</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token string">'msg'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token literal-property property">emits</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token string">'hanlde-count'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token function">setup</span><span class="token punctuation">(</span><span class="token parameter">props<span class="token punctuation">,</span> context</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">let</span> count<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">const</span> name<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token string">'vernin'</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">increment</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span> 				count<span class="token punctuation">.</span>value<span class="token operator">++</span> 				context<span class="token punctuation">.</span><span class="token function">emit</span><span class="token punctuation">(</span><span class="token string">'hanlde-count'</span><span class="token punctuation">,</span> count<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token keyword">return</span><span class="token punctuation">{<!-- --></span> 				count<span class="token punctuation">,</span> 				increment<span class="token punctuation">,</span> 				name<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <pre><code class="prism language-js"><span class="token comment">// App.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>demo     ref<span class="token operator">=</span><span class="token string">"demo"</span>     msg<span class="token operator">=</span><span class="token string">"hi Demo, I'm your father!"</span>     @hanlde<span class="token operator">-</span>count<span class="token operator">=</span><span class="token string">"hanldeCount"</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script<span class="token operator">&gt;</span><span class="token keyword">import</span> Demo<span class="token keyword">from</span><span class="token string">'./components/Demo.vue'</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">,</span> onMounted<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">export</span><span class="token keyword">default</span><span class="token punctuation">{<!-- --></span><span class="token literal-property property">components</span><span class="token operator">:</span><span class="token punctuation">{<!-- --></span> Demo<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token function">setup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">const</span> demo<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token comment">// 记得把 demo return 出去</span><span class="token comment">// 错误写法：setup 函数无法获取dom -- setup相对于vue2的created钩子</span><span class="token comment">// console.log(demo.value.name) // 报错</span><span class="token comment">// console.log(demo.value.count) // 报错</span><span class="token comment">// 正确写法：</span><span class="token function">onMounted</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>         console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'子组件Demo的count：'</span><span class="token punctuation">,</span> demo<span class="token punctuation">.</span>value<span class="token punctuation">.</span>count<span class="token punctuation">)</span>         console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'子组件Demo的name：'</span><span class="token punctuation">,</span> demo<span class="token punctuation">.</span>value<span class="token punctuation">.</span>name<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">hanldeCount</span><span class="token operator">=</span><span class="token parameter">count</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>         console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>count<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token keyword">return</span><span class="token punctuation">{<!-- --></span>         demo<span class="token punctuation">,</span>         hanldeCount<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <h4><a id="setup_394" rel="nofollow"></a>现在的用法(setup语法糖)</h4> <p>在&lt;script setup&gt;中，没有写<code>export default</code>暴露，为了在组件中明确要暴露出去的变量或方法，需要使用<code>defineExpose</code>来变量，在父组件中，也是通过给子组件<code>ref</code>属性获取。</p> <pre><code class="prism language-js"><span class="token comment">// components/Demo.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h2<span class="token operator">&gt;</span>Vue3<span class="token punctuation">.</span><span class="token number">2</span>中setup语法糖的使用<span class="token operator">&lt;</span><span class="token operator">/</span>h2<span class="token operator">&gt;</span><span class="token operator">&lt;</span>button @click<span class="token operator">=</span><span class="token string">"increment"</span><span class="token operator">&gt;</span>舔我<span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span> count<span class="token punctuation">}</span><span class="token punctuation">}</span> 次了<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">&gt;</span><span class="token operator">&lt;</span>h3<span class="token operator">&gt;</span><span class="token punctuation">{<!-- --></span><span class="token punctuation">{<!-- --></span>msg<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>h3<span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script setup<span class="token operator">&gt;</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">,</span> defineProps<span class="token punctuation">,</span> defineEmits<span class="token punctuation">,</span> defineExpose<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">const</span> props<span class="token operator">=</span><span class="token function">defineProps</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'msg'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token keyword">const</span> emit<span class="token operator">=</span><span class="token function">defineEmits</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'hanlde-count'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token keyword">let</span> count<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">increment</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span> 		count<span class="token punctuation">.</span>value<span class="token operator">++</span><span class="token function">emit</span><span class="token punctuation">(</span><span class="token string">'hanlde-count'</span><span class="token punctuation">,</span> count<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token keyword">const</span> name<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token string">'vernin'</span><span class="token punctuation">)</span><span class="token function">defineExpose</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span> 		name<span class="token punctuation">,</span> 		count<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <pre><code class="prism language-js"><span class="token comment">// App.vue</span><span class="token operator">&lt;</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>demo     ref<span class="token operator">=</span><span class="token string">"demo"</span>     msg<span class="token operator">=</span><span class="token string">"hi Demo, I'm your father!"</span>     @hanlde<span class="token operator">-</span>count<span class="token operator">=</span><span class="token string">"hanldeCount"</span><span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>template<span class="token operator">&gt;</span><span class="token operator">&lt;</span>script setup<span class="token operator">&gt;</span><span class="token keyword">import</span> Demo<span class="token keyword">from</span><span class="token string">'./components/Demo.vue'</span><span class="token keyword">import</span><span class="token punctuation">{<!-- --></span> ref<span class="token punctuation">,</span> onMounted<span class="token punctuation">}</span><span class="token keyword">from</span><span class="token string">'vue'</span><span class="token keyword">const</span> demo<span class="token operator">=</span><span class="token function">ref</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token function">onMounted</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'子组件Demo的count：'</span><span class="token punctuation">,</span> demo<span class="token punctuation">.</span>value<span class="token punctuation">.</span>count<span class="token punctuation">)</span>     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'子组件Demo的name：'</span><span class="token punctuation">,</span>demo<span class="token punctuation">.</span>value<span class="token punctuation">.</span>name<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token keyword">const</span><span class="token function-variable function">hanldeCount</span><span class="token operator">=</span><span class="token parameter">count</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>count<span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">&gt;</span></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220610/300f10d767039dacbf9b9da24ce55acd.jpg" alt="聊一聊Vue3.2中setup语法糖+volar"></p> <h2><a id="_464" rel="nofollow"></a>总结</h2> <p>使用setup语法糖和setup函数对比，我们不难看出，使用语法糖是，代码整洁了好多，不会有那么多的对象嵌套。也不用做什么额外的return，代码也简化了不少。</p> <p>我前面说道<code>要使用Vue3，那必须得会setup</code>，实则不然，在Vue3中也是兼容Vue2的写法的，不一定非得使用<code>setup</code>。但是，通过使用setup之后，特别是用setup语法糖，不得不说，<strong>真是爽得不要不要的~~~</strong></p> <p><strong>最后看看官方给出组合式API的优点以及官方给出选项式API和组合式API的对比图</strong></p> <ol> <li>更灵活的代码组织</li> <li>更灵活的代码组织</li> <li>更好的类型推导</li> <li>生产包体积更小</li> </ol> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220610/b178bc48c6fb524720cdd074f2c003b8.jpg" alt="聊一聊Vue3.2中setup语法糖+volar"></p> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-82.htm">SpringBoot-2-3-x分层构建Docker镜像实践，docker教程学习</a></p>
+                                        <p>下一个：<a href="/html/category/article-84.htm">Python清理PC端微信产生的超大数据</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
+                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
+                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
+                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
+                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
+                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
+                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
+                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
+                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

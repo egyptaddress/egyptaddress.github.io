@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-166.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>SpringBoot常用拦截器（HandlerInterceptor，ClientHttpRequestInterceptor，RequestInterceptor） - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">SpringBoot常用拦截器（HandlerInterceptor，ClientHttpRequestInterceptor，RequestInterceptor）</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <h4><a id="SpringBootHandlerInterceptorClientHttpRequestInterceptorRequestInterceptor_1" rel="nofollow"></a>SpringBoot常用拦截器（HandlerInterceptor，ClientHttpRequestInterceptor，RequestInterceptor）</h4> <blockquote> <p>上面3种拦截器，都是http拦截器，在处理业务逻辑之前对http请求信息进行处理，比如获取请求头，请求参数，设置请求头，请求参数等等</p> </blockquote> <p>思路清晰，先说jar包:</p> <p><code>HandlerInterceptor</code>—&gt;<code>spring-webmvc</code>项目，<code>org.springframework.web.servlet.HandlerInterceptor</code></p> <p><code>ClientHttpRequestInterceptor</code>—&gt;<code>spring-web</code>项目，<code>org.springframework.http.client.ClientHttpRequestInterceptor</code></p> <p><code>RequestInterceptor</code>—&gt;<code>feign-core</code>项目，<code>feign.RequestInterceptor</code></p> <p><strong>一目了然，从项目名称和包路径可以看出，3个拦截器分别属于3个不同的项目，所以他们之前的作用也有区别，在这里我大概讲一下3个拦截器的基本应用和区别：</strong></p> <p>3个拦截器的共同点，都是对http请求进行拦截，但是<code>http</code>请求的来源不同</p> <ul> <li><code>HandlerInterceptor</code>是最常规的，其拦截的<code>http</code>请求是来自于客户端浏览器之类的，是最常见的<code>http</code>请求拦截器；</li> <li><code>ClientHttpRequestInterceptor</code>是对<code>RestTemplate</code>的请求进行拦截的，在项目中直接使用<code>restTemplate.getForObject</code>的时候，会对这种请求进行拦截，经常被称为：<code>RestTempalte</code>拦截器或者<code>Ribbon</code>拦截器；</li> <li><code>RequestInterceptor</code>常被称为是<code>Feign</code>拦截器，由于<code>Feign</code>调用底层实际上还是<code>http</code>调用，因此也是一个<code>http</code>拦截器，在项目中使用Feign调用的时候，可以使用此拦截器；</li> </ul> <p></p> <h4><a id="HandlerInterceptor_27" rel="nofollow"></a>谈谈HandlerInterceptor</h4> <p>从包路径可以看出，这个是处理客户端<code>http servlet</code>请求的，此项目<code>spring-webmvc</code>与<code>spring-mvc</code>项目关闭密切，<code>HandlerInterceptor</code>可以对请求的各个阶段进行拦截，可以说是非常全面了。这个也是常规项目中用的最多的，对http请求进行拦截</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">interface</span><span class="token class-name">HandlerInterceptor</span><span class="token punctuation">{<!-- --></span><span class="token comment">/**前置处理：在业务处理器处理请求之前被调用*/</span><span class="token keyword">boolean</span><span class="token function">preHandle</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">;</span><span class="token comment">/**中置处理：在业务处理器处理请求执行完成后，生成视图之前执行。后处理（调用了Service并返回ModelAndView，但未进行页面渲染），有机会修改ModelAndView ，现在这个很少使用了*/</span><span class="token keyword">void</span><span class="token function">postHandle</span><span class="token punctuation">(</span> 			HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">,</span> ModelAndView modelAndView<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">;</span><span class="token comment">/**后置处理：在DispatcherServlet完全处理完请求后被调用，可用于清理资源等*/</span><span class="token keyword">void</span><span class="token function">afterCompletion</span><span class="token punctuation">(</span> 			HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">,</span> Exception ex<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">;</span></code></pre> <p><strong>使用示例</strong>（<code>HandlerInterceptorAdapter</code>实现了<code>HandlerInterceptor</code>接口）</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">TestFilter</span><span class="token keyword">extends</span><span class="token class-name">HandlerInterceptorAdapter</span><span class="token punctuation">{<!-- --></span><span class="token keyword">private</span><span class="token keyword">final</span> Logger logger<span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span>TestFilter<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token annotation punctuation">@Override</span><span class="token keyword">public</span><span class="token keyword">boolean</span><span class="token function">preHandle</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span> 		logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"request请求地址path[{}] uri[{}]"</span><span class="token punctuation">,</span> request<span class="token punctuation">.</span><span class="token function">getServletPath</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>request<span class="token punctuation">.</span><span class="token function">getRequestURI</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//request.getHeader(String) 从请求头中获取数据</span><span class="token comment">//从请求头中获取用户token（登陆凭证根据业务而定）</span> 		Long userId<span class="token operator">=</span><span class="token function">getUserId</span><span class="token punctuation">(</span>request<span class="token punctuation">.</span><span class="token function">getHeader</span><span class="token punctuation">(</span><span class="token string">"H-User-Token"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">if</span><span class="token punctuation">(</span>userId<span class="token operator">!=</span> null<span class="token operator">&amp;&amp;</span><span class="token function">checkAuth</span><span class="token punctuation">(</span>userId<span class="token punctuation">,</span>request<span class="token punctuation">.</span><span class="token function">getRequestURI</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span><span class="token boolean">true</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token comment">//这里的异常是我自定义的异常，系统抛出异常后框架捕获异常然后转为统一的格式返回给前端， 其实这里也可以返回false</span><span class="token keyword">throw</span><span class="token keyword">new</span><span class="token class-name">FastRuntimeException</span><span class="token punctuation">(</span><span class="token number">20001</span><span class="token punctuation">,</span><span class="token string">"No access"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">private</span> Long<span class="token function">getUserId</span><span class="token punctuation">(</span>String userToken<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span> 	Long userId<span class="token operator">=</span> null<span class="token punctuation">;</span><span class="token keyword">return</span> userId<span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">private</span><span class="token keyword">boolean</span><span class="token function">checkAuth</span><span class="token punctuation">(</span>Long userId<span class="token punctuation">,</span>String requestURI<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span><span class="token boolean">true</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token annotation punctuation">@Override</span><span class="token keyword">public</span><span class="token keyword">void</span><span class="token function">postHandle</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">,</span> 					   ModelAndView modelAndView<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span><span class="token punctuation">}</span><span class="token annotation punctuation">@Override</span><span class="token keyword">public</span><span class="token keyword">void</span><span class="token function">afterCompletion</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">,</span> Object handler<span class="token punctuation">,</span> Exception ex<span class="token punctuation">)</span><span class="token keyword">throws</span> Exception<span class="token punctuation">{<!-- --></span><span class="token punctuation">}</span></code></pre> <p>}</p> <h4><a id="ClientHttpRequestInterceptor_90" rel="nofollow"></a>谈谈ClientHttpRequestInterceptor</h4> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">interface</span><span class="token class-name">ClientHttpRequestInterceptor</span><span class="token punctuation">{<!-- --></span><span class="token comment">/**只有这一个方法，在项目中直接使用 restTemplate.getForObject 的时候，会对这种请求进行拦截*/</span>    ClientHttpResponse<span class="token function">intercept</span><span class="token punctuation">(</span>HttpRequest request<span class="token punctuation">,</span><span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> body<span class="token punctuation">,</span> ClientHttpRequestExecution execution<span class="token punctuation">)</span><span class="token keyword">throws</span> IOException<span class="token punctuation">;</span></code></pre> <p>使用示例（<code>SESSIONID</code>可以从<code>RequestContextHolder</code>中拿到）</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">RestClientHttpRequestInterceptor</span><span class="token keyword">implements</span><span class="token class-name">ClientHttpRequestInterceptor</span><span class="token punctuation">{<!-- --></span><span class="token annotation punctuation">@Override</span><span class="token keyword">public</span> ClientHttpResponse<span class="token function">intercept</span><span class="token punctuation">(</span>HttpRequest request<span class="token punctuation">,</span><span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> body<span class="token punctuation">,</span> ClientHttpRequestExecution execution<span class="token punctuation">)</span><span class="token keyword">throws</span> IOException<span class="token punctuation">{<!-- --></span>         HttpHeaders headers<span class="token operator">=</span> request<span class="token punctuation">.</span><span class="token function">getHeaders</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         headers<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"Cookie"</span><span class="token punctuation">,</span><span class="token string">"SESSIONID=b8dd5bd9-9fb7-48cb-a86b-e079cb554fb8"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"拦截器已添加header"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">return</span> execution<span class="token punctuation">.</span><span class="token function">execute</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p></p> <h4><a id="RequestInterceptor_116" rel="nofollow"></a>谈谈RequestInterceptor</h4> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">interface</span><span class="token class-name">RequestInterceptor</span><span class="token punctuation">{<!-- --></span><span class="token comment">/**在项目中使用Feign调用的时候，可以使用此拦截器*/</span><span class="token keyword">void</span><span class="token function">apply</span><span class="token punctuation">(</span>RequestTemplate template<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p>使用示例</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">FeignInterceptor</span><span class="token keyword">implements</span><span class="token class-name">RequestInterceptor</span><span class="token punctuation">{<!-- --></span><span class="token keyword">private</span><span class="token keyword">static</span><span class="token keyword">final</span> String SESSIONID<span class="token operator">=</span><span class="token string">"SESSIONID"</span><span class="token punctuation">;</span><span class="token keyword">private</span><span class="token keyword">static</span><span class="token keyword">final</span> String SESSIONID_PREFIX<span class="token operator">=</span><span class="token string">"SESSIONID="</span><span class="token punctuation">;</span><span class="token keyword">private</span><span class="token keyword">static</span><span class="token keyword">final</span> String COOKIE<span class="token operator">=</span><span class="token string">"Cookie"</span><span class="token punctuation">;</span><span class="token annotation punctuation">@Override</span><span class="token keyword">public</span><span class="token keyword">void</span><span class="token function">apply</span><span class="token punctuation">(</span>RequestTemplate requestTemplate<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>             ServletRequestAttributes servletAttributes<span class="token operator">=</span><span class="token punctuation">(</span>ServletRequestAttributes<span class="token punctuation">)</span> RequestContextHolder<span class="token punctuation">.</span><span class="token function">getRequestAttributes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>             HttpServletRequest httpServletRequest<span class="token operator">=</span> servletAttributes<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>             Cookie<span class="token punctuation">[</span><span class="token punctuation">]</span> cookies<span class="token operator">=</span> httpServletRequest<span class="token punctuation">.</span><span class="token function">getCookies</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">for</span><span class="token punctuation">(</span>Cookie cookie<span class="token operator">:</span> cookies<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">if</span><span class="token punctuation">(</span>SESSIONID<span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>cookie<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>                     requestTemplate<span class="token punctuation">.</span><span class="token function">header</span><span class="token punctuation">(</span>COOKIE<span class="token punctuation">,</span> SESSIONID_PREFIX<span class="token operator">+</span>cookie<span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">break</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-165.htm">JDK内置锁深入探究</a></p>
+                                        <p>下一个：<a href="/html/category/article-167.htm">C++ STL 中的数值算法示例讲解_C 语言</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
+                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
+                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
+                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
+                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
+                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></h4>
+                <p>???? 个人网站:【 海拥】【小霸王游戏机】 ???? 风趣幽默的前端学习课程：????28个案例趣学前端 ???? 想寻找共同学习交流、摸鱼划水的小伙伴，请点击【摸鱼学习交流群】 ???? 免费且</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
+                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
+                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

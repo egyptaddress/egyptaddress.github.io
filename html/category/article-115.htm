@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-115.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>分布式缓存&#8211;缓存与数据库一致性方案 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">分布式缓存&#8211;缓存与数据库一致性方案</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<h2 id="1-概述">1. 概述</h2> <p>缓存设计是应用系统设计中重要的一环，是通过空间换取时间的一种策略，达到高性能访问数据的目的；但是缓存的数据并不是时刻存在内存中，当数据发生变化时，如何与数据库中的数据保持一致，以满足业务系统要求，本篇将给出具体分析。</p> <h2 id="2-强一致与最终一致性">2. 强一致与最终一致性</h2> <p>所谓强一致，就是指系统在对外提供服务的过程中，时刻让缓存数据与数据库保持一致，这种情况比如秒杀系统，商家后台，他会设置秒杀商品，参与秒杀活动，一旦说他参与了秒杀活动，商品的库存本来是在数据库里的，此时必须直接被加载到缓存里，缓存立马就要可以被使用。最终一致性，就是允许缓存与数据库在中间一小段时间中有不一致的情况，但是最终两者是一致的，比如微博的粉丝数，页面每天的访问数。本篇重点讲最终一致性，强一致的情况后续分析。</p> <h2 id="3-缓存与数据库一致性">3. 缓存与数据库一致性</h2> <h3 id="31-缓存的更新机制">3.1 缓存的更新机制</h3> <p>缓存的更新，一般分为被动更新与主动更新，被动更新是指缓存在有效期到后，被淘汰。<br /> 被动更新如下步骤：<br /><code>step1</code>: 发起方查数据，缓存中没有，从数据库中获取，并写入缓存，同时设置过期时间t；<br /><code>step2</code>: 在t内，所有的查询，都由缓存提供，所有的写，直接写数据库；<br /><code>step3</code>: 当缓存数据到过期时间t后，缓存数据失效。后面的查询，回到了第1步。</p> <p>主动更新，一般为调用方发起缓存与数据库同时更新，缓存分为删除、更新，数据库分为更新，通过组合与先后顺序，分为如下四种情况：<br /><code>更新缓存、更新数据库</code>，<code>更新数据库，更新缓存</code>，<code>删除缓存，更新数据库</code>，<code>更新数据库，删除缓存</code>，下面逐一分析。</p> <h3 id="32-更新缓存更新数据库">3.2 更新缓存、更新数据库</h3> <p>这种情况，当缓存更新成功，数据库更新不成功时，数据不一致的风险比较高，所以<code>一般不采用</code>。</p> <h3 id="32-更新数据库更新缓存">3.2 更新数据库、更新缓存</h3> <p>当更新完数据库，缓存的加载前需要通过大量复杂计算才能得出缓存的值，不仅让发起方阻塞，影响性能；而且如果缓存命中率不高，很少使用，更浪费前期的复杂计算成本与缓存空间，这里就<code>不符合懒加载</code>的设计思想，故<code>一般也不采用</code>。</p> <h3 id="33-删除缓存更新数据库">3.3 删除缓存、更新数据库</h3> <p>如图所示，当两个调用方线程高并发访问的情况下，A线程先删除缓存，再更新数据库，此过程时间较长，B线程在A删除缓存后，迅速读取缓存，因缓存每命中，从数据库中读取再加载缓存，此时缓存还是旧值，等A线程更新完数据库后，发现又出现数据不一致的现象。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/90c350d42d348c5c72f5905fa5d21adc.jpg" alt="分布式缓存--缓存与数据库一致性方案"><br /> 一般大概率情况下，出现此根源的原因是<code>读比写快</code>，所以这种<code>一般也不采用</code>，如果非得采用，需要在写完数据库之后延迟一段时间再删除一次缓存，也称<code>延时双删</code>，延迟多久呢，一般看数据库的更新时长来决定，此做法也会带来<code>系统吞吐量下降</code>。</p> <h3 id="34-更新数据库删除缓存">3.4 更新数据库，删除缓存</h3> <p>该方案是比较经典的cache-aside模式，虽然这种方式也会带来不一致的情况，比如如下场景：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1d755752eec0a97afae02f4bf5a5bf34.jpg" alt="分布式缓存--缓存与数据库一致性方案"></p> <p>前提：缓存无数据，数据库有数据。<br /> A：查询，B：更新<br /> 过程如下：<br /><code>step1</code>: A查缓存，无数据，去读数据库，旧值；<br /><code>step2</code>: B更新数据库为新值；<br /><code>step3</code>: B删除缓存；<br /><code>step4</code>: A将旧值写入缓存。</p> <p>该场景最终也会出现不一致，产生的根源是是<code>读比写慢</code>，这种是小概率事件，一般很少出现，如果非要解决这种情况，可以采用延迟双删，再删除一次缓存。</p> <h3 id="35-readwrite-through">3.5 Read/Write Through</h3> <p>上面的方式，数据库是缓存的来源，主导是数据库，而<code>Read/Write Through</code>模式，相当于缓存占主导。在cache-aside模式中，我们的应用代码需要维护两个数据存储，一个是缓存（Cache），一个是数据库（Repository）。而Read/Write Through做法是把更新数据库（Repository）的操作由缓存自己代理了，所以，对于应用层来说，就简单很多了。可以理解为，应用认为后端就是一个单一的存储，而存储自己维护自己的Cache。</p> <p><code>Read Through</code> 就是在查询操作中更新缓存，也就是说，当缓存失效的时候（过期或LRU换出），Cache Aside是由调用方负责把数据加载入缓存，而Read Through则用缓存服务自己来加载，从而对应用方是透明的。</p> <p><code>Write Through</code>， 和Read Through相仿，不过是在更新数据时发生。当有数据更新的时候，如果没有命中缓存，直接更新数据库，然后返回。如果命中了缓存，则更新缓存，然后再由Cache自己同步更新数据库</p> <p>值得注意的是，该方案在实现过程中，程序启动时，需将数据库的数据， 提前放到缓存中，不能等启动完成，再放缓存中。</p> <h3 id="35-write-behind">3.5 Write Behind</h3> <p>Write Behind 又叫 Write Back。一些了解Linux操作系统内核的同学对write back应该非常熟悉，这不就是Linux文件系统的Page Cache的算法吗？是的，你看基础这玩意全都是相通的。所以，底层思想很重要，我已经不是一次说过底层很重要这事了。</p> <p>Write Behind 思想，一句说就是，在更新数据的时候，只更新缓存，不更新数据库，而我们的缓存会异步地批量更新数据库。这个设计的好处就是让数据的I/O操作速度飞快（因为是直接操作内存），同时带来吞吐量大幅上升；因为异步，Write Behind 还可以合并对同一个数据的多次操作，所以性能的提高是相当可观的。</p> <p>但是，其带来的问题是，数据不是强一致性的，而且可能会丢失（我们知道Unix/Linux非正常关机会导致数据丢失，就是因为这个事）。在软件设计上，我们基本上不可能做出一个没有缺陷的设计，就像算法设计中的时间换空间，空间换时间一个道理，有时候，强一致性和高性能，高可用和高性性是有冲突的。如果说软件功能模块的思维是<code>逻辑与实现</code>，那么软件架构设计的思维是<code>权衡与取舍</code>。</p> <h2 id="4-总结">4. 总结</h2> <p>（1）上面讲的一些模式，具体在实际设计过程中，需要根据场景做权衡，这些东西都是计算机体系结构里的设计，比如CPU的缓存，硬盘文件系统中的缓存，硬盘上的缓存，数据库中的缓存。基本上来说，这些缓存更新的设计模式都是非常经典的，而且历经长时间考验的策略，所以这也就是，工程学上所谓的最佳实践。<br /> （2）有时候，我们觉得能做宏观的系统架构的人一定是很有经验的，其实，宏观系统架构中的很多设计都来源于这些微观的东西。比如，云计算中的很多虚拟化技术的原理，和传统的虚拟内存不是很像么？Unix下的那些I/O模型，也放大到了架构里的同步异步的模型，还有Unix发明的管道不就是数据流式计算架构吗？如果你要做好架构，首先你得把计算机体系结构以及很多底层的技术吃透了，应用层的架构一定能从底层找到原型或者影子。</p> <p>3）在软件开发或设计中，我非常建议在之前先去参考一下底层软件已有的设计和思路，比如操作系统、编译原理、计算机组成原理以及网络，找到相应的经典设计思路与最佳实践，吃透了已有的这些东西，再决定是否要重新发明轮子。千万不要似是而非地，想当然的做软件设计。</p> <p>4）上面，我们没有考虑缓存（Cache）和持久层（Repository）的整体事务的问题。比如，更新Cache成功，更新数据库失败了怎么吗？或是反过来。关于这个事，如果你需要强一致性，你需要使用两阶段提交协议——prepare, commit/rollback，比如Java 7 的XAResource，还有MySQL 5.7的 XA Transaction，有些cache也支持XA，比如EhCache，关于事务问题后续再分析。</p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-114.htm">如何将Python词典保存为CSV文件</a></p>
+                                        <p>下一个：<a href="/html/category/article-116.htm">java 拦截器响应中取所有参数,SpringBoot拦截器怎么获取http请求参数</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
+                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
+                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
+                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
+                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
+                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
+                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
+                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
+                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
+                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

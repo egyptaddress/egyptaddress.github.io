@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-80.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Hyperledger Fabric节点的动态添加和删除 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">Hyperledger Fabric节点的动态添加和删除</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<h2 id="前言">前言</h2> <p>在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://ifantasy.net/2022/04/04/hyperledger_fabric_2_update_org/"  target="_blank" rel="nofollow">Hyperledger Fabric组织的动态添加和删除</a>中，我们已经完成了在运行着的网络中动态添加和删除组织。本文将在其基础上，详细介绍了如何在 soft 组织上添加新的 peer2 节点，并在简要概述了删除节点的方法，本实验必要的准备工作和 DNS 配置请参考<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://ifantasy.net/2022/04/01/hyperledger_fabric_1_custom_our_network/#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"  target="_blank" rel="nofollow">准备工作</a>。</p> <h2 id="背景介绍">背景介绍</h2> <h3 id="实验准备">实验准备</h3> <p>本文网络结构直接使用<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://ifantasy.net/2022/04/04/hyperledger_fabric_2_update_org"  target="_blank" rel="nofollow">Hyperledger Fabric组织的添加和删除</a>  中创建的<code>2_FabricNetworkUpdate</code> （建议直接将本案例仓库<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/wefantasy/FabricLearn"  target="_blank" rel="nofollow">FabricLearn</a> 下的<code>2_FabricNetworkUpdate</code> 目录拷贝到本地运行）。默认情况下，所有命令皆在<code>2_FabricNetworkUpdate</code> 根目录下执行，在开始后面的实验前按照以下命令启动基础实验网络：</p> <ol> <li>设置环境变量<code>source envpeer1soft</code></li> <li>启动CA网络<code>./0_Restart.sh</code></li> <li>注册用户<code>./1_RegisterUser.sh</code></li> <li>构造证书<code>./2_EnrollUser.sh</code></li> <li>配置通道<code>./3_Configtxgen.sh</code></li> <li>安装测试链码<code>./4_TestChaincode.sh</code></li> </ol> <p>本实验初始 docker 网络为：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d8e4c97518f8aeba9f044e77b9964f5a.jpg" alt="Hyperledger Fabric节点的动态添加和删除"></p> <p>本实验初始区块高度为6：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/e2b328811c43ea9b301823bea4a1cac6.jpg" alt="Hyperledger Fabric节点的动态添加和删除"></p> <h3 id="本文工作">本文工作</h3> <p>向 Hyperledger Fabric 网络中的 soft 组织动态添加一个节点 peer2 ，网络结构为（实验代码已上传至：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/wefantasy/FabricLearn"  target="_blank" rel="nofollow">https://github.com/wefantasy/FabricLearn</a> 的<code>2_FabricNetworkUpdate/7_AddPeer.sh</code> 下）<sup class="footnote-ref"><a href="#fn1" id="fnref1" rel="nofollow">[1]</a></sup>：</p> <table> <thead> <tr> <th style="text-align: center">项</th> <th style="text-align: center">运行端口</th> <th style="text-align: center">说明</th> </tr> </thead> <tbody> <tr> <td style="text-align: center"><code>council.ifantasy.net</code></td> <td style="text-align: center">7050</td> <td style="text-align: center">council 组织的 CA 服务， 为联盟链网络提供 TLS-CA 服务</td> </tr> <tr> <td style="text-align: center"><code>orderer.ifantasy.net</code></td> <td style="text-align: center">7150</td> <td style="text-align: center">orderer 组织的 CA 服务， 为联盟链网络提供排序服务</td> </tr> <tr> <td style="text-align: center"><code>orderer1.orderer.ifantasy.net</code></td> <td style="text-align: center">7151</td> <td style="text-align: center">orderer 组织的 orderer1 成员节点</td> </tr> <tr> <td style="text-align: center"><code>soft.ifantasy.net</code></td> <td style="text-align: center">7250</td> <td style="text-align: center">soft 组织的 CA 服务， 包含成员： peer1 、 admin1</td> </tr> <tr> <td style="text-align: center"><code>peer1.soft.ifantasy.net</code></td> <td style="text-align: center">7251</td> <td style="text-align: center">soft 组织的 peer1 成员节点</td> </tr> <tr> <td style="text-align: center"><code>peer2.soft.ifantasy.net</code></td> <td style="text-align: center">7252</td> <td style="text-align: center">soft 组织的 peer2 成员节点</td> </tr> <tr> <td style="text-align: center"><code>web.ifantasy.net</code></td> <td style="text-align: center">7350</td> <td style="text-align: center">web 组织的 CA 服务， 包含成员： peer1 、 admin1</td> </tr> <tr> <td style="text-align: center"><code>peer1.web.ifantasy.net</code></td> <td style="text-align: center">7351</td> <td style="text-align: center">web 组织的 peer1 成员节点</td> </tr> </tbody> </table> <h2 id="添加新节点">添加新节点</h2> <h3 id="生成peer2的组织证书">生成peer2的组织证书</h3> <p>由于 peer2 属于 soft 组织，所以其证书直接使用已有的 CA 服务器即可生成。</p> <ol> <li>生成 TLS-CA 证书：</li> </ol> <pre><code class="language-bash">export FABRIC_CA_CLIENT_TLS_CERTFILES=$LOCAL_CA_PATH/council.ifantasy.net/ca/crypto/ca-cert.pem export FABRIC_CA_CLIENT_HOME=$LOCAL_CA_PATH/council.ifantasy.net/ca/admin fabric-ca-client register -d --id.name peer2soft --id.secret peer2soft --id.type peer -u https://council.ifantasy.net:7050</code></pre> <ol start="2"> <li>生成 CA 证书：</li> </ol> <pre><code class="language-bash">export FABRIC_CA_CLIENT_TLS_CERTFILES=$LOCAL_CA_PATH/soft.ifantasy.net/ca/crypto/ca-cert.pem export FABRIC_CA_CLIENT_HOME=$LOCAL_CA_PATH/soft.ifantasy.net/ca/admin fabric-ca-client register -d --id.name peer2 --id.secret peer2 --id.type peer -u https://soft.ifantasy.net:7250</code></pre> <ol start="3"> <li>构造证书目录：</li> </ol> <pre><code class="language-bash">echo "Enroll Peer2" export FABRIC_CA_CLIENT_HOME=$LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2 export FABRIC_CA_CLIENT_TLS_CERTFILES=$LOCAL_CA_PATH/soft.ifantasy.net/assets/ca-cert.pem export FABRIC_CA_CLIENT_MSPDIR=msp fabric-ca-client enroll -d -u https://peer2:peer2@soft.ifantasy.net:7250 # for TLS export FABRIC_CA_CLIENT_MSPDIR=tls-msp export FABRIC_CA_CLIENT_TLS_CERTFILES=$LOCAL_CA_PATH/soft.ifantasy.net/assets/tls-ca-cert.pem fabric-ca-client enroll -d -u https://peer2soft:peer2soft@council.ifantasy.net:7050 --enrollment.profile tls --csr.hosts peer2.soft.ifantasy.net cp $LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2/tls-msp/keystore/*_sk $LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2/tls-msp/keystore/key.pem mkdir -p $LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2/msp/admincerts cp $LOCAL_CA_PATH/soft.ifantasy.net/registers/admin1/msp/signcerts/cert.pem $LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2/msp/admincerts/cert.pem</code></pre> <h3 id="配置peer2的容器及环境变量">配置peer2的容器及环境变量</h3> <ol> <li>在<code>compose</code> 目录下新建<code>update-peer.yaml</code> 文件，内容如下：</li> </ol> <pre><code class="language-bash">version: '2'  networks:   network:  services:   peer2.soft.ifantasy.net:     container_name: peer2.soft.ifantasy.net     extends:       file: docker-base.yaml       service: peer-base     environment:       - CORE_PEER_ID=peer2.soft.ifantasy.net       - CORE_PEER_ADDRESS=peer2.soft.ifantasy.net:7051       - CORE_PEER_LOCALMSPID=softMSP       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.soft.ifantasy.net:7051     volumes:       - ${LOCAL_CA_PATH}/soft.ifantasy.net/registers/peer2:${DOCKER_CA_PATH}/peer     ports:       - 7252:7051</code></pre> <ol start="2"> <li>启动 peer2 容器：</li> </ol> <pre><code class="language-bash">docker-compose -f $LOCAL_ROOT_PATH/compose/update-peer.yaml up -d peer2.soft.ifantasy.net</code></pre> <p>此时可以使用<code>docker ps</code> 命令看到 peer2 容器成功运行：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/76d1e5d81b36ca60630dc099ca941487.jpg" alt="Hyperledger Fabric节点的动态添加和删除"><br /> 3. 添加 peer2 的 DNS 解析记录到本机：</p> <pre><code class="language-bash">echo "127.0.0.1       peer2.soft.ifantasy.net" &gt;&gt; /etc/hosts</code></pre> <ol start="4"> <li>将 peer1 的环境变量文件<code>envpeer1soft</code> 复制一份到<code>envpeer2soft</code> ，其内容为：</li> </ol> <pre><code class="language-bash">export LOCAL_ROOT_PATH=$PWD export LOCAL_CA_PATH=$LOCAL_ROOT_PATH/orgs export DOCKER_CA_PATH=/tmp export COMPOSE_PROJECT_NAME=fabriclearn export DOCKER_NETWORKS=network export FABRIC_BASE_VERSION=2.4 export FABRIC_CA_VERSION=1.5 echo "init terminal soft" export FABRIC_CFG_PATH=$LOCAL_ROOT_PATH/config export CORE_PEER_TLS_ENABLED=true export CORE_PEER_LOCALMSPID="softMSP" export CORE_PEER_ADDRESS=peer2.soft.ifantasy.net:7252 export CORE_PEER_TLS_ROOTCERT_FILE=$LOCAL_CA_PATH/soft.ifantasy.net/assets/tls-ca-cert.pem export CORE_PEER_MSPCONFIGPATH=$LOCAL_CA_PATH/soft.ifantasy.net/registers/admin1/msp export ORDERER_CA=$LOCAL_CA_PATH/orderer.ifantasy.net/registers/orderer1/tls-msp/tlscacerts/tls-council-ifantasy-net-7050.pem</code></pre> <h3 id="peer2加入通道">peer2加入通道</h3> <ol> <li>拉取通道创世区块：</li> </ol> <pre><code class="language-bash">peer channel fetch 0 mychannel.block -o orderer1.orderer.ifantasy.net:7151 -c mychannel --tls --cafile $ORDERER_CA</code></pre> <p>由于 peer2 还没有 mychannel 通道的访问权限，所以目前为止我们都是使用 peer1 的环境变量进行操作，后面加入通道后可以使用 peer2 的环境变量。</p> <ol start="2"> <li>peer2 加入通道：</li> </ol> <pre><code class="language-bash">source envpeer2soft peer channel fetch 0 mychannel.block -o orderer1.orderer.ifantasy.net:7151 -c mychannel --tls --cafile $ORDERER_CA</code></pre> <p>此时 peer2 已经加入通道，但是其区块高度仍为0：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1faed6205f47b3e3fc919d8e0302e7f6.jpg" alt="Hyperledger Fabric节点的动态添加和删除"></p> <ol start="3"> <li>peer2 安装链码：</li> </ol> <pre><code class="language-bash">peer lifecycle chaincode install basic.tar.gz</code></pre> <p>现在 peer2 的区块高度已更新到最新的6：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/10278e361bea494a5e822cd6b6498f39.jpg" alt="Hyperledger Fabric节点的动态添加和删除"></p> <h2 id="删除旧节点">删除旧节点</h2> <p>或许是删除旧节点不符合区块链的设计思想，因此官方并没有提供方法来移除已经加入通道的 peer 节点，但是在实际使用中，我们可以直接通过停用 peer 容器来移除 peer 节点<sup class="footnote-ref"><a href="#fn2" id="fnref2" rel="nofollow">[2]</a></sup>。</p> <h2 id="参考">参考</h2> <hr class="footnotes-sep"/> <section class="footnotes"> <ol class="footnotes-list"> <li id="fn1" class="footnote-item"> <p>zcc0721.<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/u013137970/article/details/112606730"  target="_blank" rel="nofollow">Fabric向现有组织中添加新节点</a>. 2021-01-14. [CSDN]<a href="#fnref1" class="footnote-backref" rel="nofollow">↩︎</a></p> </li> <li id="fn2" class="footnote-item"> <p>Alessandro Sorniotti.<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://lists.hyperledger.org/g/fabric/topic/how_to_remove_peer_from_a/28087268"  target="_blank" rel="nofollow">How to remove peer from a channel</a>. 2018-11-14. [CSDN]<a href="#fnref2" class="footnote-backref" rel="nofollow">↩︎</a></p> </li> </ol> </section> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-79.htm">mysqlbinlog 命令解析binlog文件</a></p>
+                                        <p>下一个：<a href="/html/category/article-81.htm">vue+Element实现登录随机验证码_vue.js_</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
+                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
+                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
+                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
+                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
+                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
+                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
+                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
+                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

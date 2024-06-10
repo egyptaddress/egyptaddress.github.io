@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-53.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>深度学习训练过程中的学习率衰减策略及pytorch实现 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">深度学习训练过程中的学习率衰减策略及pytorch实现</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">学习率是深度学习中的一个重要超参数，选择合适的学习率能够帮助模型更好地收敛。</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">本文主要介绍深度学习训练过程中的14种学习率衰减策略以及相应的Pytorch实现。</span></p> <h3 style="text-align: left; margin-left: 30px">1. StepLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">按固定的训练epoch数进行学习率衰减。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">举例说明：</span></li> </ul> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># lr = 0.05 if epoch &lt; 30</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># lr = 0.005 if 30 &lt;= epoch &lt; 60</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># lr = 0.0005 if 60 &lt;= epoch &lt; 90</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">在上述例子中，每30个epochs衰减十倍学习率。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">计算公式和pytorch计算代码如下：</span></li> </ul> <p style="margin-left: 30px"><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b8bd32e5e1a133a8109040b26c6cb9fd.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="color: rgba(0, 0, 255, 1)">def</span><span style="color: rgba(0, 0, 0, 1)"> _get_closed_form_lr(self):</span><span style="color: rgba(0, 0, 255, 1)">return</span> [base_lr * self.gamma ** (self.last_epoch //<span style="color: rgba(0, 0, 0, 1)"> self.step_size)</span><span style="color: rgba(0, 0, 255, 1)">for</span> base_lr<span style="color: rgba(0, 0, 255, 1)">in</span> self.base_lrs]</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.StepLR(optimizer, step_size, gamma=0.1, last_epoch=- 1, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">optimizer：表示使用的优化器；</span><br /><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">step_size：表示学习率调整步长；</span><br /><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">gamma：表示学习率衰减乘法因子，默认：0.1；</span><br /><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">last_epoch:表示上一个epoch数，默认：-1，此时学习率的值为初始学习率；</span><br /><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">verbose:表示是否每次更新都输出一次学习率的值，默认：False。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">代码示例及结果展示：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">lr_scheduler=torch.optim.lr_scheduler.StepLR(optimizer,step_size=3,gamma=0.1,last_epoch=-1)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">设置10个epoch时，输出训练过程中的学习率如下：</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><img fetchpriority="high" decoding="async" src="http://img.555519.xyz/uploads3/20220510/195a75c51a9a93473754861e51ec8535.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></span></p> <p style="margin-left: 30px"> <h3 style="margin-left: 30px">2. MultiStepLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">当epoch数达到固定数值进行学习率衰减。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">举例说明：</span></li> </ul> <p style="margin-left: 30px"><span class="n" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># milestones<span class="o">=<span class="p">[<span class="mi">30<span class="p">,<span class="mi">80<span class="p">]</span></span></span></span></span></span></span></p> <p style="margin-left: 30px"><span class="c1" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># lr = 0.05 if epoch &lt; 30</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="c1"><span class="gp"><span class="c1"># lr = 0.005 if 30 &lt;= epoch &lt; 80</span></span></span></span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="c1"><span class="gp"><span class="c1"><span class="gp"><span class="c1"># lr = 0.0005 if epoch &gt;= 80</span></span></span></span></span></span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">在上述例子中，当epoch达到milestones中的数值时进行学习率衰减。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">计算公式和pytorch计算代码如下：</span></li> </ul> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/62ec7ab34fc5be81960fa9afb3d0ba9a.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">其中bisect_right函数表示epoch数插入milestones中列表的位置，</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">例如:milstones=[2,5,8]</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">last_epoch==1→bisect_right(milestones,last_epoch)=0;</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">last_epoch==3→bisect_right(milestones,last_epoch)=1;</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">last_epoch==6→bisect_right(milestones,last_epoch)=2;</span></p> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="color: rgba(0, 0, 255, 1)">def</span><span style="color: rgba(0, 0, 0, 1)"> _get_closed_form_lr(self):         milestones</span>=<span style="color: rgba(0, 0, 0, 1)"> list(sorted(self.milestones.elements()))</span><span style="color: rgba(0, 0, 255, 1)">return</span> [base_lr * self.gamma **<span style="color: rgba(0, 0, 0, 1)"> bisect_right(milestones, self.last_epoch)</span><span style="color: rgba(0, 0, 255, 1)">for</span> base_lr<span style="color: rgba(0, 0, 255, 1)">in</span> self.base_lrs]</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones, gamma=0.1, last_epoch=- 1, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">milestones：一个关于epoch索引的列表，当epoch值达到列表中的数值时进行学习率衰减。</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">其他参数相同。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">代码示例及结果展示：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">lr_scheduler=torch.optim.lr_scheduler.MultiStepLR(optimizer,milestones=[2,5,8],gamma=0.1,last_epoch=-1)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/9ab4d72166656f489250d324460ec2f0.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></span></p> <h3 style="margin-left: 30px">3. ExponentialLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">根据当前epoch进行学习率衰减</span></li> </ul> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">计算公式和pytorch计算代码如下：</span></li> </ul> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/af8ef19c5b6e553aef51d75e5ef55129.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="color: rgba(0, 0, 255, 1)">def</span><span style="color: rgba(0, 0, 0, 1)"> _get_closed_form_lr(self):</span><span style="color: rgba(0, 0, 255, 1)">return</span> [base_lr * self.gamma **<span style="color: rgba(0, 0, 0, 1)"> self.last_epoch</span><span style="color: rgba(0, 0, 255, 1)">for</span> base_lr<span style="color: rgba(0, 0, 255, 1)">in</span> self.base_lrs]</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma, last_epoch=- 1, verbose=False)</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">代码示例及结果展示：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">lr_scheduler=torch.optim.lr_scheduler.ExponentialLR(optimizer,gamma=0.1,last_epoch=-1)</span></pre> </div> <h3 style="margin-left: 30px"><em><em><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><img loading="lazy" decoding="async" src="https://img2022.cnblogs.com/blog/2801907/202203/2801907-20220327205632264-707263736.png" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"><br /></span></em><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><br /></span></em>4. linearLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">在epoch数达到total_iters数值之前，使用线性改变乘法因子衰减学习率。</span></li> </ul> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">计算公式和pytorch计算代码如下：</span></li> </ul> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/0e5dce092c753832efd541280ebbd318.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="color: rgba(0, 0, 255, 1)">def</span><span style="color: rgba(0, 0, 0, 1)"> _get_closed_form_lr(self):</span><span style="color: rgba(0, 0, 255, 1)">return</span> [base_lr * (self.start_factor +<span style="color: rgba(0, 0, 0, 1)">                 (self.end_factor</span>- self.start_factor) * min(self.total_iters, self.last_epoch) /<span style="color: rgba(0, 0, 0, 1)"> self.total_iters)</span><span style="color: rgba(0, 0, 255, 1)">for</span> base_lr<span style="color: rgba(0, 0, 255, 1)">in</span> self.base_lrs]</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=0.3333333333333333, end_factor=1.0, total_iters=5, last_epoch=- 1, verbose=False)</span></pre> </div> <pre><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">start_factor: 在第一个epoch中乘以base_lr的数值，默认1/3；<br/>end_factor:在线性变化过程结束时乘以base_lr的数值，默认：1；<br/>total_iters:乘法因子达到1的迭代次数，默认：5。<br/></span></pre> <ul> <li>举例说明：</li> </ul> <pre><span class="n" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">lr_scheduler<span class="o">=<span class="n">LinearLR<span class="p">(optimizer<span class="bp"><span class="o"><span class="n"><span class="p">,<span class="n">start_factor<span class="o">=<span class="mf">0.5<span class="p">,<span class="n">total_iters<span class="o">=<span class="mi">4<span class="p">)<br/>base_lr=0.05<br/># epoch == 0→lr = base_lr * start_factor = 0.05 * 0.5=0.025;<br/># epoch == 1→lr = 0.05 * (0.5 + 0.5 * 0.25) = 0.3125;<br/>......<br/># epoch ≥ 4→lr = base_lr * end_factor = 0.05(当epoch数等于total_iters时，</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">min(self.total_iters, self.last_epoch) / self.total_iters = 1)<br/></span></pre> <h3 style="margin-left: 30px">5. ConstantLR<span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><br /></span></h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">在epoch数达到total_iters数值之前，使用常数因子衰减学习率。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">计算公式和pytorch计算代码如下：</span></li> </ul> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/60e443b667eba1262fe6a14f3aea250b.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="color: rgba(0, 0, 255, 1)">def</span><span style="color: rgba(0, 0, 0, 1)"> _get_closed_form_lr(self):</span><span style="color: rgba(0, 0, 255, 1)">return</span> [base_lr * (self.factor + (self.last_epoch &gt;= self.total_iters) * (1 -<span style="color: rgba(0, 0, 0, 1)"> self.factor))</span><span style="color: rgba(0, 0, 255, 1)">for</span> base_lr<span style="color: rgba(0, 0, 255, 1)">in</span> self.base_lrs]</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.ConstantLR(optimizer, factor=0.3333333333333333, total_iters=5, last_epoch=- 1, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">&nbsp;factor：在epoch达到total_iters之前，学习率乘以的常数因子，默认1/3；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">&nbsp;total_iters:衰减学习率的步数。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">举例说明：</span></li> </ul> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">lr_scheduler = ConstantLR(self.opt, factor=0.5, total_iters=4)</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">base_lr = 0.05</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># epoch == 0&nbsp;→ lr = base_lr * (factor + 0 * (1-factor)) = 0.05 *&nbsp; 0.5 = 0.025</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">......</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># epoch == 4&nbsp;→ lr = base_lr * (factor + 1 - factor) = 0.05</span></p> <h3 style="margin-left: 30px">6. LambdaLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">使用lambda定义的函数衰减学习率。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">计算公式和pytorch计算代码如下：</span></li> </ul> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/2bfc69b7f43435ee83352461ec057180.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="color: rgba(0, 0, 255, 1)">def</span><span style="color: rgba(0, 0, 0, 1)"> get_lr(self):</span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 255, 1)">not</span><span style="color: rgba(0, 0, 0, 1)"> self._get_lr_called_within_step:             warnings.warn(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">To get the last learning rate computed by the scheduler,</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">please use `get_last_lr()`.</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">)</span><span style="color: rgba(0, 0, 255, 1)">return</span> [base_lr *<span style="color: rgba(0, 0, 0, 1)"> lmbda(self.last_epoch)</span><span style="color: rgba(0, 0, 255, 1)">for</span> lmbda, base_lr<span style="color: rgba(0, 0, 255, 1)">in</span> zip(self.lr_lambdas, self.base_lrs)]</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda, last_epoch=- 1, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">lr_lambda:当给定epoch数，计算乘法因子的函数（可以自己定义）</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">代码示例及结果展示：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">lr_scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lr_lambda=<span style="color: rgba(0, 0, 255, 1)">lambda</span> epoch:epoch/30 )</span></pre> </div> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/ccba4daa059db058452904c027ac2ba3.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <p style="margin-left: 30px"> <h3 style="margin-left: 30px">7. MultiplicativeLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">同样是使用了与epoch有关的lambda函数，与LambdaLR不同的地方在于，它是对old_lr更新。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">计算公式和pytorch计算代码如下：</span></li> </ul> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/41d7399c645bcb0bb307361a61a32be4.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="color: rgba(0, 0, 255, 1)">def</span><span style="color: rgba(0, 0, 0, 1)"> get_lr(self):</span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 255, 1)">not</span><span style="color: rgba(0, 0, 0, 1)"> self._get_lr_called_within_step:             warnings.warn(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">To get the last learning rate computed by the scheduler,</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">please use `get_last_lr()`.</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">, UserWarning)</span><span style="color: rgba(0, 0, 255, 1)">if</span> self.last_epoch &gt;<span style="color: rgba(0, 0, 0, 1)"> 0:</span><span style="color: rgba(0, 0, 255, 1)">return</span> [group[<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">lr</span><span style="color: rgba(128, 0, 0, 1)">'</span>] *<span style="color: rgba(0, 0, 0, 1)"> lmbda(self.last_epoch)</span><span style="color: rgba(0, 0, 255, 1)">for</span> lmbda, group<span style="color: rgba(0, 0, 255, 1)">in</span><span style="color: rgba(0, 0, 0, 1)"> zip(self.lr_lambdas, self.optimizer.param_groups)]</span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">:</span><span style="color: rgba(0, 0, 255, 1)">return</span> [group[<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">lr</span><span style="color: rgba(128, 0, 0, 1)">'</span>]<span style="color: rgba(0, 0, 255, 1)">for</span> group<span style="color: rgba(0, 0, 255, 1)">in</span> self.optimizer.param_groups]</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="font-family: &quot;times new roman&quot;, times">torch.optim.lr_scheduler.MultiplicativeLR(optimizer, lr_lambda, last_epoch=- 1, verbose=False)</span></span></pre> </div> <p style="margin-left: 30px"> <h3 style="margin-left: 30px">8. CosineAnnealingLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">模拟余弦退火曲线调整学习率</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">计算公式和pytorch计算代码如下：</span></li> </ul> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/917f7c5f409592a8848114d31c359319.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"><span style="color: rgba(0, 0, 255, 1)">def</span><span style="color: rgba(0, 0, 0, 1)"> _get_closed_form_lr(self):</span><span style="color: rgba(0, 0, 255, 1)">return</span> [self.eta_min + (base_lr - self.eta_min) *<span style="color: rgba(0, 0, 0, 1)">            (</span>1 + math.cos(math.pi * self.last_epoch / self.T_max)) / 2<span style="color: rgba(0, 0, 255, 1)">for</span> base_lr<span style="color: rgba(0, 0, 255, 1)">in</span> self.base_lrs]</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max, eta_min=0, last_epoch=- 1, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">T_max:最大迭代次数，一次学习率周期的迭代次数。</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">eta_min:最小学习率，默认：0。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">代码示例及结果展示：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">lr_scheduler=torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,T_max=3,eta_min=0)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">base_lr=0.01</span></p> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/e1902cb442cdfbf44dfa36eb21573bff.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">当epoch是T_max的奇数倍时，学习率会下降到最小值eta_min。</span></p> <p style="margin-left: 30px"> <h3 style="margin-left: 30px">9. ChainedScheduler</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">可以调用其他学习率调整策略。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.ChainedScheduler(schedulers)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">schedules:设置的其他学习率调整策略，可以是一个包含多个学习率调整策略的列表</span>。</p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">代码示例及结果：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">scheduler1 = ConstantLR(self.opt, factor=0.1, total_iters=2<span style="color: rgba(0, 0, 0, 1)">)</span>scheduler2 = ExponentialLR(self.opt, gamma=0.9<span style="color: rgba(0, 0, 0, 1)">)</span>lr_scheduler = ChainedScheduler([scheduler1, scheduler2])</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">schedules里的学习率调整策略同时使用</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">base_lr = 1</span></p> <p style="margin-left: 30px"><span class="c1" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># lr = 0.09 if epoch == 0 （先使用scheduler2策略得到lr = 0.9;再使用scheduler1策略得到最终new_lr = 0.09)</span></p> <p style="margin-left: 30px"><span class="c1" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="gp"><span class="c1"># lr = 0.081 if epoch == 1</span></span></span></p> <p style="margin-left: 30px"><span class="c1" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="gp"><span class="c1"><span class="gp"><span class="c1"># lr = 0.729 if epoch == 2</span></span></span></span></span></p> <p style="margin-left: 30px"><span class="c1" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="gp"><span class="c1"><span class="gp"><span class="c1"><span class="gp"><span class="c1"># lr = 0.6561 if epoch == 3</span></span></span></span></span></span></span></p> <p style="margin-left: 30px"><span class="c1" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="gp"><span class="c1"><span class="gp"><span class="c1"><span class="gp"><span class="c1"><span class="gp"><span class="c1"># lr = 0.59049 if epoch &gt;= 4</span></span></span></span></span></span></span></span></span></p> <h3 style="margin-left: 30px">10.SequentialLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">与ChainedScheduler在每一个epoch中同时调用schedules中的学习率策略不同的是，SequentialLR针对epoch按顺序调用schedules中的学习率策略。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.SequentialLR(optimizer, schedulers, milestones, last_epoch=- 1, verbose=False)</span></pre> </div> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">代码示例及结果：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">scheduler1 = ConstantLR(self.opt, factor=0.1, total_iters=2<span style="color: rgba(0, 0, 0, 1)">)</span>scheduler2 = ExponentialLR(self.opt, gamma=0.9<span style="color: rgba(0, 0, 0, 1)">)</span>lr_scheduler = SequentialLR(optimizer, schedulers=[scheduler1, scheduler2], milestones=[2])</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">base_lr = 1</span></p> <p style="margin-left: 30px"><span class="sd" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"># lr = 0.1 if epoch == 0</span></p> <p style="margin-left: 30px"><span class="sd" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="sd"># lr = 0.1 if epoch == 1</span></span></p> <p style="margin-left: 30px"><span class="sd" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="sd"><span class="sd"># lr = 0.9 if epoch == 2</span></span></span></p> <p style="margin-left: 30px"><span class="sd" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="sd"><span class="sd"><span class="sd"># lr = 0.81 if epoch == 3</span></span></span></span></p> <p style="margin-left: 30px"><span class="sd" style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px"><span class="sd"><span class="sd"><span class="sd"><span class="sd"># lr = 0.729 if epoch == 4</span></span></span></span></span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">epoch&lt;milestones,调用scheduler1学习率调整策略，epoch≥milestones，调用scheduler2学习率调整策略。</span></p> <p style="margin-left: 30px"> <h3 style="margin-left: 30px">11.ReduceLROnPlateau</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">当训练指标不再改进时，调整学习率。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">min</span><span style="color: rgba(128, 0, 0, 1)">'</span>, factor=0.1, patience=10, threshold=0.0001, threshold_mode=<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">rel</span><span style="color: rgba(128, 0, 0, 1)">'</span>, cooldown=0, min_lr=0, eps=1e-08, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">mode:有min、max两种模式，在 min 模式下，当指标的数量停止减少时（如loss），学习率将减少； 在max模式下，当指标的数量停止增加时（如accuracy），学习率将减少，默认值：min；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">factor:学习率减少的倍数，new_lr = old_lr * factor,默认：0.1；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">patience:指标没有提升的epoch数，之后降低学习率。例如，patience = 2，会忽略前 2 个没有改善的 epoch，并且只有在第 3 个 epoch 之后指标仍然没有改善的情况下降低 学习率。 默认值：10。</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">threshold:衡量新的最佳阈值，只关注重大变化。 默认值：1e-4。</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">threshold_mode:有rel、abs两种模式，</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">cooldown:在 学习率减少后恢复正常操作之前要等待的 epoch 数。 默认值：0。</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">min_lr:标量或标量列表。学习率的下限。 默认值：0。</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">eps:应用于 学习率的最小衰减。 如果新旧 学习率之间的差异小于 eps，则忽略更新。 默认值：1e-8。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">代码示例及结果：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">lr_scheduler=torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',patience=2,cooldown=2)</span></pre> </div> <p style="margin-left: 30px"><img loading="lazy" decoding="async" src="http://img.555519.xyz/uploads3/20220510/386b2d949836f14b95aace56748fe681.jpg" alt="深度学习训练过程中的学习率衰减策略及pytorch实现"></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">第一个epoch是初始学习率；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">设置patience = 2，即指标在经历3个epoch后仍然没有提升，衰减学习率，new_lr = old_lr * factor(0.1)，如图中第4个epoch时开始衰减学习率；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">设置cooldown = 2，即衰减学习率后有2个epoch的cooldown时期（5、6epoch），在cooldown时期不进行patience阶段的epoch计数；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">cooldown时期结束恢复patience阶段epoch计数（图中从第7个epoch开始计数，在第10个epoch学习率衰减）。</span></p> <h3 style="margin-left: 30px">12.CyclicLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">根据循环学习策略设置学习率。（每训练一个batch，更新一次学习率）</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">在《&nbsp;Cyclical Learning Rates for Training Neural Networks》这篇文章中有详细描述。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr, max_lr, step_size_up=2000, step_size_down=None, mode=<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">triangular</span><span style="color: rgba(128, 0, 0, 1)">'</span>, gamma=1.0, scale_fn=None, scale_mode=<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">cycle</span><span style="color: rgba(128, 0, 0, 1)">'</span>, cycle_momentum=True, base_momentum=0.8, max_momentum=0.9, last_epoch=- 1, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">base_lr:初始学习率,循环中的学习率下边界；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">max_lr:每个参数组在循环中的上层学习率边界。从功能上讲，它定义了周期幅度 (max_lr - base_lr)。任何周期的 lr 是 base_lr 和一些幅度缩放的总和；因此 max_lr 实际上可能无法达到，具体取决于缩放函数。</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">step_size_up:在一个周期增加的一半中训练迭代的次数。默认值：2000；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">step_size_down:循环减半中的训练迭代次数。如果 step_size_down 为 None，则设置为 step_size_up。默认值：None；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">mode:包含三种{triangular, triangular2, exp_range} ，如果 scale_fn 不是 None，则忽略此参数。默认值：“triangular”；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">gamma:‘exp_range’ 缩放函数中的常数：gamma**（cycle iterations）默认值：1.0；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">scale_fn:由单个参数 lambda 函数定义的自定义缩放策略，其中 0 &lt;= scale_fn(x) &lt;= 1 for all x &gt;= 0。如果指定，则忽略“mode”。默认值：None；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">scale_mode:{‘cycle’, ‘iterations’}。定义是否在cycle number或<span class="sd">cycle iterations (training<span class="sd"> iterations since start of cycle)</span></span>上评估 scale_fn。默认值：cycle；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">cycle_momentum:如果为真，则动量与“base_momentum”和“max_momentum”之间的学习率成反比。默认值：True；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">base_momentum: 循环中的动量下边界，默认值：0.8；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">max_monmentum:循环中的动量上边界，默认值：0.9；</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">官方代码及示例：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"> optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9<span style="color: rgba(0, 0, 0, 1)">)</span>scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.01, max_lr=0.1<span style="color: rgba(0, 0, 0, 1)">)</span>data_loader =<span style="color: rgba(0, 0, 0, 1)"> torch.utils.data.DataLoader(...)</span><span style="color: rgba(0, 0, 255, 1)">for</span> epoch<span style="color: rgba(0, 0, 255, 1)">in</span> range(10<span style="color: rgba(0, 0, 0, 1)">):</span><span style="color: rgba(0, 0, 255, 1)">for</span> batch<span style="color: rgba(0, 0, 255, 1)">in</span><span style="color: rgba(0, 0, 0, 1)"> data_loader:</span><span style="color: rgba(0, 0, 0, 1)">         train_batch(...)</span>         scheduler.step()</span></pre> </div> <h3 style="margin-left: 30px">13.OneCycleLR</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">根据循环学习策略设置学习率。（每训练一个batch，更新一次学习率）</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">相关文章《Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates》</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr, total_steps=None, epochs=None, steps_per_epoch=None, pct_start=0.3, anneal_strategy=<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">cos</span><span style="color: rgba(128, 0, 0, 1)">'</span>, cycle_momentum=True, base_momentum=0.85, max_momentum=0.95, div_factor=25.0, final_div_factor=10000.0, three_phase=False, last_epoch=- 1, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">max_lr:在循环中的上层学习率边界；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">total_steps:循环总步数。如果此处未提供值，则必须通过提供 epochs 和 steps_per_epoch 的值来推断。默认值：None；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">epochs:训练的epochs；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">steps_per_epoch:每个 epoch 训练的步数；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pct_start:提高学习率所花费的周期百分比（in number of steps）。默认值：0.3；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">anneal_strategy:{‘cos’, ‘linear’} 指定退火策略：“cos”表示余弦退火，“linear”表示线性退火。默认值：'cos'；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">div_factor:通过 initial_lr = max_lr/div_factor 确定初始学习率 默认值：25;</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">final_div_factor:通过 min_lr = initial_lr/final_div_factor 确定最小学习率 默认值：1e4;</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">three_phase:如果为 True，则使用计划的第三阶段根据“final_div_factor”消除学习率，而不是修改第二阶段（前两个阶段将关于“pct_start”指示的步骤对称）。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">官方代码及示例：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"> data_loader =<span style="color: rgba(0, 0, 0, 1)"> torch.utils.data.DataLoader(...)      optimizer</span>= torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9<span style="color: rgba(0, 0, 0, 1)">)      scheduler</span>= torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(data_loader), epochs=10<span style="color: rgba(0, 0, 0, 1)">)</span><span style="color: rgba(0, 0, 255, 1)">for</span> epoch<span style="color: rgba(0, 0, 255, 1)">in</span> range(10<span style="color: rgba(0, 0, 0, 1)">):</span><span style="color: rgba(0, 0, 255, 1)">for</span> batch<span style="color: rgba(0, 0, 255, 1)">in</span><span style="color: rgba(0, 0, 0, 1)"> data_loader:             train_batch(...)             scheduler.step()</span></span></pre> </div> <h3 style="margin-left: 30px"></h3> <h3 style="margin-left: 30px">14.CosineAnnealingWarmRestarts</h3> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">和余弦退火类似，多了warmrestart操作。</span></li> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">pytorch调用及相关参数：</span></li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px">torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0, T_mult=1, eta_min=0, last_epoch=- 1, verbose=False)</span></pre> </div> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">T_0:第一次restart的迭代次数；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">T_mult:在一次restar后，因子增加：math:`T_{i}；</span></p> <p style="margin-left: 30px"><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">eta_min:最小学习率，默认值：0。</span></p> <ul> <li><span style="font-family: 楷体, &quot;Kaiti SC&quot;; font-size: 18px">官方代码及示例</span>：</li> </ul> <div class="cnblogs_code"> <pre><span style="font-family: &quot;times new roman&quot;, times; font-size: 15px"> scheduler =<span style="color: rgba(0, 0, 0, 1)"> CosineAnnealingWarmRestarts(optimizer, T_0, T_mult)                  iters</span>=<span style="color: rgba(0, 0, 0, 1)"> len(dataloader)</span><span style="color: rgba(0, 0, 255, 1)">for</span> epoch<span style="color: rgba(0, 0, 255, 1)">in</span> range(20<span style="color: rgba(0, 0, 0, 1)">):</span><span style="color: rgba(0, 0, 255, 1)">for</span> i, sample<span style="color: rgba(0, 0, 255, 1)">in</span><span style="color: rgba(0, 0, 0, 1)"> enumerate(dataloader):                          inputs, labels</span>= sample[<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">inputs</span><span style="color: rgba(128, 0, 0, 1)">'</span>], sample[<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">labels</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">]                          optimizer.zero_grad()                          outputs</span>=<span style="color: rgba(0, 0, 0, 1)"> net(inputs)                          loss</span>=<span style="color: rgba(0, 0, 0, 1)"> criterion(outputs, labels)                          loss.backward()                          optimizer.step()                          scheduler.step(epoch</span>+ i / iters)</span></pre> </div> <p>参考及引用：</p> <p>1.https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate</p> <p>2.https://zhuanlan.zhihu.com/p/352744991</p> <p>3.https://blog.csdn.net/qyhaill/article/details/103043637</p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-52.htm">vue 修饰符</a></p>
+                                        <p>下一个：<a href="/html/category/article-54.htm">@DateTimeFormat和@JsonFormat使用</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在日常开发中，我学使用原生JavaScript获取元素的时候，最常用的方法就document.getEl</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
+                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
+                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
+                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
+                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
+                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-260.htm">vue的自动化路由+分模块管理+路由懒加载</a></h4>
+                <p>近期单独做了一个系统项目，项目不大但是页面太多了，为了后期维护管理容易，做了个自动化加载路由以及模块化的管理。在此记录一下。 直接撸代码 1.首先看目录  router下的index.js是路由配置文</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

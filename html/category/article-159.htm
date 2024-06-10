@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-159.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>记一次 Nuxt 3 在 Windows 下的打包问题 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">记一次 Nuxt 3 在 Windows 下的打包问题</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<h3 id="0-背景">0. 背景</h3> <p>之前用 Nuxt 3 写了公司的官网，包括了样式、字体图标、图片、视频等，其中样式和字体图标放在了<code>assets/styles</code> 和<code>assets/fonts</code> 目录下，而图片和视频则放在了<code>public/images</code> 和<code>public/videos</code> 目录下。</p> <h3 id="1-起因">1. 起因</h3> <p>在不改变任何<code>nuxt.config.ts</code> 打包配置的情况下，直接执行<code>npm run build</code>，会生成一个<code>.output</code> 目录，结构如下</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d5298ba9fd107b6357ad83ad1a2d0cf1.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>我们再展开<code>_nuxt</code> 文件夹，结构如下</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/7564338203de1449ccba94010afa7f77.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>这里有个问题就是<code>.output/public/</code> 下和<code>.output/public/_nuxt/</code> 下都有<code>images</code> 和<code>videos</code> 文件夹，而且里面的内容完全一样，这就造成了<mark>发布包体积变大</mark>。</p> <h3 id="2-经过">2. 经过</h3> <p>然后查阅了<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v3.nuxtjs.org/docs/directory-structure/nuxt.config"  target="_blank" rel="nofollow">官网的配置文档</a>，发现<code>app.buildAssetsDir</code> 可以改变静态资源的输出路径（默认值也的确是<code>_nuxt</code>），于是将其改成<code>/</code> 后再次打包，然而并没有任何变化 ????‍。在仔细看了两遍文档无果后，只能撸起袖子从代码入手，最后在<code>.output/server/chunks/render.mjs</code> 里发现代码关心的其实是下面的三个配置</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/377fb8ff5253e0ea57c910d2b486632e.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>因此应该调整的是<code>assetsPath</code>，而不是文档上写的<code>buildAssetsDir</code>。</p> <p>改完再次打包，发现已成功将<code>_nuxt</code> 里的内容移到了外面，见下图</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/bb8fd476fa13b573694947494a477297.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>接着<code>npm start</code> 启动项目，不出所料的出现了问题 ????，大大的 404 欢迎我</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/dfafc208c333444ccef3b5f47ada0798.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>继续查代码，发现在<code>.output/server/chunks/static.mjs</code> 里有这么一段代码</p> <pre><code class="language-javascript">if (!asset) {   if (id.startsWith(PUBLIC_PATH) &amp;&amp; !id.startsWith(STATIC_ASSETS_BASE)) {     throw createError({       statusMessage: "Cannot find static asset " + id,       statusCode: 404     });   }   return }</code></pre> <p>偏偏我们现在的<code>PUBLIC_PATH</code> 是<code>/</code>，这样一来所有不是静态资源且以<code>/</code> 开头的请求都被拦截到 404 去了 ????‍。</p> <p>手工注释掉这段代码，重启服务，再次刷新页面，ok 了。</p> <p>原以为到这里就结束了，但又发现所有<code>.mjs</code> 的请求又都变成了 404</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/701d23084dcb9fd9519fbccf942975f8.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>这种批量出问题的，估摸着又是哪里的配置有问题。</p> <p>再次查看文档，比对代码，发现有个<code>vite.base</code> 的配置默认是指向<code>_nuxt</code> 的，赶紧改成<code>/</code>。</p> <p>再次 build，重启服务，刷新页面，成了！</p> <hr/> <h3 id="3-写在最后">3. 写在最后</h3> <p>这次排查经历告诉我 ... nuxt 3 真的还没有达到生产环境使用的标准，而且我之前有次在 Linux 下 build，出来的结果和 Windows 下还不一样，这个就以后再讨论了。</p> <p>拜拜，下次见。</p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-158.htm">Nginx部署多个spring-boot项目(jar方式部署)</a></p>
+                                        <p>下一个：<a href="/html/category/article-160.htm">详解Alibaba Java诊断工具Arthas查看Dubbo动态代理类_java</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
+                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
+                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
+                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
+                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
+                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
+                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
+                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
+                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
+                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

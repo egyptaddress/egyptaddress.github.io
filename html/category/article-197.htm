@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-197.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>图解Kafka架构与工作原理 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">图解Kafka架构与工作原理</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="htmledit_views"> <h2><strong>一、认识Kafka</strong></h2> <p>面试官提问：什么是 Kafka ?用来干嘛的?</p> <p>官方定义如下：</p> <p>Kafka is used for building real-time data pipelines and streaming apps. It is horizontally scalable, fault-tolerant, wicked fast, and runs in production in thousands of companies.</p> <p>翻译过来，大致的意思就是，这是一个实时数据处理系统，可以横向扩展，并高可靠!</p> <p>实时数据处理，从名字上看，很好理解，就是将数据进行实时处理，在现在流行的微服务开发中，最常用实时数据处理平台有 RabbitMQ、RocketMQ 等消息中间件。</p> <p>这些中间件，最大的特点主要有两个：</p> <p>服务解耦</p> <p>流量削峰</p> <p>在早期的 web 应用程序开发中，当请求量突然上来了时候，我们会将要处理的数据推送到一个队列通道中，然后另起一个线程来不断轮训拉取队列中的数据，从而加快程序的运行效率。</p> <p><img fetchpriority="high" decoding="async" alt="" height="679" src="http://img.555519.xyz/uploads3/20220824/6561f5dd0b56b2ae2e7c1d39ddf1723e.jpg"></p> <p>但是随着请求量不断的增大，并且队列通道的数据一致处于高负载，在这种情况下，应用程序的内存占用率会非常高，稍有不慎，会出现内存不足，造成程序内存溢出，从而导致服务不可用。</p> <p>随着业务量的不断扩张，在一个应用程序内，使用这种模式已然无法满足需求，因此之后，就诞生了各种消息中间件，例如 ActiveMQ、RabbitMQ、RocketMQ 等中间件。</p> <p>采用这种模型，本质就是将要推送的数据，不在存放在当前应用程序的内存中，而是将数据存放到另一个专门负责数据处理的应用程序中，从而实现服务解耦。</p> <p><img decoding="async" alt="" height="629" src="http://img.555519.xyz/uploads3/20220824/77e3df97e1acb9de0fcf542ccfb61881.jpg"></p> <p>消息中间件：主要的职责就是保证能接受到消息，并将消息存储到磁盘，即使其他服务都挂了，数据也不会丢失，同时还可以对数据消费情况做好监控工作。</p> <p>应用程序：只需要将消息推送到消息中间件，然后启用一个线程来不断从消息中间件中拉取数据，进行消费确认即可!</p> <p>引入消息中间件之后，整个服务开发会变得更加简单，各负其责。</p> <p>Kafka 本质其实也是消息中间件的一种，Kafka 出自于 LinkedIn 公司，与 2010 年开源到 github。</p> <p>LinkedIn 的开发团队，为了解决数据管道问题，起初采用了 ActiveMQ 来进行数据交换，大约是在 2010 年前后，那时的 ActiveMQ 还远远无法满足 LinkedIn 对数据传递系统的要求，经常由于各种缺陷而导致消息阻塞或者服务无法正常访问，为了能够解决这个问题，LinkedIn 决定研发自己的消息传递系统，Kafka 由此诞生。</p> <p>在 LinkedIn 公司，Kafka 可以有效地处理每天数十亿条消息的指标和用户活动跟踪，其强大的处理能力，已经被业界所认可，并成为大数据流水线的首选技术。</p> <h2><strong>二、Kafka架构介绍</strong></h2> <p>先来看一张图，下面这张图就是 kafka 生产与消费的核心架构模型!</p> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220824/34cc1db7fe6a1c22505e3e349581f3c6.jpg"></p> <p>如果你看不懂这些概念没关系，我会带着大家一起梳理一遍!</p> <p>Producer：Producer 即生产者，消息的产生者，是消息的入口</p> <p>Broker：Broker 是 kafka 一个实例，每个服务器上有一个或多个 kafka 的实例，简单的理解就是一台 kafka 服务器，kafka cluster表示集群的意思</p> <p>Topic：消息的主题，可以理解为消息队列，kafka的数据就保存在topic。在每个 broker 上都可以创建多个 topic 。</p> <p>Partition：Topic的分区，每个 topic 可以有多个分区，分区的作用是做负载，提高 kafka 的吞吐量。同一个 topic 在不同的分区的数据是不重复的，partition 的表现形式就是一个一个的文件夹!</p> <p>Replication：每一个分区都有多个副本，副本的作用是做备胎，主分区(Leader)会将数据同步到从分区(Follower)。当主分区(Leader)故障的时候会选择一个备胎(Follower)上位，成为 Leader。在kafka中默认副本的最大数量是10个，且副本的数量不能大于Broker的数量，follower和leader绝对是在不同的机器，同一机器对同一个分区也只可能存放一个副本</p> <p>Message：每一条发送的消息主体。</p> <p>Consumer：消费者，即消息的消费方，是消息的出口。</p> <p>Consumer Group：我们可以将多个消费组组成一个消费者组，在 kafka 的设计中同一个分区的数据只能被消费者组中的某一个消费者消费。同一个消费者组的消费者可以消费同一个topic的不同分区的数据，这也是为了提高kafka的吞吐量!</p> <p>Zookeeper：kafka 集群依赖&nbsp;zookeeper 来保存集群的的元信息，来保证系统的可用性。</p> <p>简而言之，kafka 本质就是一个消息系统，与大多数的消息系统一样，主要的特点如下：</p> <p>使用推拉模型将生产者和消费者分离</p> <p>为消息传递系统中的消息数据提供持久性，以允许多个消费者</p> <p>提供高可用集群服务，主从模式，同时支持横向水平扩展</p> <p>与 ActiveMQ、RabbitMQ、RocketMQ 不同的地方在于，它有一个分区Partition的概念。</p> <p>这个分区的意思就是说，如果你创建的topic有5个分区，当你一次性向 kafka 中推 1000 条数据时，这 1000 条数据默认会分配到 5 个分区中，其中每个分区存储 200 条数据。</p> <p>这样做的目的，就是方便消费者从不同的分区拉取数据，假如你启动 5 个线程同时拉取数据，每个线程拉取一个分区，消费速度会非常非常快!</p> <p>这是 kafka 与其他的消息系统最大的不同!</p> <h3><strong>2.1 发送数据</strong></h3> <p>和其他的中间件一样，kafka 每次发送数据都是向Leader分区发送数据，并顺序写入到磁盘，然后Leader分区会将数据同步到各个从分区Follower，即使主分区挂了，也不会影响服务的正常运行。</p> <p><img decoding="async" alt="" height="742" src="http://img.555519.xyz/uploads3/20220824/9129d84e93d49f7e84e5431494782616.jpg"></p> <p>那 kafka 是如何将数据写入到对应的分区呢?kafka中有以下几个原则：</p> <p>1、数据在写入的时候可以指定需要写入的分区，如果有指定，则写入对应的分区</p> <p>2、如果没有指定分区，但是设置了数据的key，则会根据key的值hash出一个分区</p> <p>3、如果既没指定分区，又没有设置key，则会轮询选出一个分区</p> <h3><strong>2.2 消费数据</strong></h3> <p>与生产者一样，消费者主动的去kafka集群拉取消息时，也是从Leader分区去拉取数据。</p> <p>这里我们需要重点了解一个名词：消费组!</p> <p><img loading="lazy" decoding="async" alt="" height="664" src="http://img.555519.xyz/uploads3/20220824/94008b05db09df0b78d4d09fa756e254.jpg"></p> <p>考虑到多个消费者的场景，kafka 在设计的时候，可以由多个消费者组成一个消费组，同一个消费组者的消费者可以消费同一个 topic 下不同分区的数据，同一个分区只会被一个消费组内的某个消费者所消费，防止出现重复消费的问题!</p> <p>但是不同的组，可以消费同一个分区的数据!</p> <p>你可以这样理解，一个消费组就是一个客户端，一个客户端可以由很多个消费者组成，以便加快消息的消费能力。</p> <p>但是，如果一个组下的消费者数量大于分区数量，就会出现很多的消费者闲置。</p> <p>如果分区数量大于一个组下的消费者数量，会出现一个消费者负责多个分区的消费，会出现消费性能不均衡的情况。</p> <p>因此，在实际的应用中，建议消费者组的consumer的数量与partition的数量保持一致!</p> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-196.htm">AgileConfig 1.6.0 发布 &#8211; 支持服务注册与发现</a></p>
+                                        <p>下一个：<a href="/html/category/article-198.htm">分布式之一行代码解决缓存击穿问题</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
+                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
+                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
+                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
+                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
+                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
+                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
+                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
+                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-260.htm">vue的自动化路由+分模块管理+路由懒加载</a></h4>
+                <p>近期单独做了一个系统项目，项目不大但是页面太多了，为了后期维护管理容易，做了个自动化加载路由以及模块化的管理。在此记录一下。 直接撸代码 1.首先看目录  router下的index.js是路由配置文</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
+                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-44.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>CRUSE: Convolutional Recurrent U-net for Speech Enhancement &#8211; WenzheLiu - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+        </head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/xcblog/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">CRUSE: Convolutional Recurrent U-net for Speech Enhancement &#8211; WenzheLiu</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<h1 id="cruse-convolutional-recurrent-u-net-for-speech-enhancement">CRUSE: Convolutional Recurrent U-net for Speech Enhancement</h1> <blockquote> <p>本文是关于<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://arxiv.org/pdf/2101.09249.pdf"  target="_blank" rel="nofollow">TOWARDS EFFICIENT MODELS FOR REAL-TIME DEEP NOISE SUPPRESSION</a>的介绍，作者是Microsoft Research的Sebastian Braun等。相关工作的上下文可以参看<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/VincentLau-blog/p/Deep_Learning_in_speech_enhancement.html"  target="_blank" rel="nofollow">博文</a></p> </blockquote> <h2 id="概述">概述</h2> <p>本文设计的是基于深度学习的语音增强模型，工作的贡献点有二：</p> <ul> <li>基于深度学习语音增强模型在实录数据的性能</li> <li>一套用于语音增强的数据增强方法</li> <li>模型计算复杂度和语音质量（主要是MOS）的折衷的消融实验结果</li> </ul> <h2 id="动机">动机</h2> <ul> <li>本文要解决的核心问题是：目前语音增强模型普遍为了获得更好的性能，不断增加模型的计算量。而更需要关心的问题是：如何在给定最大计算量要求下设计出最有效的模型（How to obtain the best speech quality given a maximum computational budget?），因为这在边缘设备(edge devices)和低功耗设备上是重要的</li> </ul> <h2 id="系统与模型">系统与模型</h2> <p>系统框图如下<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/89d16a8de151e56492f11c2a8b99d133.jpg" alt="CRUSE: Convolutional Recurrent U-net for Speech Enhancement - WenzheLiu "><br /> 要说明如下几点：</p> <ul> <li>选择频域模型的原因：时域模型在带混响数据和实录数据上的泛化性能没有被验证</li> <li>特征采用的是对数功率谱，网络估计目标是IRM，损失则是利用SA方法</li> <li>IRM作用在带噪STFT谱后（这里为避免混淆，将其称为重构谱）进行STFT一致性约束，即先将谱iSTFT后再STFT（将STFT后的谱成为约束谱），之后对约束谱进行信号量级归一化后计算压缩复谱的MSE损失，这里直接给出合并了信号量级归一化和压缩复谱MSE损失的公式，所以比论文中的损失公式多了一个归一化因子项：<span class="math inline">\(\mathcal{L}=\frac{1}{\sigma_S^{c}}(\lambda\sum_{k,n}{|S^c-\widehat{S}^c|^2+(1-\lambda)(\sum_{k,n}{||S|^c-|\widehat{S}|^c|^2})})\)</span>，其中<span class="math inline">\(\sigma_S\)</span>是纯净语音有声段的能量，压缩谱的操作定义为<span class="math inline">\(X_{cprs}=\frac{X(k,n)}{|X(k,n)|}|X(k,n)|^{c}\)</span>，<span class="math inline">\(c\)</span>和<span class="math inline">\(\lambda\)</span>作者推荐都为0.3。</li> <li>验证阶段按<span class="math inline">\(Q=PESQ+0.2SI-SDR-CD\)</span>选择最优的模型，其中PESQ，SI-SDR和倒谱距离分别是三个语音质量评估指标</li> <li>训练的batch size=10，句子长度10 s，AdamW优化器，学习率(learning rate)为8e-5，权重衰减(weight decay)为0.1<br /> 模型CRUSE架构如下图，整体上沿用了谭可的GCRN：<br /><img decoding="async" src="https://img2022.cnblogs.com/blog/1516697/202204/1516697-20220424173154089-1080554640.png" alt="CRUSE: Convolutional Recurrent U-net for Speech Enhancement - WenzheLiu "></li> <li>主要组成部分有三部分：编码器、解码器、时序建模。其中编解码器是一个U-Net结构，即<span class="math inline">\(L\)</span>层卷积编码层和<span class="math inline">\(L\)</span>层卷积解码层。卷积编码层就是卷积层+BN+leakyReLU，解码层就是转置卷积+BN+leakyReLU，不过最后一个解码层的激活函数为sigmoid以保证输出为IRM。卷积或转置卷积层的kernel size是<span class="math inline">\(2 \times 3\)</span>，stride是<span class="math inline">\(1 \times 2\)</span> (均为时间帧维×频点维)，即时间维上通过编码器补零和解码器截断完成因果卷积，频率维则每层尺度减半。时序建模采用的是分组GRU，因为GRU比LSTM计算复杂度更低，分组策略则与GCRN中的分组LSTM一致。编解码器对应层之间用跳转连接联系，这里的跳转连接使用<span class="math inline">\(1\times1\)</span>卷积和加法连接实现的，从而降低GCRN中拼接连接带来解码层巨大的输入维度导致的过高的计算量，加法拼接如下图<br /><img decoding="async" src="https://img2022.cnblogs.com/blog/1516697/202204/1516697-20220424174650713-927078105.png" alt="CRUSE: Convolutional Recurrent U-net for Speech Enhancement - WenzheLiu "></li> </ul> <h2 id="算法参数">算法参数</h2> <p>16 kHz的采样率，20 ms帧长，10 ms帧移以及320点FFT。输入特征是<span class="math inline">\(Batch_size \times 1 \times num_frames \times num_bins\)</span>，卷积层通道数从16开始，依次加倍，直到倒数第二层，最后一层输出通道数则为<span class="math inline">\(C_L\)</span>，比如<span class="math inline">\(L=4\)</span>层且<span class="math inline">\(C_L=120\)</span>，则卷积层的输出通道数依次为<span class="math inline">\(16-32-64-120\)</span>，转置卷积层的输出通道数依次为<span class="math inline">\(64-32-16-1\)</span>，最后一层始终为1以保证输出是幅度掩蔽。分组GRU的层数为<span class="math inline">\(N\)</span>分组数为<span class="math inline">\(P\)</span>。网络命名规则为<span class="math inline">\(CRUSEL-C_L-N \times RNNP\)</span></p> <h2 id="数据集的增广">数据集的增广</h2> <p>数据集的增广方法可以参考<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/VincentLau-blog/p/Deep_Learning_in_speech_enhancement.html"  target="_blank" rel="nofollow">博文</a><br /> 评估指标是用于评价语音质量的DNSMOS(P.808)和用于评估计算量的MACs，需要注意的是这里的DNSMOS(P.808)应该是与目前(2022/04/24)可用的DNSMOS(P.808&amp;P.835)中的P.808的分数有差异了</p> <h2 id="实验结果">实验结果</h2> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/a385d5fdac4e6e29ee80aba4b37339d3.jpg" alt="CRUSE: Convolutional Recurrent U-net for Speech Enhancement - WenzheLiu "><br /> (图中横轴是MACs,纵轴是<span class="math inline">\(\Delta\)</span>MOS，因此在图中偏左上的方法更优)<br /> 分析结论：</p> <ul> <li>CRUSE5中的2层LSTM换成2层GRU甚至1层GRU会在性能下降极小的情况下大幅度降低计算复杂度</li> <li>GRU分组后性能少量下降但是会带来计算复杂度下降</li> <li>编解码器卷积层中的kernel时间维从2降到1(图中的<span class="math inline">\(*-1D\)</span>模型)，性能下降严重，推测是混响的原因，因为GCRN在降噪任务上评估时没有明显的性能下降</li> <li>编解码器尤其是时间维度进行卷积对性能提升帮助很大</li> <li>MOS和MACs大体呈线性相关的趋势</li> <li>使用分组为4的GRU并结合add conv<span class="math inline">\(1 \times 1\)</span> skip的CRUSE4是本文的最佳折衷方案<br /><img decoding="async" src="https://img2022.cnblogs.com/blog/1516697/202204/1516697-20220424182153784-1484088317.png" alt="CRUSE: Convolutional Recurrent U-net for Speech Enhancement - WenzheLiu "><br /> RNN的宽度引起的MOS和MACs的关系可以指导我们在给定的计算资源下设计最优的模型</li> </ul> <p>最后是一个消融实验证明设计的跳转连接的有效性<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/4dcca291b2e23e1cdc79b2b05627d1df.jpg" alt="CRUSE: Convolutional Recurrent U-net for Speech Enhancement - WenzheLiu "></p> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-43.htm">利用Redis实现防止接口重复提交功能</a></p>
+                                        <p>下一个：<a href="/html/category/article-45.htm">LevelDB 学习笔记5：版本控制_在线工具</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
+                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></h4>
+                <p>???? 个人网站:【 海拥】【小霸王游戏机】 ???? 风趣幽默的前端学习课程：????28个案例趣学前端 ???? 想寻找共同学习交流、摸鱼划水的小伙伴，请点击【摸鱼学习交流群】 ???? 免费且</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
+                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
+                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
+                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
+                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
+                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
+                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
+                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">20</span> <a href="/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>
