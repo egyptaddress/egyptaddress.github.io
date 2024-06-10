@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-204.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>图解Redis之数据结构篇压缩列表 - EgyptAddress</title>
+    <title>Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">图解Redis之数据结构篇压缩列表</h1>
+                <h1 class="title" style="word-break: break-all;">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown"> <h3 id="前言">前言</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过，它跟数组不同的一点是，它允许存储的数据大小不同。</p> <h3 id="一压缩列表">一、压缩列表</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;听到“压缩”两个字，直观的反应就是节省内存。之所以说这种存储结构节省内存,是相较于数组的存储思路而言的。我们知道,数组要求每个元素的大小相同,如果我们要存储不同长度的字符串,那我们就需要用最大长度的字符串大小作为元素的大小(假设是20个字节)。存储小于 20 个字节长度的字符串的时候，便会浪费部分存储空间。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220723/23493a58d7110fea466f6270982f1459.jpg" alt="图解Redis之数据结构篇压缩列表"></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;数组的优势占用一片连续的空间可以很好的利用CPU缓存访问数据。如果我们想要保留这种优势，又想节省存储空间我们可以对数组进行压缩。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220723/529fd504d8db2b7fb1842bff4192df31.jpg" alt="图解Redis之数据结构篇压缩列表"></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;但是这样有一个问题，我们在遍历它的时候由于不知道每个元素的大小是多少，因此也就无法计算出下一个节点的具体位置。这个时候我们可以给每个节点增加一个lenght的属性。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220723/d7696476725adc9d150eb144dbc07767.jpg" alt="图解Redis之数据结构篇压缩列表"></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;如此。我们在遍历节点的之后就知道每个节点的长度(占用内存的大小)，就可以很容易计算出下一个节点再内存中的位置。这种结构就像一个简单的压缩列表了。</p> <h3 id="二redis压缩列表">二、Redis压缩列表</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;压缩列表(zip1ist)是列表和哈希的底层实现之一。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;当一个列表只包含少量列表项,并且每个列表项要么就是小整数值,要么就是长度比较短的字符串,那么Redis就会使用压缩列表来做列表的底层实现。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;当一个哈希只包含少量键值对,比且每个键值对的键和值要么就是小整数值,要么就是长度比较短的字符串,那么Redis就会使用压缩列表来做哈希的底层实现。</p> <h4 id="redis压缩列表的构成">2.1 Redis压缩列表的构成</h4> <p>&nbsp;&nbsp;&nbsp;&nbsp;压缩列表是Redis为了节约内存而开发的,是由一系列特殊编码的连续内存块组成的顺序型(sequential)数据结枃。一个压缩列表可以包含任意多个节点(entry),每个节点可以保存一个字节数组或者一个整数值，如下图。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220723/2e3a44e6d3310a9096106dc3e080bd14.jpg" alt="图解Redis之数据结构篇压缩列表"></p> <p>示例：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220723/7b1be06f2811457a1025b17bfaa19e1b.jpg" alt="图解Redis之数据结构篇压缩列表"></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;如上图，展示了一个总长为80字节，包含3个节点的压缩列表。如果我们有一个指向压缩列表起始地址的指针p，那么表为节点的地址就是P+60。</p> <h4 id="redis压缩列表节点的构成">2.2 Redis压缩列表节点的构成</h4> <p>&nbsp;&nbsp;&nbsp;&nbsp;每个压缩列表节点可以保存一个字节数组或者一个整数值。其中，字节数组可以是以下三种长度中的一种。</p> <ul> <li>长度小于等于63(2^6-1)字节的字节数组;</li> <li>长度小于等于16383(2^14-1)字节的字节数组</li> <li>长度小于等于4294967295(2^32-1)字节的字节数组</li> </ul> <p>整数值可以是以下6种长度中的一种</p> <ul> <li>4位长,介于0至12之间的无符号整数</li> <li>1字节长的有符号整数</li> <li>3字节长的有符号整数</li> <li>int16_t类型整数</li> <li>int32_t类型整数</li> <li>int64_t类型整数</li> </ul> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220723/e527f4895dc0f511d1a94857a86c5cc2.jpg" alt="图解Redis之数据结构篇压缩列表"></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;节点的 previous_entry_length属性以字节为单位,记录了压缩列表中前一个节点的长度。 previous_entry_length属性的长度可以是1字节或者5字节。</p> <ul> <li>如果前一节点的长度小于254字节,那么 previous_entry_length属性的长度为1字节，前一节点的长度就保存在这一个字节里面。</li> <li>如果前一节点的长度大于等于254字节,那么 previous_entry_length属性的长度为5字节:其中属性的第一字节会被设置为0xFE(十进制值254),而之后的四个字节则用于保存前一节点的长度.</li> </ul> <p>&nbsp;&nbsp;&nbsp;&nbsp;节点的encoding属性记录了节点的content属性所保存数据的类型以及长度。</p> <ul> <li>一字节、两字节或者五字节长,值的最高位为00、01或者10的是字节数组编码这种编码表示节点的 content属性保存着字节数组,数组的长度由编码除去最高两位之后的其他位记录。</li> <li>一字节长,值的最高位以11开头的是整数编码:这种编码表示节点的content属性保存着整数值,整数值的类型和长度由编码除去最高两位之后的其他位记录。</li> </ul> <p>&nbsp;&nbsp;&nbsp;&nbsp;节点的content属性负责保存节点的值,节点值可以是一个字节数组或者整数,值的类型和长度由节点的encoding属性决定。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220723/ac08ac4a5647c2f6cde8dd8f49bb46d3.jpg" alt="图解Redis之数据结构篇压缩列表"></p> <ul> <li>编码的最高两位00表示节点保存的是一个字节数组。</li> <li>编码的后六位001011记录了字节数组的长度11。</li> <li>content属性保存着节点的值"hello world"。</li> <li>编码11000000表示节点保存的是一个int16_t类型的整数值;</li> <li>content属性保存着节点的值10086</li> </ul> <h4 id="常用操作的时间复杂度">2.3 常用操作的时间复杂度</h4> <table> <thead> <tr class="header"> <th>操作</th> <th>时间复杂度</th> </tr> </thead> <tbody> <tr class="odd"> <td>创建一个新的压缩列表</td> <td>O(1)</td> </tr> <tr class="even"> <td>创建一个包含给定值的新节点,并将这个新节点添加到压缩列表的表头或者表尾</td> <td>平均O(N)，最坏O(N^2)(可能发生连锁更新)</td> </tr> <tr class="odd"> <td>将包含给定值的新节点插人到给定节点之后</td> <td>平均O(N)，最坏O(N^2)(可能发生连锁更新)</td> </tr> <tr class="even"> <td>返回压缩列表给定索引上的节点</td> <td>O(N)</td> </tr> <tr class="odd"> <td>在压缩列表中査找并返回包含了给定值的节点</td> <td>因为节点的值可能是一个字节数组,所以检查节点值和给定值是否相同的复杂度为O(N),而查找整个列表的复杂度则为(N^2)</td> </tr> <tr class="even"> <td>返回给定节点的下一个节点</td> <td>O(1)</td> </tr> <tr class="odd"> <td>返回给定节点的前一个节点</td> <td>O(1)</td> </tr> <tr class="even"> <td>获取给定节点所保存的值</td> <td>O(1)</td> </tr> <tr class="odd"> <td>从压缩列表中删除给定的节点</td> <td>平均O(N)，最坏O(N^2)(可能发生连锁更新)</td> </tr> <tr class="even"> <td>删除压缩列表在给定索引上的连续多个</td> <td>平均O(N)，最坏O(N^2)(可能发生连锁更新)</td> </tr> <tr class="odd"> <td>返回压缩列表目前占用的内存字节数</td> <td>O(1)</td> </tr> <tr class="even"> <td>返回压缩列表目前包含的节点数量</td> <td>点数量小于65535时为O(1),大于65535时为O(N)</td> </tr> </tbody> </table> <h3 id="本文重点">本文重点</h3> <ul> <li> <p>压缩列表是Redis为节约内存自己设计的一种顺序型数据结构。</p> </li> <li>压缩列表被用作列表键和哈希键的底层实现之一。</li> <li>压缩列表可以包含多个节点,每个节点可以保存一个字节数组或者整数值。</li> <li> <p>添加新节点到压缩列表,或者从压缩列表中删除节点,可能会引发连锁更新操作,但这种操作出现的几率并不高。</p> </li> </ul> <h3 id="参考">参考</h3> <p>《Redis设计与实现》</p> <p>《Redis开发与运维》</p> <p>《Redis官方文档》</p> <h3 id="end-----">-----END-----</h3> </div> <p>转载于:https://www.cnblogs.com/hunternet/p/11306690.html</p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-tomorrow-night"> <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。????</p> <p>去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220823/03ec2e0cde80da495b98541daab6cabe.jpg" alt="Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到"></p> <p>看了相关资料后，知道了，原来是Kafka的默认<code>/usr/bin/java</code>路径与我们实际的<code>$JAVA_HOME/bin/java</code>路径不一致导致的。<br /> .<br /> 这里我们有两种修改方式</p> <ul> <li>修改我们的实际路径(太麻烦，而且可能会引起其它配置的变化，我大数据有些配置中直接使用JAVA_HOME的实际路径，没有使用环境变量)</li> <li>设置一个软连接就可以了</li> </ul> <p><strong>这里用第二种方式就行了</strong></p> <p>在窗口输入</p> <pre><code class="prism language-bash"><span class="token keyword">echo</span><span class="token variable">$JAVA_HOME</span></code></pre> <p>查看我们的JAVA_HOME路径，下面会用到。</p> <p>建立软连接</p> <pre><code class="prism language-shell"><span class="token comment"># ln -s $JAVA_HOME/bin/java  /usr/bin/java</span><span class="token function">ln</span> -s /opt/module/jdk1.8.0_144/bin/java /usr/bin/java</code></pre> <p>然后重新尝试就可以了！！！</p> <p></p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></p>
-                                        <p>下一个：<a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></p>
+                                        <p>上一个：<a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></p>
+                                        <p>下一个：<a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
+                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
-                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
+                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
-                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
-                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
+                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>

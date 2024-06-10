@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-96.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>SQL SERVER使用表分区优化性能_MsSql - EgyptAddress</title>
+    <title>《易学C++》第15章 再识对象 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">SQL SERVER使用表分区优化性能_MsSql</h1>
+                <h1 class="title" style="word-break: break-all;">《易学C++》第15章 再识对象</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.简介</a></li> <li><a href="#_label1" rel="nofollow">2.表分区</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_0" rel="nofollow">2.1分区范围</a></li> <li><a href="#_lab2_1_1" rel="nofollow">2.2分区键</a></li> <li><a href="#_lab2_1_2" rel="nofollow">2.3索引分区</a></li> </ul> <li><a href="#_label2" rel="nofollow">3.创建表分区</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_2_3" rel="nofollow">3.1创建文件组</a></li> <li><a href="#_lab2_2_4" rel="nofollow">3.2指定文件组存放路径</a></li> <li><a href="#_lab2_2_5" rel="nofollow">3.3创建分区函数</a></li> <li><a href="#_lab2_2_6" rel="nofollow">3.4创建分区方案</a></li> <li><a href="#_lab2_2_7" rel="nofollow">3.5创建分区表</a></li> <li><a href="#_lab2_2_8" rel="nofollow">3.6创建分区索引</a></li> </ul> <li><a href="#_label3" rel="nofollow">4.表分区的优缺点</a></li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.简介</h2> <p>当一个表数据量很大时候，很自然我们就会想到将表拆分成很多小表，在执行查询时候就到各个小表去查，最后汇总数据集返回给调用者加快查询速度。比如电商平台订单表，库存表，由于长年累月读写较多，积累数据都是异常庞大的，这时候，我们可以想到表分区这个做法，降低运维和维护成本，提高读写性能。比如将前半年订单放一个历史分区表，不活跃库存放一个历史分区表。截止到SQL Server 2016，一张表或一个索引最多可以有15000个分区。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.表分区</h2> <p class="maodian"><a name="_lab2_1_0" rel="nofollow"></a></p> <h3>2.1分区范围</h3> <p>分区范围是指在要分区的表中，根据业务选择表中的关键字段做为分区边界条件，分区后，数据所在的具体位置至关重要，这样才能在需要时只访问相应的分区。注意分区是指数据的逻辑分离，不是数据在磁盘上的物理位置，数据的位置由文件组来决定，所以一般建议一个分区对应一个文件组。</p> <p class="maodian"><a name="_lab2_1_1" rel="nofollow"></a></p> <h3>2.2分区键</h3> <p>分区表中的字段可以作为分区键，比如库存表中供应商ID。对表和索引进行分区的第一步就是定义分区的关键数据。</p> <p class="maodian"><a name="_lab2_1_2" rel="nofollow"></a></p> <h3>2.3索引分区</h3> <p>除了对表的数据集进行分区之外，还可以对索引进行分区，使用相同的函数对表及其索引进行分区通常可以优化性能。</p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.创建表分区</h2> <p class="maodian"><a name="_lab2_2_3" rel="nofollow"></a></p> <h3>3.1创建文件组</h3> <p>在这里演示示例当中，我根据业务场景在TestDB数据库新增三个文件组，而三个文件组分别对应三个分区。而多个文件组好处是可以按照不同业务场景将数据放在对应文件组当中，优化性能同时好维护数据。文件组数量由硬件决定，最好是一个文件组对应一个分区，好维护。而通常文件组都处于不同磁盘上的，但是由于是演示，我只在一个磁盘中存放。</p> <div class="ay1code"> <pre class="brush:sql;">--创建四个文件组  ALTER DATABASE [TestDB] ADD FILEGROUP SupIDGroup1  ALTER DATABASE [TestDB] ADD FILEGROUP SupIDGroup2  ALTER DATABASE [TestDB] ADD FILEGROUP SupIDGroup3</pre> </div> <p class="maodian"><a name="_lab2_2_4" rel="nofollow"></a></p> <h3>3.2指定文件组存放路径</h3> <p>在创建文件组之后，指定文件组存放磁盘位置，文件大小。</p> <div class="ay1code"> <pre class="brush:sql;">--创建四个ndf文件，对应到各文件组中，FILENAME文件存储路径  ALTER DATABASE [TestDB] ADD FILE(  NAME='SupIDGroupFile1',  FILENAME='D:\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\SupIDGroupFile1.ndf',  SIZE=10MB,  FILEGROWTH=10MB)  TO FILEGROUP SupIDGroup1    ALTER DATABASE [TestDB] ADD FILE(  NAME='SupIDGroupFile2',  FILENAME='D:\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\SupIDGroupFile2.ndf',  SIZE=10MB,  FILEGROWTH=10MB)  TO FILEGROUP SupIDGroup2    ALTER DATABASE [TestDB] ADD FILE(  NAME='SupIDGroupFile3',  FILENAME='D:\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\SupIDGroupFile3.ndf',  SIZE=10MB,  FILEGROWTH=10MB)  TO FILEGROUP SupIDGroup3</pre> </div> <p>注（附上删除文件组T-SQL）：</p> <div class="ay1code"> <pre class="brush:sql;">ALTER DATABASE [TestDB] REMOVE FILE SupIDGroupFile3</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/f2ef99ef955a79b76d9c5701b30c757f.jpg"></p> <p>可以通过以下T-SQL语句查看文件组存放相关信息：</p> <div class="ay1code"> <pre class="brush:sql;">SELECT file_id,type,type_desc,data_space_id,name,physical_name,state_desc,size,growth  FROM sys.database_files</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/56ff0d867327459aef73785967b166a6.jpg"></p> <p class="maodian"><a name="_lab2_2_5" rel="nofollow"></a></p> <h3>3.3创建分区函数</h3> <p>如何创建表分区边界值，我们肯定要根据业务场景来决定。比如我测试库库存表有36万左右数据，而有些供应商的库存数据远远比其他供应商大，那么我可以考虑使用供应商ID字段作为边界值分区。例如：根据T-SQL统计，18080供应商库存数据最大，那么我可以根据18080供应商上下分为三个区。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/87db56afd21e0900752fd7031e42a348.jpg"></p> <p>第一个分区范围记录：供应商ID小于等于13570的39097条库存数据。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/75c10adcc663e7c740887117d68f1457.jpg"></p> <p>第二个分区范围记录：供应商ID大于13570和小于等于18079的45962条库存数据。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/67afad35759e1aa5a6da6b897aac5016.jpg"></p> <p>第三个分区范围记录：供应商ID大于18079小于等于18080的164937条库存数据。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/94d1518518e306f4b8ded70030b3242a.jpg"></p> <p>第四个分区范围记录：供应商ID大于18080的111116条库存数据。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/87e6322a76a43d4073631ff40820904c.jpg"></p> <p>根据上述分区范围记录，我们可以将供应商ID作为边界值设置，执行以下T-SQL语句设置边界值：</p> <div class="ay1code"> <pre class="brush:sql;">--设置边界值  CREATE PARTITION FUNCTION PF_SupplierID(int)  AS RANGE LEFT FOR VALUES (13570,18079,18080)</pre> </div> <p>执行完毕后如图所示：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/63c143e4dde7d813dfd1889fd28d9baf.jpg"></p> <p class="maodian"><a name="_lab2_2_6" rel="nofollow"></a></p> <h3>3.4创建分区方案</h3> <p>执行以下T-SQL语句创建分区方案：</p> <div class="ay1code"> <pre class="brush:sql;">--创建分区方案  CREATE PARTITION SCHEME PS_SupplierID  AS PARTITION PF_SupplierID TO ([PRIMARY], [SupIDGroup1],[SupIDGroup2],[SupIDGroup3])</pre> </div> <p>执行完毕后如图所示：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/751fe0f4a869cc7184e1d8c0449e7728.jpg"></p> <p class="maodian"><a name="_lab2_2_7" rel="nofollow"></a></p> <h3>3.5创建分区表</h3> <p>上面那些分区步骤都是为了接下来创建分区表这一步骤而准备的。废话不多说，现在我们来看看如何创建分区表。右键需要分区的表-&gt;储存-&gt;创建分区，具体步骤如下图所示：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/bd1ef4792d677753172f7507c896d587.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/1422c8590b250a92b076ab1dfb433f6f.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/69ee1338c287d1330b3ec8b15decb222.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/8499915eca94b878cbcc0ae9e5db2903.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/2c5b6ae471a6b8f865fe8c82ee8e3a49.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/4f69c69173e1baf9c17d2a18088fc7e0.jpg"></p> <p class="maodian"><a name="_lab2_2_8" rel="nofollow"></a></p> <h3>3.6创建分区索引</h3> <div class="ay1code"> <pre class="brush:sql;">--创建分区索引  CREATE NONCLUSTERED INDEX [NCI_SupplierID] ON dbo.Stock  (      SupplierID ASC  )  INCLUDE ( [Model],[Brand],[Encapsulation]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)  GO</pre> </div> <p>或者</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/1ba89a20843e957a7ac0204b1c50bfe0.jpg"></p> <p>执行完毕后如图所示：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/b5c714daf6d39111a9a072c36d4fbbd1.jpg"></p> <p>创建好索引之后，我们来看看分区情况：</p> <div class="ay1code"> <pre class="brush:sql;">--查看各分区有多少行数据  SELECT * FROM (  SELECT $PARTITION.PF_SupplierID([SupplierID]) AS Patition,COUNT(*) AS CountRows FROM dbo.Stock  GROUP BY $PARTITION.PF_SupplierID([SupplierID])  )TB ORDER BY Patition</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/68ceb9c0be2c70ec9f6009111b446d1b.jpg"></p> <p>最后我们来看看加了索引之后表数据查询情况：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/b300bb553d9fd5750672065d9b50dd4c.jpg"></p> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>4.表分区的优缺点</h2> <p>优点：</p> <ul> <li>改善查询性能：对分区对象的查询可以仅搜索自己关心的分区，提高检索速度。</li> <li>增强可用性：如果表的某个分区出现故障，表在其他分区的数据仍然可用。</li> <li>维护方便：如果表的某个分区出现故障，需要修复数据，只修复该分区即可。</li> <li>均衡I/O：可以把不同的分区映射到不同磁盘以平衡I/O，改善整个系统性能。</li> </ul> <p>缺点：</p> <p>分区表相关：已经存在的表没有方法可以直接转化为分区表。</p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <h1 id="nav_point_246">第15章　再识对象</h1> <p>上一章从使用的角度介绍了什么是类和对象，如何使用成员函数。本章将从设计的角度来研究类和对象，探究类的内部。</p> <p>本章的知识点有：</p> <ul> <li>类的声明与定义方法</li> <li>访问控制符——公有及私有</li> <li>成员函数的声明、定义与重载</li> <li>常成员函数的概念</li> <li>快速查看类的方法</li> <li>对象的引用和对象指针</li> </ul> <h2 id="nav_point_247">15.1　类是一种数据类型</h2> <p>大家都知道了数据类型和变量的关系。数据类型是各个变量的归类，而变量则是某个数据类型的具体表现。如int是所有整数的归类，而存有整数221的整型变量a是整型数据的具体表现。那么，变量就可以被认为是数据类型的一个实例（Instance）。各个变量都有它们的属性：内容和占用内存空间等；各个变量都有它们的操作：算术运算或关系运算等。从这个角度来看，类和对象的关系就如同数据类型和变量的关系。所以，不妨将类看作一种自定义的数据类型，那么对象就是一种属于该类型的变量。</p> <h3 id="nav_point_248">15.1.1　类与结构</h3> <p>在第9章学习了结构类型，知道它是一种由用户自己定义的数据类型。虽然能够使用结构刻画现实生活中的东西，却无法让它“动起来”。所有对它的操作都要依赖于为它编写的函数。</p> <p>类与结构是相似的。它也是一种由用户自己定义的数据类型，可以用来刻画现实生活中的东西。不同的是，对它的操作并不是通过普通的函数，而是通过类的成员函数来实现的。</p> <p>下面来看如何定义一个类和它的成员数据。</p> <pre class="代码无行号"><code>class 类名 { 　　数据类型 成员数据1； 　　数据类型 成员数据2； 　　…… }； </code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-95.htm">python基础知识-pycharm版 第七天</a></p>
-                                        <p>下一个：<a href="/html/category/article-97.htm">python 调用 C/C++ 详解</a></p>
+                                        <p>上一个：<a href="/html/category/article-95.htm">springboot实现定时任务-Scheduling</a></p>
+                                        <p>下一个：<a href="/html/category/article-97.htm">docker容器编排原来这么丝滑~</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
-                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
+                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在日常开发中，我学使用原生JavaScript获取元素的时候，最常用的方法就document.getEl</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
-                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
-                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
+                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
-                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
-                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
+                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
+                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
             </div>
         </div>
     </div>

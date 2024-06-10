@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-133.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Spring @Order注解详解 - EgyptAddress</title>
+    <title>PHP重载 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Spring @Order注解详解</h1>
+                <h1 class="title" style="word-break: break-all;">PHP重载</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <blockquote> <p>注解@Order的作用是定义Spring容器加载Bean的顺序。</p> </blockquote> <h3><a id="_1" rel="nofollow"></a>源码</h3> <pre><code class="prism language-java"><span class="token annotation punctuation">@Retention</span><span class="token punctuation">(</span><span class="token class-name">RetentionPolicy</span><span class="token punctuation">.</span>RUNTIME<span class="token punctuation">)</span><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>TYPE<span class="token punctuation">,</span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>METHOD<span class="token punctuation">,</span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>FIELD<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token annotation punctuation">@Documented</span><span class="token keyword">public</span><span class="token annotation punctuation">@interface</span><span class="token class-name">Order</span><span class="token punctuation">{<!-- --></span><span class="token comment">/** 	 * The order value. 	 * &lt;p&gt;Default is {@link Ordered#LOWEST_PRECEDENCE}. 	 * @see Ordered#getOrder() 	 */</span><span class="token keyword">int</span><span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token keyword">default</span><span class="token class-name">Ordered</span><span class="token punctuation">.</span>LOWEST_PRECEDENCE<span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">interface</span><span class="token class-name">Ordered</span><span class="token punctuation">{<!-- --></span><span class="token comment">/** 	 * Useful constant for the highest precedence value. 	 * @see java.lang.Integer#MIN_VALUE 	 */</span><span class="token keyword">int</span> HIGHEST_PRECEDENCE<span class="token operator">=</span><span class="token class-name">Integer</span><span class="token punctuation">.</span>MIN_VALUE<span class="token punctuation">;</span><span class="token comment">/** 	 * Useful constant for the lowest precedence value. 	 * @see java.lang.Integer#MAX_VALUE 	 */</span><span class="token keyword">int</span> LOWEST_PRECEDENCE<span class="token operator">=</span><span class="token class-name">Integer</span><span class="token punctuation">.</span>MAX_VALUE<span class="token punctuation">;</span><span class="token comment">/** 	 * Get the order value of this object. 	 * &lt;p&gt;Higher values are interpreted as lower priority. As a consequence, 	 * the object with the lowest value has the highest priority (somewhat 	 * analogous to Servlet {@code load-on-startup} values). 	 * &lt;p&gt;Same order values will result in arbitrary sort positions for the 	 * affected objects. 	 * @return the order value 	 * @see #HIGHEST_PRECEDENCE 	 * @see #LOWEST_PRECEDENCE 	 */</span><span class="token keyword">int</span><span class="token function">getOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p>通过源码解读，我们可以得到以下结论：</p> <ul> <li>注解可以作用在类、方法、字段声明（包括枚举常量）</li> <li>注解有一个int类型的参数，可以不传，默认是最低优先级</li> <li>通过常量类的值我们可以推测参数值越小优先级越高；</li> </ul> <h3><a id="_52" rel="nofollow"></a>案例</h3> <blockquote> <p>创建三个pojo类Cat1, Cat2, Cat3，使用@Component注解将其交给Spring容器自动加载，每个类分别加上@Order(1), @Order(2), @Order(3)注解。</p> </blockquote> <pre><code class="prism language-java"><span class="token annotation punctuation">@Component</span><span class="token annotation punctuation">@Order</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">Cat1</span><span class="token punctuation">{<!-- --></span><span class="token keyword">public</span><span class="token class-name">Cat1</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Order:1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token annotation punctuation">@Component</span><span class="token annotation punctuation">@Order</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">Cat2</span><span class="token punctuation">{<!-- --></span><span class="token keyword">public</span><span class="token class-name">Cat2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Order:2"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token annotation punctuation">@Component</span><span class="token annotation punctuation">@Order</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">Cat3</span><span class="token punctuation">{<!-- --></span><span class="token keyword">public</span><span class="token class-name">Cat3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Order:3"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p>然后启动启动类观察控制台信息输出<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221120/950d2276578626b3c8c44edda9d02302.jpg" alt="Spring @Order注解详解"></p> </div> 			                </div>
+                      				  				  				<h2>介绍</h2> <p>与其他面向对象的语言（例如C ++或Java）相比，PHP中对重载的解释是不同的，其中该术语表示具有使用相同名称的方法多次但具有不同参数和/或返回类型的类的能力。另一方面，在PHP中，动态创建属性和方法的功能称为重载。PHP的<strong>魔术方法</strong>（方法名称以双下划线开头）用于设置动态属性和方法。</p> <p>以下魔术方法用于重载属性-</p> <h2>语法</h2> <pre>public&nbsp;__set&nbsp;(&nbsp;string&nbsp;$name&nbsp;,&nbsp;mixed&nbsp;$value&nbsp;)&nbsp;:&nbsp;void public&nbsp;__get&nbsp;(&nbsp;string&nbsp;$name&nbsp;)&nbsp;:&nbsp;mixed public&nbsp;__isset&nbsp;(&nbsp;string&nbsp;$name&nbsp;)&nbsp;:&nbsp;bool public&nbsp;__unset&nbsp;(&nbsp;string&nbsp;$name&nbsp;)&nbsp;:&nbsp;void</pre> <p>运行__set()以便将数据写入受保护的，私有的或不存在的不可访问的属性。</p> <p>__get()从不可访问的属性读取数据。</p> <p>__isset()调用<code>isset()</code>或<code>empty()</code>无法访问的属性。</p> <p><code>unset()</code>在无法访问的属性上调用__unset()时会被调用。</p> <p>在以下代码中，设置，检索和取消设置了名为<strong>myprop</strong>的动态属性。</p> <h2>示例</h2> <pre>&lt;?php class&nbsp;myclass{ &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__set($name,&nbsp;$value){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"setting&nbsp;$name&nbsp;property&nbsp;to&nbsp;$value&nbsp;\n"; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;$name&nbsp;=&nbsp;$value; &nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__get($name){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"value&nbsp;of&nbsp;$name&nbsp;property&nbsp;is&nbsp;"; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;$this-&gt;$name; &nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__isset($name){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;isset($this-&gt;$name); &nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__unset($name){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unset($this-&gt;$name); &nbsp;&nbsp;&nbsp;} } $obj&nbsp;=&nbsp;new&nbsp;myclass(); $obj-&gt;myprop="test"; echo&nbsp;$obj-&gt;myprop&nbsp;.&nbsp;"\n"; var_dump&nbsp;(isset($obj-&gt;myprop)); unset($obj-&gt;myprop); var_dump&nbsp;(isset($obj-&gt;myprop)); ?&gt;</pre> <p>输出结果</p> <p>输出如下-</p> <pre>setting&nbsp;myprop&nbsp;property&nbsp;to&nbsp;test test bool(true) bool(false)</pre> <h2>方法重载</h2> <p>用于动态设置方法的两个魔术方法是__call()和__callStatic()</p> <pre>public&nbsp;__call&nbsp;(&nbsp;string&nbsp;$name&nbsp;,&nbsp;array&nbsp;$arguments&nbsp;)&nbsp;:&nbsp;mixed public&nbsp;static&nbsp;__callStatic&nbsp;(&nbsp;string&nbsp;$name&nbsp;,&nbsp;array&nbsp;$arguments&nbsp;)&nbsp;:&nbsp;mixed</pre> <p>在对象上下文中调用不可访问的方法时，会触发__call()。</p> <p>在静态上下文中调用不可访问的方法时，会触发__callStatic()。</p> <p>以下示例演示了PHP中的方法重载</p> <h2>示例</h2> <pre>&lt;?php class&nbsp;myclass{ &nbsp;&nbsp;&nbsp;public&nbsp;function&nbsp;__call($name,&nbsp;$args){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//注意：$name的值区分大小写。 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Calling&nbsp;object&nbsp;method&nbsp;$name&nbsp;with&nbsp;"&nbsp;.&nbsp;implode("&nbsp;",&nbsp;$args).&nbsp;"\n"; &nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;function&nbsp;__callStatic($name,&nbsp;$args){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Calling&nbsp;static&nbsp;method&nbsp;$name&nbsp;with&nbsp;"&nbsp;.&nbsp;implode("&nbsp;",&nbsp;$args).&nbsp;"\n"; &nbsp;&nbsp;&nbsp;} } $obj&nbsp;=&nbsp;new&nbsp;myclass(); $obj-&gt;mymethod("你好，世界！"); myclass::mymethod("你好，世界！"); ?&gt;</pre> <p>输出结果</p> <p>上面的代码产生以下结果：</p> <pre>Calling&nbsp;object&nbsp;method&nbsp;mymethod&nbsp;with&nbsp;你好，世界！ Calling&nbsp;static&nbsp;method&nbsp;mymethod&nbsp;with&nbsp;你好，世界！</pre> <div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-132.htm">Spark Streaming 实战 日志分析数据清洗+统计访问量</a></p>
-                                        <p>下一个：<a href="/html/category/article-134.htm">Vue watch中监听值的变化,判断后修改值方式_vue.js_</a></p>
+                                        <p>上一个：<a href="/html/category/article-132.htm">python hdfs远程连接以及上传文件，读取文件内容，删除文件</a></p>
+                                        <p>下一个：<a href="/html/category/article-134.htm">spring 循环依赖,Bean使用@Async注解 导致项目启动失败</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></h4>
+                <p>这篇将介绍如何写一个简单的基于Vue+Element的文件上传控件。 控件将具有 1. 上传队列的列表，显示文件名称，大小等信息，可以显示上传进度实时刷新 2. 取消上传  &nbsp;使用Eleme</p>
             </div>
         </div>
     </div>
@@ -102,17 +102,7 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">Springboot 设置过滤器以及重复读取request里的body</a></h4>
-                <p>需求：request的content-type为applciation/json，进入controller之前需要把body中的参数取出来做一次处理，然后和hearder中的另一个参数做对比。 思路：</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
                 <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
             </div>
         </div>
@@ -122,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
+                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
             </div>
         </div>
     </div>
@@ -132,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></h4>
-                <p>博客目录 1、union(合并结果集) 2、limit(获取一张表中某部分数据) 3、表——创建表、删除表 4、关于MySQL中的数据类型  一、union(合并结果集)  将两个查询结果合并(可以是</p>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
     </div>
@@ -142,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
+                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
             </div>
         </div>
     </div>
@@ -152,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
+                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
             </div>
         </div>
     </div>
@@ -162,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
-                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -172,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -182,8 +172,18 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
-                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>

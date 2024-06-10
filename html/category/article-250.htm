@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-250.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Springboot 设置过滤器以及重复读取request里的body - EgyptAddress</title>
+    <title>Redis的数据淘汰策略和数据过期后的删除策略 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Springboot 设置过滤器以及重复读取request里的body</h1>
+                <h1 class="title" style="word-break: break-all;">Redis的数据淘汰策略和数据过期后的删除策略</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>需求：request的content-type为applciation/json，进入controller之前需要把body中的参数取出来做一次处理，然后和hearder中的另一个参数做对比。</p> <p>思路：加一个过滤器，在过滤器中取出参数做处理，然后比较</p> <p>注意：body里的数据用流来读取，只能读取一次</p> <h3>HttpServletRequest的输入流只能读取一次的原因</h3> <p>我们先来看看为什么HttpServletRequest的输入流只能读一次，当我们调用<code>getInputStream()</code>方法获取输入流时得到的是一个InputStream对象，而实际类型是ServletInputStream，它继承于InputStream。</p> <p>InputStream的<code>read()</code>方法内部有一个postion，标志当前流被读取到的位置，每读取一次，该标志就会移动一次，如果读到最后，<code>read()</code>会返回-1，表示已经读取完了。如果想要重新读取则需要调用<code>reset()</code>方法，position就会移动到上次调用mark的位置，mark默认是0，所以就能从头再读了。调用<code>reset()</code>方法的前提是已经重写了<code>reset()</code>方法，当然能否reset也是有条件的，它取决于<code>markSupported()</code>方法是否返回true。</p> <p>InputStream默认不实现<code>reset()</code>，并且<code>markSupported()</code>默认也是返回false，这一点查看其源码便知：<br /><img decoding="async" alt="解决HttpServletRequest的输入流只能读取一次的问题" class="has" src="http://img.555519.xyz/uploads/20230109/89183b9744eec4d350798ae11fb290ff.jpg"></p> <p>我们再来看看ServletInputStream，可以看到该类没有重写<code>mark()</code>，<code>reset()</code>以及<code>markSupported()</code>方法：<br /><img decoding="async" alt="解决HttpServletRequest的输入流只能读取一次的问题" class="has" src="http://img.555519.xyz/uploads/20230109/c20b44b2179e32861ea90ddf2430d5c5.jpg"></p> <p>综上，InputStream默认不实现reset的相关方法，而ServletInputStream也没有重写reset的相关方法，这样就无法重复读取流，这就是我们从request对象中获取的输入流就只能读取一次的原因。</p> <h2><strong>重复读取body中数据的方法</strong></h2> <p>这个自定义的requestWrapper继承了HttpServletRequestWrapper&nbsp;，HttpServletRequestWrapper 是一个ServletRequest的包装类同时也是ServletRequest的实现类。在这个自定义的requestWrapper里，<strong>用一个String做缓存，在构造方法里先把request的body中的数据缓存起来，然后重写了getInputStream，返回这个缓存的body，而不是从流中读取。</strong>这样，在需要多次读取body的地方，只需要在过滤器中把原来的request换成这个自定义的request，然后把这个自定义的带缓存功能的request传到后续的过滤器链中。</p> <pre class="has"><code class="language-java">public class BodyReaderRequestWrapper extends HttpServletRequestWrapper {     private final String body;      /**      *      * @param request      */     public BodyReaderRequestWrapper(HttpServletRequest request) throws IOException{         super(request);         StringBuilder sb = new StringBuilder();         InputStream ins = request.getInputStream();         BufferedReader isr = null;         try{             if(ins != null){                 isr = new BufferedReader(new InputStreamReader(ins));                 char[] charBuffer = new char[128];                 int readCount = 0;                 while((readCount = isr.read(charBuffer)) != -1){                     sb.append(charBuffer,0,readCount);                 }             }else{                 sb.append("");             }         }catch (IOException e){             throw e;         }finally {             if(isr != null) {                 isr.close();             }         }          sb.toString();         body = sb.toString();     }      @Override     public BufferedReader getReader() throws IOException {         return new BufferedReader(new InputStreamReader(this.getInputStream()));     }      @Override     public ServletInputStream getInputStream() throws IOException {         final ByteArrayInputStream byteArrayIns = new ByteArrayInputStream(body.getBytes());         ServletInputStream servletIns = new ServletInputStream() {             @Override             public boolean isFinished() {                 return false;             }              @Override             public boolean isReady() {                 return false;             }              @Override             public void setReadListener(ReadListener readListener) {              }              @Override             public int read() throws IOException {                 return byteArrayIns.read();             }         };         return  servletIns;     } }</code></pre> <h3><strong>springboot的过滤器：</strong></h3> <p><strong>2个注解：</strong></p> <p><strong>@WebFilter（过滤器上）</strong></p> <p><strong>@ServletComponentScan （加在启动类上,支持servlet components扫描（为了webfilter）)</strong></p> <pre class="has"><code>@Order(999) // 序号越低，优先级越高 // 加上WebFilter即可成为过滤器 @WebFilter(filterName="myFilter", urlPatterns="/api/workorder/service/selfAppeal") public class ExternalFilter implements Filter  {      private final static Logger logger = LoggerFactory.getLogger(ExternalFilter.class);          @Override     public void init(FilterConfig filterConfig) throws ServletException {         logger.info("filter init");     }       @Override     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)             throws IOException, ServletException {         ResponseObject object = new ResponseObject();         HttpServletRequest req = (HttpServletRequest)servletRequest;         HttpServletResponse res = (HttpServletResponse)servletResponse;         // 一个request的包装类，初始化时缓存了body,重写了getInputStream返回缓存的body，实现重复读取body         BodyReaderRequestWrapper requestWrapper  = new BodyReaderRequestWrapper(req);         String requestURI = requestWrapper.getRequestURI();         System.out.println("---------------------&gt;过滤器：请求地址" + requestURI);         String md5 = requestWrapper.getHeader("md5")  ;                 if (md5 == null || !md5.toLowerCase().equals(MD5.md5(ReqGetBody.getBody(requestWrapper)).toLowerCase())) {             object.setStatus(501);             object.setStatusText("数据md5校验失败");             render(object, res);             return;         }         // 这里传递下去的就是自定义的request了，所以后续的Controller才能重复读取到body里的参数         filterChain.doFilter(requestWrapper, res);     }       @Override     public void destroy() {       }      /**      * @Title: render      * @Description: 发送Response      * @param object     * @param response void     * @author MasterYi     * @date 2020年1月15日上午10:48:45     */      private void render(ResponseObject object, HttpServletResponse response) {         response.setContentType("application/json;charset=UTF-8");         try {             response.setStatus(200);             response.getWriter().write(JSONObject.toJSON(object).toString());         } catch (IOException e) {             logger.error("ExternalFilter写入response异常");         }     } }</code></pre> <p>上面的getBody的代码（从body中取值的具体操作）</p> <pre class="has"><code class="language-java">public class ReqGetBody {     static public String getBody(HttpServletRequest request) {         try {             ServletInputStream in = request.getInputStream();             String body;             body = StreamUtils.copyToString(in, Charset.forName("UTF-8"));                          return body;         } catch (IOException e) {             e.printStackTrace();             return "";         }     } }</code></pre> <p>&nbsp;</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <h3 id="redis的数据淘汰策略">Redis的数据淘汰策略</h3> <ul> <li>volatile-lru（least recently used）：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰</li> <li>volatile-ttl：从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰</li> <li>volatile-random：从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰</li> <li>allkeys-lru（least recently used）：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的 key（这个是最常用的）</li> <li>allkeys-random：从数据集（server.db[i].dict）中任意选择数据淘汰</li> <li>no-eviction：禁止驱逐数据，也就是说当内存不足以容纳新写入数据时，新写入操作会报错。</li> </ul> <h3 id="redis-数据过期后的删除策略">Redis 数据过期后的删除策略</h3> <ul> <li>惰性删除 ：只会在取出key的时候才对数据进行过期检查。这样对CPU最友好，但是可能会造成太多过期 key 没有被删除。</li> <li>定期删除 ：每隔一段时间抽取一批 key 执行删除过期key操作。并且，Redis 底层会通过限制删除操作执行的时长和频率来减少删除操作对CPU时间的影响。</li> </ul> <blockquote> <p>Redis 采用的是 定期删除+惰性/懒汉式删除。<br /> 但是，仅仅通过给 key 设置过期时间还是有问题的。因为还是可能存在定期删除和惰性删除漏掉了很多过期 key 的情况。这样就导致大量过期 key 堆积在内存里，然后就Out of memory了。</p> </blockquote> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></p>
-                                        <p>下一个：<a href="/html/category/article-251.htm">Python 认识列表和元组</a></p>
+                                        <p>上一个：<a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></p>
+                                        <p>下一个：<a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
-                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
+                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
-                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
+                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
-                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+                <h4><a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></h4>
+                <p>这篇将介绍如何写一个简单的基于Vue+Element的文件上传控件。 控件将具有 1. 上传队列的列表，显示文件名称，大小等信息，可以显示上传进度实时刷新 2. 取消上传  &nbsp;使用Eleme</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
-                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
+                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
-                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">vue的自动化路由+分模块管理+路由懒加载</a></h4>
-                <p>近期单独做了一个系统项目，项目不大但是页面太多了，为了后期维护管理容易，做了个自动化加载路由以及模块化的管理。在此记录一下。 直接撸代码 1.首先看目录  router下的index.js是路由配置文</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
-                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>

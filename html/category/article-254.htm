@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-254.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响 - EgyptAddress</title>
+    <title>如何保证Redis缓存和数据库一致性？ - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</h1>
+                <h1 class="title" style="word-break: break-all;">如何保证Redis缓存和数据库一致性？</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<hr/> <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是<strong>系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</strong>。</p> <p>　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础的功能模块。对于一个产品级的应用程序，如果它没有使能主控内部的看门狗模块，一般都不能算是一个合格的软件设计。有的时候，硬件工程师觉得软件看门狗不可靠，还会在板级设计里再加入外部看门狗电路。总之看门狗对于产品工作稳定性具有很重要的意义。</p> <p>　　最近有一个 i.MXRT 客户注意到了芯片手册 System Boot 章节里提及了 WDOG 应用，想使能这个功能，并且要确认该功能真实生效以及评估对后续应用程序的影响。借助客户的问题，我们来细聊下这个话题。</p> <h3 id="一wdog模块简介">一、WDOG模块简介</h3> <p>　　首先我们来了解一下 i.MXRT1xxx 系列内部的 WDOG 模块，在i.MXRT1xxx 内部 WDOG 模块一共有三个（WDOG1/2/3），虽然 WDOG 本质上就是个特殊功能定时器，但因为芯片设计时为其赋予的超时触发行为不同，所以其应用场合并不一样。</p> <h4 id="11-系统看门狗wdog12">1.1 系统看门狗WDOG1/2</h4> <p>　　WDOG1 和 WDOG2 属于系统看门狗，前者用于系统级复位（产生 WDOG_RESET_B_DEB 信号给 SRC 模块）防止系统发生异常，后者用于系统 SNVS 域安全警报（不会产生复位效果）。不过从模块寄存器角度，WDOG1 和 WDOG2 是一样的，因此除了超时触发行为外，它们其余方面特性是一样的：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/25a5fc7cb164b32b6262de7ab1377300.jpg" alt="聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响"></p> <pre><code class="language-text">1. 模块内部两个计数时钟源是固定的，来自 ipg_clk_32k 以及 anatop_xtal32k_clk 。 2. 模块内部 8bit 定时器（Time-Out Counter）用于产生 WDOG_RESET_B_DEB 复位信号，计时精度固定为 0.5 秒，超时可设范围为 0.5 秒到 128 秒。 3. 模块内部定时器（Power Down Counter）用于产生对外输出的复位信号 WDOG_B，其超时时间固定为 16 秒。 4. 模块对外输出的信号最多有三个: WDOG_RST_B_DEB、WDOG_B、WDOG_ANY（仅 WDOG1）。 5. 模块使能信号 WDOGx-&gt;WCR[WDE] 可多次设置（并不是一次复位期间仅可 write one once）。 6. 模块配置寄存器与定时器计数值可直接修改。 7. 模块 Time-Out Counter 默认是关闭的，Power Down Counter 默认是开启的。</code></pre> <h4 id="12-内核看门狗wdog34">1.2 内核看门狗WDOG3(4)</h4> <p>　　WDOG3 有时候又叫 RTWDOG（对于 RT1170，还存在用于默认 CM4 从核的 WDOG4），属于内核看门狗，主要用于复位内核，防止程序陷入死循环。其模块寄存器跟 WDOG1/2 完全不同，更接近于一般的定时器模块设计：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/ba3716c3bccf3f2ff58fd44ec5f99d9b.jpg" alt="聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响"></p> <pre><code class="language-text">1. 模块内部计数时钟源有四种选择，Bus clock / LPO clock / INTCLK / ERCLK 。 2. 模块内部 16bit 定时器（Time-Out Counter）用于产生内核复位信号。 3. 模块使能信号 WDOGx-&gt;CS[EN] 可多次设置（但是其属于 write-once 属性）。 4. 模块配置寄存器 write-once bits 与定时器计数值需要特殊 unlock 时序才可以修改。 5. 模块 Time-Out Counter 默认是开启的。</code></pre> <h3 id="二系统rom里对wdog的使用">二、系统ROM里对WDOG的使用</h3> <p>　　i.MXRT1xxx 系列芯片上电默认都是先执行系统 BootROM，在 BootROM 里会有对看门狗的处理。默认情况下 BootROM 是不启用看门狗做代码执行守护的，只有当用户烧写了指定的 eFuse 位，看门狗功能才会生效。BootROM 并没有使用默认开启的 WDOG3，而是将其关闭并打开了 WDOG1 作为看门狗。</p> <h4 id="21-看门狗使能">2.1 看门狗使能</h4> <p>　　i.MXRT10xx 系列芯片 BootROM 看门狗在 eFuse 里配置如下，包含 eFuse 0x460[21] 使能位与 eFuse 0x6D0[15:13] 超时时间设置。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/bcf98041fc30ee657bbaf9c947407526.jpg" alt="聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响"></p> <p>　　i.MXRT1160/1170 芯片 BootROM 看门狗在 eFuse 里配置如下，包含 eFuse 0x9A0[15] 使能位与 eFuse 0x9B0[2:0] 超时时间设置，以及多了 eFuse 0x9B0[5:3] 关于 WDOG_B 外部信号脚选择设置。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/ea8d329b6882962089738723a9b2bee8.jpg" alt="聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响"></p> <p>　　当 Fuse 里使能了看门狗功能后，BootROM 对看门狗模块的配置如下：</p> <pre><code class="language-C">void ROM_WDOG_init(void) {     uint16_t timeout = get_timeout_value_from_fuse();      WDOG1-&gt;WCR = (uint16_t)(WDOG_WCR_WT(timeout)                            | WDOG_WCR_WDW_MASK                            | WDOG_WCR_SRE_MASK                            | WDOG_WCR_WDA_MASK                            | WDOG_WCR_WDBG_MASK                            | WDOG_WCR_SRS_MASK);      WDOG1-&gt;WCR |= (uint16_t)WDOG_WCR_WDE_MASK; }</code></pre> <h4 id="22-看门狗作用">2.2 看门狗作用</h4> <p>　　对于 i.MXRT10xx 系列，BootROM 看门狗主要用于 Serial Downloader 分支程序下（SDP 模式 BT_MODE = 2'b01，或者 Device Boot 模式 BT_MODE = 2'bx0 下启动失败进入了 Serial Downloader）检测与主机通讯情况，只要在设置的超时时间里没有通信交互行为，看门狗就会复位整个系统（并不是单次通信就可以的，任意超时时间内都得保持交互）。如果在 Device Boot 模式下能够正常启动程序，则看门狗不会被使能。</p> <p>　　对于 i.MXRT1160/1170 系列，BootROM 看门狗不仅在 Serial Downloader 分支程序中有效，其在 Device Boot 模式下（BT_MODE = 2'bx0）也同样被使能了，这样做主要有两个用意：</p> <blockquote> <ul> <li>用意1: 如果因板级电路干扰导致首次启动程序失败，BootROM 正常是直接跳转到了 SDP 模式不会再做启动程序行为。但是使能了看门狗，则在 SDP 模式下等待超时时间后系统复位会重新尝试启动程序，这样不断尝试直到板级干扰消失。</li> <li>用意2: 如果启动程序成功，BootROM 会直接跳转到目标应用程序，但无法检验目标程序是否能够正常执行。但是使能了看门狗，如果应用程序不对看门狗做有效处理，系统还是会复位回来，这样相当于做了应用程序是否执行的验证。</li> </ul> </blockquote> <h3 id="三wdog使能后对imxrt开发的影响">三、WDOG使能后对i.MXRT开发的影响</h3> <p>　　现在回到文章开头提到的客户问题，如何判断 BootROM 中 WDOG 已经生效了，这个其实特别简单，在 SDP 模式下插上 USB 线，在资源管理器里观察是不是有 HID 设备每隔一段时间就会重新枚举一次，没错就是 WDOG 捣的鬼。</p> <p>　　那么对于应用程序的开发，有什么注意事项呢？对于 i.MXRT10xx 其实没有任何影响，而对于 i.MXRT1160/1170，则必须在应用程序里增加对 WDOG1 的处理。在恩智浦提供的头文件 system_MIMXRT1xxx.c 文件里 SystemInit() 函数中其实有关于看门狗相关代码，默认是将全部的看门狗都关一遍（DISABLE_WDOG=1），这部分代码对于 i.MXRT10xx 程序是可以不做的，但是对于 i.MXRT1160/1170 就必须要做了。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/6ff1fea4949af659f31e85d4acf1fdd2.jpg" alt="聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响"></p> <p>　　至此，系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响痞子衡便介绍完毕了，掌声在哪里~~~</p> <h3 id="欢迎订阅">欢迎订阅</h3> <p>文章会同时发布到我的<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/henjay724/"  target="_blank" rel="nofollow">博客园主页</a>、<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/henjay724"  target="_blank" rel="nofollow">CSDN主页</a>、<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.zhihu.com/people/henjay724"  target="_blank" rel="nofollow">知乎主页</a>、<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://weixin.sogou.com/weixin?type=1&amp;query=%E7%97%9E%E5%AD%90%E8%A1%A1%E5%B5%8C%E5%85%A5%E5%BC%8F"  target="_blank" rel="nofollow">微信公众号</a> 平台上。</p> <p>微信搜索"<strong>痞子衡嵌入式</strong>"或者扫描下面二维码，就可以在手机上第一时间看了哦。</p> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p><strong>首先我们先了解下缓存是什么？</strong><br /> 缓存就是把低速存储的结果，临时保存在高速存储的技术。</p> <p><strong>为什么使用redis进行缓存数据？</strong></p> <p>Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持键到五种数据类型的映射，（string、list、set、zset、hash）,而memecache只能支持简单的数据类型。另外redis可以完成一部份数据的持久化，而memecache完全将数据保存在内存中，不进行持久化，如果服务器出问题，数据将全部丢失，另外一个原因是redis底层实现优化比memecache好。另外采用了多路复用io阻塞机制，数据结构简单，操作节省时间。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220824/09e7d81dd6edd3b78a5a3195766ee6a5.jpg" alt="如何保证Redis缓存和数据库一致性？"></p> <p>那常见的保证缓存与数据库一致的方法有哪些呢？</p> <p>想要保证缓存与数据库的双写一致，一共有4种方式，即4种同步策略：<br /><strong>先更新缓存，再更新数据库；<br /> 先更新数据库，再更新缓存；<br /> 先删除缓存，再更新数据库；<br /> 先更新数据库，再删除缓存。</strong></p> <p>那么我们需要做的就是根据不同的场景来使用合理的方式来解决数据问题。</p> <p><strong>第一种：先删除缓存，再更新数据库</strong></p> <p>在出现失败时可能出现的问题：</p> <p>1：线程A删除缓存成功，线程A更新数据库失败；</p> <p>2 ：线程B从缓存中读取数据；由于缓存被删，进程B无法从缓存中得到数据，进而从数据库读取数据；此时数据库中的数据更新失败，线程B从数据库成功获取旧的数据，然后将数据更新到了缓存。<br /> 最终，缓存和数据库的数据是一致的，但仍然是旧的数据。</p> <p><strong>第二种：先更新数据库，再删除缓存</strong></p> <p>假设这会有两个请求，一个请求A做查询操作，一个请求B做更新操作，那么会有如下情形产生</p> <p>（1）缓存刚好失效<br /> （2）请求A查询数据库，得一个旧值<br /> （3）请求B将新值写入数据库<br /> （4）请求B删除缓存<br /> （5）请求A将查到的旧值写入缓存<br /> 如果发生上述情况，确实是会发生脏数据。<br /> 然而，发生这种情况的概率又有多少呢？<br /> 发生上述情况有一个先天性条件，就是步骤（3）的写数据库操作比步骤（2）的读数据库操作耗时更短，才有可能使得步骤（4）先于步骤（5）。<br /> 数据库的读操作的速度远快于写操作的（不然做读写分离干嘛，做读写分离的意义就是因为读操作比较快，耗资源少），因此步骤（3）耗时比步骤（2）更短，这一情形很难出现。<br /> 先更新数据库，再删缓存依然会有问题，不过，问题出现的可能性会因为上面说的原因，变得比较低。</p> <p><strong>第三种：给所有的缓存一个失效期</strong></p> <p>第三种方案可以说是一个大杀器，任何不一致，都可以靠失效期解决，失效期越短，数据一致性越高。但是失效期越短，查数据库就会越频繁。因此失效期应该根据业务来定。<br /> 1.并发不高的情况：<br /> 读: 读redis-&gt;没有，读mysql-&gt;把mysql数据写回redis，有的话直接从redis中取；<br /> 写: 写mysql-&gt;成功，再写redis；<br /> 2.并发高的情况：<br /> 读: 读redis-&gt;没有，读mysql-&gt;把mysql数据写回redis，有的话直接从redis中取；<br /> 写：异步话，先写入redis的缓存，就直接返回；定期或特定动作将数据保存到mysql，可以做到多次更新，一次保存；</p> <p><strong>第四种：加锁，使线程顺序执行</strong></p> <p>如果一个服务部署到了多个机器，就变成了分布式锁，或者是分布式队列按顺序去操作数据库或者 Redis，带来的副作用就是：数据库本来是并发的，现在变成串行的了，加锁或者排队执行的方案降低了系统性能，所以这个方案看起来不太可行。</p> <p><strong>第五种：采用双删</strong></p> <p>先删除缓存，再更新数据库，当更新数据后休眠一段时间再删除一次缓存。</p> <p>方案推荐两种：</p> <p>1：项目整合quartz等定时任务框架，去实现延时3–5s再去执行最后一步任务 。（推荐使用）<br /> 2：创建线程池，线程池中拿一个线程，线程体中延时3-5s再去执行最后一步任务（不能忘了启动线程）</p> <p><strong>第六种：异步更新缓存(基于订阅binlog的同步机制)</strong></p> <p>MySQL binlog增量订阅消费+消息队列+增量数据更新到redis读Redis</p> <p>热数据基本都在Redis写MySQL:增删改都是操作MySQL更新Redis数据：MySQ的数据操作binlog，来更新到Redis：</p> <p>1)数据操作主要分为两大块：一个是全量(将全部数据一次写入到redis)一个是增量(实时更新)。</p> <p>这里说的是增量,指的是mysql的update、insert、delate变更数据。</p> <p>2)读取binlog后分析 ，利用消息队列,推送更新各台的redis缓存数据。<br /> 这样一旦MySQL中产生了新的写入、更新、删除等操作，就可以把binlog相关的消息推送至Redis，Redis再根据binlog中的记录，对Redis进行更新。<br /> 其实这种机制，很类似MySQL的主从备份机制，因为MySQL的主备也是通过binlog来实现的数据一致性。<br /> 这里可以结合使用canal(阿里的一款开源框架)，通过该框架可以对MySQL的binlog进行订阅，而canal正是模仿了mysql的slave数据库的备份请求，使得Redis的数据更新达到了相同的效果。<br /> 当然，这里的消息推送工具你也可以采用别的第三方：kafka、rabbitMQ等来实现推送更新Redis。</p> <p>以上就是redis和数据库数据保持一致的方案。<br /><strong>微信搜索IT说说公众号，获取更多java技术资源！</strong></p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></p>
-                                        <p>下一个：<a href="/html/category/article-255.htm">vue动态获取ref方式</a></p>
+                                        <p>上一个：<a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></p>
+                                        <p>下一个：<a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Spring Security教程（13）&#8212;- 验证码功能的实现</a></h4>
-                <p>有三中方法可以实现验证码的功能 第一种是自定义一个filter，放在SpringSecurity过滤器之前，在用户登录的时候会先经过这个filter，然后在这个filter中实现对验证码进行验证的功能</p>
+                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
+                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
             </div>
         </div>
     </div>
@@ -102,7 +102,7 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
                 <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
             </div>
         </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
+                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
-                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
-                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
+                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
-                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
-                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
+                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
-                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
+                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
             </div>
         </div>
     </div>

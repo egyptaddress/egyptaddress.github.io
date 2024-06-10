@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-198.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>分布式之一行代码解决缓存击穿问题 - EgyptAddress</title>
+    <title>C#多态性02 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">分布式之一行代码解决缓存击穿问题</h1>
+                <h1 class="title" style="word-break: break-all;">C#多态性02</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h2 id="引言">引言</h2> <p>今天，重新回顾一下缓存击穿这个问题！<br /> 之所以写这个文章呢，因为目前网上流传的文章落地性太差(什么布隆过滤器啊，布谷过滤器啊，嗯，你们懂的)，其实这类方案并不适合在项目中直接落地。</p> <p>那么，我们在项目中落地代码的时候，其实只需要一个注解就能解决这些问题，并不需要搞的那么复杂。</p> <p>本文有一个前提，读者必须是java栈，且是用Springboot构建自己的项目，如果是go技术栈或者python技术栈的，可能介绍的思路仅供大家参考！</p> <h2 id="正文">正文</h2> <h3 id="目前缺陷">目前缺陷</h3> <p>首先，为什么说目前网上流传的方案，落地性差呢，因为都缺乏一个可以和SpringBoot结合起来的真实场景，基本上都脱离了SpringBoot，只站在Java这个层级去分析。那问题就来了，现在还有只用SpringMvc，却不用SpringBoot的公司么?因此，本文尝试将该方案和SpringBoot结合起来，讲一个确实可行，可以落地的方案！</p> <p>当然，我们先来说说目前在网上流传的几套方案，到底不靠谱在哪里！</p> <p><em>(1)布隆过滤器</em></p> <p>关于布隆过滤器，我就不介绍太多，这里就理解为是一个过滤器,用于快速检索一个元素是否在一个集合中；那么当一个请求来的时候，快速判断这个请求的key是否在指定集合中！如果在，说明有效，则放行。如果不在，则无效拦截。<br /> 至于实现，各大博客也说了用了google提供的</p> <pre><code>&lt;dependency&gt;     &lt;groupId&gt;com.google.guava&lt;/groupId&gt;     &lt;artifactId&gt;guava&lt;/artifactId&gt;     &lt;version&gt;19.0&lt;/version&gt; &lt;/dependency&gt;</code></pre> <p>这个包里有现成写好的java类给你使用了，当然demo代码我就不贴了，一抓一大把！<br /> 当然，似乎看上去完美无暇！一切都是那么的合适！</p> <p>然而到这里，我就真的问一句，<strong>你们真的用了这个方案了？</strong></p> <p>我如果猜的没错，应该没几个人遇到过缓存击穿问题~</p> <p>更何况，证明这个说法的正确性~</p> <p>该方案最大的一个问题是<strong>布隆过滤器不支持反向删除操作</strong>，例如你的项目里活跃的key的数量只有1000w个，但是全部key数量有5000w个，那这5000w个key会全部存在布隆过滤器里！</p> <p>直到某一天，你会发现这个过滤器太拥挤了，误判率太高，不得不进行重建！</p> <p>so，你们觉得这个做法真的靠谱？</p> <p>那么布隆过滤器这个说法出自哪里呢？<br /> (大家一定很好奇对不对！)</p> <p>当然是xx机构～～此处保护自己的狗头～～记住，他们为了割韭菜，一定会选择一些看起来极为高端，但是落地巨不靠谱的方案（这也是区分一个机构到底是割韭菜还是真正有水平的标杆，小白不懂，很容易被坑）～～看到这里，真是惭愧，我的第一篇文章也是写这个方案了，但是在落地过程中，发现了不对劲（此处省略一万字的检讨文，烟哥垃圾～～）。</p> <p><em>(2)布谷过滤器</em></p> <p>那么，为了解决布隆过滤器查询性能弱、空间利用效率低、不支持反向操作等问题，又有一篇文章诞生了，主张用布谷过滤器来解决缓存击穿问题！</p> <p>但是，神奇的事情来了，基本上所有的文章都在说布谷过滤器多么多么牛逼，却没有任何落地的方案~</p> <p>记住，我们平时写代码，一定是怎么方便怎么来！<strong>再记住，面试是一回事，代码落地是另一回事~</strong></p> <p>那，真正简便的方案是什么样的呢？来，我们一步步来~</p> <h3 id="真正方案">真正方案</h3> <p>假设，你此刻用的是springboot-2.x的版本，你为了能够连接redis，你在pom文件里加入如下依赖</p> <pre><code>&lt;dependency&gt;     &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;     &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt; &lt;/dependency&gt;</code></pre> <p>然后呢，我们修改application.yml</p> <pre><code>spring:   datasource:     ...   redis:     database: ...     host: ...     port: ... (省事，不全贴了)</code></pre> <p>ok，说到这里，就不得不说一下spring-cache了，Spring3.1之后，引入了注解缓存技术，其本质上不是一个具体的缓存实现方案，而是一个对缓存使用的抽象，通过在既有代码中添加少量自定义的各种annotation，即能够达到使用缓存对象和缓存方法的返回对象的效果。Spring的缓存技术具备相当的灵活性，不仅能够使用SpEL（Spring Expression Language）来定义缓存的key和各种condition，还提供开箱即用的缓存临时存储方案，也支持和主流的专业缓存集成。</p> <p>例如：我们在代码中经常有这么一段逻辑，在目标方法执行前，会根据key先去缓存中查询看是否有数据，有就直接返回缓存中的key对应的value值，不再执行目标方法；没有则执行目标方法，去数据库查询出对应的value，并以键值对的形式存入缓存。</p> <p>如果我们不使用例如spring-cache的注解框架，你的代码中会充斥着大量冗余代码，而用了该框架后，以@Cacheable注解为例， 该注解在方法上，表示该方法的返回结果是可以缓存的。</p> <p>也就是说，该方法的返回结果会放在缓存中，以便于以后使用相同的参数调用该方法时，会返回缓存中的值，而不会实际执行该方法。</p> <p>那么，你的代码只需要这么写</p> <pre><code>@Override @Cacheable("menu") public Menu findById(String id) {     Menu menu = this.getById(id);     if (menu != null){         System.out.println("menu.name = " + menu.getName());     }     return menu; }</code></pre> <p>在这个例子中，findById 方法与一个名为 menu 的缓存关联起来了。调用该方法时，会检查 menu 缓存，如果缓存中有结果，就不会去执行方法了。</p> <p>ok，说到这里，其实都是大家懂得东西！！接下来开始我们的主题：如何解决缓存击穿问题！顺便讲讲穿透和雪崩问题！</p> <p>来来来，我们回忆一下缓存击穿，穿透以及缓存雪崩的概念！</p> <h3 id="缓存穿透">缓存穿透</h3> <p>在高并发下，查询一个不存在的值时，缓存不会被命中，导致大量请求直接落到数据库上，如活动系统里面查询一个不存在的活动。<br /><strong>多嘴一句:缓存穿透是指,请求的是缓存和数据库中都没有的数据！</strong></p> <p>对于缓存穿透问题，有一个很简单的解决方案，就是缓存NULL值~从缓存取不到的数据，在数据库中也没有取到，直接返回空值。</p> <p>那么spring-cache中，有一个配置是这样的</p> <pre><code>spring.cache.redis.cache-null-values=true</code></pre> <p>带上该配置后，就可以缓存null值了，值得一提的是，这个缓存时间要设的少一点，例如15秒就够，如果设置过长，会导致正常的缓存也无法使用。</p> <h3 id="缓存击穿">缓存击穿</h3> <p>在高并发下，对一个特定的值进行查询，但是这个时候缓存正好过期了，缓存没有命中，导致大量请求直接落到数据库上，如活动系统里面查询活动信息，但是在活动进行过程中活动缓存突然过期了。<br /><strong>多嘴一句:缓存击穿是指,请求的是缓存没有，而数据库中有的数据！</strong></p> <p>记住，解决击穿的最简单的方法，只有一个，就是限流！至于怎么限，其实可以各显神通！例如其他文章提到的布隆过滤器，布谷过滤器等，不过是限流方式之一而已！甚至，你用一些其他的限流组件也是可以的！</p> <p>这里就要说spring-cahce的另一个配置了！</p> <p>在缓存过期之后，如果多个线程同时请求对某个数据的访问，会同时去到数据库，导致数据库瞬间负荷增高。Spring4.3为@Cacheable注解提供了一个新的参数“sync”（boolean类型，缺省为false），当设置它为true时，只有一个线程的请求会去到数据库，其他线程都会等待直到缓存可用。这个设置可以减少对数据库的瞬间并发访问。</p> <p>看到这里！！这不就是一个限流方案么？</p> <p>所以解决方法就是，加一个属性sync=true，就行。代码就像下面这样</p> <pre><code>@Cacheable(cacheNames="menu", sync="true")</code></pre> <p>用了该属性后，可以指示底层将缓存锁住，使只有一个线程可以进入计算，而其他线程堵塞，直到返回结果更新到缓存中。</p> <p>当然，看到这里，一定会有人和我抬杠！他的问题是这样的！</p> <p>你这个只是针对单机的限流，并不是整体集群的限流！也就是说，假设你的集群搭建了3000个pod，最差的情况下就是，3000个pod上，每个pod都会发起一个请求去数据库查询，照样还是会导致数据库连接数不够用，等等资源问题！</p> <p>对于这个问题我只能说！少年，但凡你的公司产品达到这种流量规模，此刻你就不会在看我的文章！你此刻关心的问题是：</p> <pre><code>(1)哎，买深圳湾一号还是深圳湾公馆呢，纠结！ (2)昨天美股又跌了，又损失了两套房 (3)昨天提前撤单了，又少挣了几万 ....(省略一万字)</code></pre> <p>当然，如果你非要解决，也有办法。spring的aop有套路的，比如@Transactional的Advice是TransactionInterceptor，那么cache也对应对一个CacheInterceptor，我们只要去改CacheInterceptor，这个切面就能解决。在里头做一个分布式锁！伪代码如下</p> <pre><code>flag := 取分布式锁 if flag {     走数据库查询，并缓存结果 }{     睡眠一段时间，再次尝试获取key的值 }</code></pre> <p>但是，我还是要多嘴提一句，真没必要~~<br /> 记住一句话，立足实际出发~但凡你的业务到了那种级别，是可以做到区域部署的，完全可以规避开这类问题。</p> <h3 id="缓存雪崩">缓存雪崩</h3> <p>在高并发下，大量的缓存key在同一时间失效，导致大量的请求落到数据库上，如活动系统里面同时进行着非常多的活动，但是在某个时间点所有的活动缓存全部过期。</p> <p>那么针对该问题，最简单的解决方法就是，过期时间加随机值！</p> <p>但是很麻烦的是，我们在使用@Cacheable注解的时候，原生功能没法直接设置随机过期时间的。</p> <p>这个老实说，真没啥好方法，只能自己继承<code>RedisCache</code>，对其增强，改写其中的put方法，带上随机时间！</p> <p>(本文不赘述，自己可以去查阅相关博客，我真的不喜欢写文章贴大量代码，可读性太差了，知道这么个思路就行，出门搜索一下，一堆答案！)</p> <h2 id="文末">文末</h2> <p>自此，缓存击穿，穿透，雪崩问题都得到圆满解决~~</p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <div id="cnblogs_post_body" class="blogpost-body"> <p><font face="Arial">首先理解一下什么叫多态。同一操作作用于不同的对象，可以有不同的解释，产生不同的执行结果，这就是<span class="hilite1">多态性</span>。</font></p> <p><font face="Arial"><span class="hilite1">多态性</span>通过派生类覆写基类中的虚函数型方法来实现。</font></p> <p><font face="Arial">&nbsp;</font></p> <p><font face="Arial"><span class="hilite1">多态性</span>分为两种，一种是编译时的<span class="hilite1">多态性</span>，一种是运行时的<span class="hilite1">多态性</span>。</font></p> <p><font face="Arial">编译时的<span class="hilite1">多态性</span>：编译时的<span class="hilite1">多态性</span>是通过重载来实现的。对于非虚的成员来说，系统在编译时，根据传递的参数、返回的类型等信息决定实现何种操作。</font></p> <p><font face="Arial">运行时的<span class="hilite1">多态性</span>：运行时的<span class="hilite1">多态性</span>就是指直到系统运行时，才根据实际情况决定实现何种操作。C#中运行时的<span class="hilite1">多态性</span>是通过覆写虚成员实现。</font></p> <p><font face="Arial">&nbsp;</font></p> <p><font face="Arial">下面我们来分别说明一下多态中涉及到的四个概念：重载，覆写，虚方法和抽象方法。</font></p> <p><font face="Arial"><strong>重载和覆写的区别：</strong></font></p> <p><font face="Arial"><strong style="color:#FF0000;"><u>重载</u></strong></font></p> <p><font face="Arial">类中定义的方法的不同版本</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public int Calculate(int x, int y)</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public double Calculate(double x, double y)</font></p> <p><font face="Arial">特点（两必须一可以）</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 方法名必须相同</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 参数列表必须不相同</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 返回值类型可以不相同</font></p> <p><font face="Arial"><strong style="color:#FF0000;"><u>覆写</u></strong></font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 子类中为满足自己的需要来重复定义某个方法的不同实现。</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 通过使用override关键字来实现覆写。</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 只有虚方法和抽象方法才能被覆写。</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 要求（三相同）</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 相同的方法名称</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 相同的参数列表</font></p> <p><font face="Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 相同的返回值类型</font></p> <p><font face="Arial">最后再来介绍一下虚方法和抽象方法</font></p> <p><font face="Arial">虚方法:</font></p> <p><font face="Arial">声明使用virtual关键字。</font></p> <p><font face="Arial">调用虚方法，运行时将确定调用对象是什么类的实例，并调用适当的覆写的方法。</font></p> <p><font face="Arial">虚方法可以有实现体。</font></p> <p> <font face="Arial"> </font></p> <p>抽象方法:</p> <p>必须被派生类覆写的方法。</p> <p>可以看成是没有实现体的虚方法。</p> <p>如果类中包含抽象方法，那么类就必须定义为抽象类，不论是否还包含其他一般方法。</p> <p>注意：</p> <p>昨天突然发现c＃，和c＋＋俩种语言在<span class="hilite1">多态性</span>的 实现机制 上面的细微差别。<br />&nbsp;&nbsp;&nbsp; <br />如果是C＋＋，在基类的构造函数里面调用虚函数的话，会调用本类的不会调用派生类的，原因是基类构造的时候，虚表还没有被派生类继承和修改。</p> <p>&nbsp;&nbsp;&nbsp; 但如果是C＃，那就不同了，在基类的构造函数里面照样调用派生类的。不知道有谁知道c＃它的这种底层机制是怎样的？<br />-------是这样的，C++会先初始化基类，然后逐级初始化派生类型。C#则是一开始就把对象创建好了，然后逐个调用构造函数。本质区别在于C++的构造函数的任务是初始化，C#则不然，C#的类型的任何字段不必初始化，均有默认值，所以C#在调用构造函数之前就已经将对象初始化完毕了。</p> <p>通过继承，一个类可以用作多种类型：可以用作它自己的类型、任何基类型，或者在实现接口时用作任何接口类型。这称为<span class="hilite1">多态性</span>。C#中的每种类型都是多态的。类型可用作它们自己的类型或用作Object实例，因为任何类型都自动将Object当作基类型。&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; <br />&nbsp; <span class="hilite1">多态性</span>不仅对派生类很重要，对基类也很重要。任何情况下，使用基类实际上都可能是在使用已强制转换为基类类型的派生类对象。基类的设计者可以预测到其基类中可能会在派生类中发生更改的方面。例如，表示汽车的基类可能包含这样的行为：当考虑的汽车为小型货车或敞篷汽车时，这些行为将会改变。基类可以将这些类成员标记为虚拟的，从而允许表示敞篷汽车和小型货车的派生类重写该行为。</p> </div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-197.htm">图解Kafka架构与工作原理</a></p>
-                                        <p>下一个：<a href="/html/category/article-199.htm">Mina IoBuffer的特性介绍</a></p>
+                                        <p>上一个：<a href="/html/category/article-197.htm">旋转矩阵与欧拉角的相互转换</a></p>
+                                        <p>下一个：<a href="/html/category/article-199.htm">css实现文本垂直居中水平居中的几种方法</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
+                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
+                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
-                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
+                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
+                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></h4>
-                <p>1，准备组件popup // components文件夹中popup组件&lt;template&gt;&lt;view&gt;&lt;viewclass="show-box-bg wx-login-</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
-                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
+                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
+                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
-                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>

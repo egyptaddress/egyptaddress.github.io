@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-26.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>vue中使用$http.post请求传参的错误及解决_vue.js - EgyptAddress</title>
+    <title>springboot集成elasticsearch7.2 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">vue中使用$http.post请求传参的错误及解决_vue.js</h1>
+                <h1 class="title" style="word-break: break-all;">springboot集成elasticsearch7.2</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">使用$http.post请求传参的错误</a></li> <li><a href="#_label1" rel="nofollow">vue post请求之坑</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_0" rel="nofollow">解决方法</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>使用$http.post请求传参的错误</h2> <p>在使用$http请求后台，照常我们在后端 使用注解@PostMapper或者 @RequestMapping(value = “XXXX”,method = RequestMethod.POST)接受请求</p> <div class="ay1code"> <pre class="brush:js;">	 handleAdd(node) {  		this.$http.post("/item/category/addCategory",{  				node:node  				})  				.then(({data})=&gt;{  						this.$emit("close");  						this.$message.success("添加成功！");  				}).catch(() =&gt; {  				     this.$message.error("添加失败！");  				    });  				    }  </pre> </div> <p>结果报了一个’GET’的错误,我就很纳闷。并没有写get方法，那必定会出错。</p> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220424/044d0a23a8c19ede2f3e936bd7e7634f.jpg"></p> <p><strong>截图奉上==</strong></p> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220424/46fef17e7d26d979477e19a382928f46.jpg"></p> <p>传递的是json对象而不是数组。</p> <p>还好之前有过post传递参数的项目之后又搜了一下，</p> <p>如下面这种</p> <div class="ay1code"> <pre class="brush:js;"> handleAdd(node) {  		this.$http({  					method:'post',  					url:'/item/category/addCategory',  					data: node  				}).then(({data})=&gt;{  						this.$emit("close");  						this.$message.success("添加成功！");  				}).catch(() =&gt; {               this.$message.error("添加失败！");              });              }  </pre> </div> <p>整体上没有问题</p> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220424/848fa848a7ec8b96364ae38ba410cd86.jpg"></p> <p>之后我有尝试了一下</p> <div class="ay1code"> <pre class="brush:js;"> handleAdd(node) {  	this.$http.post("/item/category/addCategory",{  				node:this.$qs.stringify(node)  				})  				.then(({data})=&gt;{  						this.$emit("close");  						this.$message.success("添加成功！");  				}).catch(() =&gt; {  				     this.$message.error("添加失败！");  				    });  	}  </pre> </div> <p>传递的结果</p> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220424/537548835f05aed443f140010f848634.jpg"></p> <p>三种方式都可以使用，但我只有第二种方式成功啦。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>vue post请求之坑</h2> <p>最近用的vue请求数据，坑死，还是对前端vue框架不熟。</p> <p>与后端通信有问题，要么是json加入到url有问题、要么是json解析有问题。</p> <p class="maodian"><a name="_lab2_1_0" rel="nofollow"></a></p> <h3>解决方法</h3> <p>1、请求参数一个用url传</p> <div class="ay1code"> <pre class="brush:js;"> var json=[{"msg”：“123"}];   var temp=encodeURI(JSON.stringify(json));      //重点   var urls="http://202.114.207.232:8080/web/data?operations="+temp;              this.$axios({type:'post',url:urls, dataType:'json' }).then( res =&gt; { console.log(res) }).catch( e =&gt; { console.info(e) })</pre> </div> <p>2、一个用data包装传</p> <div class="ay1code"> <pre class="brush:js;">var Data=[{}]  var url = "http://111.111.111.111:8080/web/data";  var params = new URLSearchParams();  params.append("operations", JSON.stringify(Data));           //重点  // params.append('param2', 'value2');  that.$axios.post(url, params)      .then(response =&gt; {          // post 成功，response.data 为返回的数据          console.log(response.data)      })      .catch(error =&gt; {          // 请求失败          console.log(error)      })</pre> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>上篇文章我们讲解了elasticsearch的安装，这次我们来搞一下，如何在自己的项目中集成elasticsearch。 正常来讲spring-data中都会提供相应的starter，让我们方便的使用各种Template操作对应的组件，比如常用RedisTemplate, JdbcTemplate等，其实spring-data中也提供的相应的elasticsearch的对应工具。但是我这里并没有使用，而是直接使用的elasticsearch原生api实现的。为什么这么做呢，因为spring-data-elasticsearch 最新的版本3.2，最高支持的elasticsearch版本为6.8， 而我们用的是7.2的版本，并且官方建议我们使用的jar版本最好和软件版本一致。</p> <p><img fetchpriority="high" decoding="async" alt="" height="732" src="http://img.555519.xyz/uploads3/20220602/c6f3a84657cbed68fc7016bceb42568e.jpg"></p> <p><img decoding="async" alt="" height="798" src="http://img.555519.xyz/uploads3/20220602/a11ecaf436657c56d37685b60a8a19fb.jpg"></p> <p>还有一个问题， 是关于客户端的， spring-data-elasticsearch中默认使用的是TransportClient, 这个客户端在7这个版本中已经不再建议使用了，并且将会在8的版本中彻底移除。而我们用的是7这个版本，目前推荐使用的elasticsearch的高级客户端，HighLevelRestClient. spring-data-es中声明会一直支持TransportClient，只要你的这个es版本支持。当然，spring-data-es中也是支持高级别客户端的，但是还有由于支持版本过低的问题，所以我最后还是决定采用原生客户端。如果大家用的es版本比较低，还是可以使用spring-data-es的。</p> <p><img decoding="async" alt="" height="582" src="http://img.555519.xyz/uploads3/20220602/72853e63d536db1e7629a3fbd3f5ca71.jpg"></p> <p><img loading="lazy" decoding="async" alt="" height="986" src="http://img.555519.xyz/uploads3/20220602/af7450136695a7dfc190773cab92b954.jpg"></p> <p>接下来我们来集成项目，集成之前，大家需要了解一下es中的一些专有名词，比如什么是索引，类型，文档，同时你要了解es是干什么用的。es最主要的功能就是查询，也就是他查东西的速度非常快，并且支持分词，全文检索。如果我们在mysql中查询一遍文章的内容，其实是非常痛苦的，我们可能必须得使用 like 或者拼接or去查询多个字段，并且有些场景是无法实现的，比如你的文章中的内容中包含 ”一朵鲜花“， 而你去搜索 ”一朵花“ 这种情况你是查不到的，但是es可以，因为es可以分词， 他会一朵鲜花， 分成&nbsp; ”一朵“&nbsp; ”鲜花“ 两个词，再把 ”一朵花“ 分成&nbsp; ”一朵“ 和 ”花“&nbsp; （注： 这里是个人方便理解，可能具体分词不是这么分的，大家领悟精髓）。 就很容易做到查询。 同时es查询的比较快，也是因为他的内部采用了倒叙索引，关于倒叙索引的原理，大家可以去找找资料，这里就不展开说了。</p> <p>一。 引入jar包</p> <pre><code>        &lt;dependency&gt;             &lt;groupId&gt;org.elasticsearch.client&lt;/groupId&gt;             &lt;artifactId&gt;elasticsearch-rest-high-level-client&lt;/artifactId&gt;             &lt;version&gt;7.2.0&lt;/version&gt;         &lt;/dependency&gt;          &lt;dependency&gt;             &lt;groupId&gt;org.elasticsearch.client&lt;/groupId&gt;             &lt;artifactId&gt;elasticsearch-rest-client&lt;/artifactId&gt;             &lt;version&gt;7.2.0&lt;/version&gt;         &lt;/dependency&gt;         &lt;dependency&gt;             &lt;groupId&gt;org.elasticsearch&lt;/groupId&gt;             &lt;artifactId&gt;elasticsearch&lt;/artifactId&gt;             &lt;version&gt;7.2.0&lt;/version&gt;         &lt;/dependency&gt;</code></pre> <p>二。封装工具类，这里主要使用高级别客户端封装， 主要封装了创建索引，判断索引是否存在，删除索引， 插入文档的功能，还有一些高级功能还没有 研究完，比如高亮和分页，我会一边研究一边更新，先给出一些简单的操作demo.后续文章我们在深入展开。</p> <pre><code class="language-java">@Component @Slf4j public class EsUtil {      @Resource     private RestHighLevelClient restHighLevelClient;       /**      * 创建索引(默认分片数为5和副本数为1)      * @param indexName      * @throws IOException      */     public boolean createIndex(String indexName) throws IOException {         CreateIndexRequest request = new CreateIndexRequest(indexName);         request.settings(Settings.builder()                 // 设置分片数为3， 副本为2                 .put("index.number_of_shards", 3)                 .put("index.number_of_replicas", 2)         );         request.mapping(generateBuilder());         CreateIndexResponse response = restHighLevelClient.indices().create(request, RequestOptions.DEFAULT);         // 指示是否所有节点都已确认请求         boolean acknowledged = response.isAcknowledged();         // 指示是否在超时之前为索引中的每个分片启动了必需的分片副本数         boolean shardsAcknowledged = response.isShardsAcknowledged();         if (acknowledged || shardsAcknowledged) {             log.info("创建索引成功！索引名称为{}", indexName);             return true;         }         return false;     }        /**      * 判断索引是否存在      * @param indexName      * @return      */     public boolean isIndexExists(String indexName){         boolean exists = false;         try {             GetIndexRequest getIndexRequest = new GetIndexRequest(indexName);             getIndexRequest.humanReadable(true);             exists = restHighLevelClient.indices().exists(getIndexRequest,RequestOptions.DEFAULT);         } catch (IOException e) {             e.printStackTrace();         }         return exists;     }      /**      * 删除索引      * @param indexName      * @return      */     public boolean delIndex(String indexName){         boolean acknowledged = false;         try {             DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);             deleteIndexRequest.indicesOptions(IndicesOptions.LENIENT_EXPAND_OPEN);             AcknowledgedResponse delete = restHighLevelClient.indices().delete(deleteIndexRequest, RequestOptions.DEFAULT);             acknowledged = delete.isAcknowledged();         } catch (IOException e) {             e.printStackTrace();         }         return acknowledged;     }      /**      * 更新索引(默认分片数为5和副本数为1)：      * 只能给索引上添加一些不存在的字段      * 已经存在的映射不能改      *      * @param clazz 根据实体自动映射es索引      * @throws IOException      */     public boolean updateIndex(Class clazz) throws Exception {         Document declaredAnnotation = (Document )clazz.getDeclaredAnnotation(Document.class);         if(declaredAnnotation == null){             throw new Exception(String.format("class name: %s can not find Annotation [Document], please check", clazz.getName()));         }         String indexName = declaredAnnotation.index();         PutMappingRequest request = new PutMappingRequest(indexName);          request.source(generateBuilder(clazz));         AcknowledgedResponse response = restHighLevelClient.indices().putMapping(request, RequestOptions.DEFAULT);         // 指示是否所有节点都已确认请求         boolean acknowledged = response.isAcknowledged();          if (acknowledged ) {             log.info("更新索引索引成功！索引名称为{}", indexName);             return true;         }         return false;     }      /**      * 添加单条数据      * 提供多种方式：      *  1. json      *  2. map      *      Map&lt;String, Object&gt; jsonMap = new HashMap&lt;&gt;();      *      jsonMap.put("user", "kimchy");      *      jsonMap.put("postDate", new Date());      *      jsonMap.put("message", "trying out Elasticsearch");      *      IndexRequest indexRequest = new IndexRequest("posts")      *          .id("1").source(jsonMap);      *  3. builder      *      XContentBuilder builder = XContentFactory.jsonBuilder();      *      builder.startObject();      *      {      *          builder.field("user", "kimchy");      *          builder.timeField("postDate", new Date());      *          builder.field("message", "trying out Elasticsearch");      *      }      *      builder.endObject();      *      IndexRequest indexRequest = new IndexRequest("posts")      *      .id("1").source(builder);      * 4. source:      *      IndexRequest indexRequest = new IndexRequest("posts")      *     .id("1")      *     .source("user", "kimchy",      *         "postDate", new Date(),      *         "message", "trying out Elasticsearch");      *      *   报错：  Validation Failed: 1: type is missing;      *      加入两个jar包解决      *      * @return      */     public IndexResponse add(String indexName, Object o) throws IOException {         IndexRequest request = new IndexRequest(indexName);         String userJson = JSON.toJSONString(o);         request.source(userJson, XContentType.JSON);         IndexResponse indexResponse = restHighLevelClient.index(request, RequestOptions.DEFAULT);         return indexResponse;     }      private XContentBuilder generateBuilder() throws IOException {         XContentBuilder builder = XContentFactory.jsonBuilder();         builder.startObject();         {             builder.startObject("properties");             {                 // es7及以后去掉了映射类型--person                 builder.startObject("name");                     {                         builder.field("type", "text");                         builder.field("analyzer", "ik_smart");                     }                     builder.endObject();             }             {                 builder.startObject("age");                 {                     builder.field("type", "integer");                 }                 builder.endObject();             }             {                 builder.startObject("desc");                 {                     builder.field("type", "text");                     builder.field("analyzer", "ik_smart");                 }                 builder.endObject();             }             {                 builder.startObject("id");                 {                     builder.field("type", "integer");                 }                 builder.endObject();             }             builder.endObject();         }         builder.endObject();         /*.startObject().field("properties")             .startObject().field("person")                 .startObject("name")                     .field("type" , "text")                     .field("analyzer", "ik_smart")                 .endObject()                 .startObject("age")                     .field("type" , "int")                 .endObject()                 .startObject("desc")                     .field("type", "text")                     .field("analyzer", "ik_smart")                 .endObject()             .endObject()         .endObject();*/         return builder;     }    }</code></pre> <p>上面工具类中给出的索引结构是一个用户，只有id, name , age, desc 四个简单字段的结构</p> <p>同时desc字段和姓名字段都是使用的ik-smart做的分词。</p> <p>接下来大家就可以使用controller或者junittest来进行调用, 配合head插件观察数据。 整体的大致流程就是， index定义索引结构，然后我们把按格式数据存到es中， 使用es提供的高效api来做查询。 这篇文章先到这里，其实这里有一个痛点就是如果我们的数据结构比较复杂， 那么我们在创建索引的时候可能需要写出大量的代码，四个字段就这么多</p> <p><img loading="lazy" decoding="async" alt="" height="1200" src="http://img.555519.xyz/uploads3/20220602/5e5f90ff3993274657729e4a391eda09.jpg"></p> <p>所以这里其实我们可以根据实体的结构自动设计索引结构，像spring-data-es中就是根据我们在实体类上的注解，自动创建索引的。我这里也实现了自定义注解来创建es索引结构的方法，下一篇文章给大家介绍一下。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-25.htm">OpenPose环境搭建的经历</a></p>
-                                        <p>下一个：<a href="/html/category/article-27.htm">mysql中的时间字段用什么数据类型</a></p>
+                                        <p>上一个：<a href="/html/category/article-25.htm">C#使用RestClient调用Web API_C#教程</a></p>
+                                        <p>下一个：<a href="/html/category/article-27.htm">PHP如何声明子命名空间</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
+                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
+                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
-                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
-                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
+                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
-                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
+                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
+                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
-                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>

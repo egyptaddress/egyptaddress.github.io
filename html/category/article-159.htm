@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-159.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>记一次 Nuxt 3 在 Windows 下的打包问题 - EgyptAddress</title>
+    <title>Servlet的url-pattern配置 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">记一次 Nuxt 3 在 Windows 下的打包问题</h1>
+                <h1 class="title" style="word-break: break-all;">Servlet的url-pattern配置</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h3 id="0-背景">0. 背景</h3> <p>之前用 Nuxt 3 写了公司的官网，包括了样式、字体图标、图片、视频等，其中样式和字体图标放在了<code>assets/styles</code> 和<code>assets/fonts</code> 目录下，而图片和视频则放在了<code>public/images</code> 和<code>public/videos</code> 目录下。</p> <h3 id="1-起因">1. 起因</h3> <p>在不改变任何<code>nuxt.config.ts</code> 打包配置的情况下，直接执行<code>npm run build</code>，会生成一个<code>.output</code> 目录，结构如下</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d5298ba9fd107b6357ad83ad1a2d0cf1.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>我们再展开<code>_nuxt</code> 文件夹，结构如下</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/7564338203de1449ccba94010afa7f77.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>这里有个问题就是<code>.output/public/</code> 下和<code>.output/public/_nuxt/</code> 下都有<code>images</code> 和<code>videos</code> 文件夹，而且里面的内容完全一样，这就造成了<mark>发布包体积变大</mark>。</p> <h3 id="2-经过">2. 经过</h3> <p>然后查阅了<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://v3.nuxtjs.org/docs/directory-structure/nuxt.config"  target="_blank" rel="nofollow">官网的配置文档</a>，发现<code>app.buildAssetsDir</code> 可以改变静态资源的输出路径（默认值也的确是<code>_nuxt</code>），于是将其改成<code>/</code> 后再次打包，然而并没有任何变化 ????‍。在仔细看了两遍文档无果后，只能撸起袖子从代码入手，最后在<code>.output/server/chunks/render.mjs</code> 里发现代码关心的其实是下面的三个配置</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/377fb8ff5253e0ea57c910d2b486632e.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>因此应该调整的是<code>assetsPath</code>，而不是文档上写的<code>buildAssetsDir</code>。</p> <p>改完再次打包，发现已成功将<code>_nuxt</code> 里的内容移到了外面，见下图</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/bb8fd476fa13b573694947494a477297.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>接着<code>npm start</code> 启动项目，不出所料的出现了问题 ????，大大的 404 欢迎我</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/dfafc208c333444ccef3b5f47ada0798.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>继续查代码，发现在<code>.output/server/chunks/static.mjs</code> 里有这么一段代码</p> <pre><code class="language-javascript">if (!asset) {   if (id.startsWith(PUBLIC_PATH) &amp;&amp; !id.startsWith(STATIC_ASSETS_BASE)) {     throw createError({       statusMessage: "Cannot find static asset " + id,       statusCode: 404     });   }   return }</code></pre> <p>偏偏我们现在的<code>PUBLIC_PATH</code> 是<code>/</code>，这样一来所有不是静态资源且以<code>/</code> 开头的请求都被拦截到 404 去了 ????‍。</p> <p>手工注释掉这段代码，重启服务，再次刷新页面，ok 了。</p> <p>原以为到这里就结束了，但又发现所有<code>.mjs</code> 的请求又都变成了 404</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/701d23084dcb9fd9519fbccf942975f8.jpg" alt="记一次 Nuxt 3 在 Windows 下的打包问题"></p> <p>这种批量出问题的，估摸着又是哪里的配置有问题。</p> <p>再次查看文档，比对代码，发现有个<code>vite.base</code> 的配置默认是指向<code>_nuxt</code> 的，赶紧改成<code>/</code>。</p> <p>再次 build，重启服务，刷新页面，成了！</p> <hr/> <h3 id="3-写在最后">3. 写在最后</h3> <p>这次排查经历告诉我 ... nuxt 3 真的还没有达到生产环境使用的标准，而且我之前有次在 Linux 下 build，出来的结果和 Windows 下还不一样，这个就以后再讨论了。</p> <p>拜拜，下次见。</p> 			                </div>
+                      				  				  				<h3><span style="font-size: 18px">url匹配规则</span></h3> <h4><span style="font-size: 18px">1）精确配置</span></h4> <p><span style="font-size: 18px">　　精确匹配是指&lt;servlet-mapping&gt;中配置的值必须与请求中的url完全精确匹配。</span></p> <div class="cnblogs_code"> <pre><span style="font-size: 18px">&lt;servlet-mapping&gt;     &lt;servlet-name&gt;demoServlet&lt;/servlet-name&gt;     &lt;url-pattern&gt;/demo.<span style="color: rgba(0, 0, 255, 1)">do</span>&lt;/url-pattern&gt; &lt;/servlet-mapping&gt;</span></pre> </div> <p><span style="font-size: 18px"><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/959f27fe6afcfe3a59c15e9875b779f0.jpg" alt="Servlet的url-pattern配置"></span></p> <h4><span style="font-size: 18px">2）拓展名配置</span></h4> <p><span style="font-size: 18px">　　允许使用统配符“*”作为匹配规则，<span style="color: rgba(255, 0, 0, 1)">“*”表示匹配任意字符</span></span></p> <p><span style="font-size: 18px; color: rgba(0, 0, 0, 1)">　　只要<span style="color: rgba(255, 0, 0, 1)">扩展名相同</span>都会被匹配，和路径无关</span></p> <p><span style="font-size: 18px; color: rgba(0, 0, 0, 1)">　　在使用扩展名匹配时在中<span style="color: rgba(255, 0, 0, 1)">不能使用“/”</span>，否则容器启动就会抛出异常。</span></p> <div class="cnblogs_code"> <pre><span style="font-size: 18px"><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>demoServlet<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>*.do<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span></span></pre> </div> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c2f6820b97aa51a8390eb71aef10c994.jpg" alt="Servlet的url-pattern配置"></p> <h4><span style="font-size: 18px">&nbsp;3）路径匹配</span></h4> <p><span style="font-size: 18px">　　根据请求路径进行匹配，在请求中只要<span style="color: rgba(255, 0, 0, 1)">包含该路径</span>都匹配。“*”表示任意路径以及子路径。</span></p> <div class="cnblogs_code"> <pre><span style="font-size: 18px"><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>demoServlet<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>/suibian/*<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span></span></pre> </div> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b8141a6f75ecef05edeb4c65dbc05dd5.jpg" alt="Servlet的url-pattern配置"></p> <h4><span style="font-size: 18px">&nbsp;4）" / "任意匹配</span></h4> <p><span style="font-size: 18px">匹配“/”。匹配所有但不包含JSP页面。</span></p> <div class="cnblogs_code"> <pre><span style="font-size: 18px"><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>/<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span></span></pre> </div> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/61846629aa05bed7dafae2589ad81677.jpg" alt="Servlet的url-pattern配置"></p> <h4><span style="font-size: 18px">&nbsp;5）“ /* ”匹配所有</span></h4> <div class="cnblogs_code"> <pre><span style="font-size: 18px"><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>/*<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span></span></pre> </div> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/41f475337b2e94f195ae7ac7e54ca517.jpg" alt="Servlet的url-pattern配置"></p> <h4><span style="font-size: 18px">&nbsp;6）优先顺序</span></h4> <p><span style="font-size: 18px">　　当一个url与多个Servlet的匹配规则可以匹配时，则按照 “<span style="color: rgba(255, 0, 0, 1)">精确路径 &gt; 最长路径 &gt; 扩展名</span>”这样的优先级匹配到对应的Servlet。</span></p> <h4><span style="font-size: 18px">&nbsp;7）案例</span></h4> <p><span style="font-size: 18px">Servlet1 映射到 /abc/*</span></p> <p><span style="font-size: 18px">Servlet2 映射到 /*</span></p> <p><span style="font-size: 18px">Servlet3 映射到 /abc</span></p> <p><span style="font-size: 18px">Servlet4 映射到 *.do 1 /*</span></p> <ul> <li><span style="font-size: 18px"> 当请求URL为“/abc/a.html”，“/abc/* ”和“/* ”都匹配，Servlet引擎将调用Servlet1。</span></li> <li><span style="font-size: 18px">当请求URL为“/abc”时，“/abc/* ”和“/abc”都匹配，Servlet引擎将调用Servlet3。</span></li> <li><span style="font-size: 18px">当请求URL为“/abc/a.do”时，“/abc/* ”和“ *.do”都匹配，Servlet引擎将调用Servlet1。</span></li> <li><span style="font-size: 18px">当请求URL为“/a.do”时，“/* ”和“*.do”都匹配，Servlet引擎将调用Servlet2。</span></li> <li><span style="font-size: 18px">当请求URL为“/xxx/yyy/a.do”时，“/* ”和“*.do”都匹配，Servlet引擎将调用Servlet2。</span></li> </ul> <h3><span style="font-size: 18px">Servlet的多URL映射方式</span></h3> <p><span style="font-size: 18px">　　在web.xml文件中支持将多个URL映射到一个Servlet中，但是相同 的URL不能同时映射到两个Servlet</span></p> <p><strong><span style="font-size: 18px">方式一：</span></strong></p> <div class="cnblogs_code"> <pre><span style="font-size: 18px"><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>demoServlet<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>/suibian/*<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>*.do<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span></span></pre> </div> <p><strong><span style="font-size: 18px">方式二：</span></strong></p> <div class="cnblogs_code"> <pre><span style="font-size: 18px"><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>demoServlet<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>/suibian/*<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>demoServlet<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-name</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span>*.do<span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">url-pattern</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span><span style="color: rgba(0, 0, 255, 1)">&lt;/</span><span style="color: rgba(128, 0, 0, 1)">servlet-mapping</span><span style="color: rgba(0, 0, 255, 1)">&gt;</span></span></pre> </div> <h3><span style="font-size: 18px">基于注解式开发Servlet</span></h3> <p><span style="font-size: 18px">　　Servlet3.0以及之后的版本支持注解式开发Servlet。对于 Servlet的配置不再依赖于web.xml配置文件，而是使用 @WebServlet注解完成Servlet的配置。</span></p> <p><span style="font-size: 18px"><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c60e6b790ba0d66469cd29c3ccdee90c.jpg" alt="Servlet的url-pattern配置"></span></p> <p><span style="font-size: 18px"></span></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d43150e3b7911214e314346c57b5cbd0.jpg" alt="Servlet的url-pattern配置"></p> <div class="cnblogs_code"> <pre><span style="font-size: 18px"><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> javax.servlet.ServletConfig;</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> javax.servlet.ServletException;</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> javax.servlet.annotation.WebInitParam;</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> javax.servlet.annotation.WebServlet;</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> javax.servlet.http.HttpServlet;</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> javax.servlet.http.HttpServletRequest;</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> javax.servlet.http.HttpServletResponse;</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.io.IOException; @WebServlet(urlPatterns</span>= "/initparam",initParams = {@WebInitParam(name = "key1",value = "vlaue1"<span style="color: rgba(0, 0, 0, 1)">),         @WebInitParam(name</span>= "key2",value = "v")},loadOnStartup = 1<span style="color: rgba(0, 0, 0, 1)">)</span><span style="color: rgba(0, 0, 255, 1)">public</span><span style="color: rgba(0, 0, 255, 1)">class</span> InitParamServlet<span style="color: rgba(0, 0, 255, 1)">extends</span><span style="color: rgba(0, 0, 0, 1)"> HttpServlet {     @Override</span><span style="color: rgba(0, 0, 255, 1)">protected</span><span style="color: rgba(0, 0, 255, 1)">void</span> doGet(HttpServletRequest req, HttpServletResponse resp)<span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> ServletException, IOException {</span><span style="color: rgba(0, 0, 255, 1)">this</span><span style="color: rgba(0, 0, 0, 1)">.doPost(req,resp);     }      @Override</span><span style="color: rgba(0, 0, 255, 1)">protected</span><span style="color: rgba(0, 0, 255, 1)">void</span> doPost(HttpServletRequest req, HttpServletResponse resp)<span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> ServletException, IOException {</span><span style="color: rgba(0, 0, 255, 1)">this</span><span style="color: rgba(0, 0, 0, 1)">.doGet(req,resp);     }      @Override</span><span style="color: rgba(0, 0, 255, 1)">public</span><span style="color: rgba(0, 0, 255, 1)">void</span> init()<span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> ServletException {</span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">获取ServletConfig</span>         ServletConfig servletConfig=<span style="color: rgba(0, 0, 255, 1)">this</span><span style="color: rgba(0, 0, 0, 1)">.getServletConfig();         String value1</span>=servletConfig.getInitParameter("key1"<span style="color: rgba(0, 0, 0, 1)">);         String value2</span>=servletConfig.getInitParameter("key2"<span style="color: rgba(0, 0, 0, 1)">);         System.out.println(value1);         System.out.println(value2);     } }</span></span></pre> </div> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/39cf7e22628b91a4555bc55eaceeaf19.jpg" alt="Servlet的url-pattern配置"></p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-158.htm">Nginx部署多个spring-boot项目(jar方式部署)</a></p>
-                                        <p>下一个：<a href="/html/category/article-160.htm">详解Alibaba Java诊断工具Arthas查看Dubbo动态代理类_java</a></p>
+                                        <p>上一个：<a href="/html/category/article-158.htm">idea中配置maven仓库</a></p>
+                                        <p>下一个：<a href="/html/category/article-160.htm">Vue项目如何设置反向代理和cookie设置问题_vue.js</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
-                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
-                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
+                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
-                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
+                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
-                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
+                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
+                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
+                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
-                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>

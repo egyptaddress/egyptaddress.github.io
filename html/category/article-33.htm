@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-33.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>MySQL使用索引优化性能_Mysql - EgyptAddress</title>
+    <title>Spring的事务管理机制和传播机制 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">MySQL使用索引优化性能_Mysql</h1>
+                <h1 class="title" style="word-break: break-all;">Spring的事务管理机制和传播机制</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.索引问题</a></li> <li><a href="#_label1" rel="nofollow">2.索引的存储分类</a></li> <li><a href="#_label2" rel="nofollow">3.如何使用索引</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_2_0" rel="nofollow">3.1使用索引</a></li> <li><a href="#_lab2_2_1" rel="nofollow">3.2存在索引但不使用索引</a></li> </ul> <li><a href="#_label3" rel="nofollow">4.查看索引使用情况</a></li> <ul class="second_class_ul"></ul> <li><a href="#_label4" rel="nofollow">5.两个简单实用的优化方法</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_4_2" rel="nofollow">5.1定期分析表和检查表</a></li> <li><a href="#_lab2_4_3" rel="nofollow">5.2定期优化表</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.索引问题</h2> <p>索引是数据库优化中最常用也是最重要的手段之一，通过索引通常可以帮助用户解决大多数 的SQL性能问题。本章节将对MySQL中的索引的分类、存储、使用方法做详细的介绍。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.索引的存储分类</h2> <p>MyISAM存储引擎的表数据和索引是自动分开存储的，各自是独立的一个文件；InnoDB存储引擎的表数据和索引是存储在同一个表空间里面，但可以有多个文件组成。MySQL中索引的存储类型目前只有两种（BTREE和HASH），具体和表的存储引擎相关：MyISAM和InnoDB存储引擎都只支持BTREE索引；MEMORY/HEAP存储引擎可以支持HASH和BTREE索引。MySQL目前不支持函数索引，但是能对列的前面某一部分进索引，例如上章节库存表goods_stock.LotNO批次字段，可以只取Model的前4个字符进行索引，这个特性可以大大缩小索引文件的大小，我们在设计表结构的时候也可以对文本列根据此特性进行灵活设计。下面是创建前缀索引的一个例子：</p> <div class="ay1code"> <pre class="brush:sql;">EXPLAIN SELECT * FROM goods_stock WHERE LotNO LIKE '2021%';</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/61cd50576fd0837bd43b86ac424b7bbe.jpg"></p> <div class="ay1code"> <pre class="brush:sql;">-- 创建前缀索引  CREATE INDEX idx_stock_2 ON goods_stock (LotNO(4));</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/a0cd7a6293a52054223268fd94c8ef53.jpg"></p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.如何使用索引</h2> <p>索引用于快速找出在某个列中有一特定值的行。对相关列使用索引是提高SELECT操作性能的最佳途径。查询要使用索引最主要的条件是查询条件中需要使用索引关键字，如果是多列索引，那么只有查询条件使用了多列关键字最左边的前缀时，才可以使用索引，否则将不能使用索引。</p> <p class="maodian"><a name="_lab2_2_0" rel="nofollow"></a></p> <h3>3.1使用索引</h3> <p>在MySQL中，下列几种情况下有可能使用到索引。</p> <p>对于创建的多列索引，只要查询的条件中用到了最左边的列，索引一般就会被使用， 举例说明如下：</p> <div class="ay1code"> <pre class="brush:sql;">-- 首先在库存表goods_stock按Model，Brand的顺序创建一个复合索引  CREATE INDEX idx_stock_1 ON goods_stock (Model,Brand);</pre> </div> <p>然后按Model进行表查询，具体命令如下：</p> <div class="ay1code"> <pre class="brush:sql;">EXPLAIN SELECT * FROM goods_stock WHERE Model='LM358DT';</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/642ea702aec1cf214e547fb153241ae9.jpg"></p> <p>可以发现即便where条件中不是用Model与Brand字段的组合条件，索引仍然能用到，这就是索引的前缀特性（按照索引列顺序查询）。但是如果只按Brand条件查询表，那么索引就不会被用到，具体如下：</p> <div class="ay1code"> <pre class="brush:sql;">EXPLAIN SELECT * FROM goods_stock WHERE Brand='TI';</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/a8973531aa42a01dba6a08f82fd1735a.jpg"></p> <p>对于使用like的查询，后面如果是常量并且只有％号不在第一个字符，索引才可能会被使用，来看下面两个执行计划：</p> <div class="ay1code"> <pre class="brush:sql;">EXPLAIN SELECT * FROM goods_stock WHERE Model LIKE '%LM358';</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/b0f1738c05a43ec6d0d9623b09c8db41.jpg"></p> <div class="ay1code"> <pre class="brush:sql;">EXPLAIN SELECT * FROM goods_stock WHERE Model LIKE 'LM358%';</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/4d780a681f041e8f3f9d85a4bd1cef4c.jpg"></p> <p>可以发现第一个SQL没有使用索引，而第二个SQL就能够使用索引，区别就在于“%”的位置不同，前者把“%”放到第一位就不能用到索引，而后者没有放到第一位就使用了索引。另外，如果如果like后面跟的是一个列的名字，那么索引也不会被使用。如果对大的文本进行搜索，使用全文索引而不要使用like ‘%...%’。</p> <p>如果列名是索引，使用column_name is null时候将会使用索引。如下例中查询LotNO为null的记录时候就会用到索引：</p> <div class="ay1code"> <pre class="brush:sql;">EXPLAIN SELECT * FROM goods_stock WHERE LotNO IS NULL;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/ce23d5e0abb018b5929f0e9e1882e522.jpg"></p> <p class="maodian"><a name="_lab2_2_1" rel="nofollow"></a></p> <h3>3.2存在索引但不使用索引</h3> <p>在下列情况下，虽然存在索引，但是MySQL并不会使用相应的索引。</p> <p>如果MySQL估计使用索引比全表扫描更慢，则不使用索引。例如如果列 key_part1 均匀分布在 1 和 100 之间，下列查询中使用索引就不是很好：</p> <div class="ay1code"> <pre class="brush:sql;">SELECT * FROM table_name where key_part1 &gt; 1 and key_part1 &lt; 90;</pre> </div> <p>如果使用MEMORY/HEAP表并且where条件中不使用“=”进行索引列，那么不会用到索引。HEAP表只有在“=”的条件下才会使用索引。<br />用or分割开的条件，如果or前的条件中的列有索引，而后面的列中没有索引，那么涉及到的索引都不会被用到，例如：</p> <div class="ay1code"> <pre class="brush:sql;">SHOW INDEX FROM goods_stock;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/857a548bec248fa829de26bd8f537565.jpg"></p> <p>通过命令可以看到goods_stock库存表有两个索引，然后我们再执行如下语句看是否使用索引：</p> <div class="ay1code"> <pre class="brush:sql;">EXPLAIN SELECT * FROM goods_stock WHERE LotNO='20200821' OR PackageUnit='包';</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/b96d57ec9395a59f6ecd7ece10cbce3d.jpg"></p> <p>可见虽然在LotNO这个列上存在索引idx_stock_2，但是这个SQL语句并没有用到这个索引，原因就是or中有一个条件中的列没有索引。</p> <p>如果列类型是字符串，那么一定记得在where条件中把字符常量值用引号引起来，否则即便这个列上有索引，MySQL也不会用到的，因为MySQL默认把输入的常量值进行转换以后才进行检索，请看如下例子：</p> <div class="ay1code"> <pre class="brush:sql;">DESC goods_stock;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/bcce9c6464136efd50a22e2f3624632f.jpg"></p> <p>通过DESC命令我们可以看到goods_stock库存表中的LotNO字段是字符型，如果我们在SQL语句中的LotNO字段加入一个数值型为20200821的条件值，因此即便在LotNO上有索引，MySQL也不能正确地用上索引，而是继续进行全表扫描，具体如下：</p> <div class="ay1code"> <pre class="brush:sql;">EXPLAIN SELECT * FROM goods_stock WHERE LotNO=20200821;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/aecded1cd93cf74c663b6dd524650d44.jpg"></p> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>4.查看索引使用情况</h2> <p>如果索引正在工作，Handler_read_key的值将很高，这个值代表了一个行被索引值读的次数，很低的值表明增加索引得到的性能改善不高，因为索引并不经常使用。Handler_read_rnd_next的值高则意味着查询运行低效，并且应该建立索引补救。这个值的含义是在数据文件中读下一行的请求数。如果正进行大量的表扫描，Handler_read_rnd_next的值较高，则通常说明表索引不正确或写入的查询没有利用索引。可以先刷新状态再查询，具体如下：</p> <div class="ay1code"> <pre class="brush:sql;">FLUSH STATUS;  SHOW STATUS LIKE 'Handler_read%';</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/23081564b52fab87197d1d07222de41b.jpg"></p> <p>参数解释如下：</p> <ul> <li>Handler_read_first：此选项表明SQL是在做一个全索引扫描，注意是全部，而不是部分，所以说如果存在WHERE语句，这个选项是不会变的。</li> <li>Handler_read_key：此选项数值如果很高，MySQL高效的使用了索引，一切运转良好。</li> <li>Handler_read_next：此选项表明在进行索引扫描时，按照索引从数据文件里取数据的次数。</li> <li>Handler_read_prev：此选项表明在进行索引扫描时，按照索引倒序从数据文件里取数据的次数，一般就是ORDER BY … DESC。</li> <li>Handler_read_rnd：就是查询直接操作了数据文件，很多时候表现为没有使用索引或者文件排序。</li> <li>Handler_read_rnd_next：此选项值较高时候，则通常说明表索引不正确或写入的查询没有利用索引。</li> </ul> <p class="maodian"><a name="_label4" rel="nofollow"></a></p> <h2>5.两个简单实用的优化方法</h2> <p>对于大多数开发人员来说，可能只希望掌握一些简单实用的优化方法，对于更多更复杂的优化，更倾向于交给专业DBA来做。本小节将向大家介绍两个简单适用的优化方法。</p> <p class="maodian"><a name="_lab2_4_2" rel="nofollow"></a></p> <h3>5.1定期分析表和检查表</h3> <p>分析表的语法如下：</p> <div class="ay1code"> <pre class="brush:sql;">ANALYZE [LOCAL | NO_WRITE_TO_BINLOG] TABLE tbl_name [, tbl_name] ...</pre> </div> <p>本语句用于分析和存储表的关键字分布，分析的结果将可以使得系统得到准确的统计信息，使得SQL能够生成正确的执行计划。如果用户感觉实际执行计划并不是预期的执行计划，执行一次分析表可能会解决问题。在分析期间，使用一个读取锁定对表进行锁定。这对于MyISAM, BDB和InnoDB表有作用。对于MyISAM表，本语句与使用myisamchk -a相当，下例中对goods_stock表做了表分析：</p> <div class="ay1code"> <pre class="brush:sql;">ANALYZE TABLE goods_stock;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/c7e7cb11aa7bb486cccf658f02e48765.jpg"></p> <p>检查表的语法如下：</p> <div class="ay1code"> <pre class="brush:sql;">CHECK TABLE tbl_name [, tbl_name] ... [option] ... option = {QUICK | FAST | MEDIUM | EXTENDED | CHANGED}</pre> </div> <p>检查表的作用是检查一个或多个表是否有错误。CHECK TABLE对MyISAM和InnoDB表有作用。对于MyISAM表，关键字统计数据被更新，例如：</p> <div class="ay1code"> <pre class="brush:sql;">CHECK TABLE goods_stock;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/dbe5403940372f8e693f6d25fa7f21ec.jpg"></p> <p>CHECK TABLE也可以检查视图是否有错误，比如在视图定义中被引用的表已不存在，举例如下：</p> <p>（1）首先我们创建一个表。</p> <div class="ay1code"> <pre class="brush:sql;">CREATE TABLE test  (    ID INT(11)  );</pre> </div> <p>（2）再创建一个视图。</p> <div class="ay1code"> <pre class="brush:sql;">CREATE VIEW test_view AS SELECT * FROM test;</pre> </div> <p>（3）然后CHECK一下该视图，发现没有问题。</p> <div class="ay1code"> <pre class="brush:sql;">CHECK TABLE test_view;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/5b6745c9ab9040d629573b383c8fd179.jpg"></p> <p>（4）现在删除掉视图依赖的表。</p> <div class="ay1code"> <pre class="brush:sql;">DROP TABLE test;</pre> </div> <p>（5）再来CHECK一下刚才的视图，发现报错了。</p> <div class="ay1code"> <pre class="brush:sql;">CHECK TABLE test_view;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/4d211c2e98e8fb24c3b0ea17e011a47e.jpg"></p> <p class="maodian"><a name="_lab2_4_3" rel="nofollow"></a></p> <h3>5.2定期优化表</h3> <p>优化表的语法如下：</p> <div class="ay1code"> <pre class="brush:sql;">OPTIMIZE [LOCAL | NO_WRITE_TO_BINLOG] TABLE tbl_name [, tbl_name] ...</pre> </div> <p>如果已经删除了表的一大部分，或者如果已经对含有可变长度行的表（含有VARCHAR、BLOB或TEXT列的表）进行了很多更改，则应使用OPTIMIZE TABLE 命令来进行表优化。这个命令可以将表中的空间碎片进行合并，并且可以消除由于删除或者更新造成的空间浪费，但OPTIMIZE TABLE命令只对MyISAM、BDB和InnoDB表起作用。以下例子显示了优化goods_stock库存表的过程：</p> <div class="ay1code"> <pre class="brush:sql;">-- 先查看下goods_stock库存表是什么表类型  SHOW TABLE STATUS LIKE 'goods_stock%';</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/84fbf6a62d07be7b8a3f88997165bc9e.jpg"></p> <div class="ay1code"> <pre class="brush:sql;">OPTIMIZE TABLE goods_stock;</pre> </div> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/db8ce1d3533c256090941ac5886b8d28.jpg"></p> <p>注意：ANALYZE、CHECK、OPTIMIZE执行期间将对表进行锁定，因此一定注意要在数据库不繁忙的情况下执行相关的操作。</p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p><span style="font-size:14px">问：Spring的事务管理是怎么搞的？</span></p> <p><span style="font-size:14px">Spring&nbsp;的事务，可以说是&nbsp;Spring&nbsp;AOP&nbsp;的一种实现。</span></p> <p><span style="font-size:14px">AOP面向切面编程，即在不修改源代码的情况下，对原有功能进行扩展，通过代理类来对具体类进行操作。</span></p> <p><span style="font-size:14px"><span style="font-family:Microsoft YaHei; font-size:14px; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="color:#FF0000">Spring声明式事务让我们从复杂的事务处理中得到解脱。使得我们再也无需要去处理获得连接、关闭连接、事务提交和回滚等这些操作。再也无需要我们在与事务相关的方法中处理大量的try…catch…finally代码。</span></span></span></span><br /></span></p> <p><span style="font-family:Microsoft YaHei; font-size:14px">Spring的事务管理分为<span style="color:#FF0000">声明式</span>和<span style="color:#FF0000">编程式</span>。声明式就是在Spring的配置文件中进行相关配置；编程式就是用注解的方式写到代码里。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:14px"><br /></span></p> <p><span style="font-size:14px"><span style="color:#FF0000">核心接口</span>：</span></p> <p><span style="font-size:14px"><span id="Label3">Spring事务管理涉及的接口的联系如下：</span><br /></span></p> <p><span style="font-size:14px"><img decoding="async" src="http://img.555519.xyz/uploads3/20220708/231b8489544bcd6f5c9b9f6eda8df46d.jpg" alt="Spring的事务管理机制和传播机制"><br /></span></p> <p><span style="font-size:14px"><br /></span></p> <p><span style="font-size:14px"><span id="Label3">Spring并不直接管理事务，而是提供了多种事务管理器，他们将事务管理的职责委托给Hibernate或者JTA等持久化机制所提供的相关平台框架的事务来实现。 Spring事务管理器的接口是<span style="color:#FF0000">org.springframework.transaction.PlatformTransactionManager</span>，通过这个接口，Spring为各个平台如JDBC、Hibernate等都提供了对应的事务管理器，但是具体的实现就是各个平台自己的事情了。此接口的内容如下：</span><br /></span></p> <p><span style="font-size:14px"></span></p> <pre><code class="language-java">public interface PlatformTransactionManager()...{       // 由TransactionDefinition得到TransactionStatus对象     TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;      // 提交     void commit(TransactionStatus status) throws TransactionException;       // 回滚     void rollback(TransactionStatus status) throws TransactionException;   }</code></pre> <p><span style="font-size:14px">Spring在TransactionDefinition接口中定义这些属性,以供PlatfromTransactionManager使用。<span style="font-size:14px">TransactionDefinition</span>接口定义如下：</span></p> <p><span style="font-size:14px"></span></p> <pre><code class="language-java">public interface TransactionDefinition {     int getPropagationBehavior();//返回事务的传播行为。     int getIsolationLevel();//返回事务的隔离级别，事务管理器根据它来控制另外一个事务可以看到本事务内的哪些数据。     int getTimeout();//返回事务必须在多少秒内完成。     boolean isReadOnly();//事务是否只读，事务管理器能够根据这个返回值进行优化，确保事务是只读的。 }</code></pre> <p> 上述接口定义了以下五种属性：</p> <p><span style="font-size:14px"><img decoding="async" src="http://img.555519.xyz/uploads3/20220708/761a5cbdf724187b83347c2647ef710f.jpg" alt="Spring的事务管理机制和传播机制"><br /></span></p> <p><span style="font-size:14px"><br /></span></p> <p><span style="font-size:14px"><span style="color:#FF0000">传播行为</span>：</span></p> <p><span style="font-size:14px"></span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_REQUIRED</strong>--支持当前事务，如果当前没有事务，就新建一个事务。这是最常见的选择。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_SUPPORTS</strong>--支持当前事务，如果当前没有事务，就以非事务方式执行。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_MANDATORY</strong>--支持当前事务，如果当前没有事务，就抛出异常。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_REQUIRES_NEW</strong>--新建事务，如果当前存在事务，把当前事务挂起。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_NOT_SUPPORTED</strong>--以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_NEVER</strong>--以非事务方式执行，如果当前存在事务，则抛出异常。</span></p> <p><span style="font-family:Microsoft YaHei; font-size:16px"><strong>PROPAGATION_NESTED</strong>--如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则进行与PROPAGATION_REQUIRED类似的操作</span></p> <p><span style="font-size:14px"><br /></span></p> <p><span style="font-size:14px"><span style="color:#FF0000">声明式事务管理配置</span>：<br /></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-size:14px">Spring配置文件</span>中关于事务配置总是由三个组成部分，分别是DataSource、TransactionManager和代理机制（切面配置）</span><span style="font-family:'Microsoft YaHei'">。</span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">比如使用Hibernate进行数据访问时，DataSource实际为SessionFactory，TransactionManager的实现为HibernateTransactionManager。</span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px"><br /></span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">参考文献：</span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">http://www.mamicode.com/info-detail-1248286.html<br /></span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">http://www.cnblogs.com/newsouls/p/3988216.html<br /></span></span></p> <p><span style="font-family:'Microsoft YaHei'; font-size:16px"><span style="font-family:'Microsoft YaHei'; font-size:16px">http://bbs.csdn.net/topics/390632361<br /></span></span></p> <p></p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-32.htm">Go语学习笔记 &#8211; gorm使用 &#8211; 表增删改查 | Web框架Gin（八）</a></p>
-                                        <p>下一个：<a href="/html/category/article-34.htm">iOS全埋点解决方案-UITableView和UICollectionView点击事件</a></p>
+                                        <p>上一个：<a href="/html/category/article-32.htm">windows下安装redis_在线工具</a></p>
+                                        <p>下一个：<a href="/html/category/article-34.htm">toString() 和 new String()用法区别</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
-                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
+                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
-                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
+                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
-                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
-                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
+                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-91.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Blazor 使用拖放（drag and drop）上传文件 , 粘贴文件上传 - EgyptAddress</title>
+    <title>C++详解多线程中的线程同步与互斥量_C 语言 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Blazor 使用拖放（drag and drop）上传文件 , 粘贴文件上传</h1>
+                <h1 class="title" style="word-break: break-all;">C++详解多线程中的线程同步与互斥量_C 语言</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h3 id="在很多上传文件的应用实例中-都可以看到拖放文件到此上传这种骚功能-今天我们就来试试blazor能不能完成这个想法">在很多上传文件的应用实例中, 都可以看到[拖放文件到此上传]这种骚功能 ,今天我们就来试试Blazor能不能完成这个想法.</h3> <p>原文链接：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/densen2014/p/16128246.html"  target="_blank" rel="nofollow">https://www.cnblogs.com/densen2014/p/16128246.html</a></p> <h2 id="简述html5拖放">简述HTML5拖放</h2> <p>拖放是HTML5标准的一部分，任何元素都能够拖放，也能够将本地的文件拖放到页面上。</p> <h3 id="设置元素可拖放">设置元素可拖放</h3> <p>为了使元素可拖动，把 draggable 属性设置为 true</p> <pre><code>&lt;img draggable="true" /&gt;</code></pre> <h3 id="拖放事件">拖放事件</h3> <p>有7个拖放事件可以捕获，如下：</p> <p>dragstart：开始拖元素触发</p> <p>dragenter：元素拖进可drop元素（绑定drop事件的元素）时触发</p> <p>dragover：当元素拖动到drop元素上时触发</p> <p>drop：当元素放下到drop元素触发</p> <p>dragleave ：当元素离开drop元素时触发</p> <p>drag：每次元素被拖动时会触发</p> <p>dragend：放开拖动元素时触发</p> <p>完成一次拖放的事件过程是： dragstart –&gt; dragenter –&gt; dragover –&gt; drop –&gt; dragend</p> <h3 id="浏览器支持">浏览器支持</h3> <p>Edge、Firefox、Opera 12、Chrome 以及 Safari 5 支持拖放。</p> <h2 id="拖拽上传实现">拖拽上传实现</h2> <h3 id="1新建工程n02drag将项目添加到解决方案中">1.新建工程n02drag,将项目添加到解决方案中</h3> <pre><code>dotnet new blazorserver -o n02drag dotnet sln add n02drag/n02drag.csproj</code></pre> <h3 id="2在文件夹wwwrootlib添加drag子文件夹新建appjs文件">2.在文件夹wwwroot/lib,添加drag子文件夹,新建app.js文件</h3> <p>先阻止页面默认的拖放行为，不然页面会被拖放的文件替换了。</p> <pre><code>//阻止浏览器默认行为 document.addEventListener( "dragleave", function(e) {      e.preventDefault(); }, false); document.addEventListener( "drop", function(e) {      e.preventDefault(); }, false); document.addEventListener( "dragenter", function(e) {      e.preventDefault(); }, false); document.addEventListener( "dragover", function(e) {      e.preventDefault(); }, false);</code></pre> <p>设置drop区域</p> <p>当文件拖放到drop区域时，就能触发上传。</p> <pre><code>    element.addEventListener("drop", function (e) {          try {             var fileList = e.dataTransfer.files; //获取文件对象             //检测是否是拖拽文件到页面的操作             if (fileList.length == 0) {                 return false;             }              inputFile.files = e.dataTransfer.files;             const event = new Event('change', { bubbles: true });             inputFile.dispatchEvent(event);         }         catch (e) {             wrapper.invokeMethodAsync('DropAlert', e);         }     }, false);</code></pre> <h3 id="2在文件pagesindexrazor添加上传组件">2.在文件Pages/Index.razor,添加上传组件</h3> <p>页面</p> <pre><code>@implements IAsyncDisposable @inject IJSRuntime JS  &lt;div @ref="UploadElement" style="padding: 20px; width: 200px; height: 200px; background-color: cornflowerblue; border: 2px dashed #0087F7; border-radius: 5px; "&gt;     &lt;p&gt;拖放上传文件&lt;/p&gt;      &lt;InputFile OnChange="OnChange" class="form-control" multiple @ref="inputFile"/&gt; &lt;/div&gt;  &lt;pre&gt; &lt;code&gt;         @uploadstatus &lt;/code&gt; &lt;/pre&gt;</code></pre> <p>代码</p> <ol> <li>InputFile 开启 multiple ,接受多文件上传</li> <li>使用JS隔离技术</li> <li>Dispose处理回收</li> </ol> <pre><code> @code{     [Inject] protected Microsoft.AspNetCore.Hosting.IWebHostEnvironment? HostEnvironment { get; set; } //获取IWebHostEnvironment      protected ElementReference UploadElement { get; set; }     protected InputFile? inputFile { get; set; }      private DotNetObjectReference&lt;Index&gt;? wrapper;      private IJSObjectReference? module;     private IJSObjectReference? dropInstance;      protected string UploadPath = "";     protected string? uploadstatus;     long maxFileSize = 1024 * 1024 * 15;      protected override void OnAfterRender(bool firstRender)     {         if (!firstRender) return;         UploadPath = Path.Combine(HostEnvironment!.WebRootPath, "Upload"); //初始化上传路径         if (!Directory.Exists(UploadPath)) Directory.CreateDirectory(UploadPath); //不存在则新建目录     }      protected async Task OnChange(InputFileChangeEventArgs e)     {         int i = 0;         var selectedFiles = e.GetMultipleFiles(100);         foreach (var item in selectedFiles)         {             i++;             await OnSubmit(item);             uploadstatus += Environment.NewLine + $"[{i}]: " + item.Name;         }     }      protected async Task OnSubmit(IBrowserFile efile)     {         if (efile == null) return;         var tempfilename = Path.Combine(UploadPath, efile.Name);         await using FileStream fs = new(tempfilename, FileMode.Create);         using var stream = efile.OpenReadStream(maxFileSize);         await stream.CopyToAsync(fs);         StateHasChanged();     }       protected override async Task OnAfterRenderAsync(bool firstRender)     {         if (!firstRender) return;          module = await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./lib/drag/app.js");         wrapper = DotNetObjectReference.Create(this);         dropInstance = await module.InvokeAsync&lt;IJSObjectReference&gt;("init", wrapper , UploadElement, inputFile!.Element);     }      [JSInvokable]     public void DropAlert(string msg)     {         uploadstatus  += Environment.NewLine + $"[!Alert!]: " + msg;         StateHasChanged();     }       async ValueTask IAsyncDisposable.DisposeAsync()     {         if (dropInstance != null)         {             await dropInstance.InvokeVoidAsync("dispose");             await dropInstance.DisposeAsync();         }          if (wrapper != null)         {             wrapper.Dispose();         }          if (module != null)         {             await module.DisposeAsync();         }     }  }</code></pre> <h3 id="3就这么简单吗我们还可以加上一些骚功能--粘贴文件上传">3.就这么简单吗?我们还可以加上一些骚功能 ???????? 粘贴文件上传</h3> <pre><code>    element.addEventListener('paste', function (e) {              inputFile.files = e.clipboardData.files;         const event = new Event('change', { bubbles: true });         inputFile.dispatchEvent(event);     }, false);</code></pre> <h3 id="4限制传输格式">4.限制传输格式</h3> <p>*时间有限,js部分同学们自己完成吧,这里是InputFile 上限制一下</p> <pre><code>&lt;div style="padding-top:40px; padding: 20px; width: 200px; height: 200px; background-color: cornflowerblue; border: 2px dashed #0087F7; border-radius: 5px; "&gt;     上传图片     &lt;InputFile OnChange="OnChange" style="max-width: 400px" class="form-control" multiple accept='image/*' /&gt; &lt;/div&gt;</code></pre> <h3 id="5完整js代码">5.完整JS代码</h3> <pre><code>export function init(wrapper, element, inputFile) {      //阻止浏览器默认行为     document.addEventListener("dragleave", function (e) {         e.preventDefault();     }, false);     document.addEventListener("drop", function (e) {         e.preventDefault();     }, false);     document.addEventListener("dragenter", function (e) {         e.preventDefault();     }, false);     document.addEventListener("dragover", function (e) {         e.preventDefault();     }, false);       element.addEventListener("drop", function (e) {          try {             var fileList = e.dataTransfer.files; //获取文件对象             //检测是否是拖拽文件到页面的操作             if (fileList.length == 0) {                 return false;             }              inputFile.files = e.dataTransfer.files;             const event = new Event('change', { bubbles: true });             inputFile.dispatchEvent(event);         }         catch (e) {             wrapper.invokeMethodAsync('DropAlert', e);         }     }, false);      element.addEventListener('paste', function (e) {              inputFile.files = e.clipboardData.files;         const event = new Event('change', { bubbles: true });         inputFile.dispatchEvent(event);     }, false);      return {         dispose: () =&gt; {             element.removeEventListener('dragleave', onDragLeave);             element.removeEventListener("drop", onDrop);             element.removeEventListener('dragenter', onDragHover);             element.removeEventListener('dragover', onDragHover);             element.removeEventListener('paste', handler);         }     } }</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/eba4d9069d9c632b9c938493e6285c19.jpg" alt="Blazor 使用拖放（drag and drop）上传文件 , 粘贴文件上传"></p> <h3 id="参考资料">参考资料</h3> <p>用20行代码实现文件上传,浏览目录功能 (Blazor server)<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/densen2014/Blazor100/wiki/9.-%E7%94%A820%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0,%E6%B5%8F%E8%A7%88%E7%9B%AE%E5%BD%95%E5%8A%9F%E8%83%BD-(Blazor-server)"  target="_blank" rel="nofollow">https://github.com/densen2014/Blazor100/wiki/9.-用20行代码实现文件上传,浏览目录功能-(Blazor-server)</a></p> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">线程同步</a></li> <li><a href="#_label1" rel="nofollow">互斥量</a></li> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>线程同步</h2> <div class="ay1code"> <pre class="brush:cpp;">/*      使用多线程实现买票的案例。      有3个窗口，一共是100张票。  */  #include &lt;stdio.h&gt;  #include &lt;pthread.h&gt;  #include &lt;unistd.h&gt;  // 全局变量，所有的线程都共享这一份资源。  int tickets = 100;  void * sellticket(void * arg) {      // 卖票      while(tickets &gt; 0) {          usleep(6000);	//微秒          printf("%ld 正在卖第 %d 张门票\n", pthread_self(), tickets);          tickets--;      }      return NULL;  }  int main() {      // 创建3个子线程      pthread_t tid1, tid2, tid3;      pthread_create(&amp;tid1, NULL, sellticket, NULL);      pthread_create(&amp;tid2, NULL, sellticket, NULL);      pthread_create(&amp;tid3, NULL, sellticket, NULL);      // 回收子线程的资源,默认阻塞状态      pthread_join(tid1, NULL);      pthread_join(tid2, NULL);      pthread_join(tid3, NULL);      // 设置线程分离。      // pthread_detach(tid1);      // pthread_detach(tid2);      // pthread_detach(tid3);      pthread_exit(NULL); // 退出主线程      return 0;  }</pre> </div> <p>运行结果：</p> <p>产生的问题：</p> <ul> <li>每一张票都卖了好几次；</li> <li>卖了第0张票和-1张票，都是不对的；</li> </ul> <p>三个线程抢cpu资源。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220504/01ecab81fc3c94f1c321bf0486911804.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220504/ebd42b92bfc8cb320676ec9a45f3157a.jpg"></p> <p>原因： 休眠的时间，3个进程都进去执行了程序；多个进程对共享资源同时处理，就会产生线程同步问题。</p> <p>线程的主要优势： 通过全局变量来共享信息。不过，这种便捷的共享是有代价的:必须确保多个线程不会同时修改同一变量，或者某一线程不会读取正在由其他线程修改的变量。</p> <p>临界区：指访问某一共享资源的代码片段，并且这段代码的执行应为原子操作，也就是同时访问同一共享资源的其他线程不应终端该片段的执行。</p> <p>线程同步： 即当有一个线程在对内存进行操作时，其他线程都不可以对这个内存地址进行操作，直到该线程完成操作，其他线程才能对该内存地址进行操作，而其他线程则处于等待状态。</p> <p>线程同步会降低线程并发的效率，这是必须的。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>互斥量</h2> <p>为避免线程更新共享变量时出现问题，可以使用互斥量(mutex）来确保同时仅有一个线程可以访问某项共享资源。可以使用互斥量来保证对任意共享资源的原子访问。</p> <p>互斥量有两种状态：已锁定(locked)和未锁定(unlocked)。</p> <p>任何时候，至多只有一个线程可以锁定该互斥量。试图对已经锁定的某一互斥量再次加锁，将可能阻塞线程或者报错失败，具体取决于加锁时使用的方法。</p> <p>一旦线程锁定互斥量，随即成为该互斥量的所有者，只有所有者才能给互斥量解锁。</p> <p>一般情况下，对每一共享资源（可能由多个相关变量组成）会使用不同的互斥量，每一线程在访问同一资源时将采用如下协议:</p> <ul> <li>针对共享资源锁定互斥量</li> <li>访问共享资源</li> <li>对互斥量解锁</li> </ul> <p>加锁是在临界区对共享数据操作；</p> <p>如果多个线程试图执行这一块代码（一个临界区)，事实上只有一个线程能够持有该互斥量(其他线程将遭到阻塞)，即同时只有一个线程能够进入这段代码区域，如下图所示：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220504/01e48e590579f4ea1bc9a186306c7e77.jpg"></p> <div class="ay1code"> <pre class="brush:cpp;">/*      互斥量的类型 pthread_mutex_t      int pthread_mutex_init(pthread_mutex_t *restrict mutex, const pthread_mutexattr_t *restrict attr);          - 初始化互斥量          - 参数 ：              - mutex ： 需要初始化的互斥量变量              - attr ： 互斥量相关的属性，NULL          - restrict : C语言的修饰符，被修饰的指针，不能由另外的一个指针进行操作。              pthread_mutex_t *restrict mutex = xxx;              pthread_mutex_t * mutex1 = mutex;	--不能这样操作，有restrict关键词      int pthread_mutex_destroy(pthread_mutex_t *mutex);          - 释放互斥量的资源      int pthread_mutex_lock(pthread_mutex_t *mutex);          - 加锁，阻塞的，如果有一个线程加锁了，那么其他的线程只能阻塞等待  		- 成功返回 0      int pthread_mutex_trylock(pthread_mutex_t *mutex);          - 尝试加锁，如果加锁失败，不会阻塞，会直接返回。      int pthread_mutex_unlock(pthread_mutex_t *mutex);          - 解锁  */  #include &lt;stdio.h&gt;  #include &lt;pthread.h&gt;  #include &lt;unistd.h&gt;  // 全局变量，所有的线程都共享这一份资源。  int tickets = 1000;  // 创建一个互斥量	--在全局区创建  pthread_mutex_t mutex;  void * sellticket(void * arg) {      // 卖票      while(1) {          // 加锁          pthread_mutex_lock(&amp;mutex);          if(tickets &gt; 0) {              usleep(6000);              printf("%ld 正在卖第 %d 张门票\n", pthread_self(), tickets);              tickets--;          }else {              // 解锁              pthread_mutex_unlock(&amp;mutex);              break;          }          // 解锁          pthread_mutex_unlock(&amp;mutex);      }      return NULL;  }  int main() {      // 初始化互斥量      pthread_mutex_init(&amp;mutex, NULL);      // 创建3个子线程      pthread_t tid1, tid2, tid3;      pthread_create(&amp;tid1, NULL, sellticket, NULL);      pthread_create(&amp;tid2, NULL, sellticket, NULL);      pthread_create(&amp;tid3, NULL, sellticket, NULL);      // 回收子线程的资源,阻塞      pthread_join(tid1, NULL);      pthread_join(tid2, NULL);      pthread_join(tid3, NULL);      pthread_exit(NULL); // 退出主线程      // 释放互斥量资源      pthread_mutex_destroy(&amp;mutex);      return 0;  }</pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-90.htm">UPDATE语句的SET子句中列顺序的重要性是什么？它对MySQL返回的结果集有很大的影响吗？</a></p>
-                                        <p>下一个：<a href="/html/category/article-92.htm">MySQL 5.7的Homebrew安装 &#8211; MacOS</a></p>
+                                        <p>上一个：<a href="/html/category/article-90.htm">Java数据结构-栈的实现</a></p>
+                                        <p>下一个：<a href="/html/category/article-92.htm">Spring 5 中文解析数据存储篇-JDBC数据存储(下)</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
-                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
-                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
-                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
-                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
+                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
+                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
-                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
+                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
+                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
-                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
+                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-214.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>SpringBoot实战数据访问整合Mybatis和Redis - EgyptAddress</title>
+    <title>JavaScript找到两个数组之间的差异方法详解 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">SpringBoot实战数据访问整合Mybatis和Redis</h1>
+                <h1 class="title" style="word-break: break-all;">JavaScript找到两个数组之间的差异方法详解</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h2 id="前言">前言</h2> <p>在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服务的开源框架。它是一个伞状项目，包含大量关系型和非关系型数据库数据访问解决方案，让我们快速简单的使用各种数据访问技术，springboot默认采用整合springdata方式统一的访问层，通过添加大量的自动配置，引入各种数据访问模板Trmplate以及统一的Repository接口，从而达到简化数据访问操作。</p> <p>这里我们分别对MyBatis、Redis进行整合。</p> <h2 id="springboot整合mybatis">SpringBoot整合MyBatis</h2> <p>mybatis作为目前操作数据库的流行框架，spingboot并没有给出依赖支持，但是mybaitis开发团队自己提供了启动器<code>mybatis-spring-boot-starter</code>依赖。<br /> MyBatis是一款优秀的持久层框架，它支持定制sql、存储过程、高级映射、避免JDBC代码和手动参数以及获取结果集。mybatis不仅支持xml而且支持注解。</p> <h3 id="环境搭建">环境搭建</h3> <h4 id="创建数据库">创建数据库</h4> <p>我们创建一个简单的数据库并插入一些数据用于我们下面的操作。</p> <pre><code class="language-sql"># 创建数据库 CREATE DATABASE studentdata; # 选择使用数据库 USE studentdata; # 创建表并插入相关数据 DROP TABLE IF EXISTS `t_student`; CREATE TABLE `t_student` (   `id` int(20) NOT NULL AUTO_INCREMENT,   `name` varchar(20) DEFAULT NULL,   `age` int(8),   PRIMARY KEY (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8; INSERT INTO `t_student` VALUES ('1', 'hjk', '18'); INSERT INTO `t_student` VALUES ('2', '小何', '20');</code></pre> <h5 id="创建项目并引入相关启动器">创建项目并引入相关启动器</h5> <p>按照之前的方式创建一个springboot项目，并在pom.xml里导入依赖。我们创建一个名为springboot-01的springboot项目。并且导入阿里的数据源</p> <pre><code>        &lt;dependency&gt;             &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;             &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;         &lt;/dependency&gt;          &lt;dependency&gt;             &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;             &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;             &lt;scope&gt;test&lt;/scope&gt;         &lt;/dependency&gt;         &lt;dependency&gt;             &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;             &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;             &lt;version&gt;2.2.2&lt;/version&gt;         &lt;/dependency&gt;         &lt;!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java --&gt;         &lt;dependency&gt;             &lt;groupId&gt;mysql&lt;/groupId&gt;             &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;             &lt;version&gt;8.0.28&lt;/version&gt;         &lt;/dependency&gt;        &lt;dependency&gt;             &lt;groupId&gt;com.alibaba&lt;/groupId&gt;             &lt;artifactId&gt;druid-spring-boot-starter&lt;/artifactId&gt;             &lt;version&gt;1.2.8&lt;/version&gt;         &lt;/dependency&gt;</code></pre> <p>我们可以在IDEA右边连接上数据库，便于我们可视化操作，这个不连接也不会影响我们程序的执行，只是方便我们可视化。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/5bd0e3d1089bf8f5849a1925391a3728.jpg" alt="SpringBoot实战数据访问整合Mybatis和Redis"></p> <p>创建Student的实体类</p> <pre><code>package com.hjk.pojo;  public class Student {     private Integer id;     private String name;     private Integer age;      public Student(){      }      public Student(String name,Integer age){         this.id = id;         this.name = name;         this.age = age;     }      public Integer getId() {         return id;     }      public void setId(Integer id) {         this.id = id;     }      public String getName() {         return name;     }      public void setName(String name) {         this.name = name;     }      public Integer getAge() {         return age;     }      public void setAge(Integer age) {         this.age = age;     }      @Override     public String toString() {         return "Student{" +                 "id=" + id +                 ", name='" + name + '\'' +                 ", age=" + age +                 '}';     } }</code></pre> <p>在application.properties里编写数据库连接配置。这里我们使用druid数据源顺便把如何配置数据源写了，用户名和密码填写自己的。使用其他数据源需要导入相关依赖，并且进行配置。springboot2.x版本默认使用的是hikari数据源。</p> <pre><code>## 选着数据库驱动类型 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver spring.datasource.url=jdbc:mysql://localhost:3306/studentdata?serverTimezone=UTC ## 用户名 spring.datasource.username=root ## 密码 spring.datasource.password=123456  spring.datasource.type=com.alibaba.druid.pool.DruidDataSource ## 初始化连接数 spring.datasource.druid.initial-size=20 ## 最小空闲数 spring.datasource.druid.min-idle=10 ## 最大连接数 spring.datasource.druid.max-active=100</code></pre> <p>然后我们编写一个配置类，把durid数据源属性值注入，并注入到spring容器中<br /> 创建一个config包，并创建名为DataSourceConfig类</p> <pre><code>package com.hjk.config;  import com.alibaba.druid.pool.DruidDataSource; import org.springframework.boot.context.properties.ConfigurationProperties; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration;  import javax.sql.DataSource;  @Configuration  //将该类标记为自定义配置类 public class DataSourceConfig {      @Bean //注入一个Datasource对象     @ConfigurationProperties(prefix = "spring.datasource") //注入属性     public DataSource getDruid(){         return new DruidDataSource();     } }</code></pre> <p>目前整个包结构<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/ba58f843197795d193023aeb2e9ba492.jpg" alt="SpringBoot实战数据访问整合Mybatis和Redis"></p> <h3 id="注解方式整合mybatis">注解方式整合mybatis</h3> <p>创建一个mapper包，并创建一个StudentMapper接口并编写代码。mapper其实就和MVC里的dao包差不多。</p> <pre><code>package com.hjk.mapper;  import com.hjk.pojo.Student; import org.apache.ibatis.annotations.*;  import java.util.List;  @Mapper  //这个注解是一个mybatis接口文件，能被spring扫描到容器中 public interface StudentMapper {      @Select("select * from t_student where id = #{id}")     public Student getStudentById(Integer id) ;      @Select("select * from t_student")     public List&lt;Student&gt; selectAllStudent();      @Insert("insert into t_student values (#{id},#{name},#{age})")     public int insertStudent(Student student);      @Update("update t_student set name=#{name},age=#{age} where id = #{id}")     public int updataStudent(Student student);      @Delete("delete from t_student where id=#{id}")     public int deleteStudent(Integer id); }</code></pre> <h4 id="编写测试类进行测试">编写测试类进行测试</h4> <pre><code>package com.hjk;  import com.hjk.mapper.StudentMapper; import com.hjk.pojo.Student; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.test.context.SpringBootTest;  import java.util.List;  @SpringBootTest class Springdata01ApplicationTests {      @Autowired     private StudentMapper studentMapper;      @Test     public void selectStudent(){         Student studentById = studentMapper.getStudentById(1);         System.out.println(studentById.toString());     }        @Test     public void insertStudent(){         Student student = new Student("你好",16);         int i = studentMapper.insertStudent(student);         List&lt;Student&gt; students = studentMapper.selectAllStudent();         for (Student student1 : students) {             System.out.println(student1.toString());         }     }      @Test     public void updateStudent(){         Student student = new Student("我叫hjk",20);         student.setId(1);         int i = studentMapper.updataStudent(student);         System.out.println(studentMapper.getStudentById(1).toString());     }      @Test     public void deleteStudent(){         studentMapper.deleteStudent(1);         List&lt;Student&gt; students = studentMapper.selectAllStudent();         for (Student student : students) {             System.out.println(student.toString());         }     }   }</code></pre> <ul> <li>在这里如果你的实体类的属性名如果和数据库的属性名不太一样的可能返回结果可能为空，我们可以开器驼峰命名匹配映射。<br /> 在application.properties添加配置。</li> </ul> <pre><code>## 开启驼峰命名匹配映射 mybatis.configuration.map-underscore-to-camel-case=true</code></pre> <p>这里使用注解实现了整合mybatis。mybatis虽然在写一些简单sql比较方便，但是写一些复杂的sql还是需要xml配置。</p> <h3 id="使用xml配置mybatis">使用xml配置Mybatis</h3> <p>我们使用xml要先在application.properties里配置一下,不然springboot识别不了。</p> <pre><code>## 配置Mybatis的XML配置路径 mybatis.mapper-locations=classpath:mapper/*.xml ## 配置XML指定实体类别名 mybatis.type-aliases-package=com.hjk.pojo</code></pre> <p>我们重新书写StudentMapper类，然后使用xml实现数据访问。这里我们就写两个方法，剩下的基本一样。</p> <pre><code>package com.hjk.mapper;   import com.hjk.pojo.Student; import org.apache.ibatis.annotations.Mapper;  import java.util.List;  @Mapper  //这个注解是一个mybatis接口文件，能被spring扫描到容器中 public interface StudentMapper {      public Student getStudentById(Integer id) ;      public List&lt;Student&gt; selectAllStudent();  }</code></pre> <p>我们在resources目录下创建一个mapper包，并在该包下编写StudentMapper.xml文件。<br /> 我们在写的时候可以去mybatis文档中哪复制模板，然后再写也可以记录下来，方便下次写</p> <pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt; &lt;!DOCTYPE mapper         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"         "http://mybatis.org/dtd/mybatis-3-mapper.dtd"&gt; &lt;mapper namespace="com.hjk.mapper.StudentMapper"&gt;&lt;!--这里namespace写对应mapper的全路径名--&gt;      &lt;select id="getStudentById" resultType="Student"&gt;         select * from t_student where id = #{id}     &lt;/select&gt;      &lt;select id="selectAllStudent" resultType="Student"&gt;         select * from t_student;     &lt;/select&gt;  &lt;/mapper&gt;</code></pre> <p>编写测试</p> <pre><code>package com.hjk;  import com.hjk.mapper.StudentMapper; import com.hjk.pojo.Student; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.test.context.SpringBootTest;  import java.util.List;  @SpringBootTest class Springdata01ApplicationTests {      @Autowired     private StudentMapper studentMapper;      @Test     public void selectStudent(){         Student studentById = studentMapper.getStudentById(2);         System.out.println(studentById.toString());     }      @Test     public void selectAllStudent(){         List&lt;Student&gt; students = studentMapper.selectAllStudent();         for (Student student : students) {             System.out.println(student.toString());         }     }  }</code></pre> <h4 id="注解和xml优缺点">注解和xml优缺点</h4> <p>注解方便，书写简单，但是不方便写复杂的sql。<br /> xml虽然比较麻烦，但是它的可定制化强，能够实现复杂的sql语言。<br /> 两者结合使用会有比较好的结果。</p> <h2 id="整合redis">整合Redis</h2> <p>Redis是一个开源的、内存中的数据结构存储系统，它可以作用于数据库、缓存、消息中间件，并提供多种语言的API。redis支持多种数据结构，String、hasher、lists、sets、等。同时内置了复本replication、LUA脚本LUA scripting、LRU驱动时间LRU eviction、事务Transaction和不同级别的磁盘持久化persistence、并且通过Redis Sentinel和自动分区提供高可用性。</p> <ul> <li>我们添加Redis依赖。</li> </ul> <pre><code>	&lt;dependency&gt;             &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;             &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;             &lt;version&gt;2.6.6&lt;/version&gt;         &lt;/dependency&gt;</code></pre> <ul> <li>我们在创建三个实体类用于整合，在pojo包中。</li> </ul> <p>Family类</p> <pre><code>package com.hjk.pojo;  import org.springframework.data.redis.core.index.Indexed;  public class Family {      @Indexed     private String type;      @Indexed     private String userName;      public String getType() {         return type;     }      public void setType(String type) {         this.type = type;     }      public String getUserName() {         return userName;     }      public void setUserName(String userName) {         this.userName = userName;     }      @Override     public String toString() {         return "Family{" +                 "type='" + type + '\'' +                 ", userName='" + userName + '\'' +                 '}';     } }</code></pre> <p>Adderss类</p> <pre><code>package com.hjk.pojo;  import org.springframework.data.redis.core.index.Indexed;  public class Address {      @Indexed     private String city;      @Indexed     private String country;      public String getCity() {         return city;     }      public void setCity(String city) {         this.city = city;     }      public String getCountry() {         return country;     }      public void setCountry(String country) {         this.country = country;     }      @Override     public String toString() {         return "Address{" +                 "city='" + city + '\'' +                 ", country='" + country + '\'' +                 '}';     } }</code></pre> <p>Person类</p> <pre><code>package com.hjk.pojo;  import org.springframework.data.annotation.Id; import org.springframework.data.redis.core.RedisHash; import org.springframework.data.redis.core.index.Indexed;  import java.util.List;  @RedisHash("person") public class Person {      @Id     private String id;      @Indexed     private String firstName;      @Indexed     private String lastName;      private Address address;      private List&lt;Family&gt; familyList;      public String getId() {         return id;     }      public void setId(String id) {         this.id = id;     }      public String getFirstName() {         return firstName;     }      public void setFirstName(String firstName) {         this.firstName = firstName;     }      public String getLastName() {         return lastName;     }      public void setLastName(String lastName) {         this.lastName = lastName;     }      public Address getAddress() {         return address;     }      public void setAddress(Address address) {         this.address = address;     }      public List&lt;Family&gt; getFamilyList() {         return familyList;     }      public void setFamilyList(List&lt;Family&gt; familyList) {         this.familyList = familyList;     }      @Override     public String toString() {         return "Person{" +                 "id='" + id + '\'' +                 ", firstName='" + firstName + '\'' +                 ", lastName='" + lastName + '\'' +                 ", address=" + address +                 ", familyList=" + familyList +                 '}';     } }</code></pre> <ul> <li>RedisHash("person")用于指定操作实体类对象在Redis数据库中的储存空间，表示Person实体类的数据操作都储存在Redis数据库中名为person的存储下</li> <li>@Id用标识实体类主键。在Redis中会默认生成字符串形式的HasHKey表使唯一的实体对象id，也可以手动设置id。</li> <li>Indexed 用于标识对应属性在Redis数据库中的二级索引。索引名称就是属性名。</li> </ul> <h4 id="接口整合">接口整合</h4> <p>编写Repository接口，创建repository包并创建PersonRepository类</p> <pre><code>package com.hjk.repository;  import com.hjk.pojo.Person; import org.springframework.data.domain.Page; import org.springframework.data.domain.Pageable; import org.springframework.data.repository.CrudRepository;  import java.util.List;  public interface PersonRepository extends CrudRepository&lt;Person,String&gt; {          List&lt;Person&gt; findByLastName(String lastName);     Page&lt;Person&gt; findPersonByLastName(String lastName, Pageable pageable);     List&lt;Person&gt; findByFirstNameAndLastName(String firstName,String lastName);     List&lt;Person&gt; findByAddress_City(String city);     List&lt;Person&gt; findByFamilyList_UserName(String userName); }</code></pre> <ul> <li>这里接口继承的使CurdRepository接口，也可以继承JpaRepository，但是需要导入相关包。</li> </ul> <p>添加配置文件<br /> 在application.properties中添加redis数据库连接配置。</p> <pre><code> ## redis服务器地址 spring.redis.host=127.0.0.1 ## redis服务器练级端口 spring.redis.port=6379 ## redis服务器密码默认为空 spring.redis.password=</code></pre> <h4 id="测试">测试</h4> <p>编写测试类，在测试文件下创建一个名为RedisTests的类</p> <pre><code>package com.hjk;  import com.hjk.pojo.Address; import com.hjk.pojo.Family; import com.hjk.pojo.Person; import com.hjk.repository.PersonRepository; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.test.context.SpringBootTest;  import java.util.ArrayList; import java.util.List;  @SpringBootTest public class RedisTests {      @Autowired     private PersonRepository repository;      @Test     public void redisPerson(){          //创建按对象         Person person = new Person();         person.setFirstName("王");         person.setLastName("nihao");         Address address = new Address();         address.setCity("北京");         address.setCountry("china");         person.setAddress(address);         ArrayList&lt;Family&gt; list = new ArrayList&lt;&gt;();         Family family = new Family();         family.setType("父亲");         family.setUserName("你爸爸");         list.add(family);         person.setFamilyList(list);          //向redis数据库添加数据         Person save = repository.save(person);         System.out.println(save);     }      @Test     public void selectPerson(){         List&lt;Person&gt; list = repository.findByAddress_City("北京");         for (Person person : list) {             System.out.println(person);         }     }      @Test     public void updatePerson(){         Person person = repository.findByFirstNameAndLastName("王", "nihao").get(0);         person.setLastName("小明");         Person save = repository.save(person);         System.out.println(save);     }       @Test     public void deletePerson(){         Person person = repository.findByFirstNameAndLastName("王", "小明").get(0);         repository.delete(person);      }  }</code></pre> <h2 id="总结">总结</h2> <p>我们分别对mybatis和redis进行整合。<br /> mybaitis：<br /> 注解：导入依赖-&gt;创建实体类-&gt;属性配置-&gt;编写配置类-&gt;编写mapper接口-&gt;进行测试。<br /> xml：导入依赖-&gt;创建实体类-&gt;属性配置（配置数据库等，配置xml路径）-&gt;mapper接口-&gt;xml实现-&gt;测试<br /> redis：导入依赖-&gt;实体类-&gt;实现接口-&gt;配置redis属性-&gt;测试</p> 			                </div>
+                      				  				  				<p>我们有两个这样的数字数组-</p> <pre>const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; const&nbsp;arr2&nbsp;=&nbsp;[54,&nbsp;2,&nbsp;5,&nbsp;12,&nbsp;4,&nbsp;1,&nbsp;3,&nbsp;34];</pre> <p>我们需要编写一个JavaScript函数，该函数接受两个这样的数组，并从两个数组都不通用的数组中返回元素。</p> <h2>示例</h2> <p>以下是代码-</p> <pre>const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; const&nbsp;arr2&nbsp;=&nbsp;[54,&nbsp;2,&nbsp;5,&nbsp;12,&nbsp;4,&nbsp;1,&nbsp;3,&nbsp;34]; const&nbsp;difference&nbsp;=&nbsp;(first,&nbsp;second)&nbsp;=&gt;&nbsp;{ &nbsp;&nbsp;&nbsp;const&nbsp;res&nbsp;=&nbsp;[]; &nbsp;&nbsp;&nbsp;for(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;first.length;&nbsp;i++){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(second.indexOf(first[i])&nbsp;===&nbsp;-1){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.push(first[i]); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;}; &nbsp;&nbsp;&nbsp;for(let&nbsp;j&nbsp;=&nbsp;0;&nbsp;j&nbsp;&lt;&nbsp;second.length;&nbsp;j++){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(first.indexOf(second[j])&nbsp;===&nbsp;-1){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.push(second[j]); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; &nbsp;&nbsp;&nbsp;}; &nbsp;&nbsp;&nbsp;return&nbsp;res; }; console.log(difference(arr1,&nbsp;arr2));</pre> <p>输出结果</p> <p>这将在控制台中产生以下输出-</p> <pre>[&nbsp;6,&nbsp;5,&nbsp;1&nbsp;]</pre> <div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></p>
-                                        <p>下一个：<a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></p>
+                                        <p>上一个：<a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></p>
+                                        <p>下一个：<a href="/html/category/article-215.htm">你不知道的Python容器</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
-                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
-                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
+                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
-                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
-                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
+                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>

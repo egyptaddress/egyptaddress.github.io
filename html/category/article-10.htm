@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-10.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Spring Boot + Mybatis-Plus + jasypt 数据库连接加密 - EgyptAddress</title>
+    <title>Eureka详解系列(四)&#8211;Eureka Client部分的源码和配置 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Spring Boot + Mybatis-Plus + jasypt 数据库连接加密</h1>
+                <h1 class="title" style="word-break: break-all;">Eureka详解系列(四)&#8211;Eureka Client部分的源码和配置</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <h1> <a id="Spring_Boot__MybatisPlus__jasypt__0" rel="nofollow"></a>关于Spring Boot + Mybatis-Plus + jasypt 数据库连接加密</h1> <p><em>今天突然发现一个可以在连接数据库的时候将配置加密的东西，在此分享给广大朋友</em></p> <ol> <li>首先我们导入相关的依赖</li> </ol> <pre><code class="prism language-xml"> <span class="token comment">&lt;!--加密工具--&gt;</span>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.github.ulisesbocchio<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>jasypt-spring-boot-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>2.1.0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span> </code></pre> <ol start="2"> <li>之后我们在测试类中编写加密解密</li> </ol> <pre><code class="prism language-java">    <span class="token annotation punctuation">@Test</span>     <span class="token keyword">void</span> <span class="token function">generateKey</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>         <span class="token comment">// 加密</span>         <span class="token class-name">BasicTextEncryptor</span> encryptor <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BasicTextEncryptor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         encryptor<span class="token punctuation">.</span><span class="token function">setPassword</span><span class="token punctuation">(</span><span class="token string">"abcd"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 盐值</span>         <span class="token class-name">String</span> username <span class="token operator">=</span> encryptor<span class="token punctuation">.</span><span class="token function">encrypt</span><span class="token punctuation">(</span><span class="token string">"root"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token class-name">String</span> password <span class="token operator">=</span> encryptor<span class="token punctuation">.</span><span class="token function">encrypt</span><span class="token punctuation">(</span><span class="token string">"1233"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"username: "</span> <span class="token operator">+</span> username<span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"password: "</span> <span class="token operator">+</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>encryptor<span class="token punctuation">.</span><span class="token function">decrypt</span><span class="token punctuation">(</span>username<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>encryptor<span class="token punctuation">.</span><span class="token function">decrypt</span><span class="token punctuation">(</span>password<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span> </code></pre> <ol start="3"> <li>结果<br /><img decoding="async" src="http://img.555519.xyz/uploads/20230223/e038e2b3e825b470106d07b12ab76fd2.jpg" alt="Spring Boot + Mybatis-Plus + jasypt 数据库连接加密"> </li> <li>之后我们在yml中进行配置</li> </ol> <pre><code class="prism language-yml"><span class="token key atrule">spring</span><span class="token punctuation">:</span>   <span class="token key atrule">datasource</span><span class="token punctuation">:</span>     <span class="token key atrule">driver-class-name</span><span class="token punctuation">:</span> com.mysql.cj.jdbc.Driver     <span class="token key atrule">url</span><span class="token punctuation">:</span> jdbc<span class="token punctuation">:</span>mysql<span class="token punctuation">:</span>//localhost<span class="token punctuation">:</span>3306/jwt_security<span class="token punctuation">?</span>useUnicode=true<span class="token important">&amp;characterEncoding=UTF-8&amp;serverTimezone=Asia/Shanghai</span>     <span class="token key atrule">username</span><span class="token punctuation">:</span> ENC(otk4Os0hjRq3ui44sSUgsA==)     <span class="token key atrule">password</span><span class="token punctuation">:</span> ENC(glqH/F/UyBJ4s/eMnaGDRQ==)      <span class="token key atrule">jasypt</span><span class="token punctuation">:</span>   <span class="token key atrule">encryptor</span><span class="token punctuation">:</span>     <span class="token key atrule">password</span><span class="token punctuation">:</span> abcd <span class="token comment">#加密盐值</span>     <span class="token key atrule">algorithm</span><span class="token punctuation">:</span> PBEWithMD5AndDES <span class="token comment">#加密算法设置</span>     <span class="token key atrule">iv-generator-classname</span><span class="token punctuation">:</span> org.jasypt.iv.NoIvGenerator </code></pre> <ol start="5"> <li>最后我们进行测试<br /><img decoding="async" src="http://img.555519.xyz/uploads/20230223/38e6221f84d41e504ebcaed34fc9da70.jpg" alt="Spring Boot + Mybatis-Plus + jasypt 数据库连接加密"> </li> </ol> <ul> <li>查询成功</li> <li>在此记录一次学习的一个过程</li> </ul> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1><a id="_0" rel="nofollow"></a>简介</h1> <p>按照原定的计划，我将分三个部分来分析 Eureka 的源码：</p> <ol> <li>Eureka 的配置体系（已经写完，见<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/ZhangZiSheng001/p/14374005.html"  rel="nofollow">Eureka详解系列(三)–探索Eureka强大的配置体系</a>）；</li> <li>Eureka Client 的交互行为；</li> <li>Eureka Server 的交互行为。</li> </ol> <p>今天，我们来研究第二部分的源码。</p> <p>我的思路是这样子的：先明确 Eureka Client 拥有哪些功能，然后从源码角度分析如何实现，最后，我会补充 Eureka Client 的配置解读。</p> <h1><a id="Eureka_Client_12" rel="nofollow"></a>Eureka Client的功能</h1> <p>首先来回顾下 Eureka 的整个交互过程。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220821/5199f2421b7cec43e97e80e7d52b8e6d.jpg" alt="Eureka详解系列(四)--Eureka Client部分的源码和配置"></p> <p>从用户的角度来讲，Eureka Client 要能够向 Eureka Server 注册当前实例以及获取注册表。</p> <p>至于其他的功能，我们需要再思考下。</p> <p>当我们把当前实例注册到了 Eureka Server 后，并非一劳永逸，如果当前实例故障了，Eureka Server 需要及时将它从注册表中剔除，那么，Eureka Server 怎么知道哪些实例故障了呢？做法比较简单，Application Service 需要定期向 Eureka Server 报告自己的健康状态，如果一直不报告，就认为是故障了。</p> <p>考虑到性能和可靠性，Application Client 本地会缓存一份服务注册表，并不需要每次用到就从 Eureka Server 重新获取。但是，Application Service “来来去去”，Eureka Server 的注册表并非一成不变，所以，Application Client 还需要定期同步注册表。</p> <p>最后还有一点，我们注册到 Eureka Server 的实例信息，除了实例 IP、端口、服务名等，还有实例 id、附带的元数据等，这些是可更改的，Application Service 需要及时地将这些更改同步到 Eureka Server。</p> <p>通过上面的分析，我们知道<strong>一个 Eureka Client 需要具备以下功能</strong>：</p> <ol> <li><strong>注册当前实例到 Eureka Server</strong>；</li> <li><strong>获取 Eureka Server 的服务注册表</strong>；</li> <li><strong>定期向 Eureka Server 发送心跳</strong>；</li> <li><strong>定期向 Eureka Server 同步当前实例信息</strong>；</li> <li><strong>定期刷新本地服务注册表</strong></li> </ol> <h1><a id="_36" rel="nofollow"></a>如何实现这些功能</h1> <p>知道了 Eureka Client 需要具备哪些功能，接下来我们就从源码的角度来看看怎样实现这些功能。</p> <p>和之前一样，我更多的会从设计的层面来分析，而不会顺序地去看每个过程的代码，即重设计、轻实现。如果对源码细节有疑问的，可以交流学习下。</p> <p>那么，还是从一个 UML 图开始吧。有了它，相信大家看源码时会更轻松一些。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220821/86a7b9a3402995407a66ad41d2682599.jpg" alt="Eureka详解系列(四)--Eureka Client部分的源码和配置"></p> <p>通过这个图，我们再来看 Eureka Client 的几个功能：</p> <ol> <li>注册当前实例到 Eureka Server；–初始化<code>DiscoveryClient</code>时就会注册上去。</li> <li>获取 Eureka Server 的服务注册表；–通过<code>DiscoveryClient</code>获取。</li> <li>定期向 Eureka Server 发送心跳；–通过<code>HeartbeatThread</code>任务实现。</li> <li>定期向 Eureka Server 同步当前实例信息；–通过<code>InstanceInfoReplicator</code>任务实现。</li> <li>定期刷新本地服务注册表；–通过<code>CacheRefreshThread</code>任务实现。</li> </ol> <p>我们拿<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/ZhangZiSheng001/p/14337985.html"  rel="nofollow">Eureka详解系列(二)–如何使用Eureka(原生API，无Spring)</a> 中的例子来分析下整个过程。</p> <pre><code class="prism language-java"><span class="token comment">// 创建ApplicationInfoManager对象</span> ApplicationInfoManager applicationInfoManager<span class="token operator">=</span><span class="token keyword">new</span><span class="token class-name">ApplicationInfoManager</span><span class="token punctuation">(</span><span class="token keyword">new</span><span class="token class-name">MyDataCenterInstanceConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token keyword">new</span><span class="token class-name">EurekaConfigBasedInstanceInfoProvider</span><span class="token punctuation">(</span>instanceConfig<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// 创建EurekaClient对象，这个时候完成了几件事：</span><span class="token comment">// 1. 注册当前实例到Eureka Server（实例的初始状态一般是STARTING）；</span><span class="token comment">// 2. 开启心跳、刷缓存、同步实例信息的定时任务；</span><span class="token comment">// 3. 注册状态监听器到ApplicationInfoManager（不然后面的setInstanceStatus不会生效的）</span> EurekaClient eurekaClient<span class="token operator">=</span><span class="token keyword">new</span><span class="token class-name">DiscoveryClient</span><span class="token punctuation">(</span>applicationInfoManager<span class="token punctuation">,</span><span class="token keyword">new</span><span class="token class-name">DefaultEurekaClientConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// 设置当前实例状态为STARTING（原状态也是STARTING，所以这一句没什么用）</span> applicationInfoManager<span class="token punctuation">.</span><span class="token function">setInstanceStatus</span><span class="token punctuation">(</span>InstanceInfo<span class="token punctuation">.</span>InstanceStatus<span class="token punctuation">.</span>STARTING<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// 设置当前实例状态为UP触发（监听器触发，执行InstanceInfoReplicator的任务）</span> applicationInfoManager<span class="token punctuation">.</span><span class="token function">setInstanceStatus</span><span class="token punctuation">(</span>InstanceInfo<span class="token punctuation">.</span>InstanceStatus<span class="token punctuation">.</span>UP<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// 和application client交互</span><span class="token comment">// ······</span><span class="token comment">// 关闭客户端，同时也会注销当前实例</span> eurekaClient<span class="token punctuation">.</span><span class="token function">shutdown</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre> <p>我们会发现，<code>DiscoveryClient</code>初始化化时做了非常多的事情，核心的源码都在它的构造方法里，大家感兴趣的可以自行阅读。</p> <p>这里提醒下，Eureka 的定时任务有点奇怪，它不是完全交给<code>ScheduledExecutorService</code>来调度，举个例子，<code>ScheduledExecutorService</code>只会按设定的延迟执行一次心跳任务，然后就不执行了，之所以能够实现定时调度，是因为心跳任务里又提交了一次任务，代码如下：</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">void</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">try</span><span class="token punctuation">{<!-- --></span><span class="token comment">// ······</span><span class="token punctuation">}</span><span class="token keyword">finally</span><span class="token punctuation">{<!-- --></span><span class="token comment">// ······</span><span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span>scheduler<span class="token punctuation">.</span><span class="token function">isShutdown</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>                 scheduler<span class="token punctuation">.</span><span class="token function">schedule</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> delay<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> TimeUnit<span class="token punctuation">.</span>MILLISECONDS<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <h1><a id="Eureka_Client_92" rel="nofollow"></a>Eureka Client的配置详解</h1> <p>回顾下<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/ZhangZiSheng001/p/14374005.html"  rel="nofollow">Eureka详解系列(三)–探索Eureka强大的配置体系</a>的内容，在 Eureka 里，配置分成了三种：</p> <ol> <li><strong>EurekaInstanceConfig</strong>：当前实例身份的配置信息，即<strong>我是谁？</strong></li> <li><strong>EurekaServerConfig</strong>：一些影响当前Eureka Server和客户端或对等节点交互行为的配置信息，即<strong>怎么交互？</strong></li> <li><strong>EurekaClientConfig</strong>：一些影响当前实例和Eureka Server交互行为的配置信息，即<strong>和谁交互？怎么交互？</strong></li> </ol> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220821/e4ac41067b592bf884ff0069cee0b5c9.jpg" alt="Eureka详解系列(四)--Eureka Client部分的源码和配置"></p> <p>这里我们来讲讲<code>EurekaInstanceConfig</code>和<code>EurekaClientConfig</code>的配置参数。</p> <h2><a id="EurekaInstanceConfig_104" rel="nofollow"></a>EurekaInstanceConfig–我是谁？</h2> <p>这些参数大部分用来向 Eureka Server 表明当前实例的身份，但我们会发现，这里混进了两个“异类”–lease.renewalInterval 和 lease.duration，这个不应该放在<code>EurekaClientConfig</code>里吗？</p> <p>我一开始也不明白，后来发现很重要的一点，<strong><code>EurekaClientConfig</code>的参数只能影响当前实例，而不能影响 Eureka Server</strong>，它的信息不能向 Eureka Server 传递，而<code>EurekaInstanceConfig</code>的就可以，所以，除了表明实例的身份，<code>EurekaInstanceConfig</code>还有另外一个功能，就是向 Eureka Server 传递某些重要的交互参数。</p> <pre><code class="prism language-properties"># 同一个服务下存在多个实例，这个可以作为唯一标识区分它们。默认为当前实例的主机名 eureka.instanceId=zzs  # 服务名。默认unknown eureka.name=SampleService  # 当前实例开放服务的端口，默认80 eureka.port=8001  # 当前实例多久向Eureka Server发送一次心跳，单位秒。默认30s eureka.lease.renewalInterval=30 # 如果没收到心跳，Eureka Server隔多久将当前实例剔除，单位秒。默认90s eureka.lease.duration=90  # 当前实例的虚拟主机名，通过这个可以直接访问到当前实例。默认：当前主机名+port eureka.vipAddress=sampleservice.zzs.cn  # 绑定在当前实例的一些自定义信息，它们会被放在一个map里，其他Eureka Client可以拿来用。默认是一个空map eureka.metadata.name=zzs eureka.metadata.age=18  # 这几个一般不用，我就不展开了 eureka.appGroup=unknown #eureka.asgName= eureka.traffic.enabled=false eureka.port.enabled=true eureka.securePort=443 eureka.securePort.enabled=false eureka.secureVipAddress=zzs:443 eureka.statusPageUrlPath=/Status eureka.statusPageUrl=http://zzs:8001/Status eureka.homePageUrlPath=/ eureka.homePageUr=http://zzs:8001/ eureka.healthCheckUrlPath=/healthcheck eureka.healthCheckUrl=http://zzs:8001/healthcheck eureka.secureHealthCheckUrl=https://zzs:443/healthcheck</code></pre> <h2><a id="EurekaClientConfig_149" rel="nofollow"></a>EurekaClientConfig–和谁交互？怎么交互？</h2> <p>关于 Eureka Server 集群的配置，有三种方法：</p> <ol> <li>在 serviceUrl 中写死 Eureka Server 的 IP，缺点就是每次增加、删除、更改机器都要更改配置；</li> <li>在 serviceUrl 中配置 Eureka Server 对应的 EIP，更改机器时不需要更改，但是增加、删除机器都要更改配置；</li> <li><strong>采用 DNS 配置 Eureka Server 的 IP</strong>，增加、删除、更改机器都不需要更改配置。</li> </ol> <p>这里还涉及到 region、zone 的概念，可以理解为：region 表示机器部署在不同的城市，zone 表示机器部署在同一个城市的不同机房里。默认情况下，Eureka Client 会优先选择自己所属 region 的 Eureka Server 来访问。</p> <pre><code class="prism language-properties"># 当前实例多久同步一次本地注册表，单位秒。默认30s eureka.client.refresh.interval=30 # 当前实例多久同步一次实例信息，单位秒。默认30s eureka.appinfo.replicate.interval=30  # 当前实例是否注册到Eureka Server。默认true eureka.registration.enabled=true # 当前实例是否需要从Eureka Server获取服务注册表 eureka.shouldFetchRegistry=true  # 当前实例可以和哪些region的Eureka Server交互 eureka.fetchRemoteRegionsRegistry=beijing,shanghai # 当前实例所在的region eureka.region=beijing # region下有哪些zone eureka.beijing.availabilityZones=zone-1,zone-2 eureka.shanghai.availabilityZones=zone-3 # zone下有哪些Eureka Server（这种配置可以通过EIP来避免写死IP，但扩展时还是要改，推荐使用DNS的方式） eureka.serviceUrl.zone-1=http://ec2-552-627-568-165.compute-1.amazonaws.com:7001/eureka/v2/,http://ec2-368-101-182-134.compute-1.amazonaws.com:7001/eureka/v2/ eureka.serviceUrl.zone-2=http://ec2-552-627-568-170.compute-1.amazonaws.com:7001/eureka/v2/ eureka.serviceUrl.zone-3=http://ec2-500-179-285-592.compute-1.amazonaws.com:7001/eureka/v2/  # 当我们使用DNS配置serviceUrl时需要用到的配置（非常推荐使用，可以避免写死IP，且方便扩展） eureka.shouldUseDns=true eureka.eurekaServer.domainName=sampleservice.zzs.cn eureka.eurekaServer.port=8001 eureka.eurekaServer.context=eureka/v2  # 这几个一般不用，我就不展开了 eureka.preferSameZone=true eureka.appinfo.initial.replicate.time=40 eureka.serviceUrlPollIntervalMs=300 eureka.client.heartbeat.threadPoolSize=5 eureka.client.heartbeat.exponentialBackOffBound=10 eureka.client.cacheRefresh.threadPoolSize=5 eureka.client.cacheRefresh.exponentialBackOffBound=10 #eureka.eurekaServer.proxyHost= #eureka.eurekaServer.proxyPort= #eureka.eurekaServer.proxyUserName= #eureka.eurekaServer.proxyPassword= eureka.eurekaServer.gzipContent=true eureka.eurekaServer.readTimeout=8 eureka.eurekaServer.connectTimeout=5 eureka.eurekaServer.maxTotalConnections=200 eureka.eurekaServer.maxConnectionsPerHost=50 eureka.eurekaserver.connectionIdleTimeoutInSeconds=45 #eureka.backupregistry= eureka.shouldEnforceRegistrationAtInit=false eureka.shouldEnforceFetchRegistryAtInit=false eureka.shouldUnregisterOnShutdown=true eureka.shouldFilterOnlyUpInstances=true eureka.shouldOnDemandUpdateStatusChange=true eureka.allowRedirects=true eureka.printDeltaFullDiff=true eureka.disableDelta=false eureka.registryRefreshSingleVipAddress=false eureka.dollarReplacement=_- eureka.escapeCharReplacement=__ #eureka.encoderName= #eureka.decoderName= eureka.clientDataAccept=full eureka.experimental.clientTransportFailFastOnInit=true</code></pre> <p>以上比较宏观地讲完了 Eureka Client 的源码和配置，感谢您的阅读。</p> <h1><a id="_226" rel="nofollow"></a>参考资料</h1> <p>https://github.com/Netflix/eureka/wiki/Eureka-at-a-glance</p> <blockquote> <p>相关源码请移步：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/ZhangZiSheng001/eureka-demo"  rel="nofollow">https://github.com/ZhangZiSheng001/eureka-demo</a></p> </blockquote> <blockquote> <p>本文为原创文章，转载请附上原文出处链接：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/ZhangZiSheng001/p/14381169.html"  rel="nofollow">https://www.cnblogs.com/ZhangZiSheng001/p/14381169.html</a></p> </blockquote> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-9.htm">如何在代码层面提高CPU分支预测效率</a></p>
-                                        <p>下一个：<a href="/html/category/article-11.htm">vue如何根据条件判断按钮是否可以点击_vue.js</a></p>
+                                        <p>上一个：<a href="/html/category/article-9.htm">JVM将初始和最大内存大小设置为相同值的好处</a></p>
+                                        <p>下一个：<a href="/html/category/article-11.htm">自定义指令拖拽el-dialog</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
-                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
+                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
+                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
-                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
-                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
-                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
-                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
-                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
+                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
             </div>
         </div>
     </div>

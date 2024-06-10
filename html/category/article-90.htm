@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-90.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>UPDATE语句的SET子句中列顺序的重要性是什么？它对MySQL返回的结果集有很大的影响吗？ - EgyptAddress</title>
+    <title>Java数据结构-栈的实现 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">UPDATE语句的SET子句中列顺序的重要性是什么？它对MySQL返回的结果集有很大的影响吗？</h1>
+                <h1 class="title" style="word-break: break-all;">Java数据结构-栈的实现</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>UPDATE语句的SET子句中列的顺序很重要，因为MySQL为我们提供了表达式中使用的列名的更新值。是的，它将对MySQL返回的结果集产生很大的影响。以下是一个例子，以使其清晰-</p> <h2>示例</h2> <p>在此示例中，我们有一个表“ tender”。首先，我们将在SET子句中使用“ tender_id”作为第一列，并使用“ rate”作为第二列来编写UPDATE语句，然后在“表“投标”。</p> <pre>mysql&gt;&nbsp;Select&nbsp;*&nbsp;from&nbsp;tender;  +-----------+---------+------+ |&nbsp;tender_id&nbsp;|&nbsp;company&nbsp;|&nbsp;rate&nbsp;| +-----------+---------+------+ |&nbsp;200&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;1000&nbsp;| |&nbsp;300&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;6000&nbsp;| |&nbsp;301&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;7000&nbsp;| |&nbsp;302&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3500&nbsp;| |&nbsp;303&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3600&nbsp;| +-----------+---------+------+  5&nbsp;rows&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)  mysql&gt;&nbsp;UPDATE&nbsp;tender&nbsp;SET&nbsp;tender_id&nbsp;=&nbsp;tender_id&nbsp;+&nbsp;100,&nbsp;rate&nbsp;=&nbsp;tender_id&nbsp;*&nbsp;4&nbsp;WHERE&nbsp;tender_id&nbsp;=&nbsp;200; Rows&nbsp;matched:&nbsp;1&nbsp;Changed:&nbsp;1&nbsp;Warnings:&nbsp;0</pre> <p>上面的查询将首先更新'tender_id'的值，然后根据新的'tender_id'值更新'rate'的值。可以在MySQL返回的结果集中看到它，如下所示-</p> <pre>mysql&gt;&nbsp;Select&nbsp;*&nbsp;from&nbsp;tender;  +-----------+---------+------+ |&nbsp;tender_id&nbsp;|&nbsp;company&nbsp;|&nbsp;rate&nbsp;| +-----------+---------+------+ |&nbsp;300&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;1200&nbsp;| |&nbsp;300&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;6000&nbsp;| |&nbsp;301&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;7000&nbsp;| |&nbsp;302&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3500&nbsp;| |&nbsp;303&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3600&nbsp;| +-----------+---------+------+  5&nbsp;rows&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)  mysql&gt;&nbsp;UPDATE&nbsp;tender1&nbsp;SET&nbsp;rate&nbsp;=&nbsp;tender_id&nbsp;*&nbsp;4,&nbsp;tender_id&nbsp;=&nbsp;tender_id&nbsp;+&nbsp;200&nbsp;WHERE&nbsp;company&nbsp;=&nbsp;'ABD'; Rows&nbsp;matched:&nbsp;1&nbsp;Changed:&nbsp;1&nbsp;Warnings:&nbsp;0</pre> <p>上面的查询将首先根据旧值“ tender_id”更新“ rate”的值，然后更新“ tender_id”的值。在MySQL返回的结果集中可以看到如下：</p> <pre>mysql&gt;&nbsp;Select&nbsp;*&nbsp;from&nbsp;tender;  +-----------+---------+------+ |&nbsp;tender_id&nbsp;|&nbsp;company&nbsp;|&nbsp;rate&nbsp;| +-----------+---------+------+ |&nbsp;300&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;1200&nbsp;| |&nbsp;500&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;1200&nbsp;| |&nbsp;301&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;7000&nbsp;| |&nbsp;302&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3500&nbsp;| |&nbsp;303&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;ABG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3600&nbsp;| +-----------+---------+------+  5&nbsp;rows&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre> <p>SET子句中列顺序的更改将对输出产生很大的影响。</p> <div></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <h1>前言:</h1> <blockquote> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;嘻嘻,今天博主终于要更新栈的知识了,上次结束说要更新要是上一次,所以这次咱就把栈的实现的更新带来了,嗯~ o(*￣▽￣*)o小伙伴可能会问,栈能干什么啊,在Java中栈不是有对应的类吗....</p> <p class="img-center"> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<strong>栈能够实现逆波兰计算机,中缀表达式转后缀表达式,还有普通中缀计算机等.....</strong></p> <p class="img-center"> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;话不多说,我们就从一下几个方面开始吧</p> <p>&nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#511b78;"><em><strong> 栈的概念 ???? 栈的实现思路&nbsp;???? 栈的代码实现与分析&nbsp;???? 结论&nbsp;</strong></em></span></p> <p><span style="color:#511b78;"><em><strong>&nbsp; &nbsp; &nbsp; &nbsp; </strong></em></span><span style="color:#38d8f0;"><em><strong>如果喜欢作者的话</strong></em></span><span style="color:#511b78;"><em><strong>,<a class="link-info" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/JOElib?spm=1000.2115.3001.5343"  title="戳这" rel="nofollow">戳这</a></strong></em></span></p> <p><span style="color:#511b78;"><em><strong>&nbsp; &nbsp; &nbsp; &nbsp; </strong></em></span><span style="color:#fe2c24;"><em><strong>往期精彩:</strong></em></span><br /> &nbsp; &nbsp; &nbsp; &nbsp; <a class="link-info" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/JOElib/article/details/123560844?spm=1001.2014.3001.5501"  title="普通队列与环形队列" rel="nofollow">普通队列与环形队列</a></p> </blockquote> <hr/> <h1>栈的概念:&nbsp;</h1> <ol> <li>&nbsp;栈是一个<span style="color:#fe2c24;"><strong>先进后出,后进先出</strong></span>的有序列表</li> <li>&nbsp;在栈中添加元素和删除元素都在一端执行,是一个特殊的线性表</li> <li>&nbsp;插入元素或删除元素的一端是活跃的一端,被称为栈顶</li> <li>&nbsp;另一端不活跃,被称为栈底</li> <li>&nbsp;常用术语:压栈=入栈=push 出栈=弹栈=pop</li> </ol> <hr/> <h1>&nbsp;栈的实现思路:</h1> <ul> <li>&nbsp;我们需要创建一个数组去模拟栈</li> <li>&nbsp;定义一个栈顶变量top,用于指向栈顶</li> <li>&nbsp;定义压栈弹栈等方法</li> </ul> <hr/> <h1>&nbsp;栈的代码实现与分析:</h1> <ul> <li> <h3>创建一个数组及其变量模拟栈&nbsp;</h3> </li> </ul> <pre><code class="language-java">    private int maxSize;     private int top;     private Object[] stack;      public ArraysStack(int maxSize) {         this.maxSize = maxSize;         this.top = -1;         stack = new Object[maxSize];     }</code></pre> <p>&nbsp;<strong>代码分析:</strong></p> <ul> <li>&nbsp;<strong>maxSize是栈的最大容量,</strong>在调用构造方法的时候可以自行指定</li> <li> <strong>&nbsp;top用于指向栈顶的变量</strong>,应该被初始化为-1</li> <li>&nbsp;这里选用了Object[]数组,<strong>目的是什么都可以放进去</strong> </li> </ul> <p><strong>图解:&nbsp;</strong></p> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230205/ca990a8cc8cca5987562c26b941319e9.jpg">&nbsp;</p> <ul> <li> <h3>&nbsp;<strong>创造两个方法,分别判断是否已满或已空</strong><br /> </h3> </li> </ul> <pre><code class="language-java">public boolean isFull() {         return top == maxSize - 1;     } public boolean isEmpty() {         return top == -1;     }</code></pre> <p>&nbsp;<strong>代码分析:</strong>&nbsp;</p> <p><strong>图解:&nbsp;</strong></p> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230205/b59718de67d20e8c50bd6dcab556a304.jpg"></p> <ul> <li> <h3>&nbsp;创建一个压栈和弹栈的方法</h3> </li> </ul> <pre><code class="language-java">public void push(E element) {         if(isFull()) {             System.out.println("栈已满,无法压栈");             return;         }         stack[++top] = element;     } public E pop() throws Exception{         if(isEmpty()) {             throw new Exception("栈已空,无法弹栈");         }         return (E)stack[top--];     }</code></pre> <p>&nbsp;&nbsp;<strong>代码分析:</strong>&nbsp;</p> <ul> <li>加入元素和取出元素之前,要分别分析一下栈是否为空,或是否为满,要有<strong>校验意识</strong> </li> <li>因为<strong>top初始化为-1</strong>,所以添加元素的时候应该<strong>先要自增,再添加</strong> </li> <li>因为<strong>top指向栈顶元素</strong>,所以取出元素时,<strong>先取出,栈顶top变量再自减&nbsp;</strong> </li> </ul> <p>&nbsp;<strong>图解:&nbsp;</strong></p> <p style="text-align:center;">&nbsp;<img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230205/bc64675d8ea29760b5c73a50126e22b9.jpg"></p> <ul> <li> <h3>&nbsp;创建一个遍历的方法</h3> </li> </ul> <pre><code class="language-java">public void print() {         if(isEmpty()){             System.out.println("栈已空,无法输出");             return;         }         for (int i = top; i &gt;= 0; i--) {             System.out.println("stack[" + i + "] = " + stack[i]);         }     }</code></pre> <p>&nbsp;&nbsp;&nbsp;<strong>代码分析:</strong>&nbsp;</p> <ol> <li>从栈的定义得知,先<strong>拿出来的是栈顶元素</strong>,所以应该从top开始,到0结束&nbsp;&nbsp;</li> </ol> <h3>&nbsp;完整代码:</h3> <pre><code class="language-java">package datastructure.chapter02.stack.instance;  /**  *  * @param &lt;E&gt; 指定栈存储的元素  */ public class ArraysStack&lt;E&gt; {     private int maxSize;     private int top;     private Object[] stack;      /**      * 栈(数组实现)的构造方法      * @param maxSize 栈空间的最大值      */     public ArraysStack(int maxSize) {         this.maxSize = maxSize;         this.top = -1;         stack = new Object[maxSize];     }      /**      *  判断栈是否为满      * @return 若返回值为true,则栈已满,否则为false      */     public boolean isFull() {         return top == maxSize - 1;     }      /**      *  判断栈是否为空      * @return 若返回值为true,则栈已空,否则为false      */     public boolean isEmpty() {         return top == -1;     }      /**      * @param element 压入栈的数据      */     public void push(E element) {         if(isFull()) {             System.out.println("栈已满,无法压栈");             return;         }         stack[++top] = element;     }      /**      *      * @return 返回栈顶数据      * @throws Exception 空栈异常      */     public E pop() throws Exception{         if(isEmpty()) {             throw new Exception("栈已空,无法弹栈");         }         return (E)stack[top--];     }      /**      * 输出栈      */     public void print() {         if(isEmpty()){             System.out.println("栈已空,无法输出");             return;         }         for (int i = top; i &gt;= 0; i--) {             System.out.println("stack[" + i + "] = " + stack[i]);         }     } } </code></pre> <h1>&nbsp;结论:</h1> <blockquote> <p>&nbsp; &nbsp; &nbsp; &nbsp; 栈的知识点简单又重要,代码不多,理解起来也不难,我来总结一下重要的几点:</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; <strong>栈顶top的初始化赋值</strong></p> <p><strong>&nbsp; &nbsp; &nbsp; &nbsp; 栈的压栈和弹栈的方法</strong></p> <p>&nbsp; &nbsp; &nbsp; &nbsp; ????下一站:双向链表!!!</p> </blockquote></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-89.htm">innoDB如何解决幻读详解</a></p>
-                                        <p>下一个：<a href="/html/category/article-91.htm">Blazor 使用拖放（drag and drop）上传文件 , 粘贴文件上传</a></p>
+                                        <p>上一个：<a href="/html/category/article-89.htm">19-Spring AOP源码分析-代理对象调用目标方法</a></p>
+                                        <p>下一个：<a href="/html/category/article-91.htm">C++详解多线程中的线程同步与互斥量_C 语言</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
-                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
+                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
-                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
-                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></h4>
-                <p>博客目录 1、union(合并结果集) 2、limit(获取一张表中某部分数据) 3、表——创建表、删除表 4、关于MySQL中的数据类型  一、union(合并结果集)  将两个查询结果合并(可以是</p>
+                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
+                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
-                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></h4>
+                <p>vue父组件向子组件传值与传递方法 学习笔记 1、父组件向子组件传值（props）  在子组件中，默认是无法访问到父组件中的data上的数据和methods中的方法 父组件可以在引用子组件的时候，通过</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
-                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
+                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></h4>
-                <p>1，准备组件popup // components文件夹中popup组件&lt;template&gt;&lt;view&gt;&lt;viewclass="show-box-bg wx-login-</p>
+                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
+                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
             </div>
         </div>
     </div>

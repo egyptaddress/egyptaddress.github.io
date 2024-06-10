@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-181.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Java中自定义注解的使用 - EgyptAddress</title>
+    <title>Web前端：Ruby On Rails与JavaScript的主要差异 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Java中自定义注解的使用</h1>
+                <h1 class="title" style="word-break: break-all;">Web前端：Ruby On Rails与JavaScript的主要差异</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h2>一、注解的概念<br /> 1.注解的概念<br /> 注解是一种元数据形式。即注解是属于java的一种数据类型，和类、接口、数组、枚举类似。<br /> 注解用来修饰，<span style="color:#fe2c24;">类、方法、变量、参数、包。</span><br /> 注解不会对所修饰的代码产生直接的影响。<br /> 2.注解的使用范围<br /> 注解又许多用法，其中有：为编译器提供信息 - 注解能被编译器检测到错误或抑制警告。编译时和部署时的处理 - 软件工具能处理注解信息从而生成代码，XML文件等等。运行时的处理 - 有些注解在运行时能被检测到。 &nbsp;</h2> <h2>二、如何自定义注解<br /> 注解其实就是一种标记，可以在程序代码中的关键节点（类、方法、变量、参数、包）上打上这些标记，然后程序在编译时或运行时可以检测到这些标记从而执行一些特殊操作。因此可以得出自定义注解使用的基本流程：</h2> <p>第一步，定义注解——相当于定义标记；<br /> 第二步，配置注解——把标记打在需要用到的程序代码中；<br /> 第三步，解析注解——在编译期或运行时检测到标记，并进行特殊操作。</p> <h2>1.注解的基本语法<br /> 注解类型的声明部分：</h2> <p>注解在Java中，与类、接口、枚举类似，因此其声明语法基本一致，只是所使用的关键字有所不同，注解使用@interface关键字来声明。在底层实现上，所有定义的注解都会自动继承java.lang.annotation.Annotation接口。</p> <pre><code class="language-java">public @interface Information { }</code></pre> <p> 注解类型的实现部分：</p> <p>根据我们日常定义类或接口的经验，在类中无非是要定义构造方法、属性或一般方法。但是，在自定义注解中，其实现部分只能定义一个东西：注解类型元素（annotation type element）。基本语法如下：</p> <pre><code class="language-java">public @interface Information { &nbsp; &nbsp; String name(); &nbsp; &nbsp; &nbsp; int age(); &nbsp; &nbsp; &nbsp; String[] hobbies(); &nbsp; &nbsp; &nbsp; String address(); }</code></pre> <p> &nbsp; 根据上面定义的属性，我们可以发现这种定义的内容类似抽象方法，实际上这是一种规定的注解类型元素。</p> <p>&nbsp; 注解类型元素允许我们设置默认值，如果不设置则在后续使用注解时候，必须填写对应的属性值。</p> <pre><code class="language-java">public @interface Information { &nbsp; &nbsp; String name(); &nbsp; &nbsp; &nbsp; int age(); &nbsp; &nbsp; &nbsp; String[] hobbies(); &nbsp; &nbsp; &nbsp; String address() default "中国"; }</code></pre> <blockquote> <p> 定义注解类型元素时需要注意如下几点：<br /> 1.访问修饰符必须为public，不写默认为public；</p> <p>2.该元素的类型只能是基本数据类型、String、Class、枚举类型、注解类型（体现了注解的嵌套效果）以及上述类型的一位数组；</p> <p>3.该元素的名称一般定义为名词，如果注解中只有一个元素，请把名字起为value（后面使用会带来便利操作）；</p> <p>4.()不是定义方法参数的地方，也不能在括号中定义任何参数，仅仅只是一个特殊的语法；</p> <p>5.default代表默认值，值必须和第2点定义的类型一致；</p> <p>6.如果没有默认值，代表后续使用注解时必须给该类型元素赋值。</p> </blockquote> <p>可以看出，注解类型元素的语法非常奇怪，即又有属性的特征（可以赋值）,又有方法的特征（打上了一对括号）。但是这么设计是有道理的，在后续的代码示例中我们可以看到：注解在定义好了以后，使用的时候操作元素类型像在操作属性，解析的时候操作元素类型像在操作方法。<br /> &nbsp;</p> <p>2.元注解<br /> 一个最基本的注解定义就只包括了上面的两部分内容：1、注解的名字；2、注解包含的类型元素。但是，我们在使用JDK自带注解的时候发现，有些注解只能写在方法上面（比如@Override）；有些却可以写在类的上面（比如@Deprecated）。当然除此以外还有很多细节性的定义，那么这些定义该如何做呢？这些限定就是通过元注解来实现的。<br /> 元注解：专门修饰注解的注解。它们都是为了更好的设计自定义注解的细节而专门设计的。</p> <h2>（1）@Target<br /> @Target注解，是专门用来限定某个自定义注解能够被应用在哪些Java元素上面的。它使用一个枚举类型定义如下：</h2> <pre><code class="language-java">public enum ElementType { &nbsp; &nbsp; /** Class, interface (including annotation type), or enum declaration */ &nbsp; &nbsp; TYPE, &nbsp; &nbsp; &nbsp; /** Field declaration (includes enum constants) */ &nbsp; &nbsp; FIELD, &nbsp; &nbsp; &nbsp; /** Method declaration */ &nbsp; &nbsp; METHOD, &nbsp; &nbsp; &nbsp; /** Formal parameter declaration */ &nbsp; &nbsp; PARAMETER, &nbsp; &nbsp; &nbsp; /** Constructor declaration */ &nbsp; &nbsp; CONSTRUCTOR, &nbsp; &nbsp; &nbsp; /** Local variable declaration */ &nbsp; &nbsp; LOCAL_VARIABLE, &nbsp; &nbsp; &nbsp; /** Annotation type declaration */ &nbsp; &nbsp; ANNOTATION_TYPE, &nbsp; &nbsp; &nbsp; /** Package declaration */ &nbsp; &nbsp; PACKAGE, &nbsp; &nbsp; &nbsp; /** &nbsp; &nbsp; &nbsp;* Type parameter declaration &nbsp; &nbsp; &nbsp;* &nbsp; &nbsp; &nbsp;* @since 1.8 &nbsp; &nbsp; &nbsp;*/ &nbsp; &nbsp; TYPE_PARAMETER, &nbsp; &nbsp; &nbsp; /** &nbsp; &nbsp; &nbsp;* Use of a type &nbsp; &nbsp; &nbsp;* &nbsp; &nbsp; &nbsp;* @since 1.8 &nbsp; &nbsp; &nbsp;*/ &nbsp; &nbsp; TYPE_USE } //限定@Information注解只能使用在类、接口或方法上面。 @Target({ElementType.TYPE,ElementType.METHOD}) public @interface Information { &nbsp; &nbsp; String name(); &nbsp; &nbsp; &nbsp; int age(); &nbsp; &nbsp; &nbsp; String[] hobbies(); &nbsp; &nbsp; &nbsp; String address() default "中国"; }</code></pre> <h2> <br /> （2）@Retention<br /> @Retention注解，翻译为持久力、保持力。即用来修饰自定义注解的生命力。<br /> 注解的生命周期有三个阶段：</h2> <p><span style="color:#fe2c24;"><strong>Java源文件阶段。<br /> 编译到class文件阶段。<br /> 运行期阶段。</strong></span><br /> 注：只有注解信息在运行时保留，我们才能在运行时通过反射操作获取到注解信息。</p> <p>同样使用了RetentionPolicy枚举类型定义了三个阶段：</p> <pre><code class="language-java">public enum RetentionPolicy { &nbsp; &nbsp; /** &nbsp; &nbsp; &nbsp;* Annotations are to be discarded by the compiler. &nbsp; &nbsp; &nbsp;* （注解将被编译器忽略掉） &nbsp; &nbsp; &nbsp;*/ &nbsp; &nbsp; SOURCE, &nbsp; &nbsp; &nbsp; /** &nbsp; &nbsp; &nbsp;* Annotations are to be recorded in the class file by the compiler &nbsp; &nbsp; &nbsp;* but need not be retained by the VM at run time. &nbsp;This is the default &nbsp; &nbsp; &nbsp;* behavior. &nbsp; &nbsp; &nbsp;* （注解将被编译器记录在class文件中，但在运行时不会被虚拟机保留，这是一个默认的行为） &nbsp; &nbsp; &nbsp;*/ &nbsp; &nbsp; CLASS, &nbsp; &nbsp; &nbsp; /** &nbsp; &nbsp; &nbsp;* Annotations are to be recorded in the class file by the compiler and &nbsp; &nbsp; &nbsp;* retained by the VM at run time, so they may be read reflectively. &nbsp; &nbsp; &nbsp;* （注解将被编译器记录在class文件中，而且在运行时会被虚拟机保留，因此它们能通过反射被读取到） &nbsp; &nbsp; &nbsp;* @see java.lang.reflect.AnnotatedElement &nbsp; &nbsp; &nbsp;*/ &nbsp; &nbsp; RUNTIME }</code></pre> <h2> <br /> 我们再详解一下四种Retention的配置：</h2> <blockquote> <p>1.如果一个注解被定义为RetentionPolicy.SOURCE，则它将被限定在Java源文件中，那么这个注解即不会参与编译也不会在运行期起任何作用，这个注解就和一个注释是一样的效果，只能被阅读Java文件的人看到；</p> <p> 2.如果一个注解被定义为RetentionPolicy.CLASS，则它将被编译到Class文件中，那么编译器可以在编译时根据注解做一些处理动作，但是运行时JVM（Java虚拟机）会忽略它，我们在运行期也不能读取到；</p> <p> 3.如果一个注解被定义为RetentionPolicy.RUNTIME，那么这个注解可以在运行期的加载阶段被加载到Class对象中。那么在程序运行阶段，我们可以通过反射得到这个注解，并通过判断是否有这个注解或这个注解中属性的值，从而执行不同的程序代码段。</p> <p><span style="color:#fe2c24;"><strong>我们实际开发中的自定义注解几乎都是使用的RetentionPolicy.RUNTIME；</strong></span><br /> 4.在默认的情况下，自定义注解是使用的RetentionPolicy.CLASS。<br /> &nbsp;</p> </blockquote> <p><span style="color:#fe2c24;"><strong>（3）@Documented</strong></span><br /> @Documented注解，是被用来指定自定义注解是否能随着被定义的java文件生成到JavaDoc文档当中。</p> <p><strong>（4）@Inherited</strong><br /> @Inherited注解，是指定某个自定义注解如果写在了父类的声明部分，那么子类的声明部分也能自动拥有该注解，类似继承。@Inherited注解只对那些@Target被定义为ElementType.TYPE的自定义注解起作用。</p> <p><span style="color:#fe2c24;">注：类并不从它所实现的接口继承annotation，方法并不从它所重载的方法继承annotation。</span></p> <h2>三、自定义注解的特殊语法<br /> 1.特殊语法一：<br /> 如果注解本身没有注解类型元素，那么在使用注解的时候可以省略()，直接写为：@注解名，它和标准语法@注解名()等效！</h2> <pre><code class="language-java">@Retention(RetentionPolicy.RUNTIME) @Target(value = {ElementType.TYPE}) @Documented public @interface FirstAnnotation { } //等效于@FirstAnnotation() @FirstAnnotation public class DemoClass{ &nbsp;&nbsp; &nbsp;//省略实现部分 }</code></pre> <h2> <br /> 2. 特殊语法二：<br /> 如果注解本本身只有一个注解类型元素，而且命名为value，那么在使用注解的时候可以直接使用：@注解名(注解值)，其等效于：@注解名(value = 注解值)。</h2> <pre><code class="language-java">@Retention(RetentionPolicy.RUNTIME) @Target(value = {ElementType.TYPE}) @Documented public @interface SecondAnnotation { &nbsp;&nbsp; &nbsp;String value(); } //等效于@ SecondAnnotation(value = "this is second annotation") @SecondAnnotation("this is annotation") public class DemoClass{ &nbsp;&nbsp; &nbsp;//省略实现部分 }</code></pre> <h2> <br /> 特殊用法三：<br /> 如果注解中的某个注解类型元素是一个数组类型，在使用时又出现只需要填入一个值的情况，那么在使用注解时可以直接写为：@注解名(类型名 = 类型值)，它和标准写法：@注解名(类型名 = {类型值})等效！</h2> <pre><code class="language-java">@Retention(RetentionPolicy.RUNTIME) @Target(value = {ElementType.TYPE}) @Documented public @interface ThirdAnnotation { &nbsp;&nbsp; &nbsp;String[] name(); } //等效于@ ThirdAnnotation(name = {"this is third annotation"}) @ ThirdAnnotation(name = "this is third annotation") public class DemoClass{ &nbsp;&nbsp; &nbsp;//省略实现部分 }</code></pre> <h2> <br /> 特殊用法四：<br /> 如果一个注解的@Target是定义为Element.PACKAGE，那么这个注解是配置在package-info.java中的，而不能直接在某个类的package代码上面配置。</h2> <h2>&nbsp;<br /> 四、使用和操作注解<br /> 先说下需求：定义一个自定义注解，在注解上配置相关信息，用该注解标记一个方法，然后在测试类中，检测当前方法是否标记了我们自定义的注解，如果标记了，打印标记的注解内配置信息，如果没有标记，打印"该方法没有使用xxx注解"。</h2> <p>明确我们的需求后，前面我们说过，只有将注解的生命周期配置成运行时，即在Runntime时保留,才能获取注解中的相关信息。</p> <p>操作和使用注解 要用到Java中的核心技术——反射。</p> <p>废话少说，下面直接上代码。</p> <pre><code class="language-java">/** &nbsp;* @ClassName Information &nbsp;* @Description 信息注解 &nbsp;* @Author EvanWang &nbsp;* @Version 1.0.0 &nbsp;* @Date 2019/11/6 14:49 &nbsp;*/ @Target(ElementType.METHOD) @Retention(RetentionPolicy.RUNTIME) public @interface Information { &nbsp; &nbsp; String name(); &nbsp; &nbsp; &nbsp; int age(); &nbsp; &nbsp; &nbsp; String[] hobbies(); &nbsp; &nbsp; &nbsp; String address() default "中国"; }</code></pre> <p> &nbsp;</p> <pre><code class="language-java">/** &nbsp;* @ClassName Person &nbsp;* @Description Person Pojo &nbsp;* @Author EvanWang &nbsp;* @Version 1.0.0 &nbsp;* @Date 2019/11/6 17:06 &nbsp;*/ public class Person { &nbsp; &nbsp; String name; &nbsp; &nbsp; &nbsp; int age; &nbsp; &nbsp; &nbsp; String hobbies; &nbsp; &nbsp; &nbsp; String address; &nbsp; &nbsp; &nbsp; public String getName() { &nbsp; &nbsp; &nbsp; &nbsp; return name; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; public void setName(String name) { &nbsp; &nbsp; &nbsp; &nbsp; this.name = name; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; public int getAge() { &nbsp; &nbsp; &nbsp; &nbsp; return age; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; public void setAge(int age) { &nbsp; &nbsp; &nbsp; &nbsp; this.age = age; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; public String getHobbies() { &nbsp; &nbsp; &nbsp; &nbsp; return hobbies; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; public void setHobbies(String hobbies) { &nbsp; &nbsp; &nbsp; &nbsp; this.hobbies = hobbies; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; public String getAddress() { &nbsp; &nbsp; &nbsp; &nbsp; return address; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; public void setAddress(String address) { &nbsp; &nbsp; &nbsp; &nbsp; this.address = address; &nbsp; &nbsp; } }</code></pre> <pre><code class="language-java">/** &nbsp;* @ClassName PersonService &nbsp;* @Description&nbsp; &nbsp;* @Author EvanWang &nbsp;* @Version 1.0.0 &nbsp;* @Date 2019/11/6 16:55 &nbsp;*/ public class PersonService { &nbsp; &nbsp; @Information(name = "Evan", age = 18, hobbies = {"编程", "看电影", "踢足球"}) &nbsp; &nbsp; public void outputPersonInfo(Person person) { &nbsp; &nbsp; &nbsp; &nbsp; String outputStr = String.format("我是%s,我来自%s,今年%s岁，我的爱好是%s。", &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; person.getName(), &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; person.getAddress(), &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; person.getAge(), &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; person.getHobbies()); &nbsp; &nbsp; &nbsp; &nbsp; System.out.println(outputStr); &nbsp; &nbsp; } }</code></pre> <p> &nbsp;</p> <pre><code class="language-java">/** &nbsp;* @ClassName AnnotationTest &nbsp;* @Description 自定义注解测试类 &nbsp;* @Author EvanWang &nbsp;* @Version 1.0.0 &nbsp;* @Date 2019/11/6 16:18 &nbsp;*/ public class AnnotationTest { &nbsp; &nbsp; public static void main(String[] args) throws Exception { &nbsp; &nbsp; &nbsp; &nbsp; Class&lt;?&gt; clazz = PersonService.class; &nbsp; &nbsp; &nbsp; &nbsp; Method method = clazz.getMethod("outputPersonInfo", Person.class); &nbsp; &nbsp; &nbsp; &nbsp; if (!method.isAnnotationPresent(Information.class)){ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; System.out.println(method.getName()+"方法没有标注@Information注解！"); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return; &nbsp; &nbsp; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; &nbsp; Person person = new Person(); &nbsp; &nbsp; &nbsp; &nbsp; Information information = method.getAnnotation(Information.class); &nbsp; &nbsp; &nbsp; &nbsp; person.setName(information.name()); &nbsp; &nbsp; &nbsp; &nbsp; person.setAddress(information.address()); &nbsp; &nbsp; &nbsp; &nbsp; person.setAge(information.age()); &nbsp; &nbsp; &nbsp; &nbsp; person.setHobbies(Arrays.asList(information.hobbies()).toString()); &nbsp; &nbsp; &nbsp; &nbsp; PersonService personService=new PersonService(); &nbsp; &nbsp; &nbsp; &nbsp; method.invoke(personService,person); &nbsp; &nbsp; } } 运行结果： 标注注解： 我是Evan,我来自中国,今年18岁，我的爱好是[编程, 看电影, 踢足球]。 &nbsp; &nbsp; 未标注注解： outputPersonInfo方法没有标注@Information注解！</code></pre> <p> 原文链接：https://blog.csdn.net/qq_41378597/article/details/102934784</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>　　Ruby和Javascript都是Web开发中广泛使用的语言。如果您是Web开发人员或对Web开发感兴趣，您可能会将Ruby on rails与Javascript混淆——哪个更好用。因此，今天我们在这里详细比较Ruby on Rails与Javascript。</p> <p>　　Ruby On Rails 概述</p> <p>　　Ruby on Rails，或简称 Rails，是MIT许可的开源服务器端Web应用程序框架。它是使用Ruby编程语言创建的。Rails 可用于创建从简单到复杂的所有类型的应用程序，并且您可以使用它做的事情没有界限!</p> <p>　　Ruby与HTML、JavaScript和CSS一起使用来创建在Web服务器上运行的Web应用程序，它通常被称为开发服务器端Web应用程序的平台。Rails可以帮助您加快大型项目的构建。</p> <p>　　JavaScript 概述</p> <p>　　JavaScript，也缩写为JS，是一种编程/脚本语言，通常与HTML和CSS一起使用，是WWW(万维网)的基本技术之一，它是一种解释型语言，不需要编译器。Javascript直接在网络浏览器上运行。HTML和CSS用于构建网站的总体设计和结构。</p> <p>　　同时，Javascript 主要用于网站创建动态内容，例如图片库幻灯片、可填写表单和动画图形。如果您对网站编程感兴趣，Javascript是一门很好的学习语言。</p> <p>　　Ruby On Rails 对比JavaScript- 主要区别是什么?</p> <p>　　1.性能</p> <p>　　在Ruby On Rails与JavaScript中，性能是需要考虑的一个重要方面，因为框架或编程语言的性能对于项目的成功至关重要。JavaScript是一种在网站的服务器端和客户端都使用的事件驱动语言，JavaScript非常适合生成低延迟应用程序，因为您不必等待函数完成。</p> <p>　　Ruby on Rails具有延迟的CPU处理时间，并且不完全支持异步编程。要实现并发，开发人员应该具备很多专业知识，由于该框架在运行时完全被解释，因此是一个不如JS强大的工具。</p> <p class="img-center"><img fetchpriority="high" decoding="async" alt="" height="365" src="http://img.555519.xyz/uploads3/20220609/18d9dce56bd27d2f36977ef62ec16846.jpg"></p> <p>　　2.社区</p> <p>　　Ruby on Rails和JavaScript都有庞大的社区，然而，JavaScript 拥有比Ruby On Rails 更广泛的社区，并且有几项措施将其列为最流行的语言，大约95%的网站都使用它，它还有大量的模块和包，同时，Rails有几千个模块。</p> <p>　　NPM(用 JS 编写)拥有超过800,000个模块，并且大部分模块是开源的，其中许多模块可以免费用于商业用途。</p> <p>　　然而，Ruby是一种比JavaScript更加友好的语言，它的社区也更加友好。</p> <p>　　3.安全</p> <p>　　安全性是Ruby on Rails与JavaScript中需要考虑的一个重要方面。Ruby on Rails 比JavaScript更安全。它是一个开源框架，具有针对多种不同威胁的内置功能。</p> <p>　　相比之下，JavaScript有许多安全漏洞，尤其是在客户端。但请记住，无论您使用什么技术，都应始终为安全威胁做好准备，因此请始终采取预防措施。</p> <p>　　4.开发成本</p> <p>　　当我们检查Ruby on rails与JavaScript的成本效益时，我们可以看到它们的成本都很高。Ruby on rails 需要技术资源和经验丰富的专业人员，而您还需要熟练的专业人员来有效地实施 JavaScript。但是，当您的Web项目是由擅长他们所做的顶级专家构建时，开发成本并不重要。</p> <p>　　结论</p> <p>　　我们在不同的指标上比较了Ruby和 Javascript，发现两种语言在各种指标上的表现都比其他语言更好。总而言之，Javascript 和Rubyon Rails 都是Web开发的绝佳选择。因此，哪种语言更好完全取决于项目的要求。</p> <p>　　如果您需要使用最少的代码行创建CPU密集型应用程序和快速应用程序开发，则可以使用 Ruby。相反，如果您的项目需要高速、可扩展性和快速开发，JavaScript 会更适合您。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-180.htm">jpa 原生SQL写法</a></p>
-                                        <p>下一个：<a href="/html/category/article-182.htm">@Valid不起效，发现BindingResult读取不到Error信息</a></p>
+                                        <p>上一个：<a href="/html/category/article-180.htm">OpenFeign调用自定义异常处理</a></p>
+                                        <p>下一个：<a href="/html/category/article-182.htm">我的树莓派 Raspberry Pi Zero 2W 折腾笔记，记录一些遇到的问题和解决办法</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
-                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
+                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
-                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
+                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
+                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
+                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
-                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
+                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>

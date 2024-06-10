@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-196.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>AgileConfig 1.6.0 发布 &#8211; 支持服务注册与发现 - EgyptAddress</title>
+    <title>避坑！js正确地使用fill()初始化二维数组_在线工具 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">AgileConfig 1.6.0 发布 &#8211; 支持服务注册与发现</h1>
+                <h1 class="title" style="word-break: break-all;">避坑！js正确地使用fill()初始化二维数组_在线工具</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>大家好，好久没有输出博文了，一是因为比较忙，另外一个原因是最近主要的精力是在给 AgileConfig 添加一个新的功能：服务注册与发现。<br /> 先说说为什么会添加这个功能。我自己的项目是用 Consul 来做为服务注册发现组件的。自从我上线了 AgileConfig 做为配置中心后，我就很少去 Consul 观察服务的在线状态了，因为 AgileConfig 客户端列表已经在一定程度上能代表服务的状态了。服务注册发现与配置中心其实本质上都是解决了一类问题，那就是配置的动态化，所以大家会看到业界著名的组件很多都是同时实现这2个功能的，如 Consul，Nacos 等。所以我想干脆把这个功能给加上吧，这样可以省去部署一个组件。<br /> 当然也有同学说我不务正业，不去好好搞配置中心去搞什么服务注册发现。但是我还是做了。。。<br /> 不过大家放心 AgileConfig 的主业还是在配置中心上，服务注册发现只是附赠的小菜，可以用也可以不用，决定权完全在你。在实现上我也是对两个功能是完全解耦的。也就是说这2个功能都是互不影响独立运行的。唯一有交集的一个地方是，如果配置中心的客户端的 websocket 通道建立成功的时候，服务的心跳会借用这个通道。<br /> ✨✨✨Github地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dotnetcore/AgileConfig"  target="_blank" rel="nofollow">https://github.com/dotnetcore/AgileConfig</a>  开源不易，欢迎star✨✨✨<br /> ✨✨✨Gitee地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://gitee.com/kklldog/AgileConfig"  target="_blank" rel="nofollow">https://gitee.com/kklldog/AgileConfig</a> ✨✨✨</p> <h2 id="什么是服务注册与发现">什么是服务注册与发现</h2> <p>首先先让我们回顾下服务注册发现的概念。<br /> 在实施微服务之后，我们的调用都变成了服务间的调用。服务间调用需要知道IP、端口等信息。再没有微服务之前，我们的调用信息一般都是写死在调用方的配置文件里（当然这话不绝对，有些公司会把这些信息写到数据库等公共的地方，以方便维护）。又由于业务的复杂，每个服务可能依赖N个其他服务，如果某个服务的IP，端口等信息发生变更，那么所有依赖该服务的服务的配置文件都要去修改，这样显然太麻烦了。有些服务为了负载是有个多个实例的，而且可能是随时会调整实例的数量。如果每次调整实例数量都要去修改其他服务的配置并重启那太麻烦了。<br /> 为了解决这个问题，业界就有了服务注册发现组件。<br /> 假设我们有服务A需要调用服务B，并且有服务注册发现组件R。整个大致流程将变成大概3部：<br /> 服务B启动向服务R注册自己的信息<br /> 服务A从服务R拉取服务B的信息<br /> 服务A调用服务B<br /> 有了服务注册发现组件之后，当修改A服务信息的时候再也不用去修改其他相关服务了。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/50ac317c4db0d4946956c0a978e198e3.jpg" alt="AgileConfig 1.6.0 发布 - 支持服务注册与发现"><br /> 参考我的另外一篇：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/kklldog/p/netcore-with-microservices-04.html"  target="_blank" rel="nofollow">.Net Core with 微服务 - Consul 注册中心</a></p> <h2 id="使用服务注册与发现">使用服务注册与发现</h2> <p>使用服务注册与发现功能需要更新服务端与客户端至 1.6.0 及以上版本。</p> <h3 id="启动服务端">启动服务端</h3> <p>服务端更新至 latest 镜像或 v-1.6.0 以上的镜像。<br /> 使用 docker 运行服务端实例：</p> <pre><code>sudo docker run \ --name agile_config \ -e TZ=Asia/Shanghai \ -e adminConsole=true \ -e db:provider=sqlite \ -e db:conn="Data Source=agile_config.db" \ -p 5000:5000 \ #-v /your_host_dir:/app/db \ -d kklldog/agile_config:latest</code></pre> <p>基本的使用没有太大的变化，只是在界面上添加了服务的相关管理界面，这里不在赘述。<br /> 相关教程:<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/CKExp/p/15738149.html"  target="_blank" rel="nofollow">.Net Core &amp; Agile Config配置中心</a></p> <h3 id="使用客户端">使用客户端</h3> <p>客户端需要从 nuget 上安装 1.6.0 版本以上的 client 包。</p> <pre><code>Install-Package AgileConfig.Client -Version 1.6.0</code></pre> <p>新版的 client 简化了使用方式，以下以 .net6 为示例：<br /> 调用 UseAgileConfig 扩展方法即可注入 AgileConfig client .</p> <pre><code> var builder = WebApplication.CreateBuilder(args);  //use agileconfig client builder.Host.UseAgileConfig();  ...</code></pre> <p>在 appsettings.json 添加配置信息：</p> <pre><code> "AgileConfig": {     "appId": "test_app",     "secret": "test_app",     "nodes": "http://agileconfig_server.xbaby.xyz/",     "name": "client123",     "tag": "tag123",      "serviceRegister": { //服务注册信息，如果不配置该节点，则不会启动任何跟服务注册相关的服务 可选       "serviceId": "net6", //服务id，全局唯一，用来唯一标示某个服务       "serviceName": "net6MVC服务测试", //服务名，可以重复，某个服务多实例部署的时候这个serviceName就可以重复       "ip": "127.0.0.1", //服务的ip 可选       "port": 5005, //服务的端口 可选   }</code></pre> <p>其中 appId , secret 等配置同原来配置中心的使用方式没有任何改变。<br /><code>serviceRegister</code> 节点描述的是服务注册信息（如果删除这个节点那么服务注册功能就不会启动）：</p> <ul> <li>serviceId<br /> 服务id，全局唯一，用来唯一标示某个服务</li> <li>serviceName<br /> 服务名，可以重复，某个服务多实例部署的时候这个serviceName就可以重复</li> <li>ip<br /> 服务的ip 可选</li> <li>port<br /> 服务的端口 可选</li> <li>metaData<br /> 一个字符串数组，可以携带一些服务的相关信息，如版本等 可选</li> <li>alarmUrl<br /> 告警地址 可选。<br /> 如果某个服务出现异常情况，如一段时间内没有心跳，那么服务端会往这个地址 POST 一个请求并且携带服务相关信息，用户可以自己去实现提醒功能，比如发短信，发邮件等：</li> </ul> <pre><code>{     "serviceId":"0001",     "serviceName":"xxxx",     "time":"2022-01-01T12:00:000",     "status":"Unhealty",     "message": "服务不健康" }</code></pre> <ul> <li>heartbeat:mode<br /> 指定心跳的模式，server/client 。server代表服务端主动检测，client代表客户端主动上报。不填默认client模式 可选</li> <li>heartbeat:interval<br /> 心跳的间隔，默认时间30s 可选</li> <li>heartbeat:url<br /> 心跳模式为 server 的时候需要填写健康检测地址，如果是httpstatus为200段则判定存活，其它都视为失败 可选</li> </ul> <h3 id="服务的注册">服务的注册</h3> <p>当配置好客户端后，启动对应的应用程序，服务信息会自动注册到服务端并且开始心跳。如果服务正确注册到服务端，控制台的服务管理界面可以查看：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1826b418955562964c731b1f80a1a4c4.jpg" alt="AgileConfig 1.6.0 发布 - 支持服务注册与发现"></p> <h3 id="服务发现">服务发现</h3> <p>现在服务已经注册上去了，那么怎么才能拿到注册中心所有的服务呢？同样非常简单，在程序内只要注入<code>IDiscoveryService</code>接口就可以通过它拿到所有的注册的服务。</p> <pre><code>public interface IDiscoveryService     {         string DataVersion { get; }         List&lt;ServiceInfo&gt; UnHealthyServices { get; }         List&lt;ServiceInfo&gt; HealthyServices { get; }         List&lt;ServiceInfo&gt; Services { get; }         Task RefreshAsync();     }</code></pre> <p>除了接口内置的方法，还有几个扩展方法方便用户使用，比如随机一个服务：</p> <pre><code>    public static class DiscoveryServiceExtension     {         public static IEnumerable&lt;ServiceInfo&gt; GetByServiceName(this IDiscoveryService ds, string serviceName)         {             return ds.Services.GetByServiceName(serviceName);         }          public static ServiceInfo GetByServiceId(this IDiscoveryService ds, string serviceId)         {             return ds.Services.GetByServiceId(serviceId);         }          public static ServiceInfo RandomOne(this IDiscoveryService ds, string serviceName)         {             return ds.Services.RandomOne(serviceName);         }     }</code></pre> <p>至此服务的注册与发现就已经完成了。</p> <h2 id="一些重要的信息">一些重要的信息</h2> <p>以上就是服务注册发现的简单使用，但是还有一些比较重要的信息希望大家在使用之前能够了解，这样有利于更好的使用以及出现问题的时候定位问题。</p> <h3 id="高可用">高可用</h3> <p>同 AgileConfig 的配置中心功能一样，服务注册后最后都是写到了数据库里。AgileConfig 的服务端可以部署多个来防止单点故障，同时可以分担压力。所以高可用的最佳实践就是部署 2 个以上的服务端节点，然后数据库做高可用方案。这样足够应付大多数要求不是特别高的场景。</p> <h3 id="强一致性">强一致性</h3> <p>同上 AgileConfig 通过数据库保证多个节点部署的时候的一致性问题。</p> <h3 id="服务的健康检测">服务的健康检测</h3> <p>服务的健康检测一般有2种方案：</p> <ol> <li>服务端主动询问</li> <li>客户端主动心跳<br /> AgileConfig 同时支持以上2个方案。AgileConfig client 默认实现了主动心跳。AgileConfig client 的主动心跳有2个渠道：</li> </ol> <ul> <li>websocket<br /> 长连接，如果AgileConfig client做为配置中心客户端是正常工作的，那么心跳会走websocket通道</li> <li>http<br /> 如果 websocket 不可用，那么会直接发起 http 请求做为心跳。<br /> 但是对于一些应用主动的心跳并不能代表服务真的是可以用的，因为心跳从服务已启动就会开始，但是某些接口可能还没真正的做好准备被调用。那么这个时候就可以选择服务端主动询问（heartbeat:mode=server）对应的检测接口来确定服务是否真的可用。<br /> AgileConfig 其实还实现了第三种方式：</li> </ul> <ol start="3"> <li>不检测<br /> 如果一个服务你确定它会永远在线，或者是没办法集成 AgileConfig client 的 sdk ，那么你可以标记它为不检测，这样它会一直是健康状态。</li> </ol> <h3 id="服务发现是如何即时更新的">服务发现是如何即时更新的</h3> <p>我们的 client 在启动后会拉取一次全量的服务列表。但是服务是会不断的上线，下线的，所以服务状态的更新是需要通知客户端的，然后客户端去拉取新的服务列表。AgileConfig 同样有2个策略来保证服务列表的即时刷新：</p> <ol> <li>当服务状态变化的时候，服务端通过 websocket 即时通知所有的 client 主动刷新配置列表</li> <li>如果服务端的主动通知由于网络等原因失效的时候，client 会在每次心跳的时候比较本地服务列表 md5 版本跟服务端的列表的 md5 信息，如果不一致，那么 client 会主动拉取一次新的服务列表。</li> </ol> <h3 id="关闭服务注册与发现">关闭服务注册与发现</h3> <p>删除<code>serviceRegister</code> 配置节点或不要配置任何信息。</p> <h2 id="最后">最后</h2> <p>✨✨✨Github地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dotnetcore/AgileConfig"  target="_blank" rel="nofollow">https://github.com/dotnetcore/AgileConfig</a>  开源不易，欢迎star✨✨✨<br /> ✨✨✨Gitee地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://gitee.com/kklldog/AgileConfig"  target="_blank" rel="nofollow">https://gitee.com/kklldog/AgileConfig</a> ✨✨✨</p> 			                </div>
+                      				  				  				<h1>先介绍一下坑</h1> <p>fill()方法都知道，填充数组</p> <div>比如：</div> <div> <div class="cnblogs_code"> <pre>let a = <span style="color: rgba(0, 0, 255, 1)">new</span> Array(5).fill(0<span style="color: rgba(0, 0, 0, 1)">); console.log(a); </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 输出结果为[0, 0, 0, 0, 0]</span></pre> </div> <p>当我们想使用fill创建一个二维数组时</p> <div class="cnblogs_code"> <pre>let arr=<span style="color: rgba(0, 0, 255, 1)">new</span> Array(5).fill(<span style="color: rgba(0, 0, 255, 1)">new</span> Array(5).fill(0<span style="color: rgba(0, 0, 0, 1)">)) console.log(arr)</span></pre> </div> <p>输出</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220507/e547eefd7fd45a596f268bb4ef6e525f.jpg" alt="避坑！js正确地使用fill()初始化二维数组_在线工具"></p> <p> </p> <p> 看似没有什么问题，当我给某个元素重新赋值</p> <div class="cnblogs_code"> <pre>arr[1][1]=1<span style="color: rgba(0, 0, 0, 1)"> console.log(arr)</span></pre> </div> <p>输出</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220507/e389cc520c8450c508c95425d5cffb71.jpg" alt="避坑！js正确地使用fill()初始化二维数组_在线工具"></p> <p> </p> <p> 我只想给arr[1][1]赋值，但是每一个第一维数组的下标为1的元素的值全部改变了，这不是我们想要的。</p> <h1>原因</h1> <p>fill()的参数不是基本类型时，比如数组、对象，并不是将它的值填充到数组，而是将它的地址填充到数组，所以填充后数组的每一项都指向的是同一个对象，就会出现"牵一发而动全身"的现象。</p> <h1>解决方法</h1> <p>1.老老实实的遍历，不聊</p> <p>2.使用map()给每个第一维的数组分别赋值，<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.runoob.com/jsref/jsref-map.html"  target="_blank"  rel="nofollow">不懂map()点这里</a></p> <div class="cnblogs_code"> <pre>let arr=<span style="color: rgba(0, 0, 255, 1)">new</span> Array(5).fill(0).map(item=&gt;<span style="color: rgba(0, 0, 255, 1)">new</span> Array(5).fill(0<span style="color: rgba(0, 0, 0, 1)">)) arr[</span>1][1]=1<span style="color: rgba(0, 0, 0, 1)"> console.log(arr)</span></pre> </div> <p>输出</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220507/6c264a6e12fe8690c6ecccbced9e7788.jpg" alt="避坑！js正确地使用fill()初始化二维数组_在线工具"></p> <p>这样就只有arr[1][1]发生改变了，完美解决。</p> <p> 原文链接：https://www.cnblogs.com/hmswt/p/14385957.html</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-195.htm">C++的命名空间</a></p>
-                                        <p>下一个：<a href="/html/category/article-197.htm">图解Kafka架构与工作原理</a></p>
+                                        <p>上一个：<a href="/html/category/article-195.htm">MyBatis 及 MyBatis Plus 纯注解方式配置(Spring Boot + Postgresql) &#8211; Milton</a></p>
+                                        <p>下一个：<a href="/html/category/article-197.htm">旋转矩阵与欧拉角的相互转换</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
-                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></h4>
-                <p>???? 个人网站:【 海拥】【小霸王游戏机】 ???? 风趣幽默的前端学习课程：????28个案例趣学前端 ???? 想寻找共同学习交流、摸鱼划水的小伙伴，请点击【摸鱼学习交流群】 ???? 免费且</p>
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
-                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
-                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -172,7 +172,7 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
                 <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
             </div>
         </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>

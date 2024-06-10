@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-110.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>PyMySQL中where __ in__ 的用法 - EgyptAddress</title>
+    <title>js promise 详解 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">PyMySQL中where __ in__ 的用法</h1>
+                <h1 class="title" style="word-break: break-all;">js promise 详解</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1> <a id="PyMySQLwhere____in____0" rel="nofollow"></a>PyMySQL中where __ in__ 的用法</h1> <p>pymysql中的where条件使用in时，占位符的使用方法</p> <p>代码</p> <pre><code class="prism language-python">	date_str <span class="token operator">=</span> date<span class="token punctuation">.</span>strftime<span class="token punctuation">(</span><span class="token string">'%Y%m%d'</span><span class="token punctuation">)</span> 	market_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'shanghai'</span><span class="token punctuation">,</span> <span class="token string">'beijing'</span><span class="token punctuation">,</span> <span class="token string">'shenzheng'</span><span class="token punctuation">]</span> 	<span class="token keyword">with</span> conn<span class="token punctuation">.</span>cursor<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">as</span> cur<span class="token punctuation">:</span>         sql <span class="token operator">=</span> cur<span class="token punctuation">.</span>mogrify<span class="token punctuation">(</span>             <span class="token string">"SELECT 1 FROM CLOSED_DAYS WHERE DELETE_FLAG = 0 AND CLOSED_DAY = %s AND MARKET in %s LIMIT 1"</span><span class="token punctuation">,</span>             <span class="token punctuation">(</span>date_str<span class="token punctuation">,</span> market_list<span class="token punctuation">)</span><span class="token punctuation">)</span>          cur<span class="token punctuation">.</span>execute<span class="token punctuation">(</span>sql<span class="token punctuation">)</span> 		result <span class="token operator">=</span> cur<span class="token punctuation">.</span>fetchone<span class="token punctuation">(</span><span class="token punctuation">)</span> </code></pre> <p>检索到数据后返回的结果是</p> <pre><code>{'1': 1} </code></pre> <h4> <a id="_22" rel="nofollow"></a>注意</h4> <p>where条件中使用in时，如果有多个占位符时，in条件语句要位于多个where条件的最后，不然会发生表中存在符合数据，但返回的结果是无数据</p> <p>参考：https://stackoverflow.com/questions/14245396/using-a-where-in-statement</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <h1>没有promise之前处理异步的方式</h1> <blockquote> <p>在promise产生之前，js 处理异步的方式是使用回调函数，一个回调函数执行完成，进行下一个回调函数。这样会导致层层嵌套，代码不清晰。容易进入回调地狱</p> </blockquote> <h1>promise 简介</h1> <h2>promise的状态</h2> <blockquote> <p>promise 有三种状态&nbsp; pending(进行中)，resolved(成功)，rejected(失败)</p> <p>promise的状态是不可逆的</p> <p>pending---&gt;resolved&nbsp;</p> <p>或者</p> <p>pending---&gt;rejected</p> </blockquote> <h2>promise 的两个回调函数&nbsp; resolved&nbsp; rejected</h2> <blockquote> <p>promise 的参数是一个函数，函数里还有两个参数&nbsp; resolved&nbsp; rejected</p> <p>resolved(res) 处理成功的&nbsp;函数&nbsp; 它传递的参数 会在then方法里输出</p> <p>rejected(err) 处理失败的函数&nbsp; 它传递的参数 会在 catch方法里输出</p> </blockquote> <pre><code class="language-javascript">let p1 = new Promise((resolved, rejected) =&gt; {   let randomVal = Math.random();   if (randomVal &gt; 0.5) {     resolved(randomVal + "成功");   } else {     rejected(randomVal + "失败");   } })   .then((res) =&gt; {     console.log(res)//0.6423699367939153成功   })   .catch((err) =&gt; {     console.log(err)//0.3423699367939153失败   }); </code></pre> <h3>promise.all&nbsp; 同时执行多个promise</h3> <p>promise.all 的参数是多个promise函数，直到慢的一个promise执行完毕才返回所有的promise的结果，有一个promise函数崩溃，整个promise就崩溃，所以要慎用</p> <pre><code class="language-javascript">let p1 = new Promise((resolved, rejected) =&gt; {   let randomVal = Math.random();   if (randomVal &gt; 0.1) {     resolved(randomVal + "成功");   } else {     rejected(randomVal + "失败");   } })  let p2 = new Promise((resolved, rejected) =&gt; {   let randomVal = Math.random();   setTimeout(() =&gt; {     if (randomVal &gt; 0.9) {       resolved("成功" + randomVal);     } else {       rejected("失败" + randomVal);     }   }, 200); });  Promise.all([p1,p2]).then(resList=&gt;{     console.log(resList) }).catch(err=&gt;{     console.log("错误err"+err) }).finally(result=&gt;{     console.log("无论成功或者失败都会执行",result) })</code></pre> <h2>promise.race 多个promise 执行速度pk看谁的速度最快，返回最快的promise的结果</h2> <pre><code class="language-javascript">let p1 = new Promise((resolved, rejected) =&gt; {   let randomVal = Math.random();   if (randomVal &gt; 0.1) {     resolved(randomVal + "成功");   } else {     rejected(randomVal + "失败");   } })  let p2 = new Promise((resolved, rejected) =&gt; {   let randomVal = Math.random();   setTimeout(() =&gt; {     if (randomVal &gt; 0.9) {       resolved("成功" + randomVal);     } else {       rejected("失败" + randomVal);     }   }, 200); });  Promise.race([p1,p2]).then(resList=&gt;{     console.log(resList) }).catch(err=&gt;{     console.log("错误err"+err) }).finally(result=&gt;{     console.log("无论成功或者失败都会执行",result) })</code></pre> <h1>什么是宏任务，微任务</h1> <h3>常见的 宏任务</h3> <p>setTimeout&nbsp; setInterval</p> <h3>常见的微任务</h3> <p>Promise.then Promise.catch Promise.finally</p> <p>MutationObserver</p> <p>process.nextTIck(nodejs里的)</p> <h3>执行顺序</h3> <p>同一层的 先执行主线层然后执行微任务，最后执行 红任务</p> <h2>几道有意思的promise面试题</h2> <h3>场景1&nbsp;</h3> <blockquote> <p>promise resolved函数执行完毕之后才执行 then的方法</p> </blockquote> <pre><code class="language-javascript"> new Promise((resolved,rejected)=&gt;{     console.log("1") }).then(res=&gt;{     console.log("2")     console.log(res) }) console.log("4")</code></pre> <p><span style="color:#fe2c24;">错误解法 和错误的思路</span><br /><s><span style="color:#0d0016;">错误答案&nbsp; 1，4，2 ，1</span></s></p> <p><s><span style="color:#0d0016;">错误思路，</span></s></p> <p><s><span style="color:#0d0016;">一般人想 主线程 同步任务走完，然后走 微任务</span></s></p> <p><span style="color:#0d0016;">实际上 promise里没有走resovled函数的时候是不会走 then里的</span></p> <p><span style="color:#0d0016;">同理&nbsp; promise里没有走rejected函数的时候是不会走 catch里的</span></p> <p><span style="color:#0d0016;">所以正确的答案是</span></p> <p>1 4&nbsp;</p> <h3>场景 2&nbsp;</h3> <blockquote> <p>resovled函数外边包裹了定时器，得定时器计时结束才能 调用resolved，最后走then</p> </blockquote> <pre><code class="language-javascript">new Promise((resolved, rejected) =&gt; {     console.log("1")   setTimeout(() =&gt; {     resolved("2");   }, 20);    console.log("3"); }).then((res) =&gt; {   console.log("4");   console.log(res); }); console.log("5"); setTimeout(ele=&gt;{   console.log("6") },0)</code></pre> <p>这题直接上正确答案</p> <p>1，3，5，6，4，2&nbsp; &nbsp; &nbsp;</p> <p>答案解析</p> <p>1 promise主体函数的代码，是同步主线程的优先执行</p> <p>3 同1&nbsp;</p> <p>5 是主线程</p> <p>6 和 2 4&nbsp; res(2) 相比都是定时器里的代码（红任务），只是 6的延时时间较少，所以优先执行6</p> <p>4 2 是promise 里的resolved走完之后，执行then 里的&nbsp; 4&nbsp; &nbsp; res是 resolved("2")里返回的2,所以打印出 2</p> <h3>场景3 主线程 宏任务 微任务 综合</h3> <pre><code class="language-javascript">console.log("1"); setTimeout(function() {   console.log("2");   process.nextTick(function() {     console.log("3");   });   new Promise(function(resolve) {     console.log("4");     resolve();   }).then(function() {     console.log("5");   }); }); process.nextTick(function() {   console.log("6"); }); new Promise(function(resolve) {   console.log("7");   resolve(); }).then(function() {   console.log("8"); }); setTimeout(function() {   console.log("9");   process.nextTick(function() {     console.log("10");   });   new Promise(function(resolve) {     console.log("11");     resolve();   }).then(function() {     console.log("12");   }); });</code></pre> <p>答案</p> <p>&nbsp; 1 &nbsp;7 6 8 2 4 3 5 9 11 10 12</p> <p>1 主线程</p> <p>7 promis主体函数里的代码 主线程</p> <p>6 process.nextTick 微任务</p> <p>8&nbsp; promise resolve函数处理过走 then&nbsp;</p> <p>2&nbsp; 2345 和 9101112 分别在两个定时器里 由于两个定时器的时间是一致的，所以根据先后i顺序执行，先执行上面的，再执行下边的</p> <p>2345&nbsp; 2是主线程&nbsp;</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 4是主线程</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 3 是微任务</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 5是微任务</p> <p>9101112</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;9 是主线程</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;11 是主线程&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;10 是微任务</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 12 是微任务</p> <p>总结</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 当主线程 红任务 微任务在一起的时候，先执行主线程，然后执行微任务，最后执行红任务</p> <h3>场景4 promise.resolve().then 和 setTimeout(()=&gt;{},0) pk</h3> <p>首先我们了解一下 promise.resolve()是什么的简写</p> <pre><code class="language-javascript">new Promise((resolve)=&gt;{     resolve() }).then(res=&gt;{     console.log("123") })</code></pre> <p>那么一下两个哪个更快呢</p> <pre><code class="language-javascript">setTimeout(ele=&gt;{     console.log("2") }) Promise.resolve().then(res=&gt;{     console.log("1") })</code></pre> <p>将 Promise.resolve().then 转换成上一个写法可以知道 1 是微任务，2 是宏任务，</p> <p>所以先走1 再走 2</p> <p>我们接下来再看一题</p> <pre><code class="language-javascript">setTimeout(ele=&gt;{     console.log("1")     Promise.resolve().then(res=&gt;{         console.log("2")     }) }) Promise.resolve().then(res=&gt;{     console.log("3")     setTimeout(ele=&gt;{         console.log("4")     }) })</code></pre> <p>先走 微任务 3&nbsp;</p> <p>然后走 上边定时器里的&nbsp;</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 走主线程 1</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 走微任务 2</p> <p>然后走下边的 宏任务</p> <p>注意</p> <p>&nbsp; &nbsp;<span style="color:#fe2c24;"> &nbsp; &nbsp; </span><u><span style="color:#fe2c24;">当出现定时器时 按照 延迟时间和创建先后顺序 这两个条件 先后执行定时器，并且只有执行完一个定时器之后，才执行下一个定时器</span></u></p> <h3>场景5 定时器嵌套</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> <pre><code class="language-javascript">setTimeout((ele) =&gt; {   console.log(1);   setTimeout(() =&gt; {     console.log(2);   }, 40); }, 20); setTimeout((ele) =&gt; {   console.log(3); }, 30);</code></pre> <p>这一题</p> <p><s>很多人的答案时1 2 3</s></p> <p><s>他们想的是先走完第一个定时器里的再走第二个定时器里的</s></p> <p>实际上 第一个嵌套的定时器会产生叠加&nbsp;</p> <p>2&nbsp; 的执行时间时 20 + 40 也就是 60</p> <p>而 3 的时间时30 所以时 1&nbsp; 3&nbsp; 2&nbsp;</p> <p><span style="color:#fe2c24;">注意当定时器嵌套时 ，里边的执行时间是会和上边的叠加的</span></p> <p><span style="color:#0d0016;">以上是我对红任务微任务的一些理解，希望对大家能有所帮助，记得点个赞哦</span></p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-109.htm">微任务和宏任务哪个先执行_在线工具</a></p>
-                                        <p>下一个：<a href="/html/category/article-111.htm">React18之状态批处理的使用_React</a></p>
+                                        <p>上一个：<a href="/html/category/article-109.htm">正则表达式匹配IP的表达式</a></p>
+                                        <p>下一个：<a href="/html/category/article-111.htm">vue使用store</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></h4>
-                <p>???? 个人网站:【 海拥】【小霸王游戏机】 ???? 风趣幽默的前端学习课程：????28个案例趣学前端 ???? 想寻找共同学习交流、摸鱼划水的小伙伴，请点击【摸鱼学习交流群】 ???? 免费且</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></h4>
-                <p>1，准备组件popup // components文件夹中popup组件&lt;template&gt;&lt;view&gt;&lt;viewclass="show-box-bg wx-login-</p>
+                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
+                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></h4>
-                <p>博客目录 1、union(合并结果集) 2、limit(获取一张表中某部分数据) 3、表——创建表、删除表 4、关于MySQL中的数据类型  一、union(合并结果集)  将两个查询结果合并(可以是</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
-                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>

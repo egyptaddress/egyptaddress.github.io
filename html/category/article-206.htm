@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-206.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>redis专题：redis键值设计、性能优化以及redis连接池配置 - EgyptAddress</title>
+    <title>眼见不一定为实：调用链HBase倾斜修复 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">redis专题：redis键值设计、性能优化以及redis连接池配置</h1>
+                <h1 class="title" style="word-break: break-all;">眼见不一定为实：调用链HBase倾斜修复</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3>文章目录</h3> <ul> <li><a href="#1redis_3" rel="nofollow">1.redis键值设计</a></li> <li> <ul> <li><a href="#key_6" rel="nofollow">①：key设计规范</a></li> <li><a href="#value_27" rel="nofollow">②：value设计规范</a></li> </ul> </li> <li><a href="#2__90" rel="nofollow">2. 命令使用优化</a></li> <li><a href="#3_redis_117" rel="nofollow">3. redis连接池配置参数设计</a></li> <li><a href="#4_redis_167" rel="nofollow">4. redis连接池预热</a></li> <li><a href="#5_rediskey_210" rel="nofollow">5. redis的key过期删除策略</a></li> <li><a href="#6_redis_266" rel="nofollow">6. 秒杀场景下redis性能提升策略</a></li> </ul> </div> <p></p> <h1><a id="1redis_3" rel="nofollow"></a>1.redis键值设计</h1> <p>redis合理的键值设计，可以增加可读性和可管理性，特别在大型项目中，要特别注意！</p> <h2><a id="key_6" rel="nofollow"></a>①：key设计规范</h2> <ol> <li>【建议】: 可读性和可管理性 以业务名(或数据库名)为前缀(防止key冲突)，用冒号分隔，比如业务名:表名:id</li> </ol> <pre><code>//表示交易系统中的订单号 1 trade:order:1</code></pre> <ol start="2"> <li>【建议】：简洁性 保证语义的前提下，控制key的长度，当key较多时，内存占用也不容忽视，例如：</li> </ol> <pre><code>// 表示某用户的朋友发来的消息 user:{uid}:friends:messages:{mid} 简化为 u:{uid}:fr:m:{mid}</code></pre> <ol start="3"> <li>【强制】：不要包含特殊字符<br /> 反例：包含空格、换行、单双引号以及其他转义字符</li> </ol> <p></p> <h2><a id="value_27" rel="nofollow"></a>②：value设计规范</h2> <p><strong>（1）【强制】：拒绝bigkey(防止网卡流量、慢查询)</strong></p> <p><strong>什么是bigkey?</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在Redis中，一个字符串最大512MB，一个二级数据结构（例如hash、list、set、zset）可以存 储大约40亿个(2^32-1)个元素，这么大的存储空间，为bigkey的产生创造了条件。如果有以下情况，就认为是bigkey！</p> <p>①：字符串类型：它的big体现在单个value值很大，一般认为超过10KB就是bigkey。</p> <p>②：非字符串类型：哈希、列表、集合、有序集合，它们的big体现在元素个数太多。 一般来说，string类型控制在10KB以内，hash、list、set、zset元素个数不要超过5000。</p> <p><strong>bigkey是如何产生的？</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在一般来说，bigkey的产生都是由于程序设计不当，或者对于数据规模预料不清楚造成的，比如：<br /> ①：社交类：粉丝列表，如果某些明星或者大v不精心设计下，必是bigkey<br /> ②：统计类：例如按天存储某项功能或者网站的用户集合，除非没几个人用，否则必是bigkey。<br /> ③：缓存类：将数据从数据库load出来序列化放到Redis里。注意缓存必要字段即可！</p> <p><strong>bigkey的危害是什么?</strong></p> <ol> <li> <p>导致redis阻塞<br /> 由于redis操作命令是单线程的，当bigkey太大时，操作bigkey耗时过长，其他命令都会被阻塞！</p> </li> <li> <p>网络拥塞<br /> bigkey也就意味着每次获取要产生的网络流量较大，假设一个bigkey为1MB，客户端每秒访问量为1000，那么每秒产生1000MB的流量，对于普通的千兆网卡(按照字节算是128MB/s)的服务器来说简直是灭顶之灾，而且一般服务器会采用单机多实例的方式来部署，也就是说一个bigkey可能会对其他实例也造成影响，其后果不堪设想。</p> </li> <li> <p>过期删除<br /> 有个bigkey，它安分守己（只执行简单的命令，例如hget、lpop、zscore等），但它设置了过期时间，当它过期后，会被删除，如果没有使用Redis 4.0的过期异步删除(lazyfree-lazy-expire yes)，就会存在阻塞Redis的可能性。</p> </li> </ol> <p><strong>如何优化bigkey？</strong></p> <ol> <li> <p>拆<br /> 比如一个bigkey，存储了100w的用户数据，那么可以把这个key拆分成200个key，每个key下存储5000个用户数据</p> </li> <li> <p>避免使用hgetAll全量获取<br /> 如果bigkey不可避免，也要思考一下要不要每次把所有元素都取出来(例如有时候仅仅需要 hmget，而不是hgetall)，删除也是一样，不要使用del删除，使用hscan、sscan、zscan方式渐进式删除，尽量使用优雅的方式来处理。</p> </li> </ol> <p><strong>（2）【推荐】：选择适合的数据类型。</strong><br /> 场景：存储某个用户(要合理控制和使用数据结构，但也要注意节省内存和性能之间的平衡)</p> <p>正例：使用hash结构</p> <pre><code>hmset user:1 name tom age 19 favor football</code></pre> <p>反例：使用string结构</p> <pre><code>set user:1:name tom set user:1:age 19 set user:1:favor football</code></pre> <p><strong>（3） 【推荐】：控制key的生命周期，redis不是垃圾桶。</strong><br /> 建议使用expire设置过期时间(条件允许可以打散过期时间，防止集中过期)。</p> <p>注意：redis内部默认有16个数据库，<strong>在微服务场景下，不要用redis的数据库做业务数据区分</strong>，比如订单放1库，商品放2库，这样做毫无作用，因为这些库都是一个redis服务，在高并发场景下，虽然访问的时不同的库，但redis还是单线程执行的！！</p> <p></p> <h1><a id="2__90" rel="nofollow"></a>2. 命令使用优化</h1> <p>1.【推荐】 使用命令时关注N的数量<br /> 例如hgetall、lrange、smembers、zrange、sinter等并非不能使用，但是需要明确N的值。有遍历的需求可以使用hscan、sscan、zscan代替。</p> <p>2.【推荐】：禁用命令<br /> 禁止线上使用keys、flushall、flushdb等，通过redis的rename机制禁掉命令，或者使用scan的方式渐进式处理。</p> <p>3.【推荐】合理使用redis数据库<br /> redis的多数据库较弱，使用数字进行区分，很多客户端支持较差，同时多业务用多数据库实际还是单线程处理，会有干扰。</p> <p>4.【推荐】使用批量操作提高效率</p> <pre><code>原生命令：例如mget、mset。 非原生命令：可以使用pipeline提高效率。</code></pre> <p>但要注意控制一次批量操作的元素个数(例如500以内，实际也和元素字节数有关)。<br /> 注意两者不同：</p> <ol> <li>原生命令是原子操作，pipeline是非原子操作。</li> <li>pipeline可以打包不同的命令，原生命令做不到</li> <li>pipeline需要客户端和服务端同时支持。</li> </ol> <p>5.【建议】Redis事务功能较弱，不建议过多使用，可以用lua替代</p> <p></p> <h1><a id="3_redis_117" rel="nofollow"></a>3. redis连接池配置参数设计</h1> <p>redis连接池参数如下：</p> <table> <thead> <tr> <th>参数</th> <th>含义</th> <th>默认值</th> <th>使用建议</th> </tr> </thead> <tbody> <tr> <td>maxTotal</td> <td>资源池中最大连接数</td> <td>8</td> <td>设置建议见下文</td> </tr> <tr> <td>maxIdle</td> <td>资源池允许最大空闲的连接数</td> <td>8</td> <td>设置建议见下文</td> </tr> <tr> <td>minIdle</td> <td>资源池确保最少空闲的连接数</td> <td>0</td> <td>设置建议见下文</td> </tr> <tr> <td>blockWhenExhausted</td> <td>当资源池用尽后，调用者是否要等待。只有当为true时，下面的maxWaitMillis才会生效</td> <td>true</td> <td>建议使用默认值</td> </tr> <tr> <td>maxWaitMillis</td> <td>当资源池连接用尽后，调用者的最大等待时间(单位为毫秒)</td> <td>-1：表示永不超时</td> <td>不建议使用默认值</td> </tr> <tr> <td>testOnBorrow</td> <td>向资源池借用连接时是否做连接有效性检测(ping)，无效连接会被移除</td> <td>false</td> <td>业务量很大时候建议设置为false(多一次ping的开销)。</td> </tr> <tr> <td>testOnReturn</td> <td>向资源池归还连接时是否做连接有效性检测(ping)，无效连接会被移除</td> <td>false</td> <td>业务量很大时候建议设置为false(多一次ping的开销)。</td> </tr> <tr> <td>jmxEnabled</td> <td>是否开启jmx监控，可用于监控</td> <td>true</td> <td>建议开启，但应用本身也要开启</td> </tr> </tbody> </table> <p>优化建议：</p> <p><strong>①：maxtotal：连接池最大连接数，早期版本叫maxActive！</strong><br /> 对于maxtotal的优化要考虑很多因素：</p> <ol> <li>业务希望的redis并发量(QPS)</li> <li>命令执行时间</li> <li>小于redis允许最大连接数<br /> 例如： nodes(例如应用个数) * maxTotal 是不能超过redis的最大连接数maxclients。</li> </ol> <p>用一个例子说明<br /><strong>假如：</strong><br /> 1.业务希望的QPS(每秒并发量)是50000<br /> 2.通过压测工具测得一次命令执行(拿连接+执行命令+归还连接)平均耗时为1ms，算得一个连接的QPS(每秒并发量)是1000</p> <p><strong>结论：</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;那么理论上需要的资源池大小是50000 / 1000 = 50个。但事实上这是个理论值，还要考虑到要比理论值预留一些资源，通常来讲maxTotal可以比理论值大一些，比如60个。但这个值不是越大越好，连接太多会一方面占用客户端和服务端资源，另一方面对于Redis这种高QPS的服务器，一个大命令的阻塞即使设置再大资源池仍然会无济于事。</p> <p><strong>②：maxIdle：业务需要的最大连接数</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxTotal是为了给出余量，而maxIdle才是业务需要的最大连接数，所以maxIdle不要设置过小，如果设置与maxTotal差距过大，则会有new Jedis(新建连接)开销。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一般推荐maxIdle可以设置为按上面的业务期望QPS计算出来的理论连接数50个，这样就避免连接池伸缩带来的性能干扰，maxTotal可以再放大一些，为redis预留一些资源！</p> <p><strong>③：minIdle（最小空闲连接数）</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minIdle是至少需要保持的空闲的连接数。</p> <p><strong>注意：redis连接池是懒加载的，一开始不会有任何连接，用一个连接连接池帮我们生成一个连接，连接数量根据并发量增加，redis默认取maxIdle配置的连接数量。</strong></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如 minIdle = 10 ；maxIdle = 20 ；maxtotal = 40。随着并发量逐渐增加，连接数量逐渐变大，但不会超过40，一段时间后，并发量下降，由于redis默认取maxIdle配置的连接数量20，所以超出20的连接会被释放，池中稳定存在20个连接，在这里minIdle配置显得无意义，可以通过配置修改minIdle为redispool默认连接数。</p> <p>在并发非常高的情况下，为了保持redis最佳性能，可以配置maxTotal = maxIdle</p> <p></p> <h1><a id="4_redis_167" rel="nofollow"></a>4. redis连接池预热</h1> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;由于redis连接池初始化时不会有连接，当系统启动时，突然爆发大量请求要获取redis数据，这样在短时间内会创建大量连接，影响系统性能，为了避免出现这种情况，可以给redis连接池做预热！</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如在系统启动时创建一些redis连接，执行简单命令，类似ping()，快速的将连接池里的空闲连接提升到minIdle的数量。注意执行ping()时不能立即把连接放回连接池，不然连接池只会有一个连接！</p> <p>预热代码如下：</p> <pre><code>List&lt;Jedis&gt; minIdleJedisList = new ArrayList&lt;Jedis&gt;(jedisPoolConfig.getMinIdle());  //拿到minIdle得数量 for (int i = 0; i &lt; jedisPoolConfig.getMinIdle(); i++) {     Jedis jedis = null;     try {         jedis = pool.getResource();         minIdleJedisList.add(jedis);                  //ping建立连接         jedis.ping();              } catch (Exception e) {         logger.error(e.getMessage(), e);     } finally {         //注意，这里不能马上close将连接还回连接池，否则最后连接池里只会建立1个连接。。         //jedis.close();     } } //统一将预热的连接还回连接池 for (int i = 0; i &lt; jedisPoolConfig.getMinIdle(); i++) {     Jedis jedis = null;     try {         jedis = minIdleJedisList.get(i);         //将连接归还回连接池         jedis.close();     } catch (Exception e) {         logger.error(e.getMessage(), e);     } finally {     } }</code></pre> <p></p> <h1><a id="5_rediskey_210" rel="nofollow"></a>5. redis的key过期删除策略</h1> <p><code>redis对于设置了过期时间，且已过期的key有三种清除策略</code>：</p> <ul> <li><strong>①：惰性删除</strong><br /> 当key过期时，不会立即删除，而是等到下一次读/写这个key时，才会先执行删除，再读/写，这也被称为惰性删除。缺点是如果后续一直不访问这个key，那么它会一直留在redis中，占用不必要的内存空间，对内存不友好</li> <li><strong>②：定时删除</strong><br /> 为每个键设置一个定时器，一旦过期时间到了，则将键删除。这种策略对内存很友好，但是对 CPU 不友好，因为每个定时器都会占用一定的 CPU 资源。</li> <li><strong>③：定期扫描</strong><br /> 系统每隔一段时间就定期扫描一次，发现过期的键就进行删除。不过 Redis 的定期扫描只会扫描设置了过期时间的键，因为设置了过期时间的键 Redis 会单独存储，所以不会出现扫描所有键的情况。这种策略相对来说是上面两种策略的折中方案</li> </ul> <p><code>如果reids中所有的key都没有过期，而且此时内存满了</code>，那么客户端继续执行 set 等命令时 Redis 会怎么处理呢？<code>Redis 当中提供了不同的内存淘汰策略来处理这种场景</code>。在Redis 4.0 之前一共实现了 6 种内存淘汰策略，<strong>可通过maxmemory-policy(默认是noeviction)来配置</strong>！在 4.0 之后，又增加了 2 种策略，总共8种如下：</p> <p><strong>a) 针对设置了过期时间的key做处理：</strong></p> <ol> <li>volatile-ttl：在筛选时，会针对设置了过期时间的键值对，根据过期时间的先后进行删除，越早过期的越先被删除。</li> <li>volatile-random：就像它的名称一样，在设置了过期时间的键值对中，进行随机删除。</li> <li>volatile-lru：会使用 LRU 算法筛选设置了过期时间的键值对删除。</li> <li>volatile-lfu：会使用 LFU 算法筛选设置了过期时间的键值对删除。</li> </ol> <p><strong>b) 针对所有的key做处理：</strong></p> <ol start="5"> <li> <p>allkeys-random：从所有键值对中随机选择并删除数据。</p> </li> <li> <p>allkeys-lru：使用 LRU 算法在所有数据中进行筛选删除。</p> </li> <li> <p>allkeys-lfu：使用 LFU 算法在所有数据中进行筛选删除。</p> </li> </ol> <p><strong>c) 不处理：</strong></p> <ol start="8"> <li>noeviction：不会剔除任何数据，拒绝所有写入操作并返回客户端错误信息"(error) OOM command not<br /> allowed when used memory"，此时Redis只响应读操作。redis默认操作</li> </ol> <p><strong>LRU 算法（Least Recently Used，最近最少使用）</strong></p> <ul> <li>传统的LRU算法目的是：淘汰很久没被访问过的数据。在 Redis 当中，并没有采用传统的 LRU 算法，因为传统的 LRU 算法存在 2 个问题：</li> </ul> <ol> <li>需要额外的空间进行存储。</li> <li>可能存在某些 key 值使用很频繁，但是最近没被使用，从而被 LRU 算法删除。</li> </ol> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;为了避免以上 2 个问题，<code>Redis 当中对传统的 LRU 算法进行了改造，通过抽样的方式进行删除</code>。配置文件中提供了一个属性<code>maxmemory_samples</code><code>5</code>，默认值就是 5，表示随机抽取 5 个 key 值，然后对这 5 个 key 值按照 LRU 算法进行删除，所以很明显，key 值越大，删除的准确度越高。</p> <p><strong>LFU 算法（Least Frequently Used，最近最少频率使用）</strong></p> <ul> <li>淘汰最近一段时间被访问次数最少的数据，以次数作为参考。<strong>热点数据通常用LFU算法！以次数为准</strong></li> </ul> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;以上8中清除策略，应根据自身业务类型，配置好maxmemory-policy(默认是noeviction)，推荐使用volatile-lru。如果不设置最大内存，当 Redis 内存超出物理内存限制时，内存的数据会开始和磁盘产生频繁的交换 (swap)，会让 Redis 的性能急剧下降。</p> <p><strong>注意：当Redis运行在主从模式时，只有主节点才会执行过期删除策略，然后把删除操作”del key”同步到从结点删除数据。</strong></p> <p></p> <h1><a id="6_redis_266" rel="nofollow"></a>6. 秒杀场景下redis性能提升策略</h1> <p>①：<strong>多商品抢购场景下</strong>，可以加redis服务器。如果是大促场景下，有很多商品待抢购，由于不同的商品id通过槽位分布在不同的redis集群节点上，可以通过增加redis服务器来分散槽位分配，实现高可用的redis架构！</p> <p>②：<strong>单商品秒杀场景下</strong>，增加redis服务器已无法起到优化作用，因为一个商品只能被分配到某一个redis集群节点中，秒杀这个商品会对当前redis节点产生较大压力！可以使用分段库存锁的思路来解决！</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如要秒杀id为001号商品，库存有1000个，可以把001拆分成001-1、001-2、001-3 … 001-10共拆分成10个小id来表示001号商品，每一个小id存储100库存，通过分段锁把单商品抢购优化为多商品抢购！这样在set key设置商品时由于hash(key)%16384得到的槽位不同，这些商品就被分配到不同的集群节点上，在抢购时判断001-1上是否还有库存，如果没有去其他节点减库存，这样就非常巧妙的实现了水平扩容，增强了系统性能！</p> </div> 			                </div>
+                      				  				  				<p>hello，大家好，我是小楼。</p> <p>今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~</p> <h2 id="背景">背景</h2> <p>最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其严重的倾斜情况，并且日常的倾斜情况也比较大，讲的通俗点就是出现了热点机器。</p> <p>举个例子，有三台HBase机器存储调用链数据，其中大部分数据读写都在一台机器上，导致机器负载特别大，经常告警，这就是HBase倾斜，也叫热点现象。本文主要讲述了治理倾斜情况的过程，以及踩的几个坑。</p> <h2 id="知识铺垫">知识铺垫</h2> <p>为什么会出现HBase倾斜的情况呢？既然是调用链数据HBase倾斜，那么首先简单介绍下几个调用链和HBase的背景知识。</p> <h3 id="全链路追踪">全链路追踪</h3> <p><code>全链路追踪</code>可能是一个比较统一的叫法，平常最多的叫法叫<code>调用链</code>，也可能有其他的叫法，不过说的都是同一个东西，本文全都用<code>调用链</code>来指代。</p> <p>调用链是分布式服务化场景下，<strong>跨应用</strong>的<strong>问题排查</strong>和<strong>性能分析</strong>的工具。</p> <p>说的直白点，就是可以让你看到你的代码逻辑在哪个地方调用了什么东西，比如在serviceA的methodA的逻辑里，依次调用了redis、mysql、serviceB等，可以看到每个调用的耗时、报错、出入参、ip地址等信息，这就是调用链。</p> <p>目前调用链有一个统一的标准，以前叫<code>OpenTracing</code>，现在与其他的一些标准整合进了<code>OpenTelemetry</code>，不过调用链的标准基本没变。</p> <p>调用链标准的最核心的概念如下，只列出了一些最核心的元素，不代表全部:</p> <ul> <li>Span：调用链最基本的元素就是Span，一次 Dubbo Server 请求处理，一次 HTTP 客户端请求，乃至一次线程池异步调用都可以作为一个 Span。 <ul> <li>SpanID：一个Span的唯一标识，需要保证全局唯一</li> <li>TraceID：一条调用链的唯一标识，会在整个调用链路中传递</li> <li>ParentID：父 Span 的 SpanID。当存在 A -&gt; B 这样的调用关系时，B Span 的 ParentID 是 A Span 的 SpanID。ParentID 用来构造整个调用链路的树形结构。每次发起新的请求时，都要把当前的 SpanID 作为 ParentID 传递给下一个 Span。</li> </ul> </li> <li>Segment：Segment是特殊的Span，一般表示这是一个应用的边界 Span。如作为 Dubbo Server 的一次请求处理；作为 HTTP Server 的一次请求处理；作为 NSQ Consumer 的一次消息处理等。</li> <li>Trace：一条调用链就是一条Trace，Trace是一堆Span的集合，每一个Trace理论上来说是一颗树</li> </ul> <p>下面用一张图来演示一次简单的三个服务间的Dubbo调用来展示调用链的数据是如何、何时产生的，以及各Span之间是通过什么关联起来的，用于深入理解上面的核心概念。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/c4ceced91b2d73fb5a23f1ef14d0565a.jpg" alt="眼见不一定为实：调用链HBase倾斜修复"></p> <p>文字描述：外部请求调用了ServiceA.MethodA， SA.MA依次调用了SB.MB、Redis、MySQL， SB.MB调用了SC.MC， SC.MC内部只有计算逻辑。</p> <blockquote> <p>注意：</p> <ul> <li>图里Span内容只包含了一部分，不代表全部内容。</li> <li>可能不同的调用链系统上报存储的方式不一样，有的是每个Segment上报一次，有的是每个Span上报一次，图中表示的是每个Span上报一次</li> </ul> </blockquote> <h3 id="hbase">HBase</h3> <p>网上关于HBase介绍的文章很多，这里不做详细的介绍，只是列出来一些基本的概念用于理解。</p> <p>HBase是一个可以存储海量数据的数据库，既然是数据库，那么最基本的操作就是添加和查询</p> <ul> <li>RowKey</li> </ul> <p>HBase基本的数据操作都是通过RowKey这个东西，RowKey是HBase的一个核心概念，如何设计Rowkey是使用HBase最关键的部分。</p> <p>RowKey在HBase里的作用是什么？一个是数据的操作要通过rowkey，可以把rowkey理解为mysql的主键，有索引的作用，另一个是用来做负载均衡。Rowkey的数据格式是字节流，也就是byte数组，这个概念很重要。</p> <p>什么是byte？就是一个8位字符，值在-128到127之间，所以即使你的rowkey不是那128个ascii码，也是可以存的，例如你的rowkey有三个字节，十进制表示分别是-56、-110、-27，发送到HBase也是可以存储的，不过你要展示出来给人看，可能就不太好展示这个RowKey了。</p> <ul> <li>Region</li> </ul> <p>Region是HBase数据分片的基本单位，可以把Region理解为HBase的数据分片。</p> <p>HBase是按什么来做分片的？如果你有搭建过HBase的话，并且看过HBase的web界面，可以看到Region部分有两个属性，Start Key和End Key。</p> <p>这两个属性代表什么意思？举个例子，现在有两个Region，RegionA的StartKey和EndKey是00和01，RegionB的StartKey和EndKey是01和02，你要存两条数据，RowKey分别是0000ABC和0100DEF，第一条数据就会落到RegionA里，第二条数据就会落到RegionB里，简单来讲就是根据RowKey的前缀来决定这条RowKey落到哪个Region里，如果Rowkey匹配不到任何一个Region，那么会新建一个Region存储数据。</p> <p>当Region的数据量到达某个阈值后，Region会自动分裂为两个Region，避免性能降低，HBase还有一个功能是预分区，比如在新建Table后，可以在Table里预先指定256个分区，StartKey和EndKey依次是00-01、01-02一直到FE-FF（前提是你的所有的RowKey的前缀都在00-FF区间内），预分区的好处是避免HBase最开始过多的自动分裂，因为分裂时数据是不可用的，过多的分裂会导致性能降低。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/ee3c33eadc01aa1e0e27054ed6425d1a.jpg" alt="眼见不一定为实：调用链HBase倾斜修复"></p> <h2 id="问题分析">问题分析</h2> <p>介绍完了调用链和HBase的基本概念，这里介绍下我们调用链系统的存储架构，以及为什么会产生倾斜问题。</p> <p>首先是调用链TraceID的设计，格式是 service_name-xx-yy-zz，也就是应用名+时间戳+IP+随机数。</p> <p>调用链数据存储有两部分，一部分在ES，一部分在HBase，为什么不直接把原始数据存到ES里？因为ES机器比较贵，用的固态盘，为了节省成本。</p> <p>ES里存储的是索引数据，也就是一些筛选条件，例如根据appName、startTime、耗时、是否有报错这些属性筛选调用链，这些可以用来筛选调用链的属性是存储在ES里的，并且为了节省空间，除了TraceID和SpanID这两个属性，其他属性的doc_value是关掉的，也就是只存了索引，没有存数据，因为要筛选出来TraceID和SpanID，然后根据这两个ID去HBase里取原始数据。</p> <p>HBase里存储的是HBase的原始数据，除了TraceID和SpanID，因为这两个属性的数据在ES里已经有了。HBase里的每条数据是一个Span，每条数据的RowKey是xx-TraceID-SpanID，最开始的两个字符是TraceID做hash取前两位，为什么要做个hash？因为我们TraceID的开头是应用名，如果不加前面两位hash值的话，根据HBase存储数据的策略，前缀一样的会存储到一起，也就是同一个应用的Trace会存储到一起，那么流量大的应用Trace会很多，这样就会导致倾斜问题，加两位hash值可以让数据分散开，并且同一个TraceID的数据会存储到一起，可以一次性Scan出来。</p> <p>既然RowKey的设计已经考虑到了倾斜问题，已经做了hash分散数据，那为什么日常会存在倾斜问题？而且偶尔会出现很严重的倾斜问题？原因是每个Trace的Span数量是不一样的，有的Trace可能就几个Span，有的Trace有几万个Span，还会出现一种极端情况，一个MQ消费者消费消息后又向好几个Topic里发送了消息，后续的消费者重复这样的操作，导致一条消息最终放大了几万甚至几十万倍，导致一个Trace里有几十万甚至几千万个Span，这只是其中一种场景，也可能业务开发做了什么骚操作，也会导致一个Trace包含的Span数量非常多，那么根据现在的存储架构，同一个Trace的数据会存储到一起，这就导致了倾斜问题。</p> <h2 id="方案设计">方案设计</h2> <p>在定位到问题后，最直接的想法就是彻底打散RowKey，也就是把SpanID的MD5当作RowKey，因为SpanID是全局唯一的，所以MD5必然是彻底打散的，不过这样做有一个坏处，就是数据彻底打散后，要查出一整个Trace的话，就得一个Span一个Span去查，不像之前的RowKey设计可以一次性Scan出来。</p> <p>为了知道这样查询性能有多慢，特意做了一次性能测试，结果如下：</p> <table> <thead> <tr> <th>span数量(个)</th> <th>scan(ms)</th> <th>search_es(ms)</th> <th>gets(ms)</th> <th>gets_parallel_batch100(ms)</th> <th>gets_parallel_batch200(ms)</th> <th>gets_parallel_batch300(ms)</th> <th>gets_parallel_batch500(ms)</th> </tr> </thead> <tbody> <tr> <td>100</td> <td>5</td> <td>12</td> <td>12+10</td> <td></td> <td></td> <td></td> <td></td> </tr> <tr> <td>265</td> <td>10</td> <td>20</td> <td>20+25</td> <td>20+10</td> <td>20+15</td> <td></td> <td></td> </tr> <tr> <td>336</td> <td>10</td> <td>20</td> <td>20+28</td> <td>20+10</td> <td>20+15</td> <td></td> <td></td> </tr> <tr> <td>562</td> <td>10</td> <td>25</td> <td>25+45</td> <td>25+15</td> <td>25+15</td> <td>25+23</td> <td></td> </tr> <tr> <td>1759</td> <td>30</td> <td>57</td> <td>57+130</td> <td>57+38</td> <td>57+40</td> <td>57+45</td> <td>57+45</td> </tr> <tr> <td>2812</td> <td>70</td> <td>85</td> <td>85+210</td> <td>85+70</td> <td>85+70</td> <td>85+70</td> <td>85+70</td> </tr> <tr> <td>8000</td> <td>170</td> <td>210</td> <td>210+700</td> <td>210+180</td> <td>210+180</td> <td>210+180</td> <td>210+200</td> </tr> </tbody> </table> <p>之前的设计查询一整个Trace的步骤就是直接用TraceID去HBase里scan，不用查询ES，也就是第二列的耗时。</p> <p>如果改成一个Span一个Span去查的话，查询步骤变成了两步，第一步先用TraceID从ES里查询出这个Trace所有的SpanID，然后再根据SpanID去HBase里批量gets，表格里的后5列就是两步查询的耗时，加号前面是查询ES的耗时，加号后面是HBase批量gets的耗时。第四列表示串行gets，后四列表示并行gets，并对不同batch的大小做了测试。</p> <p>根据测试结果，串行gets的性能要比并行gets的性能低3-4倍，所以不考虑串行gets。并行batch的大小对性能影响不大，并且最终耗时相比只scan的耗时也就增大一倍，例如查询8000个Span，前后方案查询耗时对比为170ms:390ms，实际上用户感知不到，所以方案就定为用MD5彻底打散数据。</p> <h2 id="踩的坑">踩的坑</h2> <p>在开发完成后，在测试环境测试无误后就直接发了线上，由于最开始不太了解HBase的Region相关的概念，所以误以为RowKey改成MD5后倾斜情况会直接消失，就直接发布了HBase数据写入的服务，发布后HBase那边立刻出现了非常严重的倾斜情况，导致HBase写入超时，kafka堆积，赶紧回滚了，HBase负责人查看监控发现大部分数据写入到了一台机器上。</p> <p>为什么会出现这种情况？测试环境为什么没有出现这个问题？</p> <p>根据上面介绍的HBase的Region相关的概念，出现这种情况的原因可能是RowKey没有匹配到任何一个Region，所以数据写入到了新建的Region上，也就是一台机器上。</p> <p>但是代码里写的明明就是MD5，并且在测试环境测试无误，之前的RowKey方案的前两位hash在00-FF之间，MD5的前缀肯定也在00-FF之间啊，按理说肯定可以匹配到一个Region的，为什么还会写到新的Region里？直接上代码</p> <pre><code class="language-java">import org.apache.commons.codec.digest.DigestUtils;  // 用spanId的MD5值当作RowKey，写入到HBase里 public static byte[] rowKeyMD5(String spanId) {     // DigestUtils只是JDK加密包的封装，底层还是调用JDK本身的MD5加密     return DigestUtils.md5(spanId); }</code></pre> <p>DigestUtils是org.apache.commons.codec.digest.DigestUtils包里带的，实际还是调用的JDK自带的MD5库，等同于如下的写法</p> <pre><code class="language-java">import java.security.MessageDigest; // MessageDigest是JDK自带的加密包，里面有MD5加密算法 MessageDigest.getInstance("md5").digest(spanId.getBytes(StandardCharsets.UTF_8));</code></pre> <p>调试一波，发现了问题，这里用一个简单的demo演示下，逻辑就是用md5加密"abc"这个字符串</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/f32f4952fd5872d87069bc3c20d83027.jpg" alt="眼见不一定为实：调用链HBase倾斜修复"></p> <p>一般我们<code>看到的</code>加密后的MD5是16个或者32个0-F之间的字符，0-F的ASCII码是48-57和97-102，但是加密后的byte数组有的byte是负的，那加密出来的这16个byte是什么玩意？虽然继续看了MD5加密的源码，但是水平不足，看不懂加密原理。。。</p> <p>看到加密后的byte数组应该就可以知道了为什么一发布就严重热点了，因为byte数组里面的东西根本不是正常的0-F之间的字符，虽然hbase的rowkey是只要是byte(-127~128)就行，但是现在MD5加密出的byte数组匹配不到原有的Region的StartKey和EndKey，全都写到新建的Region里了，那么我只需要把RowKey搞成MD5的16进制字符不就可以匹配到原有的Region了么？</p> <p>那么Java怎么MD5加密出一般我们<strong>看到的</strong>那种16进制字符的呢？比较方便的写法是</p> <pre><code class="language-java">import org.apache.commons.codec.binary.Hex;  Hex.encodeHex(DigestUtils.md5(str));</code></pre> <p>那么看下encodeHex里是怎么把md5byte数组转成十六进制字符串的</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5589fe72544619d16642737547cf3fe2.jpg" alt="眼见不一定为实：调用链HBase倾斜修复"></p> <p>每个byte是8位，但是每个16进制字符，也就是0-F只需要四位bit就可以表示，所以一个byte可以表示两个16进制字符，也就是我们日常写的0xFF表示一个byte，上面的逻辑就是把一个byte的前四位和后四位分开，分别表示一个16进制字符，那么16个byte就可以拆成32个16进制字符，这就对上了，接下来看下encodeHex的输出</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/435880bba0604707ee7ebc1c2186c5b0.jpg" alt="眼见不一定为实：调用链HBase倾斜修复"></p> <p>abc经过MD5加密后的16进制字符串是900150983cd24fb0d6963f7d28e17f72，我们按照encodeHex的逻辑来手动拆下byte看看对不对的上</p> <p>首先看bs[0]，也就是-112，用二进制表示就是10010000，注意，这是个补码，简单解释下原码和补码，计算机中的数值都是用二进制补码来存储的，正数的补码是它本身，也就是它的原码，负数的补码是它的原码除了符号位取反加1，详细的可以去看看计算机基础的书籍。</p> <p>那么-112的原码就是11110000，补码就是10010000，拆成两部分也就是1001和0000，也就是9和0，跟16进制字符串的前两位，也就是90，对上了。</p> <p>再拆下bs[1]，也就是1，用二进制表示就是00000001，拆成两部分也就是0000和0001，也就是0和1，跟16进制字符串的三四位，也就是01，对上了</p> <p>再拆下bs[2]，也就是80，用二进制表示就是01010000，拆成两部分也就是0101和0000，也就是5和0，跟16进制字符串的五六位，也就是50，对上了</p> <p>后面的同理，就不写了，看到这里我们就知道了那个16长度的byte数组到底是什么玩意，就是把每两个16进制字符合并成了一个byte</p> <p><strong>所以，我们经常以为或经常看到Java中的MD5每一位都是0-F的字符串是经过了encodeHex处理，但RowKey实际上用的是处理之前的byte[]，它并不在0-F这个范围</strong></p> <h2 id="改进">改进</h2> <p>知道原因后，把RowKey的MD5改成十六进制字符，重新发布，果然没有出现严重热点问题，监控曲线跟之前一样，说明复用了已有的Region，日常倾斜情况需要跑一段时间才可以解决。</p> <h2 id="总结">总结</h2> <ol> <li>HBase的RowKey设计是使用HBase最最重要的地方</li> <li>注意Java的MD5加密出来的东西不一定是你想要的</li> <li>其实直接使用那个16长度的byte数组当作RowKey也可以，虽然基本不会复用已有的Region，不过要一点一点的灰度发布才可以</li> </ol> <p></p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></p>
-                                        <p>下一个：<a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></p>
+                                        <p>上一个：<a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></p>
+                                        <p>下一个：<a href="/html/category/article-207.htm">C ++中的虚拟基类</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>
@@ -102,37 +102,7 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Spring Security教程（13）&#8212;- 验证码功能的实现</a></h4>
-                <p>有三中方法可以实现验证码的功能 第一种是自定义一个filter，放在SpringSecurity过滤器之前，在用户登录的时候会先经过这个filter，然后在这个filter中实现对验证码进行验证的功能</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
-                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
-                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
                 <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
@@ -142,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
-                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
+                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
             </div>
         </div>
     </div>
@@ -152,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
+                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
             </div>
         </div>
     </div>
@@ -162,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
+                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
             </div>
         </div>
     </div>
@@ -172,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
-                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -182,8 +152,38 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
+                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
+                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
             </div>
         </div>
     </div>

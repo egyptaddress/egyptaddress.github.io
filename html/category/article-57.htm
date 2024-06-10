@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-57.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>C#语法糖系列第一篇：聊聊 params 参数底层玩法 - EgyptAddress</title>
+    <title>Semaphore的工作原理及实例 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">C#语法糖系列第一篇：聊聊 params 参数底层玩法</h1>
+                <h1 class="title" style="word-break: break-all;">Semaphore的工作原理及实例</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>首先说说为什么要写这个系列，大概有两点原因。</p> <ol> <li>这种文章阅读量确实高...</li> <li>对 IL 和 汇编代码 的学习巩固</li> </ol> <p>所以就决定写一下这个系列，如果大家能从中有所收获，那就更好啦！</p> <h2 id="一params-应用层玩法">一：params 应用层玩法</h2> <p>首先上一段<code>测试代码</code>。</p> <pre><code class="language-C#">     class Program     {         static void Main(string[] args)         {             Test(100, 200, 300);             Test();         }          static void Test(params int[] list)         {             Console.WriteLine($"list.length={list.Length}");         }     }</code></pre> <p>输出结果如下：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/b16229a0ff3f234a13ae850defcc9a9d.jpg" alt="C#语法糖系列第一篇：聊聊 params 参数底层玩法"></p> <p>可以看出如果给<code>方法形参</code> 加上<code>params</code> 前缀，在传递<code>方法实参</code> 上就特别灵活，点赞。</p> <p>接下来我们来看看，这么灵活的<code>实参传递</code> 底层到底是怎么玩的？我们先从 IL 层面探究下。</p> <h2 id="二il-层面解读">二：IL 层面解读</h2> <p>用<code>ILSpy</code> 打开我们的 exe ，看看 IL 代码</p> <pre><code class="language-C#"> .method private hidebysig static  	void Main ( 		string[] args 	) cil managed  { 	// Method begins at RVA 0x2050 	// Code size 37 (0x25) 	.maxstack 8 	.entrypoint  	IL_0000: nop 	IL_0001: ldc.i4.3 	IL_0002: newarr [mscorlib]System.Int32 	IL_0007: dup 	IL_0008: ldtoken field valuetype '&lt;PrivateImplementationDetails&gt;'/'__StaticArrayInitTypeSize=12' '&lt;PrivateImplementationDetails&gt;'::'9AC9CF706FBD14D039E0436219C5D852927E5F69295F2EF423AE897345197B2A' 	IL_000d: call void [mscorlib]System.Runtime.CompilerServices.RuntimeHelpers::InitializeArray(class [mscorlib]System.Array, valuetype [mscorlib]System.RuntimeFieldHandle) 	IL_0012: call void ConsoleApp2.Program::Test(int32[]) 	IL_0017: nop 	IL_0018: ldc.i4.0 	IL_0019: newarr [mscorlib]System.Int32 	IL_001e: call void ConsoleApp2.Program::Test(int32[]) 	IL_0023: nop 	IL_0024: ret } // end of method Program::Main  .method private hidebysig static  	void Test ( 		int32[] list 	) cil managed  { 	.param [1] 		.custom instance void [mscorlib]System.ParamArrayAttribute::.ctor() = ( 			01 00 00 00 		) 	// Method begins at RVA 0x2076 	// Code size 26 (0x1a) 	.maxstack 8  	IL_0000: nop 	IL_0001: ldstr "list.length={0}" 	IL_0006: ldarg.0 	IL_0007: ldlen 	IL_0008: conv.i4 	IL_0009: box [mscorlib]System.Int32 	IL_000e: call string [mscorlib]System.String::Format(string, object) 	IL_0013: call void [mscorlib]System.Console::WriteLine(string) 	IL_0018: nop 	IL_0019: ret } // end of method Program::Test</code></pre> <p>上面是<code>Main</code> 和<code>Test</code> 方法的IL代码，我们逐一看一下。</p> <h3 id="1-test-方法">1. Test 方法</h3> <p>从<code>int32[] list</code> 参数看并没有所谓的<code>params</code>，这也就说明它是<code>C#编译器</code> 玩的一个手段而已，在方法调用前就已经构建好了。</p> <h3 id="2-main方法">2. Main方法</h3> <p>可以看到 IL 层面的<code>Test(100, 200, 300)</code> 已经变成了下面五行代码。</p> <pre><code class="language-C#"> 	IL_0002: newarr [mscorlib]System.Int32 	IL_0007: dup 	IL_0008: ldtoken field valuetype '&lt;PrivateImplementationDetails&gt;'/'__StaticArrayInitTypeSize=12' '&lt;PrivateImplementationDetails&gt;'::'9AC9CF706FBD14D039E0436219C5D852927E5F69295F2EF423AE897345197B2A' 	IL_000d: call void [mscorlib]System.Runtime.CompilerServices.RuntimeHelpers::InitializeArray(class [mscorlib]System.Array, valuetype [mscorlib]System.RuntimeFieldHandle) 	IL_0012: call void ConsoleApp2.Program::Test(int32[])</code></pre> <p>逻辑大概就是:</p> <ul> <li>用<code>newarr</code> 构建初始化<code>int[]</code> 数组。</li> <li>用<code>ldtoken</code> 从程序元数据中提取<code>1,2,3</code>。</li> <li>用<code>InitializeArray</code> 来将 1，2，3 构建到数组中。</li> </ul> <p>有了这些指令，我相信 JIT 就知道怎么做了。</p> <p>再看<code>Test()</code> 的 IL 指令只有一行<code>newarr [mscorlib]System.Int32</code> 初始化。</p> <p>所以本质上来说，就是提前构建好 array，然后进行参数传递，仅此而已。。。</p> <h2 id="三汇编层面解读">三：汇编层面解读</h2> <p>有了<code>newarr + ldtoken + call</code> 三条指令，接下来我们读一下汇编层做了什么，使用 windbg 打开 exe，简化后的汇编代码如下：</p> <pre><code class="language-C#"> 0:000&gt; !U /d 009b0848 Normal JIT generated code ConsoleApp2.Program.Main(System.String[]) Begin 009b0848, size 77  D:\net5\ConsoleApp4\ConsoleApp2\Program.cs @ 14: &gt;&gt;&gt; 009b0848 55              push    ebp 009b0849 8bec            mov     ebp,esp 009b084b 83ec10          sub     esp,10h 009b084e 33c0            xor     eax,eax 009b0850 8945f4          mov     dword ptr [ebp-0Ch],eax 009b0853 8945f8          mov     dword ptr [ebp-8],eax 009b0856 8945f0          mov     dword ptr [ebp-10h],eax 009b0859 894dfc          mov     dword ptr [ebp-4],ecx 009b085c 833df042710000  cmp     dword ptr ds:[7142F0h],0 009b0863 7405            je      009b086a 009b0865 e816f55264      call    clr!JIT_DbgIsJustMyCode (64edfd80) 009b086a 90              nop  D:\net5\ConsoleApp4\ConsoleApp2\Program.cs @ 15: 009b086b b95e186763      mov     ecx,offset mscorlib_ni!System.Text.Encoding.GetEncodingCodePage(Int32)$##6006719 &lt;PERF&gt; (mscorlib_ni+0x185e) (6367185e) 009b0870 ba03000000      mov     edx,3 009b0875 e8b229d5ff      call    0070322c (JitHelp: CORINFO_HELP_NEWARR_1_VC) 009b087a 8945f4          mov     dword ptr [ebp-0Ch],eax 009b087d b9e04d7100      mov     ecx,714DE0h 009b0882 e819c91f64      call    clr!JIT_GetRuntimeFieldStub (64bad1a0) 009b0887 8945f8          mov     dword ptr [ebp-8],eax 009b088a 8d45f8          lea     eax,[ebp-8] 009b088d ff30            push    dword ptr [eax] 009b088f 8b4df4          mov     ecx,dword ptr [ebp-0Ch] 009b0892 e8f9c61f64      call    clr!ArrayNative::InitializeArray (64bacf90) 009b0897 8b4df4          mov     ecx,dword ptr [ebp-0Ch] 009b089a ff15904d7100    call    dword ptr ds:[714D90h] (ConsoleApp2.Program.Test(Int32[]), mdToken: 06000002) 009b08a0 90              nop  D:\net5\ConsoleApp4\ConsoleApp2\Program.cs @ 16: 009b08a1 b95e186763      mov     ecx,offset mscorlib_ni!System.Text.Encoding.GetEncodingCodePage(Int32)$##6006719 &lt;PERF&gt; (mscorlib_ni+0x185e) (6367185e) 009b08a6 33d2            xor     edx,edx 009b08a8 e87f29d5ff      call    0070322c (JitHelp: CORINFO_HELP_NEWARR_1_VC) 009b08ad 8945f0          mov     dword ptr [ebp-10h],eax 009b08b0 8b4df0          mov     ecx,dword ptr [ebp-10h] 009b08b3 ff15904d7100    call    dword ptr ds:[714D90h] (ConsoleApp2.Program.Test(Int32[]), mdToken: 06000002) 009b08b9 90              nop  D:\net5\ConsoleApp4\ConsoleApp2\Program.cs @ 17: 009b08ba 90              nop 009b08bb 8be5            mov     esp,ebp 009b08bd 5d              pop     ebp 009b08be c3              ret</code></pre> <h3 id="1-newarr">1. newarr</h3> <p>可以很清楚的看到，<code>newarr</code> 调用了 CLR 中的jithelper函数<code>CORINFO_HELP_NEWARR_1_VC</code> 下的<code>JIT_NewArr1</code> 方法，大家有兴趣可以看下<code>jitheapler.cpp</code>，调用完之后，初始化数组就出来了。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/8a49eacf5d9c4fcbe68ef881bb9ac2bf.jpg" alt="C#语法糖系列第一篇：聊聊 params 参数底层玩法"></p> <p>从dp看，数组只申明了<code>length=3</code>,还并没有数组元素，也就说所谓的初始化。</p> <h3 id="2-ldtoken--initializearray">2. ldtoken &amp; InitializeArray</h3> <p>刚才也说到了, ldtoken 是在运行时提取元数据，那就必须要解析 PE 头，在 clr 层面有一个<code>PEDecoder::GetRvaData</code> 方法就是用来解析运行时数据，它是发生在<code>ArrayNative::InitializeArray</code> 方法中，所以我们下两个 bu 命令拦截。</p> <pre><code class="language-C#"> 0:000&gt; bu clr!ArrayNative::InitializeArray 0:000&gt; bu clr!PEDecoder::GetRvaData 0:000&gt; g Breakpoint 3 hit eax=0019f500 ebx=0019f5ac ecx=024c2338 edx=006fb930 esi=00000000 edi=0019f520 eip=64bacf90 esp=0019f4f0 ebp=0019f508 iopl=0         nv up ei pl zr na pe nc cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000246 clr!ArrayNative::InitializeArray: 64bacf90 6a78            push    78h 0:000&gt; g Breakpoint 0 hit eax=00713448 ebx=00624044 ecx=0071344c edx=0071dc28 esi=00624044 edi=00624de0 eip=64befcfc esp=0019f400 ebp=0019f410 iopl=0         nv up ei pl zr na pe nc cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000246 clr!PEDecoder::GetRvaData: 64befcfc 55              push    ebp 0:000&gt; k   # ChildEBP RetAddr       00 0019f410 64b63be5     clr!PEDecoder::GetRvaData 01 0019f410 64b63bb3     clr!Module::GetRvaField+0x40 02 0019f44c 64bad0a7     clr!FieldDesc::GetStaticAddressHandle+0xdd 03 0019f4ec 00680897     clr!ArrayNative::InitializeArray+0x11a 0:000&gt; bp 64b63be5 0:000&gt; g eax=00402928 ebx=00624044 ecx=0071344c edx=0071dc28 esi=00624044 edi=00624de0 eip=64b63be5 esp=0019f40c ebp=0019f410 iopl=0         nv up ei pl nz na pe nc cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000206 clr!Module::GetRvaField+0x40: 64b63be5 5e              pop     esi</code></pre> <p>从输出看，上面的<code>GetRvaField</code> 方法的返回值会送到 eax 上，接下来我们验证下 eax 上的值是不是参数 100，200，300 。</p> <pre><code class="language-C#"> 0:000&gt; dp eax L3 00402928  00000064 000000c8 0000012c</code></pre> <p>上面三个就是 16进制的表示，接下来我们再验证下这三个值是怎么赋到初始化数组中的，可以用<code>ba</code> 命令对 内存地址 进行拦截。</p> <pre><code class="language-C#"> 0:000&gt; ba r4 023e2338 + 0x8 0:000&gt; ba r4 023e2338 + 0x8 + 0x4 0:000&gt; ba r4 023e2338 + 0x8 + 0x4 + 0x4 0:000&gt; g Breakpoint 3 hit eax=0000000c ebx=00000000 ecx=00000003 edx=00000064 esi=00402928 edi=023e2340 eip=6a91d68b esp=0019f440 ebp=0019f4ec iopl=0         nv up ei pl nz na pe nc cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000206 VCRUNTIME140_CLR0400!memcpy+0x50b: 6a91d68b 83c704          add     edi,4 0:000&gt; g Breakpoint 4 hit eax=0000000c ebx=00000000 ecx=00000002 edx=000000c8 esi=0040292c edi=023e2344 eip=6a91d68b esp=0019f440 ebp=0019f4ec iopl=0         nv up ei pl nz na po nc cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202 VCRUNTIME140_CLR0400!memcpy+0x50b: 6a91d68b 83c704          add     edi,4 0:000&gt; g Breakpoint 5 hit eax=0000000c ebx=00000000 ecx=00000001 edx=0000012c esi=00402930 edi=023e2348 eip=6a91d68b esp=0019f440 ebp=0019f4ec iopl=0         nv up ei pl nz na po nc cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202 VCRUNTIME140_CLR0400!memcpy+0x50b: 6a91d68b 83c704          add     edi,4  0:000&gt; dp 023e2338 L5 023e2338  6368426c 00000003 00000064 000000c8 023e2348  0000012c</code></pre> <p>接下来稍微解释下<code>ba r4 023e2338 + 0x8</code> 命令。</p> <ul> <li> <p>023e2338 是初始化数组的首地址。</p> </li> <li> <p>023e2338+0x8 初始化数组第一个元素的地址。</p> </li> <li> <p>023e2338 + 0x8 + 0x4  初始化数组第二个元素的地址。</p> </li> <li> <p>r4  按4byte对地址块读写进行监控。</p> </li> </ul> <p>当三个断点命中后，可以看到初始化数组<code>023e2338</code> 上的三个元素值都已经填上了，就说这么多吧，相信大家对 params 机制有一定的理解。</p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>&nbsp;Semaphore是一种在多线程环境下使用的设施，该设施负责协调各个线程，以保证它们能够正确、合理的使用公共资源的设施，也是操作系统中用于控制进程同步互斥的量。Semaphore是一种计数信号量，用于管理一组资源，内部是基于AQS的共享模式。它相当于给线程规定一个量从而控制允许活动的线程数。</p> <p>1.工作原理<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;以一个停车场是运作为例。为了简单起见，假设停车场只有三个车位，一开始三个车位都是空的。这时如果同时来了五辆车，看门人允许其中三辆不受阻碍的进入，然后放下车拦，剩下的车则必须在入口等待，此后来的车也都不得不在入口处等待。这时，有一辆车离开停车场，看门人得知后，打开车拦，放入一辆，如果又离开两辆，则又可以放入两辆，如此往复。这个停车系统中，每辆车就好比一个线程，看门人就好比一个信号量，看门人限制了可以活动的线程。假如里面依然是三个车位，但是看门人改变了规则，要求每次只能停两辆车，那么一开始进入两辆车，后面得等到有车离开才能有车进入，但是得保证最多停两辆车。对于Semaphore类而言，就如同一个看门人，限制了可活动的线程数。</p> <p>Semaphore主要方法：</p> <ol> <li>Semaphore(int permits):构造方法，创建具有给定许可数的计数信号量并设置为非公平信号量。</li> <li>Semaphore(int permits,boolean fair):构造方法，当fair等于true时，创建具有给定许可数的计数信号量并设置为公平信号量。</li> <li>void acquire():从此信号量获取一个许可前线程将一直阻塞。相当于一辆车占了一个车位。</li> <li>void acquire(int n):从此信号量获取给定数目许可，在提供这些许可前一直将线程阻塞。比如n=2，就相当于一辆车占了两个车位。</li> <li>void release():释放一个许可，将其返回给信号量。就如同车开走返回一个车位。</li> <li>void release(int n):释放n个许可。</li> <li>int&nbsp;availablePermits()：当前可用的许可数。<br /> &nbsp;</li> </ol> <p>先说它的构造方法：</p> <pre class="has"><code class="language-java">//参数permits是许可的数量 &nbsp;&nbsp;&nbsp;&nbsp;public Semaphore(int permits) {         sync = new NonfairSync(permits);     }   &nbsp;&nbsp;&nbsp;&nbsp;//第二个参数是，是否是公平锁 &nbsp; &nbsp; /** &nbsp; &nbsp; &nbsp;* Creates a {@code Semaphore} with the given number of &nbsp; &nbsp; &nbsp;* permits and the given fairness setting. &nbsp; &nbsp; &nbsp;* &nbsp; &nbsp; &nbsp;* @param permits the initial number of permits available. &nbsp; &nbsp; &nbsp;* &nbsp; &nbsp; &nbsp; &nbsp;This value may be negative, in which case releases &nbsp; &nbsp; &nbsp;* &nbsp; &nbsp; &nbsp; &nbsp;must occur before any acquires will be granted. &nbsp; &nbsp; &nbsp;* @param fair {@code true} if this semaphore will guarantee &nbsp;&nbsp;&nbsp;&nbsp;//fair为true的时候，semaphore保证在竞争permits的时候先进先出，先获得许可先执行 &nbsp; &nbsp; &nbsp;* &nbsp; &nbsp; &nbsp; &nbsp;first-in first-out granting of permits under contention, &nbsp; &nbsp; &nbsp;* &nbsp; &nbsp; &nbsp; &nbsp;else {@code false} &nbsp; &nbsp; &nbsp;*/ &nbsp; &nbsp; public Semaphore(int permits, boolean fair) { &nbsp; &nbsp; &nbsp; &nbsp; sync = fair ? new FairSync(permits) : new NonfairSync(permits); &nbsp; &nbsp; } </code></pre> <p><span style="color:#e579b6;">公平信号量是指获得锁的顺序与线程启动的顺序有关</span>，非公平信息量就是无关的了。<br /><span style="color:#7c79e5;">非公平信号量线程启动的顺序与调用semaphore.acquire()的顺序无关，也就是线程先启动了并不代表先获得许可。</span><br /><span style="color:#f33b45;">公平与不公平通过Semaphore类的构造函数new Semaphore(int permits,boolean fair)的第二个参数fair决定。</span></p> <p> &nbsp;</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-56.htm">C#多态性02</a></p>
-                                        <p>下一个：<a href="/html/category/article-58.htm">pytorch 多GPU训练的模型在单卡或CPU上加载</a></p>
+                                        <p>上一个：<a href="/html/category/article-56.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></p>
+                                        <p>下一个：<a href="/html/category/article-58.htm">关于Java 信号量 Semaphore</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
-                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
+                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
-                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
-                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
-                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
-                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></h4>
+                <p>vue父组件向子组件传值与传递方法 学习笔记 1、父组件向子组件传值（props）  在子组件中，默认是无法访问到父组件中的data上的数据和methods中的方法 父组件可以在引用子组件的时候，通过</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-178.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>【Android】ListView 控件的简单使用 - EgyptAddress</title>
+    <title>C ++中的最低票价 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">【Android】ListView 控件的简单使用</h1>
+                <h1 class="title" style="word-break: break-all;">C ++中的最低票价</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>1. 效果预览</p> <p class="img-center"><img fetchpriority="high" decoding="async" alt="" height="818" src="http://img.555519.xyz/uploads/20230202/10236495c042a53b1b6eb2758e8a9265.jpg"></p> <p>2. 在布局文件中放置 ListView 控件</p> <pre><code class="language-XML">&lt;?xml version="1.0" encoding="utf-8"?&gt; &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"     xmlns:tools="http://schemas.android.com/tools"     android:layout_width="match_parent"     android:layout_height="match_parent"     tools:context=".MainActivity"&gt;      &lt;ListView         android:id="@+id/listView"         android:layout_width="match_parent"         android:layout_height="wrap_content"/&gt;  &lt;/LinearLayout&gt;</code></pre> <p>3. 创建 ListView 的 item 布局</p> <pre><code class="language-XML">&lt;?xml version="1.0" encoding="utf-8"?&gt; &lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"     xmlns:tools="http://schemas.android.com/tools"     android:layout_width="match_parent"     android:layout_height="wrap_content"&gt;      &lt;ImageView         android:id="@+id/iv_interaction"         android:layout_alignParentStart="true"         android:padding="10dp"         android:layout_width="wrap_content"         android:layout_height="wrap_content"         tools:ignore="ContentDescription" /&gt;      &lt;TextView         android:id="@+id/tv_interaction"         android:layout_toEndOf="@+id/iv_interaction"         android:layout_centerVertical="true"         android:textSize="20sp"         android:layout_width="wrap_content"         android:layout_height="wrap_content"         tools:ignore="RelativeOverlap" /&gt;      &lt;ImageView         android:id="@+id/messages_into"         android:layout_alignParentEnd="true"         android:padding="10dp"         android:layout_width="wrap_content"         android:layout_height="wrap_content"         tools:ignore="ContentDescription" /&gt;  &lt;/RelativeLayout&gt;</code></pre> <p>4. 创建实体类</p> <pre><code class="language-java">public class InteractionBean {      private final int iv_interaction;     private final String tv_interaction;     private final int messages_into;      public InteractionBean(int iv_interaction, String tv_interaction, int messages_into){         this.iv_interaction = iv_interaction;         this.tv_interaction = tv_interaction;         this.messages_into = messages_into;     }      public int getIv_interaction() {         return iv_interaction;     }      public String getTv_interaction() {         return tv_interaction;     }      public int getMessages_into() {         return messages_into;     }  }</code></pre> <p>5. 创建适配器继承自 BaseAdapter</p> <pre><code class="language-java">public class InteractionAdapter extends BaseAdapter {      private final Context context;     private final List&lt;InteractionBean&gt; interactions;      public InteractionAdapter(Context context, List&lt;InteractionBean&gt; interactions){         this.context = context;         this.interactions = interactions;     }      @Override     public int getCount() {         return interactions.size();     }      @Override     public Object getItem(int i) {         return interactions.get(i);     }      @Override     public long getItemId(int i) {         return i;     }      @Override     public View getView(int i, View view, ViewGroup viewGroup) {          ViewHolder holder;          if (view == null){             view = LayoutInflater.from(context).inflate(R.layout.interaction_item, viewGroup, false);             holder = new ViewHolder();             holder.iv_interaction = view.findViewById(R.id.iv_interaction);             holder.tv_interaction = view.findViewById(R.id.tv_interaction);             holder.messages_into = view.findViewById(R.id.messages_into);             view.setTag(holder);         }else {             holder = (ViewHolder) view.getTag();         }          holder.iv_interaction.setImageResource(interactions.get(i).getIv_interaction());         holder.tv_interaction.setText(interactions.get(i).getTv_interaction());         holder.messages_into.setImageResource(interactions.get(i).getMessages_into());          return view;      }      static class ViewHolder{         ImageView iv_interaction;         TextView tv_interaction;         ImageView messages_into;     }  }</code></pre> <p>6. 为 item 设置数据，为 ListView 设置适配器</p> <pre><code class="language-java">public class MainActivity extends AppCompatActivity {      @Override     protected void onCreate(Bundle savedInstanceState) {         super.onCreate(savedInstanceState);         setContentView(R.layout.activity_main);          ListView listView = findViewById(R.id.listView);         List&lt;InteractionBean&gt; interactions = new ArrayList&lt;&gt;();         InteractionAdapter adapter = new InteractionAdapter(MainActivity.this, interactions);          InteractionBean at = new InteractionBean(R.drawable.messages_at, "有人@你", R.drawable.messages_into);         InteractionBean comment = new InteractionBean(R.drawable.messages_comment, "评论提醒", R.drawable.messages_into);         InteractionBean like = new InteractionBean(R.drawable.messages_like, "点赞提醒", R.drawable.messages_into);          interactions.add(at);         interactions.add(comment);         interactions.add(like);          listView.setAdapter(adapter);      } }</code></pre> </p></div> 			                </div>
+                      				  				  				<p>假设有一个在火车旅行中很受欢迎的国家，我们已经计划提前一年进行一些火车旅行。我们有一个数组，保存着我们每年旅行的日子。每天是1到365之间的整数。火车票以三种不同的方式出售-</p> <ul class="list-paddingleft-2"> <li> <p>1天通行证的售价为[0]美元；</p> </li> <li> <p>1天通行证的售价为[0]美元；</p> </li> <li> <p>30天的通行证售价为成本[2]美元。</p> </li> </ul> <p>在这里，通行证允许连续几天旅行。例如，如果我们在第2天获得一张7天通行证，那么我们可以连续旅行7天：连续一天（2、3、4、5、6、7和8）。我们必须在给定的天数列表中找到每天需要旅行的最少钱数。因此，如果输入为[1,4,6,7,8,20]，成本为[2,7,15]，那么输出将为11。</p> <p>在第1天，我们购买了1天的通行证，费用为[0] = $2，即第1天，在第3天，我们购买了7天的通行证，所以成本[1] = $7，即第3至9天，在第20天，又购买了1天的通行证，因此cost [0] = $2，即第20天的费用。因此，总共花费了$11。</p> <p>为了解决这个问题，我们将遵循以下步骤-</p> <ul class="list-paddingleft-2"> <li> <p>创建一个名为dp的数组，大小为366</p> </li> <li> <p>j：= 0</p> </li> <li> <p>适用于1至366的范围</p> </li> <ul class="list-paddingleft-2" style="list-style-type: square;"> <li> <p>dp [i]：=成本[0] + dp [i-1]</p> </li> <li> <p>如果i – 7&gt; = 0，则dp [i]：= dp [i-7]的最小值+ cost [1]和dp [i]</p> </li> <li> <p>如果i – 30&gt; = 0，则dp [i]：= dp [i-30]的最小值+ cost [2]和dp [i]</p> </li> <li> <p>如果j &lt;days数组的大小并且days [j] = i，则将j增加1，否则dp [i]：= dp [i]的最小值，dp [i – 1]</p> </li> </ul> <li> <p>返回dp [365]</p> </li> </ul> <p>让我们看下面的实现以更好地理解-</p> <h2>示例</h2> <pre>#include&nbsp;&lt;bits/stdc++.h&gt; using&nbsp;namespace&nbsp;std; class&nbsp;Solution&nbsp;{ &nbsp;&nbsp;&nbsp;public: &nbsp;&nbsp;&nbsp;int&nbsp;mincostTickets(vector&lt;int&gt;&amp;&nbsp;days,&nbsp;vector&lt;int&gt;&amp;&nbsp;costs)&nbsp;{ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vector&nbsp;&lt;int&gt;&nbsp;dp(366); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;j&nbsp;=&nbsp;0; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;366;&nbsp;i++){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i]&nbsp;=&nbsp;costs[0]&nbsp;+&nbsp;dp[i&nbsp;-&nbsp;1]; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(i&nbsp;-&nbsp;7&nbsp;&gt;=&nbsp;0){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i]&nbsp;=&nbsp;min(dp[i&nbsp;-&nbsp;7]&nbsp;+&nbsp;costs[1],&nbsp;dp[i]); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(i&nbsp;-&nbsp;30&nbsp;&gt;=&nbsp;0){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i]&nbsp;=&nbsp;min(dp[i&nbsp;-&nbsp;30]&nbsp;+&nbsp;costs[2],&nbsp;dp[i]); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(j&nbsp;&lt;&nbsp;days.size()&nbsp;&amp;&amp;&nbsp;days[j]&nbsp;==&nbsp;i){ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j++; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}else &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp[i]&nbsp;=&nbsp;min(dp[i],&nbsp;dp[i&nbsp;-&nbsp;1]); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;dp[365]; &nbsp;&nbsp;&nbsp;} }; main(){ &nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;v&nbsp;=&nbsp;{1,4,6,7,8,20}; &nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;v1&nbsp;=&nbsp;{2,7,15}; &nbsp;&nbsp;&nbsp;Solution&nbsp;ob; &nbsp;&nbsp;&nbsp;cout&nbsp;&lt;&lt;&nbsp;(ob.mincostTickets(v,&nbsp;v1)); }</pre> <h2>输入项</h2> <pre>[1,4,6,7,8,20] [2,7,15]</pre> <p>输出结果</p> <pre>11</pre> <div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-177.htm">vue项目实现自定义tabBar组件的封装</a></p>
-                                        <p>下一个：<a href="/html/category/article-179.htm">用字符串中的ASCII值替换所有特殊字符-JavaScript</a></p>
+                                        <p>上一个：<a href="/html/category/article-177.htm">SpringBoot2.3应用制作Docker镜像详解</a></p>
+                                        <p>下一个：<a href="/html/category/article-179.htm">python调用C的函数</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
-                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></h4>
-                <p>???? 个人网站:【 海拥】【小霸王游戏机】 ???? 风趣幽默的前端学习课程：????28个案例趣学前端 ???? 想寻找共同学习交流、摸鱼划水的小伙伴，请点击【摸鱼学习交流群】 ???? 免费且</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
+                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
-                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
-                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
-                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
-                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
+                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
             </div>
         </div>
     </div>

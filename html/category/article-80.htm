@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-80.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Hyperledger Fabric节点的动态添加和删除 - EgyptAddress</title>
+    <title>nginx进程管理 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Hyperledger Fabric节点的动态添加和删除</h1>
+                <h1 class="title" style="word-break: break-all;">nginx进程管理</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h2 id="前言">前言</h2> <p>在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://ifantasy.net/2022/04/04/hyperledger_fabric_2_update_org/"  target="_blank" rel="nofollow">Hyperledger Fabric组织的动态添加和删除</a>中，我们已经完成了在运行着的网络中动态添加和删除组织。本文将在其基础上，详细介绍了如何在 soft 组织上添加新的 peer2 节点，并在简要概述了删除节点的方法，本实验必要的准备工作和 DNS 配置请参考<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://ifantasy.net/2022/04/01/hyperledger_fabric_1_custom_our_network/#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"  target="_blank" rel="nofollow">准备工作</a>。</p> <h2 id="背景介绍">背景介绍</h2> <h3 id="实验准备">实验准备</h3> <p>本文网络结构直接使用<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://ifantasy.net/2022/04/04/hyperledger_fabric_2_update_org"  target="_blank" rel="nofollow">Hyperledger Fabric组织的添加和删除</a>  中创建的<code>2_FabricNetworkUpdate</code> （建议直接将本案例仓库<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/wefantasy/FabricLearn"  target="_blank" rel="nofollow">FabricLearn</a> 下的<code>2_FabricNetworkUpdate</code> 目录拷贝到本地运行）。默认情况下，所有命令皆在<code>2_FabricNetworkUpdate</code> 根目录下执行，在开始后面的实验前按照以下命令启动基础实验网络：</p> <ol> <li>设置环境变量<code>source envpeer1soft</code></li> <li>启动CA网络<code>./0_Restart.sh</code></li> <li>注册用户<code>./1_RegisterUser.sh</code></li> <li>构造证书<code>./2_EnrollUser.sh</code></li> <li>配置通道<code>./3_Configtxgen.sh</code></li> <li>安装测试链码<code>./4_TestChaincode.sh</code></li> </ol> <p>本实验初始 docker 网络为：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d8e4c97518f8aeba9f044e77b9964f5a.jpg" alt="Hyperledger Fabric节点的动态添加和删除"></p> <p>本实验初始区块高度为6：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/e2b328811c43ea9b301823bea4a1cac6.jpg" alt="Hyperledger Fabric节点的动态添加和删除"></p> <h3 id="本文工作">本文工作</h3> <p>向 Hyperledger Fabric 网络中的 soft 组织动态添加一个节点 peer2 ，网络结构为（实验代码已上传至：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/wefantasy/FabricLearn"  target="_blank" rel="nofollow">https://github.com/wefantasy/FabricLearn</a> 的<code>2_FabricNetworkUpdate/7_AddPeer.sh</code> 下）<sup class="footnote-ref"><a href="#fn1" id="fnref1" rel="nofollow">[1]</a></sup>：</p> <table> <thead> <tr> <th style="text-align: center">项</th> <th style="text-align: center">运行端口</th> <th style="text-align: center">说明</th> </tr> </thead> <tbody> <tr> <td style="text-align: center"><code>council.ifantasy.net</code></td> <td style="text-align: center">7050</td> <td style="text-align: center">council 组织的 CA 服务， 为联盟链网络提供 TLS-CA 服务</td> </tr> <tr> <td style="text-align: center"><code>orderer.ifantasy.net</code></td> <td style="text-align: center">7150</td> <td style="text-align: center">orderer 组织的 CA 服务， 为联盟链网络提供排序服务</td> </tr> <tr> <td style="text-align: center"><code>orderer1.orderer.ifantasy.net</code></td> <td style="text-align: center">7151</td> <td style="text-align: center">orderer 组织的 orderer1 成员节点</td> </tr> <tr> <td style="text-align: center"><code>soft.ifantasy.net</code></td> <td style="text-align: center">7250</td> <td style="text-align: center">soft 组织的 CA 服务， 包含成员： peer1 、 admin1</td> </tr> <tr> <td style="text-align: center"><code>peer1.soft.ifantasy.net</code></td> <td style="text-align: center">7251</td> <td style="text-align: center">soft 组织的 peer1 成员节点</td> </tr> <tr> <td style="text-align: center"><code>peer2.soft.ifantasy.net</code></td> <td style="text-align: center">7252</td> <td style="text-align: center">soft 组织的 peer2 成员节点</td> </tr> <tr> <td style="text-align: center"><code>web.ifantasy.net</code></td> <td style="text-align: center">7350</td> <td style="text-align: center">web 组织的 CA 服务， 包含成员： peer1 、 admin1</td> </tr> <tr> <td style="text-align: center"><code>peer1.web.ifantasy.net</code></td> <td style="text-align: center">7351</td> <td style="text-align: center">web 组织的 peer1 成员节点</td> </tr> </tbody> </table> <h2 id="添加新节点">添加新节点</h2> <h3 id="生成peer2的组织证书">生成peer2的组织证书</h3> <p>由于 peer2 属于 soft 组织，所以其证书直接使用已有的 CA 服务器即可生成。</p> <ol> <li>生成 TLS-CA 证书：</li> </ol> <pre><code class="language-bash">export FABRIC_CA_CLIENT_TLS_CERTFILES=$LOCAL_CA_PATH/council.ifantasy.net/ca/crypto/ca-cert.pem export FABRIC_CA_CLIENT_HOME=$LOCAL_CA_PATH/council.ifantasy.net/ca/admin fabric-ca-client register -d --id.name peer2soft --id.secret peer2soft --id.type peer -u https://council.ifantasy.net:7050</code></pre> <ol start="2"> <li>生成 CA 证书：</li> </ol> <pre><code class="language-bash">export FABRIC_CA_CLIENT_TLS_CERTFILES=$LOCAL_CA_PATH/soft.ifantasy.net/ca/crypto/ca-cert.pem export FABRIC_CA_CLIENT_HOME=$LOCAL_CA_PATH/soft.ifantasy.net/ca/admin fabric-ca-client register -d --id.name peer2 --id.secret peer2 --id.type peer -u https://soft.ifantasy.net:7250</code></pre> <ol start="3"> <li>构造证书目录：</li> </ol> <pre><code class="language-bash">echo "Enroll Peer2" export FABRIC_CA_CLIENT_HOME=$LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2 export FABRIC_CA_CLIENT_TLS_CERTFILES=$LOCAL_CA_PATH/soft.ifantasy.net/assets/ca-cert.pem export FABRIC_CA_CLIENT_MSPDIR=msp fabric-ca-client enroll -d -u https://peer2:peer2@soft.ifantasy.net:7250 # for TLS export FABRIC_CA_CLIENT_MSPDIR=tls-msp export FABRIC_CA_CLIENT_TLS_CERTFILES=$LOCAL_CA_PATH/soft.ifantasy.net/assets/tls-ca-cert.pem fabric-ca-client enroll -d -u https://peer2soft:peer2soft@council.ifantasy.net:7050 --enrollment.profile tls --csr.hosts peer2.soft.ifantasy.net cp $LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2/tls-msp/keystore/*_sk $LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2/tls-msp/keystore/key.pem mkdir -p $LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2/msp/admincerts cp $LOCAL_CA_PATH/soft.ifantasy.net/registers/admin1/msp/signcerts/cert.pem $LOCAL_CA_PATH/soft.ifantasy.net/registers/peer2/msp/admincerts/cert.pem</code></pre> <h3 id="配置peer2的容器及环境变量">配置peer2的容器及环境变量</h3> <ol> <li>在<code>compose</code> 目录下新建<code>update-peer.yaml</code> 文件，内容如下：</li> </ol> <pre><code class="language-bash">version: '2'  networks:   network:  services:   peer2.soft.ifantasy.net:     container_name: peer2.soft.ifantasy.net     extends:       file: docker-base.yaml       service: peer-base     environment:       - CORE_PEER_ID=peer2.soft.ifantasy.net       - CORE_PEER_ADDRESS=peer2.soft.ifantasy.net:7051       - CORE_PEER_LOCALMSPID=softMSP       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.soft.ifantasy.net:7051     volumes:       - ${LOCAL_CA_PATH}/soft.ifantasy.net/registers/peer2:${DOCKER_CA_PATH}/peer     ports:       - 7252:7051</code></pre> <ol start="2"> <li>启动 peer2 容器：</li> </ol> <pre><code class="language-bash">docker-compose -f $LOCAL_ROOT_PATH/compose/update-peer.yaml up -d peer2.soft.ifantasy.net</code></pre> <p>此时可以使用<code>docker ps</code> 命令看到 peer2 容器成功运行：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/76d1e5d81b36ca60630dc099ca941487.jpg" alt="Hyperledger Fabric节点的动态添加和删除"><br /> 3. 添加 peer2 的 DNS 解析记录到本机：</p> <pre><code class="language-bash">echo "127.0.0.1       peer2.soft.ifantasy.net" &gt;&gt; /etc/hosts</code></pre> <ol start="4"> <li>将 peer1 的环境变量文件<code>envpeer1soft</code> 复制一份到<code>envpeer2soft</code> ，其内容为：</li> </ol> <pre><code class="language-bash">export LOCAL_ROOT_PATH=$PWD export LOCAL_CA_PATH=$LOCAL_ROOT_PATH/orgs export DOCKER_CA_PATH=/tmp export COMPOSE_PROJECT_NAME=fabriclearn export DOCKER_NETWORKS=network export FABRIC_BASE_VERSION=2.4 export FABRIC_CA_VERSION=1.5 echo "init terminal soft" export FABRIC_CFG_PATH=$LOCAL_ROOT_PATH/config export CORE_PEER_TLS_ENABLED=true export CORE_PEER_LOCALMSPID="softMSP" export CORE_PEER_ADDRESS=peer2.soft.ifantasy.net:7252 export CORE_PEER_TLS_ROOTCERT_FILE=$LOCAL_CA_PATH/soft.ifantasy.net/assets/tls-ca-cert.pem export CORE_PEER_MSPCONFIGPATH=$LOCAL_CA_PATH/soft.ifantasy.net/registers/admin1/msp export ORDERER_CA=$LOCAL_CA_PATH/orderer.ifantasy.net/registers/orderer1/tls-msp/tlscacerts/tls-council-ifantasy-net-7050.pem</code></pre> <h3 id="peer2加入通道">peer2加入通道</h3> <ol> <li>拉取通道创世区块：</li> </ol> <pre><code class="language-bash">peer channel fetch 0 mychannel.block -o orderer1.orderer.ifantasy.net:7151 -c mychannel --tls --cafile $ORDERER_CA</code></pre> <p>由于 peer2 还没有 mychannel 通道的访问权限，所以目前为止我们都是使用 peer1 的环境变量进行操作，后面加入通道后可以使用 peer2 的环境变量。</p> <ol start="2"> <li>peer2 加入通道：</li> </ol> <pre><code class="language-bash">source envpeer2soft peer channel fetch 0 mychannel.block -o orderer1.orderer.ifantasy.net:7151 -c mychannel --tls --cafile $ORDERER_CA</code></pre> <p>此时 peer2 已经加入通道，但是其区块高度仍为0：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1faed6205f47b3e3fc919d8e0302e7f6.jpg" alt="Hyperledger Fabric节点的动态添加和删除"></p> <ol start="3"> <li>peer2 安装链码：</li> </ol> <pre><code class="language-bash">peer lifecycle chaincode install basic.tar.gz</code></pre> <p>现在 peer2 的区块高度已更新到最新的6：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/10278e361bea494a5e822cd6b6498f39.jpg" alt="Hyperledger Fabric节点的动态添加和删除"></p> <h2 id="删除旧节点">删除旧节点</h2> <p>或许是删除旧节点不符合区块链的设计思想，因此官方并没有提供方法来移除已经加入通道的 peer 节点，但是在实际使用中，我们可以直接通过停用 peer 容器来移除 peer 节点<sup class="footnote-ref"><a href="#fn2" id="fnref2" rel="nofollow">[2]</a></sup>。</p> <h2 id="参考">参考</h2> <hr class="footnotes-sep"/> <section class="footnotes"> <ol class="footnotes-list"> <li id="fn1" class="footnote-item"> <p>zcc0721.<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/u013137970/article/details/112606730"  target="_blank" rel="nofollow">Fabric向现有组织中添加新节点</a>. 2021-01-14. [CSDN]<a href="#fnref1" class="footnote-backref" rel="nofollow">↩︎</a></p> </li> <li id="fn2" class="footnote-item"> <p>Alessandro Sorniotti.<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://lists.hyperledger.org/g/fabric/topic/how_to_remove_peer_from_a/28087268"  target="_blank" rel="nofollow">How to remove peer from a channel</a>. 2018-11-14. [CSDN]<a href="#fnref2" class="footnote-backref" rel="nofollow">↩︎</a></p> </li> </ol> </section> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <blockquote> <p>nginx进程管理==&gt; master + 多个worker进程<br /> master进程：全局的初始化 和管理 worker进程<br /> worker进程：主要业务逻辑，事件处理<br /> 通信：socketpair ==&gt; 每次fork完一个子进程后都把句柄传给前面已经存在的进程，以达到子进程间通信</p> </blockquote> <p><strong>nginx有多进程启动和单进程启动</strong><br /><img decoding="async" title="" alt="这里写图片描述" src="http://img.555519.xyz/uploads3/20220820/b24b00cf730ad74bb7612ea9cccad4fe.jpg"></p> <pre class="prettyprint"><code class="hljs objectivec">主要分析多进程启动： nginx中的fork在ngx_spawn_process函数中进行 ngx_pid_t ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc,<span class="hljs-keyword">void</span> *data,<span class="hljs-keyword">char</span> *name, ngx_int_t respawn) 第一个参数是全局的配置，第二个参数是子进程需要执行的函数，第三个参数是proc的参数，第四个类型<span class="hljs-comment">/*作用：： 1 有一个ngx_processes全局数组，包含了所有的存货的子进程，这里会fork出来的子进程放入到相应的位置。 并设置这个进程的相关属性。 2 创建socketpair，并设置相关属性。 3 在子进程中执行传递进来的函数。 */</span>  nginx进程结构：<span class="hljs-keyword">typedef</span><span class="hljs-keyword">struct</span>  {     ngx_pid_t            pid;<span class="hljs-comment">//进程的ID</span><span class="hljs-keyword">int</span>                  status;<span class="hljs-comment">//进程的退出状态</span>     ngx_socket_t         channel[<span class="hljs-number">2</span>];<span class="hljs-comment">//用于socketpair通信的一对socket句柄</span>     ngx_spawn_proc_pt    proc;<span class="hljs-comment">//进程的执行函数</span><span class="hljs-keyword">void</span>                 *data;<span class="hljs-comment">//proc的参数</span><span class="hljs-keyword">char</span>                 *name;<span class="hljs-comment">//进程的title标识</span><span class="hljs-keyword">unsigned</span>             respawn:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态:重新创建的</span><span class="hljs-keyword">unsigned</span>             just_spawn:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态: 第一次创建的</span><span class="hljs-keyword">unsigned</span>             detached:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态: 分离的，独立的</span><span class="hljs-keyword">unsigned</span>             exiting:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态: 正在退出的</span><span class="hljs-keyword">unsigned</span>             exited:<span class="hljs-number">1</span>;<span class="hljs-comment">//进程的状态: 已经退出的</span> } ngx_process_t;(src/os/unix/ngx_process<span class="hljs-variable">.h</span>)  master每创建一个worker都会把一个设置好的ngx_process_t结构变量放入ngx_processes中，新创建的进程存放在ngx_process_slot位置（遍历数组，查看是否空闲<span class="hljs-keyword">id</span> == -<span class="hljs-number">1</span>）   master进程向worker子进程发送命令是通过socketpair创建的一对socket实现的，之间传输的是ngx_channel_t结构变量：<span class="hljs-keyword">typedef</span><span class="hljs-keyword">struct</span>  {      ngx_uint_t  command;<span class="hljs-comment">//发送的命令</span>      ngx_pid_t   pid;<span class="hljs-comment">//发送方进程的进程id</span>      ngx_int_t   slot;<span class="hljs-comment">//发送方进程在进程表中偏移位置</span>      ngx_fd_t    fd;<span class="hljs-comment">//发送给对方的文件句柄</span> } ngx_channel_t;(src/os/unix/ngx_channel<span class="hljs-variable">.h</span>)</code></pre> <p><img decoding="async" title="" alt="这里写图片描述" src="http://img.555519.xyz/uploads3/20220820/d5483c8394045635c0eee346af114a31.jpg"></p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-79.htm">mysqlbinlog 命令解析binlog文件</a></p>
-                                        <p>下一个：<a href="/html/category/article-81.htm">vue+Element实现登录随机验证码_vue.js_</a></p>
+                                        <p>上一个：<a href="/html/category/article-79.htm">MySQL 优化：explain 执行计划详解与示例分析</a></p>
+                                        <p>下一个：<a href="/html/category/article-81.htm">react实战系列 —— 我的仪表盘（bizcharts、antd、moment）_在线工具</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
-                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
+                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
-                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+                <h4><a href="/html/category/article-250.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></h4>
+                <p>Redis的数据淘汰策略  volatile-lru（least recently used）：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰 vol</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
+                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
+                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
-                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
+                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
             </div>
         </div>
     </div>
@@ -152,17 +152,7 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
-                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
                 <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
@@ -172,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
+                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
             </div>
         </div>
     </div>
@@ -182,8 +172,18 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>

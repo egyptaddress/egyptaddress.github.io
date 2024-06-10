@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-160.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>详解Alibaba Java诊断工具Arthas查看Dubbo动态代理类_java - EgyptAddress</title>
+    <title>Vue项目如何设置反向代理和cookie设置问题_vue.js - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">详解Alibaba Java诊断工具Arthas查看Dubbo动态代理类_java</h1>
+                <h1 class="title" style="word-break: break-all;">Vue项目如何设置反向代理和cookie设置问题_vue.js</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>阅读Dubbo源码过程中，会发现，Dubbo消费端在做远程调用时，默认通过 Javassist 框架为服务接口生成动态代理类，调用javassist框架下的JavassistProxyFactory类的getProxy(Invoker invoker, Class&lt;?&gt;[] interfaces)方法，动态生成一个存放在JVM中的动态代理类。</p> <div class="ay1code"> <pre class="brush:java;">public &lt;T&gt; T getProxy(Invoker&lt;T&gt; invoker, Class&lt;?&gt;[] interfaces) {      return (T) Proxy.getProxy(interfaces).newInstance(new InvokerInvocationHandler(invoker));  }</pre> </div> <p>那么，问题来了，如果我们想要一睹该动态生成的代理类内部结构是怎样的，如何才能便捷做到的？</p> <p>这就是我想介绍的一款工具，它可以帮助我们查看JDK或者javassist生成的动态代理类，当然，它的功能远不止此，还可以在生产环境进行诊断。</p> <p>Arthas 是Alibaba开源的Java诊断工具，官方在线文档地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://arthas.aliyun.com/doc/"   target="_blank" rel="nofollow">https://arthas.aliyun.com/doc/</a></p> <p>根据官网上的介绍，它还可以解决以下问题————</p> <p>当你遇到以下类似问题而束手无策时，Arthas可以帮助你解决：</p> <p>这个类从哪个 jar 包加载的？为什么会报各种类相关的 Exception？</p> <p>我改的代码为什么没有执行到？难道是我没 commit？分支搞错了？</p> <p>遇到问题无法在线上 debug，难道只能通过加日志再重新发布吗？</p> <p>线上遇到某个用户的数据处理有问题，但线上同样无法 debug，线下无法重现！</p> <p>是否有一个全局视角来查看系统的运行状况？</p> <p>有什么办法可以监控到JVM的实时运行状态？</p> <p>怎么快速定位应用的热点，生成火焰图？</p> <p>怎样直接从JVM内查找某个类的实例？</p> <p>这些方案本文暂不展开，这里只展开通过该工具查看Dubbo生成的动态代理类。</p> <p>我是直接在使用dubbo-parent源码中的例子，分别启动了提供者与消费者。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/e02fe5cef167d19a7b0cd16bf532838b.jpg"></p> <p>首先，启动提供者方法——</p> <div class="ay1code"> <pre class="brush:java;">public class Application {      public static void main(String[] args) throws Exception {              startWithBootstrap();         }      private static boolean isClassic(String[] args) {          return args.length &gt; 0 &amp;&amp; "classic".equalsIgnoreCase(args[0]);      }      private static void startWithBootstrap() {          ServiceConfig&lt;DemoServiceImpl&gt; service = new ServiceConfig&lt;&gt;();          service.setInterface(DemoService.class);          service.setRef(new DemoServiceImpl());          DubboBootstrap bootstrap = DubboBootstrap.getInstance();          RegistryConfig registryConfig = new RegistryConfig("zookeeper://127.0.0.1:2181");          registryConfig.setTimeout(20000);          ProtocolConfig protocolConfig = new ProtocolConfig();          protocolConfig.setName("dubbo");          protocolConfig.setHost("192.168.100.1");          protocolConfig.setPort(20877);          bootstrap.application(new ApplicationConfig("dubbo-demo-api-provider"))                  .registry(registryConfig)                  .service(service)                  .protocol(protocolConfig)                  .start()                  .await();      }  }  </pre> </div> <p>注意，需要配置RegistryConfig自己的zookeeper， protocolConfig.setHost("xxx.xxx.xxx.xxx")设置成你本地内网的ip即可；</p> <p>DemoServiceImpl类详情——</p> <div class="ay1code"> <pre class="brush:java;">public class DemoServiceImpl implements DemoService {      private static final Logger logger = LoggerFactory.getLogger(DemoServiceImpl.class);        @Override      public String sayHello(String name) {          logger.info("Hello " + name + ", request from consumer: " + RpcContext.getContext().getRemoteAddress());          return "Hello " + name + ", response from provider: " + RpcContext.getContext().getLocalAddress();      }        public CompletableFuture&lt;String&gt; sayHelloAsync(String name) {          return null;    }  </pre> </div> <p>接着，启动消费者，这里可以设置一个休眠时间，这样就可以一直维持消费者运行在内存当中——</p> <div class="ay1code"> <pre class="brush:java;">public class Application {      public static void main(String[] args) {              runWithRefer();      }      private static void runWithRefer() {          RegistryConfig registryConfig = new RegistryConfig("zookeeper://127.0.0.1:2181");          registryConfig.setTimeout(30000);          ProtocolConfig protocolConfig = new ProtocolConfig();          protocolConfig.setName("dubbo");          protocolConfig.setHost("192.168.200.1");          protocolConfig.setPort(20899);          ReferenceConfig&lt;DemoService&gt; reference = new ReferenceConfig&lt;&gt;();          reference.setApplication(new ApplicationConfig("dubbo-demo-api-consumer"));          reference.setRegistry(registryConfig);          reference.setInterface(DemoService.class);          DemoService service = reference.get();          String message = service.sayHello("dubbo");          System.out.println("打印了5555555"+message);          try {              Thread.sleep(100000000);          } catch (InterruptedException e) {              e.printStackTrace();          }  }  </pre> </div> <p>当Dubbo的服务提供者与消费者都正常运行时，说明此时JVM虚拟机内存里已经存在动态生成的代理类，这时，我们就可以开始通过arthas-boot.jar工具进行查看了。</p> <p>首先，将arthas-boot.jar工具下载到你本地，我的是Windows，随便放到一个目录当中，例如——</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/9f27f234f65168cc3b60e683c23d9252.jpg"></p> <p>接着，直接在运行着Dubbo消费端进程的IDEA上打开Terminal——</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/717516dd54851ea6b75c89eebd2d19e4.jpg"></p> <p>然后，输入 java -jar C:\Users\92493\Downloads\12229238_g\arthas-boot.jar ，arthas正常运行成功话，将列出当前JVM上运行的进程——</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/2e9f791797287221572fbdeabe598e45.jpg"></p> <p>可以看到我们刚刚启动的provider进程与consumer进程，这时，只需要输入对应进程前面的编号【5】，就可以将Arthas 关联到启动类为 org.apache.dubbo.demo.consumer.Application的 Java 进程上了——</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/f91ea77732546e16025b8a6b6bfb979b.jpg"></p> <p>到这一步，我们就可以通过指令 sc *.proxy *模糊查询带有proxy标志的类名了，动态代理生成的类一般都是以Proxy标志——</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/4dc078c2fb3705b5cdf0a1a75c4622a4.jpg"></p> <p>其中，这里的org.apache.dubbo.common.bytecode.proxy0就是消费者生成的动态代理类，我们可以直接反编译去查看它内部结构——</p> <p>[arthas@57676]$ jad org.apache.dubbo.common.bytecode.proxy0</p> <p>控制台就会打印出该动态代理类的内部结构——</p> <div class="ay1code"> <pre class="brush:java;">/*   * Decompiled with CFR.   *    * Could not load the following classes:   * com.alibaba.dubbo.rpc.service.EchoService   * org.apache.dubbo.common.bytecode.ClassGenerator$DC   * org.apache.dubbo.demo.DemoService   * org.apache.dubbo.rpc.service.Destroyable     */     package org.apache.dubbo.common.bytecode;  import com.alibaba.dubbo.rpc.service.EchoService;  import java.lang.reflect.InvocationHandler;  import java.lang.reflect.Method;  import java.util.concurrent.CompletableFuture;  import org.apache.dubbo.common.bytecode.ClassGenerator;  import org.apache.dubbo.demo.DemoService;  import org.apache.dubbo.rpc.service.Destroyable;  public class proxy0 implements ClassGenerator.DC,Destroyable,EchoService,DemoService {  public static Method[] methods;  private InvocationHandler handler;  public String sayHello(String string) {      Object[] objectArray = new Object[]{string};      Object object = this.handler.invoke(this, methods[0], objectArray);      return (String)object;  }  public CompletableFuture sayHelloAsync(String string) {      Object[] objectArray = new Object[]{string};      Object object = this.handler.invoke(this, methods[1], objectArray);      return (CompletableFuture)object;  }  public Object $echo(Object object) {      Object[] objectArray = new Object[]{object};      Object object2 = this.handler.invoke(this, methods[2], objectArray);      return object2;  }  public void $destroy() {      Object[] objectArray = new Object[]{};      Object object = this.handler.invoke(this, methods[3], objectArray);  }  public proxy0() {  }  public proxy0(InvocationHandler invocationHandler) {      this.handler = invocationHandler;    }  }  </pre> </div> <p>在Dubbo案例当中，当我们执行 String message = service.sayHello("dubbo")去调用远程接口时，其实是调用了动态代理生成的方法——</p> <div class="ay1code"> <pre class="brush:java;">public String sayHello(String string) {      Object[] objectArray = new Object[]{string};      Object object = this.handler.invoke(this, methods[0], objectArray);      return (String)object;  }  </pre> </div> <p>举一反三，这个Arthas工具类可以在线上生产环境查看一些我们新部署的代码，看是否是新改动的。</p> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">Vue设置反向代理和cookie设置</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_0_0" rel="nofollow">项目场景</a></li> <li><a href="#_lab2_0_1" rel="nofollow">问题描述</a></li> <li><a href="#_lab2_0_2" rel="nofollow">原因分析</a></li> <li><a href="#_lab2_0_3" rel="nofollow">解决方案</a></li> </ul> <li><a href="#_label1" rel="nofollow">Vue项目使用js-cookie细则</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_4" rel="nofollow">什么是js-cookie</a></li> <li><a href="#_lab2_1_5" rel="nofollow">在项目中进行安装</a></li> <li><a href="#_lab2_1_6" rel="nofollow">在项目中的入口文件（main.js）全局引入</a></li> <li><a href="#_lab2_1_7" rel="nofollow">在项目中使用</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>Vue设置反向代理和cookie设置</h2> <p class="maodian"><a name="_lab2_0_0" rel="nofollow"></a></p> <h3>项目场景</h3> <p>最近使用Vue开发一个新的项目，因为服务器还没到，调取后端本地接口，因为请求接口的时候没有跨域，就没开反向代理。后面就被一个很基础的东西踩了坑，就是 cookie的一些知识，记录一下，加深一下印象。</p> <p class="maodian"><a name="_lab2_0_1" rel="nofollow"></a></p> <h3>问题描述</h3> <p>联调过程中，发现调用登录接口之后，再去调其他接口，就会报登录状态失效，之前做了好久小程序的项目，突然遇到这种有点懵逼。</p> <p class="maodian"><a name="_lab2_0_2" rel="nofollow"></a></p> <h3>原因分析</h3> <p>首先，出现这个问题，问了下后端，后端说是Cookie没有传给他。然后我们来确认下Cookie的定义和作用是什么？</p> <p>HTTP 协议中的 Cookie 它包括 Web Cookie 和浏览器 Cookie，它是服务器发送到 Web 浏览器的一小块数据。服务器发送到浏览器的 Cookie，浏览器会进行存储，并与下一个请求一起发送到服务器。通常，它用于判断两个请求是否来自于同一个浏览器，例如用户保持登录状态。</p> <p>当接收到客户端发出的 HTTP 请求时，服务器可以发送带有响应的 Set-Cookie 标头，Cookie 通常由浏览器存储，然后将 Cookie 与 HTTP 标头一同向服务器发出请求。</p> <p>看到这里，我就去看了下，当我调用登录接口成功的时候，后端是返回了Set-Cookie 的，但是发现浏览器没有去设置。看到这里，就知道Set-Cookie 浏览器没有生效。Cookie 基于安全方面的考虑，在浏览器中无法获取跨域的 Cookie 。</p> <p class="maodian"><a name="_lab2_0_3" rel="nofollow"></a></p> <h3>解决方案</h3> <p>在Vue项目里根目录vue.config.js设置一下反向代理</p> <div class="ay1code"> <pre class="brush:js;">module.exports = {   devServer: {    // 设置代理    proxy: {     "/api": {      target: "http://127.0.0.1:8081/", // 域名      ws: true, // 是否启用websockets      changOrigin: true, //开启代理：在本地会创建一个虚拟服务端，然后发送请求的数据，并同时接收请求的数据，                         //这样服务端和服务端进行数据的交互就不会有跨域问题      pathRequiresRewrite: {       "^/api": "/"      }     }    }   }  }</pre> </div> <p>请求的时候</p> <div class="ay1code"> <pre class="brush:js;">// '/api'等于'http://127.0.0.1:8081/api'  // 此时请求地址为'http://127.0.0.1:8081/api/picture?method=upload'  get('/api/picture?method=upload')</pre> </div> <p>解决完成！开心。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>Vue项目使用js-cookie细则</h2> <p>背景：最近的vue项目中由于项目的token是需要设置过期时间的，当然，以前这种过期的行为逻辑一直是后端来控制，但这次要求前端也进行token时间的一个监控，由于懒得封装cookie，所以就用了js-cookie的一个cookie封装库</p> <p class="maodian"><a name="_lab2_1_4" rel="nofollow"></a></p> <h3>什么是js-cookie</h3> <p>看名字我们就知道这是关于cookie存储的一个js的API，根据官网描述其优点有：适用所有浏览器、接受任何字符、经过任何测试没什么bug、支持CMD和CommonJS、压缩之后非常小，仅900个字节</p> <p class="maodian"><a name="_lab2_1_5" rel="nofollow"></a></p> <h3>在项目中进行安装</h3> <div class="ay1code"> <pre class="brush:js;">npm install js-cookie 'js-cookie' --save</pre> </div> <p class="maodian"><a name="_lab2_1_6" rel="nofollow"></a></p> <h3>在项目中的入口文件（main.js）全局引入</h3> <div class="ay1code"> <pre class="brush:js;">import Cookies from 'js-cookie'</pre> </div> <p class="maodian"><a name="_lab2_1_7" rel="nofollow"></a></p> <h3>在项目中使用</h3> <p>1、存cookie  set方法支持的属性有 ：  expires-&gt;过期时间    path-&gt;设置为指定页面创建cookie   domain-》设置对指定域名及指定域名的子域名可见  secure-&gt;值有false和true ,表示设置是否只支持https,默认是false</p> <div class="ay1code"> <pre class="brush:js;">Cookies.set('key', 'value');  //创建简单的cookie  Cookies.set('key', 'value', { expires: 27 });//创建有效期为27天的cookie  Cookies.set('key', 'value', { expires: 17, path: ''  }); //可以通过配置path,为当前页创建有效期7天的cookie</pre> </div> <p>2、取cookie</p> <div class="ay1code"> <pre class="brush:js;">Cookies.get('key'); // 获取指定key 对应的value  Cookies.get(); //获取所有value</pre> </div> <p>3、删除cookie</p> <div class="ay1code"> <pre class="brush:js;">Cookies.remove('key');//删除普通的cookie  Cookies.remove('name', { path: '' }); // 删除存了指定页面path的cookie</pre> </div> <p>注意：如果存的是对象，如：</p> <div class="ay1code"> <pre class="brush:js;">userInfo = {age:111,score:90};  Cookie.set('userInfo',userInfo)</pre> </div> <p>取出来的userInfo需要进行JSON的解析,解析为对象：</p> <div class="ay1code"> <pre class="brush:js;">let res = JSON.parse( Cookie.get('userInfo') );</pre> </div> <p>当然你也可以使用：</p> <div class="ay1code"> <pre class="brush:js;">Cookie.getJSON('userInfo');</pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-159.htm">记一次 Nuxt 3 在 Windows 下的打包问题</a></p>
-                                        <p>下一个：<a href="/html/category/article-161.htm">通俗易懂：窗口函数案例详解</a></p>
+                                        <p>上一个：<a href="/html/category/article-159.htm">Servlet的url-pattern配置</a></p>
+                                        <p>下一个：<a href="/html/category/article-161.htm">vue项目运行后自动运行浏览器（vue2/vue3）</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
+                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
+                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
+                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
-                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
+                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
+                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
-                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>

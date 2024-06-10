@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-94.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>计算机网络 | TCP 连接的建立 和 TCP 连接的断开 - EgyptAddress</title>
+    <title>IndexError: tensors used as indices must be long, byte or bool tensors - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">计算机网络 | TCP 连接的建立 和 TCP 连接的断开</h1>
+                <h1 class="title" style="word-break: break-all;">IndexError: tensors used as indices must be long, byte or bool tensors</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h1 id="tcp-连接的建立过程">TCP 连接的建立过程</h1> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/61fb42dff46b1f2161d659f80837fbfa.jpg" alt="计算机网络 | TCP 连接的建立 和 TCP 连接的断开"></p> <p>一开始，客户端和服务端都处于 close 状态。</p> <p>先是服务端监听某个端口，此时服务端处于 listen 状态。</p> <p>这个时候客户端就可以发送连接请求报文了。</p> <hr/> <p><strong>第一次握手</strong></p> <p>客户端会主动发送连接请求报文，随机初始化序列号为 x，并把 SYN 标志位设置为 1，表示 SYN 报文。</p> <p>客户端发送 SYN 报文后，客户端进入 syn_sent 状态。</p> <hr/> <p><strong>第二次握手</strong></p> <p>服务端收到 SYN 报文后，服务端会发送 SYN-ACK 报文，用于「对客户端发送的 SYN 报文进行应答」和「服务端被动请求建立连接」。</p> <p>服务端会随机初始化序列号为 y，确认序列号设置为 x + 1，并把 SYN 标志位、ACK 标志位设置为 1。</p> <p>服务端发送 SYN-ACK 报文后，服务端进入 syn_receive 状态。</p> <hr/> <p><strong>第三次握手</strong></p> <p>客户端收到 SYN-ACK 报文后，客户端会发送 ACK 报文，用于对服务端发送的报文进行应答。</p> <p>客户端会将序列号设置为 x + 1，确认序列号设置为 y + 1，ACK 标志位设置为 1。</p> <p>客户端发送 ACK 报文后，客户端处于 established 状态。</p> <p>当服务端收到 ACK 报文后，服务端进入 established 状态。</p> <hr/> <p>此时 TCP 连接就建立完成了，客户端和服务端就可以相互发送数据了。</p> <h1 id="tcp-连接的断开过程">TCP 连接的断开过程</h1> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/c155cb7da8885c84589271b978ff8ca7.jpg" alt="计算机网络 | TCP 连接的建立 和 TCP 连接的断开"></p> <p>双方都可以主动请求断开连接，断开连接后，主机中的资源将被释放。</p> <p>一开始，客户端和服务端都处于 established 状态。</p> <hr/> <p><strong>第一次挥手</strong></p> <p>如果客户端打算断开连接，那么客户端会发送一个 FIN 标志位为 1 的报文，即 FIN 报文。</p> <p>客户端发送 FIN 报文后，客户端进入 finish_wait_1 状态。</p> <hr/> <p><strong>第二次挥手</strong></p> <p>服务端收到 FIN 报文后，服务端会发送 ACK 应答报文，用于对客户端发送的 FIN 报文进行应答。</p> <p>服务端发送 ACK 应答报文后，服务端进入 close_wait 状态。</p> <p>客户端收到 ACK 应答报文后，客户端进入 finish_wait_2 状态。</p> <hr/> <p><strong>第三次挥手</strong></p> <p>等待服务端处理完数据，服务端被动请求断开连接。</p> <p>服务端发送 FIN 报文后，服务端进入 last_ack 状态。</p> <hr/> <p><strong>第四次挥手</strong></p> <p>客户端收到 FIN 报文后，客户端会发送 ACK 应答报文，用于对服务端发送的 FIN 报文进行应答。</p> <p>客户端发送 ACK 报文后，客户端进入 time_wait 状态。</p> <p>当服务端收到 ACK 报文后，服务端进入 close 状态，至此服务端已经完成连接的关闭。</p> <p>客户端在经过 2MSL 时间后，自动进入 close 状态，至此客户端也完成了连接的关闭。</p> <blockquote> <p>MSL 是 Maximum Segment Lifetime 英文的缩写，中文可以译为“报文最大生存时间”。</p> </blockquote> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p><img fetchpriority="high" decoding="async" alt="" height="71" src="http://img.555519.xyz/uploads/20230112/d3ed489a713a414d81b85f6050bf9359.jpg"></p> <p>上面报错，添加&nbsp;.type(torch.long)</p> <p><img decoding="async" alt="" height="110" src="http://img.555519.xyz/uploads/20230112/3a4d9f169ab804657f64362a6a6065c4.jpg"></p> <p>&nbsp;</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-93.htm">实际业务处理 Kafka 消息丢失、重复消费和顺序消费的问题</a></p>
-                                        <p>下一个：<a href="/html/category/article-95.htm">python基础知识-pycharm版 第七天</a></p>
+                                        <p>上一个：<a href="/html/category/article-93.htm">多线程详解 创建多线程</a></p>
+                                        <p>下一个：<a href="/html/category/article-95.htm">springboot实现定时任务-Scheduling</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
+                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
+                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
+                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Spring Security教程（13）&#8212;- 验证码功能的实现</a></h4>
-                <p>有三中方法可以实现验证码的功能 第一种是自定义一个filter，放在SpringSecurity过滤器之前，在用户登录的时候会先经过这个filter，然后在这个filter中实现对验证码进行验证的功能</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
-                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
+                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
-                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
+                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>

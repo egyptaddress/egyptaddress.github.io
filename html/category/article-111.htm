@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-111.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>React18之状态批处理的使用_React - EgyptAddress</title>
+    <title>vue使用store - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">React18之状态批处理的使用_React</h1>
+                <h1 class="title" style="word-break: break-all;">vue使用store</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">状态自动批处理</a></li> <li><a href="#_label1" rel="nofollow">17版</a></li> <li><a href="#_label2" rel="nofollow"> 18版</a></li> <li><a href="#_label3" rel="nofollow"> 退出状态自动批处理</a></li> <li><a href="#_label4" rel="nofollow"> 要点概述</a></li> </ul> </div> <p>react在3月29号正式发布了18版本, 此次更新包括: 状态自动批处理, 客户端渲染api的更新, 新的hook等很多变化, 本章先说一下状态批处理的变化.</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://reactjs.org/blog/2022/03/29/react-v18.html"   target="_blank" rel="nofollow">React v18.0 – React Blog</a></p> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>状态自动批处理</h2> <blockquote> <p>18版本之前, 在合成事件之外的原生事件中(例如 setTimeout, onclick, promise) , 更新状态并不会进行批量处理(合并), 这意味着在原生事件中多次调用状态更新会造成多次应用的重新渲染, 往往我们只需要最后一次即可, react在18版本后优化了这个问题</p> </blockquote> <div class="ay1code"> <pre class="brush:js;">import { useState } from 'react'     function App() {    const [num1, setNum1] = useState(1)    const [num2, setNum2] = useState(1)    const add = () =&gt; {      setTimeout(() =&gt; {        setNum1((pre) =&gt; pre + 1)        setNum2((pre) =&gt; pre + 1)      })    }    console.log('渲染了')    return (      &lt;div className="App"&gt;        &lt;header className="App-header"&gt;react 18&lt;/header&gt;        &lt;p&gt;num1 : {num1}&lt;/p&gt;        &lt;p&gt;num2 : {num2}&lt;/p&gt;        &lt;button onClick={add}&gt;+1&lt;/button&gt;      &lt;/div&gt;    )  }     export default App</pre> </div> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>17版</h2> <p>点击四下后,组件渲染了8次</p> <p style="text-align:center"><img fetchpriority="high" decoding="async" alt="" height="326" src="http://img.555519.xyz/uploads3/20220504/fb5ac915bfa3d62316d47ad1342067c4.jpg"></p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2> 18版</h2> <p>点击4下后, 组件渲染了4次</p> <p style="text-align:center"><img decoding="async" alt="" height="248" src="http://img.555519.xyz/uploads3/20220504/8c1329b3edd8addbac557061fc8e827a.jpg"></p> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2> 退出状态自动批处理</h2> <blockquote> <p>在某些场景下 我们可能不需要批处理状态更新, 此时我们需要用到 react-dom 提供的flushSync函数, 该函数需传入一个回调, 并且会同步刷新回调中的状态更新</p> </blockquote> <div class="ay1code"> <pre class="brush:js;">import { useState } from 'react'  import { flushSync } from 'react-dom'     function App() {    const [num1, setNum1] = useState(1)    const [num2, setNum2] = useState(1)    const add = () =&gt; {      setTimeout(() =&gt; {        flushSync(() =&gt; {          setNum1((pre) =&gt; pre + 1)        })        flushSync(() =&gt; {          setNum2((pre) =&gt; pre + 1)        })      })    }    console.log('渲染了')    console.log(num1, num2)    return (      &lt;div className="App"&gt;        &lt;header className="App-header"&gt;react 18&lt;/header&gt;        &lt;p&gt;num1 : {num1}&lt;/p&gt;        &lt;p&gt;num2 : {num2}&lt;/p&gt;        &lt;button onClick={add}&gt;+1&lt;/button&gt;      &lt;/div&gt;    )  }     export default App</pre> </div> <p style="text-align:center"><img decoding="async" alt="" height="289" src="http://img.555519.xyz/uploads3/20220504/68629dd32aafa79675ec8d459a1ec50f.jpg"></p> <p class="maodian"><a name="_label4" rel="nofollow"></a></p> <h2> 要点概述</h2> <blockquote> <p>1. 原生事件内状态更新改为批量处理</p> <p>2. 不需要批量处理时 使用 react-dom 提供的flushSync函数, 此函数同步刷新参数回调内的状态更新</p> </blockquote> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>vue使用store，我的通俗理解是store里的是全局变量，只要改变变量后，其他页面在次使用，获取到的就是改变后的值。<br /> src下创建store文件夹<br /><img decoding="async" src="http://img.555519.xyz/uploads/20230223/3a519b84a188abd3f1186f24f8508915.jpg" alt="vue使用store"><br /><strong>index.js</strong></p> <pre><code class="prism language-js"><span class="token keyword">import</span> Vue <span class="token keyword">from</span> <span class="token string">'vue'</span> <span class="token keyword">import</span> Vuex <span class="token keyword">from</span> <span class="token string">'vuex'</span> Vue<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>Vuex<span class="token punctuation">)</span> <span class="token keyword">const</span> state <span class="token operator">=</span><span class="token punctuation">{<!-- --></span>   userinfo<span class="token punctuation">:</span> <span class="token string">'lin'</span><span class="token punctuation">,</span> <span class="token punctuation">}</span> <span class="token keyword">const</span> getters <span class="token operator">=</span><span class="token punctuation">{<!-- --></span>   get_userinfo<span class="token punctuation">:</span>state<span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>     <span class="token keyword">let</span> userinfo <span class="token operator">=</span> state<span class="token punctuation">.</span>userinfo     <span class="token keyword">return</span> userinfo   <span class="token punctuation">}</span> <span class="token punctuation">}</span> <span class="token keyword">const</span> mutations <span class="token operator">=</span><span class="token punctuation">{<!-- --></span>   <span class="token function">set_userinfo</span> <span class="token punctuation">(</span>state<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>     state<span class="token punctuation">.</span>userinfo <span class="token operator">=</span> data     localStorage<span class="token punctuation">.</span><span class="token function">setItem</span><span class="token punctuation">(</span><span class="token string">'userinfo'</span><span class="token punctuation">,</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">}</span> <span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token keyword">new</span> <span class="token class-name">Vuex<span class="token punctuation">.</span>Store</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>   getters<span class="token punctuation">,</span>   state<span class="token punctuation">,</span>   mutations <span class="token punctuation">}</span><span class="token punctuation">)</span> </code></pre> <p>这里要装vuex，安装命令：<strong>npm install --save vuex</strong><br /> 引入<br /><strong>main.js</strong></p> <pre><code class="prism language-js"><span class="token keyword">import</span> store <span class="token keyword">from</span> <span class="token string">'./store'</span> <span class="token keyword">new</span> <span class="token class-name">Vue</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>   el<span class="token punctuation">:</span> <span class="token string">'#app'</span><span class="token punctuation">,</span>   router<span class="token punctuation">,</span>   store<span class="token punctuation">,</span>   <span class="token operator">...</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> </code></pre> <p>获取userinfo: ‘lin’,</p> <pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>template</span><span class="token punctuation">&gt;</span></span>   <span class="token comment">&lt;!-- 这里的get_userinfo要和store/index.js里的getters下的get_userinfo一致 --&gt;</span>   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">&gt;</span></span>{<!-- -->{$store.getters.get_userinfo}}<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>template</span><span class="token punctuation">&gt;</span></span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script language-javascript"> <span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token punctuation">{<!-- --></span>   name<span class="token punctuation">:</span> <span class="token string">'My'</span><span class="token punctuation">,</span>   <span class="token function">data</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>     <span class="token keyword">return</span> <span class="token punctuation">{<!-- --></span>       <span class="token comment">//data里的用法 this.$store.getters.get_userinfo</span>       msg<span class="token punctuation">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$store<span class="token punctuation">.</span>getters<span class="token punctuation">.</span>get_userinfo     <span class="token punctuation">}</span>   <span class="token punctuation">}</span><span class="token punctuation">,</span>   <span class="token function">mounted</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>     <span class="token comment">//读取全局变量</span>     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$store<span class="token punctuation">.</span>getters<span class="token punctuation">.</span>get_userinfo<span class="token punctuation">)</span>     <span class="token comment">//修改全局变量 修改要用commit 然后commit(key,value) key是名，要和mutations下的set_userinfo一致 value是修改的值</span>     <span class="token keyword">this</span><span class="token punctuation">.</span>$store<span class="token punctuation">.</span><span class="token function">commit</span><span class="token punctuation">(</span><span class="token string">'set_userinfo'</span><span class="token punctuation">,</span><span class="token string">'wu'</span><span class="token punctuation">)</span>     <span class="token comment">//在一次获取，就变成wu</span>     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span> <span class="token keyword">this</span><span class="token punctuation">.</span>$store<span class="token punctuation">.</span>getters<span class="token punctuation">.</span>get_userinfo<span class="token punctuation">)</span><span class="token comment">//输出'wu'</span>   <span class="token punctuation">}</span> <span class="token punctuation">}</span> </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span> </code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-110.htm">PyMySQL中where __ in__ 的用法</a></p>
-                                        <p>下一个：<a href="/html/category/article-112.htm">idea集成docker实现springboot一键部署</a></p>
+                                        <p>上一个：<a href="/html/category/article-110.htm">js promise 详解</a></p>
+                                        <p>下一个：<a href="/html/category/article-112.htm">pyenv与pyenv-virtualenv的安装和使用（Mac）</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
+                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
+                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
+                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
+                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Spring Security教程（13）&#8212;- 验证码功能的实现</a></h4>
-                <p>有三中方法可以实现验证码的功能 第一种是自定义一个filter，放在SpringSecurity过滤器之前，在用户登录的时候会先经过这个filter，然后在这个filter中实现对验证码进行验证的功能</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-68.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>面试题：NIO/Netty 中的零拷贝体现在哪里？ - EgyptAddress</title>
+    <title>Qt程序打包发布，含第三方库，详细教程。 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">面试题：NIO/Netty 中的零拷贝体现在哪里？</h1>
+                <h1 class="title" style="word-break: break-all;">Qt程序打包发布，含第三方库，详细教程。</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-tomorrow-night"> <div class="toc"> <h3>目录</h3> <ul> <li><a href="#_1" rel="nofollow">前言</a></li> <li><a href="#_6" rel="nofollow">相关知识</a></li> <li><a href="#DirectByteBuffer__HeapByteBuffer__15" rel="nofollow">DirectByteBuffer 与 HeapByteBuffer 的关系</a></li> <li><a href="#NIO__111" rel="nofollow">面试题：NIO 的零拷贝体现在哪里？</a></li> <li><a href="#Netty__116" rel="nofollow">面试题：Netty 的零拷贝体现在哪里？</a></li> <li><a href="#_122" rel="nofollow">关于文件传输</a></li> <li><a href="#_TCP__130" rel="nofollow">关于 TCP 缓冲区的思考</a></li> <li><a href="#_138" rel="nofollow">参考文章</a></li> </ul> </div> <h1><a id="_1" rel="nofollow"></a>前言</h1> <p>关于 NIO 里的零拷贝，很多博客提及的都是关于磁盘到网络的拷贝，他们写得很清楚了。总结起来就是，关于磁盘到网络（或磁盘到磁盘）的拷贝，与底层系统有关，Java 做的是封装。这种零拷贝是不能给我们 Java 程序操作数据的。因为 Java 程序在这里面起到的作用仅仅是发一个“系统调用”（以及封装），其它工作都是内核完成的。</p> <p>现在的 Java 程序员，更多关注地是 Java 程序（内存）到网络之间的拷贝。因为关于磁盘的读写往往是通过数据库来做的，而不是通过 FileChannel 来读文件。本文想讲明白的，就是<strong>内存到网络</strong>的零拷贝。</p> <h1><a id="_6" rel="nofollow"></a>相关知识</h1> <p><strong>内核</strong><br /> 内核是操作系统的软件，它封装了最底层的细节，提供接口，保证安全。Java 程序要调用内核的接口，就涉及 2 次模式切换。调用：从用户模式到内核模式；返回：从内核模式到用户模式。这是耗性能的。内核模式（也叫内核态）拥有比用户模式更大的权限。</p> <p><strong>系统调用</strong><br /> 关于 Java 里的 IO 这一块，相关代码大量调用了 JNI（Java Native Interface），JNI 是由 c/c++ 写的。而这些底层语言关于 IO 这一块，调用的是“系统调用”，“系统调用”是系统内核提供的接口。</p> <p><strong>虚拟内存</strong><br /> 对于 Linux 系统，每个进程分配的内存是虚拟内存，虚拟内存以<strong>页</strong>为单位分配，并且有页表能找到物理内存的位置。虚拟内存让进程以为自己有连续的内存空间。</p> <h1><a id="DirectByteBuffer__HeapByteBuffer__15" rel="nofollow"></a>DirectByteBuffer 与 HeapByteBuffer 的关系</h1> <p>我们创建一个 DirectByteBuffer：<br /> 类 ByteBuffer</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">static</span> ByteBuffer<span class="token function">allocateDirect</span><span class="token punctuation">(</span><span class="token keyword">int</span> capacity<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span><span class="token keyword">new</span><span class="token class-name">DirectByteBuffer</span><span class="token punctuation">(</span>capacity<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p>底层是通过 c++ 的 malloc 方法分配内存。这个内存是<strong>堆外内存</strong>，也就是<strong>直接内存</strong>。</p> <p>SocketChannelImpl 的源码得在 OpenJDK 中看，它里面有 write 和 read 方法，我们只看 write，因为它们是类似的。</p> <pre><code class="prism language-java"><span class="token keyword">public</span><span class="token keyword">int</span><span class="token function">write</span><span class="token punctuation">(</span>ByteBuffer buf<span class="token punctuation">)</span><span class="token keyword">throws</span> IOException<span class="token punctuation">{<!-- --></span><span class="token keyword">if</span><span class="token punctuation">(</span>buf<span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token keyword">throw</span><span class="token keyword">new</span><span class="token class-name">NullPointerException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">synchronized</span><span class="token punctuation">(</span>writeLock<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token function">ensureWriteOpen</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">int</span> n<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span><span class="token keyword">try</span><span class="token punctuation">{<!-- --></span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">synchronized</span><span class="token punctuation">(</span>stateLock<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">isOpen</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token keyword">return</span><span class="token number">0</span><span class="token punctuation">;</span>                 writerThread<span class="token operator">=</span> NativeThread<span class="token punctuation">.</span><span class="token function">current</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">for</span><span class="token punctuation">(</span><span class="token punctuation">;</span><span class="token punctuation">;</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token comment">//这里</span>                 n<span class="token operator">=</span> IOUtil<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> buf<span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> nd<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>n<span class="token operator">==</span> IOStatus<span class="token punctuation">.</span>INTERRUPTED<span class="token punctuation">)</span><span class="token operator">&amp;&amp;</span><span class="token function">isOpen</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token keyword">continue</span><span class="token punctuation">;</span><span class="token keyword">return</span> IOStatus<span class="token punctuation">.</span><span class="token function">normalize</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token keyword">finally</span><span class="token punctuation">{<!-- --></span><span class="token function">writerCleanup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token function">end</span><span class="token punctuation">(</span>n<span class="token operator">&gt;</span><span class="token number">0</span><span class="token operator">||</span><span class="token punctuation">(</span>n<span class="token operator">==</span> IOStatus<span class="token punctuation">.</span>UNAVAILABLE<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">synchronized</span><span class="token punctuation">(</span>stateLock<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>n<span class="token operator">&lt;=</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token operator">&amp;&amp;</span><span class="token punctuation">(</span><span class="token operator">!</span>isOutputOpen<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token keyword">throw</span><span class="token keyword">new</span><span class="token class-name">AsynchronousCloseException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">assert</span> IOStatus<span class="token punctuation">.</span><span class="token function">check</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p>类 IOUtil</p> <pre><code class="prism language-java"><span class="token keyword">static</span><span class="token keyword">int</span><span class="token function">write</span><span class="token punctuation">(</span>FileDescriptor fd<span class="token punctuation">,</span> ByteBuffer src<span class="token punctuation">,</span><span class="token keyword">long</span> position<span class="token punctuation">,</span>                      NativeDispatcher nd<span class="token punctuation">)</span><span class="token keyword">throws</span> IOException<span class="token punctuation">{<!-- --></span><span class="token comment">//如果是DirectBuffer</span><span class="token keyword">if</span><span class="token punctuation">(</span>src<span class="token keyword">instanceof</span><span class="token class-name">DirectBuffer</span><span class="token punctuation">)</span><span class="token keyword">return</span><span class="token function">writeFromNativeBuffer</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> src<span class="token punctuation">,</span> position<span class="token punctuation">,</span> nd<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//不是DirectBuffer，就是一种堆内Buffer,Java里没有HeapBuffer这个接口</span><span class="token comment">// Substitute a native buffer</span><span class="token keyword">int</span> pos<span class="token operator">=</span> src<span class="token punctuation">.</span><span class="token function">position</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">int</span> lim<span class="token operator">=</span> src<span class="token punctuation">.</span><span class="token function">limit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">assert</span><span class="token punctuation">(</span>pos<span class="token operator">&lt;=</span> lim<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">int</span> rem<span class="token operator">=</span><span class="token punctuation">(</span>pos<span class="token operator">&lt;=</span> lim<span class="token operator">?</span> lim<span class="token operator">-</span> pos<span class="token operator">:</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//还是要创建一个临时的DirectBuffer</span>     ByteBuffer bb<span class="token operator">=</span> Util<span class="token punctuation">.</span><span class="token function">getTemporaryDirectBuffer</span><span class="token punctuation">(</span>rem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">try</span><span class="token punctuation">{<!-- --></span>         bb<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>src<span class="token punctuation">)</span><span class="token punctuation">;</span>         bb<span class="token punctuation">.</span><span class="token function">flip</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// Do not update src until we see how many bytes were written</span>         src<span class="token punctuation">.</span><span class="token function">position</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//还是要调用这个方法</span><span class="token keyword">int</span> n<span class="token operator">=</span><span class="token function">writeFromNativeBuffer</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> bb<span class="token punctuation">,</span> position<span class="token punctuation">,</span> nd<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">if</span><span class="token punctuation">(</span>n<span class="token operator">&gt;</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token comment">// now update src</span>             src<span class="token punctuation">.</span><span class="token function">position</span><span class="token punctuation">(</span>pos<span class="token operator">+</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">return</span> n<span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token keyword">finally</span><span class="token punctuation">{<!-- --></span>         Util<span class="token punctuation">.</span><span class="token function">offerFirstTemporaryDirectBuffer</span><span class="token punctuation">(</span>bb<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <ol> <li>如果src为DirectBuffer，那么就直接调用writeFromNativeBuffer</li> <li>否则src为一个HeapBuffer（Java中没有这个接口），先通过getTemporaryDirectBuffer创建一个临时的DirectBuffer，然后将HeapBuffer中的数据拷贝到这个临时的DirectBuffer，最后再调用writeFromNativeBuffer发送数据</li> </ol> <p>writeFromNative本质是JVM发起了系统调用，将<strong>直接内存</strong>地址给内核操作。内核由于权限最高，所以可以通过我们发起JNI调用时传递的直接内存地址来帮我们直接操作堆外内存，也就减少了我们正常方式中需要将数据从用户态内存（堆内内存和堆外内存）拷贝到内核态内存。</p> <p>为什么不能让内核系统直接操作堆内内存?因为 JVM 不让。</p> <p><strong>总结</strong>一下上面的内容：<br /> 在 NIO 里，通过 Buffer 的方式，Java 程序与外设（网卡、磁盘）交流，必须通过堆外内存。</p> <p>如果不用 DirectBuffer 的内存复制过程：<strong>堆内内存 =&gt; 堆外内存 == 内核内存=&gt; 外设</strong>（磁盘或者网卡缓存，它们与内核之间的数据读写不由 CPU 完成）<br /> 其中，<strong>堆外内存 == 内核内存</strong> 是因为：用户态的逻辑地址和内核态的逻辑地址使用的是同一个物理空间，内核态直接操作了用户态内存。</p> <h1><a id="NIO__111" rel="nofollow"></a>面试题：NIO 的零拷贝体现在哪里？</h1> <p>从上面的内容就可以知道 NIO 的零拷贝是怎么回事了：</p> <ol> <li>使用 DirectBuffer 不仅省去了数据在堆内内存与堆外内存之间的拷贝</li> <li>而且用户态的逻辑地址和内核态的逻辑地址使用的是同一个物理空间，内核态直接操作了用户态内存，省去了数据在用户态与内核态之间的拷贝。<strong>CPU不需要为数据在内存之间的拷贝消耗资源</strong>。</li> </ol> <h1><a id="Netty__116" rel="nofollow"></a>面试题：Netty 的零拷贝体现在哪里？</h1> <p>Netty 是基于 NIO 的，所以上面的两点要先答出来。除了这两点外，Netty 还有自己的一点：</p> <ul> <li>Netty 提供了组合 Buffer 对象，可以聚合多个 ByteBuffer 对象，用户可以像操作一个 Buffer 那样方便的对组合 Buffer 进行操作，避免了传统通过内存拷贝的方式将几个小 Buffer 合并成一个大的 Buffer。</li> </ul> <h1><a id="_122" rel="nofollow"></a>关于文件传输</h1> <p>其实答完上面几点就已经能让面试官刮目相看了。但文章看开头也说了，本文讲述的是<strong>内存到网络</strong>的零拷贝，还有关于<strong>磁盘到网络</strong>/<strong>磁盘到磁盘</strong>的零拷贝在文章开头大致讲述了一下。在这里简单总结一下怎么讲给面试官：</p> <ul> <li>关于<strong>磁盘到网络</strong>/<strong>磁盘到磁盘</strong>的零拷贝，NIO/Netty 是通过 transferTo 完成的，transferTo 发出系统调用，零拷贝由系统内核完成。（也就是说零拷贝能到那种程度，取决于你的操作系统）</li> </ul> <p>更多详情请看文章末尾的参考文章</p> <h1><a id="_TCP__130" rel="nofollow"></a>关于 TCP 缓冲区的思考</h1> <p><strong>堆内内存 =&gt; 堆外内存 == 内核内存=&gt; 网卡</strong> 的过程中，TCP 缓冲区在哪儿？</p> <p>TCP 缓冲区在内核中，这是可以肯定的。但问题是现在内核操作的内存其实是 Java 申请的堆外内存，之后就要传输数据到网卡了，也没有再复制到 TCP 缓冲区这一步，那么 TCP 缓冲区到底在哪里呢？</p> <p>其实，TCP 缓冲区保存的也是内存的地址。这样来看，似乎就没什么问题了。堆外内存，内核内存，TCP 缓冲区用了同一块物理内存。</p> <p>如果有误，欢迎指正。</p> <h1><a id="_138" rel="nofollow"></a>参考文章</h1> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/localhost01/article/details/83422888"  rel="nofollow">浅谈NIO与零拷贝</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/weixin_40864891/article/details/105272616"  rel="nofollow">Linux 虚拟内存、Java直接内存和内存映射</a></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p id="u6f20dad4">1、在Qt里选择release构建。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/6869cdd4b575e3960b6f5ddec10dcb0e.jpg"></p> <p id="u1fd1086f">2、点击run运行，保证程序能够成功运行出来。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/942b281eebbdabb95607c809dddf3a14.jpg"></p> <p id="u3b9da9b7">3、成功能运行后，去构建成功的build release文件夹下找到刚刚编译后的.exe文件。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/d6cbf7d1edd7b9d33bfb166aeb981009.jpg"></p> <p id="u3f7cd775">4、单独复制出来到一个新文件夹model，复制进去。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/86098ddbb333f5b7cd05651032c8b60e.jpg"></p> <p id="u3cd1e4d1">5、在qt程序找到如下，构建的时候选择64位，现在打包编译也是需要64位，一一对应，不能混32位。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/175ec720a39b1c4f76357a78638b4fbf.jpg"></p> <p id="u996b8021">6、点击，命令执行进入到刚刚创建的文件夹下。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/e07b81153b97a7fda86c32dce65535aa.jpg"></p> <p id="uee89320f">7、执行<code>windeployqt jie_mian1.exe</code>，也就是windeployqt+你自己刚刚编译后的程序名称.exe。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/ea2b4c29dabc9611ce7891d38e1537f4.jpg"></p> <p id="uf3facacd">8、此时已经在model文件下qt依赖库已经安装好了，直接点击就可以运行。<strong>但是如果含有第三库.dll，点击会提示找不到，所以这时候把.dll拷贝到model文件夹下，即可。</strong></p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/381dc137ab656a518709714f0a00423b.jpg"></p> <p id="u20a423ec">9、<strong>把缺少的第三方库拷贝到model文件夹下和qt依赖库放一起，即可打开</strong>，因为原来在qt上debug的时候，第三方库也是放在build debug文件夹下的，所以debug模式编译时候能找到。</p> <p id="ua27f9a00">10、打开打包软件。用<strong> Enigma Virtual Box软件</strong>。没有的同学，自己要去网上下载一个。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/6d0de04a366d79933beda4fa818f0e25.jpg"></p> <p id="uabd82c2d">11、点击浏览，选择要打包的.exe文件。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/a57cd0f8bc5b2eb43fce1fc21ce7d69f.jpg"></p> <p id="ud09ef2c3">12、点击文件选项，勾选压缩文件。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/800d6f05bb6108621a8331430d5b4be3.jpg"></p> <p id="u31586af8">13、点击左下角添加，选择按文件递归。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/adebaf7bec9fcb78e6a79bdeed7f2051.jpg"></p> <p id="u5a8221e6">14、选择刚刚的model文件夹，点击确定。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/c52c7fa4dcdda34e159a4d9682f86be2.jpg"></p> <p id="u09e31671">15、选择默认，确定即可。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/f9fb3cd864ae9367fc898711959b1173.jpg"></p> <p id="u85b7f705">16、最后看到下图，最后点击打包即可。</p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/dd48ca49dab0da89f34755c6d505ea2c.jpg"></p> <p class="img-center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/aef03e75b8ef4477f1e5480762589dd6.jpg"></p> <p id="u42c8becc">17、打包成功之后在<strong>刚刚设置的输出目标目录</strong>会出现打包好的<strong>XXXXX_boxed.exe</strong>应用程序，这个程序就是可以直接完全打包好的，<strong>点击即用</strong>。</p> <h3 id="gHV9p">希望我的教程可以帮助到你，祝你每天开心。</h3> <p id="uf4b35329"> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-67.htm">Spring如何快速上手</a></p>
-                                        <p>下一个：<a href="/html/category/article-69.htm">SpringCloud——安全认证（Security）</a></p>
+                                        <p>上一个：<a href="/html/category/article-67.htm">SpringBoot获取数据库datetime类型数据在前端显示为时间戳问题及解决方案</a></p>
+                                        <p>下一个：<a href="/html/category/article-69.htm">js中数组常用遍历，VUE 中数组常用遍历</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
-                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+                <h4><a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></h4>
+                <p>vue父组件向子组件传值与传递方法 学习笔记 1、父组件向子组件传值（props）  在子组件中，默认是无法访问到父组件中的data上的数据和methods中的方法 父组件可以在引用子组件的时候，通过</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
+                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
-                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+                <h4><a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></h4>
+                <p>这篇将介绍如何写一个简单的基于Vue+Element的文件上传控件。 控件将具有 1. 上传队列的列表，显示文件名称，大小等信息，可以显示上传进度实时刷新 2. 取消上传  &nbsp;使用Eleme</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
+                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
-                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
+                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
-                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
-                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
+                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>

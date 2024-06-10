@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-138.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>详解Android如何实现自定义的动画曲线_Android_ - EgyptAddress</title>
+    <title>Python Pandas大数据处理 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">详解Android如何实现自定义的动画曲线_Android_</h1>
+                <h1 class="title" style="word-break: break-all;">Python Pandas大数据处理</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">前言</a></li> <li><a href="#_label1" rel="nofollow">Curve 类定义</a></li> <li><a href="#_label2" rel="nofollow">实例解析</a></li> <li><a href="#_label3" rel="nofollow">正弦动画曲线</a></li> <li><a href="#_label4" rel="nofollow">总结</a></li> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>前言</h2> <p>最近在写动画相关的篇章，经常会用到 <code>Curve</code> 这个动画曲线类，那这个类到底怎么实现的？如果想自己来一个自定义的动画曲线该怎么弄？本篇我们就来一探究竟。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/0550fcdebf63391572273aa4a0612d6c.jpg"></p> <p style="text-align:center">曲线</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>Curve 类定义</h2> <p>查看源码， <code>Curve</code> 类定义如下：</p> <div class="ay1code"> <pre class="brush:java;">abstract class Curve extends ParametricCurve&lt;double&gt; {    const Curve();      @override    double transform(double t) {      if (t == 0.0 || t == 1.0) {        return t;      }      return super.transform(t);    }        Curve get flipped =&gt; FlippedCurve(this);  }    </pre> </div> <p>看上去好像没定义什么， 实际这里只是做了两个处理，一个是明确的数据类型为 <code>double</code>，另一个是对 <code>transform</code> 做了重载，也只是对参数 t 做了特殊处理，保证参数 t 的范围在0-1之间，且起点值0.0和终点值1.0不被转换函数转换。主要定义在上一层的<code>ParametricCurve</code>。文档是建议子类重载<code>transformInternal</code>方法，那我们就继续往上看<code>ParametricCurve</code>这个类的实现，代码如下：</p> <div class="ay1code"> <pre class="brush:java;">abstract class ParametricCurve&lt;T&gt; {    const ParametricCurve();      T transform(double t) {      assert(t != null);      assert(t &gt;= 0.0 &amp;&amp; t &lt;= 1.0, 'parametric value $t is outside of [0, 1] range.');      return transformInternal(t);    }      @protected    T transformInternal(double t) {      throw UnimplementedError();    }      @override    String toString() =&gt; objectRuntimeType(this, 'ParametricCurve');  }  </pre> </div> <p>可以看到，实际上 <code>transform</code> 方法除了做参数合法性验证以外，其实就是调用了<code>transformInternal</code>方法，因此子类必须要实现该方法，否则会抛出<code>UnimplementedError</code>异常。</p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>实例解析</h2> <p>上面的源码可以看到，关键在于参数 <code>t</code>。这个参数 <code>t</code> 代表什么呢？注释里说的是：</p> <blockquote> <p>Returns the value of the curve at point <code>t</code>. — 返回 t 点的曲线对应的值。</p> </blockquote> <p>因此 <code>t</code> 可以认为是曲线的横坐标，而为了保证曲线的一致性，做了归一化处理，也就是<code>t</code>的取值都是在0-1之间。这么说可能有点抽象，我们来看2个例子来对比就明白了，先看最简单<code> Curves.linear</code> 的实现。</p> <div class="ay1code"> <pre class="brush:java;">class _Linear extends Curve {    const _Linear._();      @override    double transformInternal(double t) =&gt; t;  }  </pre> </div> <p>超级简单吧，直接返回 t，其实对应我们的数学的函数就是：</p> <div class="ay1code"> <pre class="brush:java;">y = f(t) = t  </pre> </div> <p>对应的曲线就是一条斜线。也就是说在设定的动画时间内，会完成从0-1的线性转变，也就是变化是均匀的。线性这个很好理解，我们再来看一个减速曲线<code>decelerate</code>的实现。</p> <div class="ay1code"> <pre class="brush:java;">class _DecelerateCurve extends Curve {    const _DecelerateCurve._();      @override    double transformInternal(double t) {      t = 1.0 - t;      return 1.0 - t * t;    }  }  </pre> </div> <p>我们先看一下_DecelerateCurve 的计算表达式是什么。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/e0c9809df9b3af728e5d2b8c4971d9ee.jpg"></p> <p>回忆一下我们高中物理学的匀减速运动，加速度为负（即减速）的距离计算公式：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/08b8990f17587c22f5049ec146dccd4f.jpg"></p> <p>上面的减速曲线其实就可以看做是初始速度是2，加速度也是2的减速运动。为什么要是2这个值呢，这是因为 t 的取值范围是0-1，这样计算完的结果的取值范围还是0-1。你肯定会问，<strong>为什么要保证曲线的计算结果要是0-1</strong>？我们来假设计算结果不为0-1会发生什么情况，比如我们要在屏幕上移动一个组件为60像素。假设动画曲线初始值不为0。那就意味着一开始的移动距离是跳变的。同样的，如果结束值不为1.0，意味着在最后一个点的距离值不是60.0，那么就意味着结束时需要从最后一个点跳到最终的60像素的位置（动画需要保证最终的移动距离是60像素）这样意味着动画会出现跳变的效果，绘制曲线的话会是下面的样子（绿色是正常的，红线是异常的）。<strong>这样的动画体验是很糟糕的！因此，这是一个关键点，如果你的自定义曲线的 <code>transformInternal</code> 方法的返回值范围不是0-1，就意味着动画会出现跳变，导致动画缺帧的感觉。</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/cbab1f16d160957f801d736b91117759.jpg"></p> <p style="text-align:center">image.png</p> <p>有了这个基础，我们就可以解释动画曲线的基本机制了，实际上就是在给定的动画时间（<code>Duration</code>）范围内，完成组件的初始状态到结束状态的转变，这个转变是沿着设定的 <code>Curve</code> 类完成的，而其横坐标是0-1.0，曲线的初始值和结束值分别是0和1.0，而至于中间值是可以低于0或超过1的。我们可以想像是我们沿着设定的曲线运动，最终无论如何都会达到设定的目的地，而至于怎么走，拐多少道弯，速度怎么变化都是曲线控制的。但是，如果你的曲线初始值不为0或结束值不为1，就像是跳悬崖的那种感觉！</p> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>正弦动画曲线</h2> <p>我们来一个正弦曲线的动画验证一下上面的说法。</p> <div class="ay1code"> <pre class="brush:java;">class SineCurve extends Curve {    final int count;    const SineCurve({this.count = 1}) : assert(count &gt; 0);      @override    double transformInternal(double t) {      return sin(2 * count* pi * t);    }  }  </pre> </div> <p>count 参数用于控制周期，即达到目的地之前可以多来几个来回。这里我们发现，初始值是0，但是一个周期（2π）结束值也是0，这样在动画结束前会出现跳变的结果。来看一下示例代码，这个示例是让圆形向下移动60像素。</p> <div class="ay1code"> <pre class="brush:java;">AnimatedContainer(    decoration: BoxDecoration(      color: Colors.blue,      borderRadius: BorderRadius.circular(30.0),    ),    transform: Matrix4.identity()..translate(0.0, up ? 60.0 : 0.0, 0.0),    duration: Duration(milliseconds: 3000),    curve: SineCurve(count: 1),    child: ClipOval(      child: Container(        width: 60.0,        height: 60.0,        color: Colors.blue,      ),    ),  )  </pre> </div> <p>运行效果如下，注意看最后一帧从0的位置直接跳到了60的位置。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/bfbdbfaeedd750dbd72e9d72e6d2e169.jpg"></p> <p style="text-align:center">跳动动画</p> <p>这个怎么调呢，我们来看一下正弦曲线的样子。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/c973bb8e097c06038e157ee377bd06ff.jpg"></p> <p style="text-align:center">正弦曲线</p> <p>如果我们要满足0-1范围的要求，那么要往后再移动90度才能够达到。但是，这样还有个问题，这样破坏了周期性，比如设置 <code>count=2</code>的时候结果又不对了。我们来看一下规律，实际上只有第一个周期需要多移动90度（图中箭头指向的点），后面的都是按360度（即2π）为周期了。也就是角度其实是按2.5π，4.5π，6.5π……规律来的，对应的角度公式其实就是：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/f45c95383c27ee61f6bceaefaf4823d1.jpg"></p> <p>所以调整后的正弦曲线代码为：</p> <div class="ay1code"> <pre class="brush:java;">class SineCurve extends Curve {    final int count;    const SineCurve({this.count = 1}) : assert(count &gt; 0);      @override    double transformInternal(double t) {      // 需要补偿pi/2个角度，使得起始值是0.终止值是1，避免出现最后突然回到0      return sin(2 * (count + 0.25) * pi * t);    }  }  </pre> </div> <p>再看调整后的效果，是不是丝滑般地过渡了？</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220413/e283e3cdf7ac3127b3fb465275788903.jpg"></p> <p class="maodian"><a name="_label4" rel="nofollow"></a></p> <h2>总结</h2> <p>本篇介绍了 Flutter 动画曲线类的原理和控制动画的机制，实际上 Curve 类就是在指定的时间内，沿曲线完成从起点到终点的过渡。但是为了保证动画平滑过渡，应该保证自定义曲线的<code>transformInternal</code>方法返回值的起始值和结束值分别是0和1。</p> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h2> <a id="pandas__0" rel="nofollow"></a>pandas 处理过大数据时间太长或者没有响应</h2> <p>可以使用chunksize 将数据分段处理并拼接</p> <pre><code class="prism language-cpp"><span class="token keyword">import</span> <span class="token module">pandas</span> as pd df <span class="token operator">=</span> pd<span class="token punctuation">.</span><span class="token function">DataFrame</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">for</span> chunk in pd<span class="token punctuation">.</span><span class="token function">read_csv</span><span class="token punctuation">(</span><span class="token char">'test.csv'</span><span class="token punctuation">,</span> usecold<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> names<span class="token operator">=</span><span class="token punctuation">[</span><span class="token char">'times'</span><span class="token punctuation">,</span> <span class="token char">'data'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> chunksize<span class="token operator">=</span><span class="token number">2000000</span><span class="token punctuation">)</span><span class="token operator">:</span>     df <span class="token operator">=</span> df<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>chunk<span class="token punctuation">)</span> </code></pre> <p>chunksize 尽量不要超过1000w数据，超过1000w数据响应时间比200w拼接时间长好几倍</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-137.htm">springboot 小技巧(一)(restful接口参数校验，自定义校验规则)</a></p>
-                                        <p>下一个：<a href="/html/category/article-139.htm">底层实现dropout——【torch学习笔记】</a></p>
+                                        <p>上一个：<a href="/html/category/article-137.htm">win11系统新硬盘不显示怎么办</a></p>
+                                        <p>下一个：<a href="/html/category/article-139.htm">微服务架构概述(帝炎)</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
+                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
-                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
-                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
+                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
-                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
-                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
-                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
-                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
-                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
+                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-190.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>仅用四步就整合好SpringSecurity+JWT实现登录认证！ - EgyptAddress</title>
+    <title>Semaphore简单使用 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">仅用四步就整合好SpringSecurity+JWT实现登录认证！</h1>
+                <h1 class="title" style="word-break: break-all;">Semaphore简单使用</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>小二是新来的实习生，作为技术 leader，我还是很负责任的，有什么锅都想甩给他，啊，不，一不小心怎么把心里话全说出来了呢？重来！</p> <p>小二是新来的实习生，作为技术 leader，我还是很负责任的，有什么好事都想着他，这不，我就安排了一个整合SpringSecurity+JWT实现登录认证的小任务交，没想到，他仅用四步就搞定了，这让我感觉倍有面。</p> <h3 id="一关于-springsecurity">一、关于 SpringSecurity</h3> <p>在 Spring Boot 出现之前，SpringSecurity 的使用场景是被另外一个安全管理框架 Shiro 牢牢霸占的，因为相对于 SpringSecurity 来说，SSM 中整合 Shiro 更加轻量级。Spring Boot 出现后，使这一情况情况大有改观。正应了那句古话：一人得道鸡犬升天，虽然有点不大合适，就将就着用吧。</p> <p>这是因为 Spring Boot 为 SpringSecurity 提供了自动化配置，大大降低了 SpringSecurity 的学习成本。另外，SpringSecurity 的功能也比 Shiro 更加强大。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/551ee1edbfdb73a7f5c2f3dde77c6d65.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <h3 id="二关于-jwt">二、关于 JWT</h3> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mp.weixin.qq.com/s/Nsk43BHIqVxEHUVIfHJTTQ"  target="_blank" rel="nofollow">JWT</a>，是目前最流行的一个<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mp.weixin.qq.com/s/HTMDZaukCb7pyfHefVcfyg"  target="_blank" rel="nofollow">跨域</a>认证解决方案：客户端发起用户登录请求，服务器端接收并认证成功后，生成一个 JSON 对象（如下所示），然后将其返回给客户端。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d98fdb98eb9afada8b92b40df70ab7ba.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <p>从本质上来说，JWT 就像是一种生成加密用户身份信息的 Token，更安全也更灵活。</p> <h3 id="三整合步骤">三、整合步骤</h3> <p>第一步，给需要登录认证的模块添加 codingmore-security 依赖：</p> <pre><code>&lt;dependency&gt;     &lt;groupId&gt;top.codingmore&lt;/groupId&gt;     &lt;artifactId&gt;codingmore-security&lt;/artifactId&gt;     &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt; &lt;/dependency&gt;</code></pre> <p>比如说 codingmore-admin 后端管理模块需要登录认证，就在 codingmore-admin/pom.xml 文件中添加 codingmore-security 依赖。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c2988d90bab054ed7f57eb3f3f2a306d.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <p>第二步，在需要登录认证的模块里添加 CodingmoreSecurityConfig 类，继承自 codingmore-security 模块中的 SecurityConfig 类。</p> <pre><code class="language-java">@Configuration @EnableWebSecurity @EnableGlobalMethodSecurity(prePostEnabled = true) public class CodingmoreSecurityConfig extends SecurityConfig {     @Autowired     private IUsersService usersService;      @Bean     public UserDetailsService userDetailsService() {         //获取登录用户信息         return username -&gt; usersService.loadUserByUsername(username);     } }</code></pre> <p>UserDetailsService 这个类主要是用来加载用户信息的，包括用户名、密码、权限、角色集合....其中有一个方法如下：</p> <pre><code class="language-java">UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;</code></pre> <p>认证逻辑中，SpringSecurity 会调用这个方法根据客户端传入的用户名加载该用户的详细信息，包括判断：</p> <ul> <li>密码是否一致</li> <li>通过后获取权限和角色</li> </ul> <pre><code class="language-java">    public UserDetails loadUserByUsername(String username) {         // 根据用户名查询用户         Users admin = getAdminByUsername(username);         if (admin != null) {             List&lt;Resource&gt; resourceList = getResourceList(admin.getId());             return new AdminUserDetails(admin,resourceList);         }         throw new UsernameNotFoundException("用户名或密码错误");     }</code></pre> <p>getAdminByUsername 负责根据用户名从数据库中查询出密码、角色、权限等。</p> <pre><code class="language-java">    public Users getAdminByUsername(String username) {         QueryWrapper&lt;Users&gt; queryWrapper = new QueryWrapper&lt;&gt;();         queryWrapper.eq("user_login", username);         List&lt;Users&gt; usersList = baseMapper.selectList(queryWrapper);          if (usersList != null &amp;&amp; usersList.size() &gt; 0) {             return usersList.get(0);         }          // 用户名错误，提前抛出异常         throw new UsernameNotFoundException("用户名错误");     }</code></pre> <p>第三步，在 application.yml 中配置下不需要安全保护的资源路径：</p> <pre><code class="language-java">secure:   ignored:     urls: #安全路径白名单       - /doc.html       - /swagger-ui/**       - /swagger/**       - /swagger-resources/**       - /**/v3/api-docs       - /**/*.js       - /**/*.css       - /**/*.png       - /**/*.ico       - /webjars/springfox-swagger-ui/**       - /actuator/**       - /druid/**       - /users/login       - /users/register       - /users/info       - /users/logout</code></pre> <p>第四步，在登录接口中添加登录和刷新 token 的方法：</p> <pre><code class="language-java">@Controller @Api(tags = "用户") @RequestMapping("/users") public class UsersController {     @Autowired     private IUsersService usersService;     @Value("${jwt.tokenHeader}")     private String tokenHeader;     @Value("${jwt.tokenHead}")     private String tokenHead;  @ApiOperation(value = "登录以后返回token")     @RequestMapping(value = "/login", method = RequestMethod.POST)     @ResponseBody     public ResultObject login(@Validated UsersLoginParam users, BindingResult result) {         String token = usersService.login(users.getUserLogin(), users.getUserPass());          if (token == null) {             return ResultObject.validateFailed("用户名或密码错误");         }          // 将 JWT 传递回客户端         Map&lt;String, String&gt; tokenMap = new HashMap&lt;&gt;();         tokenMap.put("token", token);         tokenMap.put("tokenHead", tokenHead);         return ResultObject.success(tokenMap);     }      @ApiOperation(value = "刷新token")     @RequestMapping(value = "/refreshToken", method = RequestMethod.GET)     @ResponseBody     public ResultObject refreshToken(HttpServletRequest request) {         String token = request.getHeader(tokenHeader);         String refreshToken = usersService.refreshToken(token);         if (refreshToken == null) {             return ResultObject.failed("token已经过期！");         }         Map&lt;String, String&gt; tokenMap = new HashMap&lt;&gt;();         tokenMap.put("token", refreshToken);         tokenMap.put("tokenHead", tokenHead);         return ResultObject.success(tokenMap);     } }</code></pre> <p>使用 Apipost 来测试一下，首先是文章获取接口，在没有登录的情况下会提示暂未登录或者 token 已过期。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/3242da5fc1745fbfba6689d4cdfaeabe.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <h2 id="四实现原理">四、实现原理</h2> <p>小二之所以能仅用四步就实现了登录认证，主要是因为他将 SpringSecurity+JWT 的代码封装成了通用模块，我们来看看 codingmore-security 的目录结构。</p> <pre><code>codingmore-security ├── component |    ├── JwtAuthenticationTokenFilter -- JWT登录授权过滤器 |    ├── RestAuthenticationEntryPoint |    └── RestfulAccessDeniedHandler ├── config |    ├── IgnoreUrlsConfig |    └── SecurityConfig └── util      └── JwtTokenUtil -- JWT的token处理工具类</code></pre> <p>JwtAuthenticationTokenFilter 和 JwtTokenUtil 在讲<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mp.weixin.qq.com/s/Nsk43BHIqVxEHUVIfHJTTQ"  target="_blank" rel="nofollow">JWT</a> 的时候已经详细地讲过了，这里再简单补充一点。</p> <p>客户端的请求头里携带了 token，服务端肯定是需要针对每次请求解析校验 token 的，所以必须得定义一个过滤器，也就是 JwtAuthenticationTokenFilter：</p> <ul> <li>从请求头中获取 token</li> <li>对 token 进行解析、验签、校验过期时间</li> <li>校验成功，将验证结果放到 ThreadLocal 中，供下次请求使用</li> </ul> <p>重点来看其他四个类。第一个 RestAuthenticationEntryPoint（自定义返回结果：未登录或登录过期）：</p> <pre><code class="language-java">public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {     @Override     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {         response.setHeader("Access-Control-Allow-Origin", "*");         response.setHeader("Cache-Control","no-cache");         response.setCharacterEncoding("UTF-8");         response.setContentType("application/json");         response.getWriter().println(JSONUtil.parse(ResultObject.unauthorized(authException.getMessage())));         response.getWriter().flush();     } }</code></pre> <p>可以通过 debug 的方式看一下返回的信息正是之前用户未登录状态下访问文章页的错误信息。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/6ff9ff0e5bb8b7048bbf1868bb3cb168.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <p>具体的信息是在 ResultCode 类中定义的。</p> <pre><code class="language-java">public enum ResultCode implements IErrorCode {     SUCCESS(0, "操作成功"),     FAILED(500, "操作失败"),     VALIDATE_FAILED(506, "参数检验失败"),     UNAUTHORIZED(401, "暂未登录或token已经过期"),     FORBIDDEN(403, "没有相关权限");     private long code;     private String message;      private ResultCode(long code, String message) {         this.code = code;         this.message = message;     } }</code></pre> <p>第二个 RestfulAccessDeniedHandler（自定义返回结果：没有权限访问时）：</p> <pre><code class="language-java">public class RestfulAccessDeniedHandler implements AccessDeniedHandler{     @Override     public void handle(HttpServletRequest request,                        HttpServletResponse response,                        AccessDeniedException e) throws IOException, ServletException {         response.setHeader("Access-Control-Allow-Origin", "*");         response.setHeader("Cache-Control","no-cache");         response.setCharacterEncoding("UTF-8");         response.setContentType("application/json");         response.getWriter().println(JSONUtil.parse(ResultObject.forbidden(e.getMessage())));         response.getWriter().flush();     } }</code></pre> <p>第三个IgnoreUrlsConfig（用于配置不需要安全保护的资源路径）：</p> <pre><code class="language-java">@Getter @Setter @ConfigurationProperties(prefix = "secure.ignored") public class IgnoreUrlsConfig {     private List&lt;String&gt; urls = new ArrayList&lt;&gt;(); }</code></pre> <p>通过 lombok 注解的方式直接将配置文件中不需要权限校验的路径放开，比如说 Knife4j 的接口文档页面。如果不放开的话，就被 SpringSecurity 拦截了，没办法访问到了。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/abd8323843889c7d968fc588b1fe7054.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <p>第四个SecurityConfig（SpringSecurity通用配置）：</p> <pre><code class="language-java">public class SecurityConfig extends WebSecurityConfigurerAdapter {      @Autowired(required = false)     private DynamicSecurityService dynamicSecurityService;      @Override     protected void configure(HttpSecurity httpSecurity) throws Exception {         ExpressionUrlAuthorizationConfigurer&lt;HttpSecurity&gt;.ExpressionInterceptUrlRegistry registry = httpSecurity                 .authorizeRequests();          //不需要保护的资源路径允许访问         for (String url : ignoreUrlsConfig().getUrls()) {             registry.antMatchers(url).permitAll();         }          // 任何请求需要身份认证         registry.and()                 .authorizeRequests()                 .anyRequest()                 .authenticated()                 // 关闭跨站请求防护及不使用session                 .and()                 .csrf()                 .disable()                 .sessionManagement()                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)                 // 自定义权限拒绝处理类                 .and()                 .exceptionHandling()                 .accessDeniedHandler(restfulAccessDeniedHandler())                 .authenticationEntryPoint(restAuthenticationEntryPoint())                 // 自定义权限拦截器JWT过滤器                 .and()                 .addFilterBefore(jwtAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);         //有动态权限配置时添加动态权限校验过滤器         if(dynamicSecurityService!=null){             registry.and().addFilterBefore(dynamicSecurityFilter(), FilterSecurityInterceptor.class);         }     } }</code></pre> <p>这个类的主要作用就是告诉 SpringSecurity 那些路径不需要拦截，除此之外的，都要进行 RestfulAccessDeniedHandler（登录校验）、RestAuthenticationEntryPoint（权限校验）和 JwtAuthenticationTokenFilter（JWT 过滤）。</p> <p>并且将 JwtAuthenticationTokenFilter 过滤器添加到 UsernamePasswordAuthenticationFilter 过滤器之前。</p> <h3 id="五测试">五、测试</h3> <p>第一步，测试登录接口，Apipost 直接访问<code>http://localhost:9002/users/login</code>，可以看到 token 正常返回。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d62a28e6839e82b9b4edc2442e55de95.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <p>第二步，不带 token 直接访问文章接口，可以看到进入了 RestAuthenticationEntryPoint 这个处理器：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/eaf4eaf638b033106545ccc38321cf38.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <p>第三步，携带 token，这次我们改用 Knife4j 来测试，发现可以正常访问：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/690f1625bf081261229217d9447a2f38.jpg" alt="仅用四步就整合好SpringSecurity+JWT实现登录认证！"></p> <p>源码链接：</p> <blockquote> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/itwanger/coding-more"  target="_blank" rel="nofollow">https://github.com/itwanger/coding-more</a></p> </blockquote> <p></p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>&nbsp;</p> <p>1、简介：</p> <p>Semaphore是Java的并发操作，用于多线程中，用于控制同时访问某个资源数，或某个操作的数量；</p> <p>初始许可数可以通过new Semaphore的构造函数指定，release释放许可，acquire阻塞，如果没有释放，该方法会一直阻塞直到有许可，或操作超时</p> <p>2、通过打印机的互斥demo来简单使用Semaphor，也能更加理解Semaphore</p> <pre class="has"><code>import java.util.concurrent.Semaphore;  /**  * semaphore的使用  */ public class MutrxPrint {      /**      * 定义初始值为1的信号量(会先允许有一个线程执行，后来的会阻塞等待)      */     private static final Semaphore mSemaphore = new Semaphore(1);       private static void print() throws InterruptedException {         System.out.println("print-----1");         //先等待，请求许可         mSemaphore.acquire();         System.out.println("print-----2");         System.out.println("print-----3--" + Thread.currentThread().getName() + "---Enter");         Thread.sleep(1000);         System.out.println("print-----4--" + Thread.currentThread().getName() + "---正在打印.....");         Thread.sleep(1000);         System.out.println("print-----5--" + Thread.currentThread().getName() + "---outer.....");         mSemaphore.release();     }      public static void main(String[] args){         //开启10个线程抢占         for (int i = 0; i &lt; 10; i++) {             new Thread(new Runnable() {                 @Override                 public void run() {                     try {                         print();                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             }).start();         }     } }</code></pre> <p>&nbsp;输出结果：</p> <pre class="has"><code>print-----3--Thread-1---Enter print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----4--Thread-1---正在打印..... print-----5--Thread-1---outer..... print-----2 print-----3--Thread-3---Enter print-----4--Thread-3---正在打印..... print-----5--Thread-3---outer..... print-----2</code></pre> <p>&nbsp;print---1说明是其他线程进来，由于acquire方法在阻塞，</p> <p>代码11行创建一个为1的许可数信号量，在调用print方法时代码17行会先判断是否还有剩余信号量许可数，有的话hui</p> <p>会继续往下执行，没有的话会阻塞，等到其他线程执行完并释放，也就是代码24行</p> <pre class="has"><code class="language-html">mSemaphore.release();之前阻塞的会继续执行 </code></pre> <p>3、连接池的模拟实现</p> <p>在项目中处理高并发时，一般数据库都会使用数据库连接池，假设现在数据库连接池最大连接数为10，当10个连接都分配出去以后，现在有用户继续请求连接，可能的处理：</p> <p>a、手动抛出异常，用户界面显示，服务器忙，稍后再试</p> <p>b、阻塞，等待其他连接的释放</p> <p>从用户体验上来说，更好的选择当然是阻塞，等待其他连接的释放，用户只会觉得稍微慢了一点，并不影响他的操作。下面使用Semaphore模拟实现一个数据库连接池：</p> <pre class="has"><code>import java.util.ArrayList; import java.util.List; import java.util.concurrent.Semaphore;  /**  * 连接池使用Semaphore  */ public class ConnectPool {     class Conn{}     private List&lt;Conn&gt; pools = new ArrayList&lt;&gt;(3);     private Semaphore mSemaphore = new Semaphore(3);     public ConnectPool() {         pools.add(new Conn());         pools.add(new Conn());         pools.add(new Conn());     }      /**      * 获取连接池的一个连接      * @return 连接池      */     private Conn getConn() throws InterruptedException {         mSemaphore.acquire();         System.out.println("------getConn--1--" + Thread.currentThread().getName());         Conn c = null;         //加这个同步的原因是为了防止两个线程同时走到这里，加入sync就可以防止将同一个conn 同时分配给这两个线程了         synchronized (ConnectPool.class){             c = pools.remove(0);         }         System.out.println("------getConn--2--" + Thread.currentThread().getName() + "---" + c);         return c;     }      /**      *      * @param c 释放连接池中的连接      */     private void releaseConn(Conn c){         pools.add(c);         System.out.println(Thread.currentThread().getName()+" release a conn " + c);         mSemaphore.release();     }      public static void main(String[] args){         ConnectPool mConnectPools = new ConnectPool();         new Thread(new Runnable() {             @Override             public void run() {                 try {                     Conn conn = mConnectPools.getConn();                     Thread.sleep(3000);                     mConnectPools.releaseConn(conn);                 } catch (InterruptedException e) {                     e.printStackTrace();                 }             }         }).start();          for (int i = 0; i &lt; 3; i++) {             new Thread(new Runnable() {                 @Override                 public void run() {                     try {                         Conn conn = mConnectPools.getConn();                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             }).start();         }     } }</code></pre> <p>输出日志：</p> <pre class="has"><code>------getConn--1--Thread-1 ------getConn--2--Thread-1---com.fengyu.cn.cha11.ConnectPool$Conn@2e4e6427 ------getConn--1--Thread-3 ------getConn--2--Thread-3---com.fengyu.cn.cha11.ConnectPool$Conn@1232cc0 ------getConn--1--Thread-0 ------getConn--2--Thread-0---com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802 Thread-0 release a conn com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802 ------getConn--1--Thread-2 ------getConn--2--Thread-2---com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802</code></pre> <p>测试时，让线程Thread-1获得连接池一个3秒的连接，同时又有3个线程去连接池获取连接，由于连接池中只有2个连接，所有有一个线程会等待，直到Thread-1释放连接池中的连接，他才会跟连接池连接上；</p> <p>好了文章有点啰嗦，有错误<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/lmj623565791/article/details/26810813"  rel="nofollow">希望各位提出一起探讨，学习</a>；</p> <p>文章转载：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/lmj623565791/article/details/26810813"  rel="nofollow">https://blog.csdn.net/lmj623565791/article/details/26810813</a></p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-189.htm">Spring MVC 自定义拦截器</a></p>
-                                        <p>下一个：<a href="/html/category/article-191.htm">关于IPC和PTH用户权限问题,psexec拒绝访问(Access Denied)的原因_在线工具</a></p>
+                                        <p>上一个：<a href="/html/category/article-189.htm">如何从javascript中的集合中删除所有元素？</a></p>
+                                        <p>下一个：<a href="/html/category/article-191.htm">MySQL CONCAT_WS()函数的用途是什么？</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
-                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
+                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
-                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>

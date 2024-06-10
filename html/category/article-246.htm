@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-246.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>request和response——请求响应对象 - EgyptAddress</title>
+    <title>实战代码（十）：Springboot RestTemplate连接池 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">request和response——请求响应对象</h1>
+                <h1 class="title" style="word-break: break-all;">实战代码（十）：Springboot RestTemplate连接池</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h1 id="请求对象request">请求对象——request</h1> <h2 id="获取get请求的值">获取get请求的值</h2> <blockquote> <p>一次请求，返回一个响应。<br /> 地址栏：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://127.0.0.1:8000/day3/get_request?lan=python"  target="_blank" rel="nofollow">http://127.0.0.1:8000/day3/get_request?lan=python</a><br /> 问号：代表请求参数</p> </blockquote> <blockquote> <p>需求：拿到请求参数</p> </blockquote> <h3 id="传入单个值">传入单个值</h3> <pre><code class="language-python"># views.py def get_request(request):     return HttpResponse('getrequest') # urls.py path('getrequest',get_request),</code></pre> <p>想要拿到地址栏中的参数<br /><code>print(request.GET)</code><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/edce18ec10e3a70c3f7b50b558ff8f91.jpg" alt="request和response——请求响应对象"><br /> 发现打印出来的是字典，所以——<br /><code>print(request.GET.get('lan'))</code><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/21bddde9a8508d6c45afc1191bba4e3a.jpg" alt="request和response——请求响应对象"></p> <blockquote> <p><strong>【知识点】</strong><br /> 打印字典中的值，有两种办法：<br /> 1，print(request.GET.get('lan'))——（一般用这个）假设key不存在，返回空值None<br /> 2，print(request.GET['lan'])——key不存在，会抛出异常</p> </blockquote> <h3 id="传入多个值">传入多个值</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1490fd63ff08d47e3e4d30082deca62f.jpg" alt="request和response——请求响应对象"><br /><code>print(request.GET.getlist('lan'))</code><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/e65701e970c5c59bfe5314329b2e6eca.jpg" alt="request和response——请求响应对象"></p> <h3 id="获取路由地址">获取路由地址</h3> <p>如何来到get_request函数的（这个视图函数）<br /><code>print(request.path_info)</code><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/7e3ab109f55aa7ba185a7fe482c209f1.jpg" alt="request和response——请求响应对象"></p> <h3 id="获取请求方式getpost">获取请求方式(get/post)</h3> <p><code>print(request.method)</code><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b4e073a471958ed8d65761502731ec16.jpg" alt="request和response——请求响应对象"></p> <blockquote> <p><strong>【知识点】</strong><br /> Django中地址栏默认是get请求，如果要发送post请求，需要把中间件的（选中的）注释掉<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/fea2c2a5b60d05c8492237511586afcf.jpg" alt="request和response——请求响应对象"></p> </blockquote> <blockquote> <p><strong>【知识点】</strong><br /> post请求，往表单中传入数据（用的postman）<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/a54c50ce8c95d845bbe52a6fdcf884c0.jpg" alt="request和response——请求响应对象"></p> </blockquote> <h2 id="获取post请求的值">获取post请求的值</h2> <h3 id="获取value">获取value</h3> <p>假设表单中的值是这样的：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/89c6dd2c61fe96c05df6cf22fd66f0d2.jpg" alt="request和response——请求响应对象"><br /> 先看看request.POST打印出什么<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/382c934c4259fca399b8f5ffffe2e5e3.jpg" alt="request和response——请求响应对象"><br /> 拿到request.POST.get('b_title')<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b3b5a114b2ec77a0fc64db37a9367d7d.jpg" alt="request和response——请求响应对象"></p> <h3 id="表单上传">表单上传</h3> <p><code>print(request.FILES)</code><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/294fed407d8d3dc7060447b38ade7cca.jpg" alt="request和response——请求响应对象"><br /> (files里面对应的是文件对象）</p> <h2 id="根据请求方式选择路由">根据请求方式选择路由</h2> <pre><code>path('testgetpost', test_get_post), # 根据不同的请求方式做不同的处理 def test_get_post(request):     if request.method == 'GET':         return HttpResponse('get请求')     elif request.method == 'POST':         # li = [1,2]         # print(li[2])         return HttpResponse('post请求')     else:         return HttpResponse(request.method)</code></pre> <h1 id="响应对象response">响应对象——response</h1> <h2 id="常见的状态码">常见的状态码</h2> <blockquote> <p>200（响应成功）<br /> 500（python代码有问题）<br /> 404(资源找不到)<br /> 405（请求不被允许）<br /> 301 302 （重定向，浏览器的行为）</p> </blockquote> <h2 id="给定响应头">给定响应头</h2> <h3 id="默认返回的头信息">默认返回的头信息</h3> <pre><code> path('test_response_header',test_response_header), def test_response_header(request):     ret = HttpResponse('test_response_header')     return ret</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d5648a943c90f0e9d35f3ee371814e03.jpg" alt="request和response——请求响应对象"></p> <h3 id="自定义头信息">自定义头信息</h3> <pre><code> path('test_response_header',test_response_header), def test_response_header(request):     # content-type是html类型     ret = HttpResponse('test_response_header')     # 自定义头信息     ret['msg'] = 'success'     ret['code'] = 'ok'     return ret</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b16df0e8b62bfbf9a62b9414dc170ff7.jpg" alt="request和response——请求响应对象"></p> <h2 id="其他响应对象">其他响应对象</h2> <blockquote> <p>json 数据格式 解决前后端数据不认识的问题 {'key':value}<br /> 前后不分离项目 ：前后端全部编写，会经常使用HttpResponse对象<br /> 前后分离项目时使用: 会经常使用JsonResponse对象</p> </blockquote> <h3 id="json-数据格式">json 数据格式</h3> <p>用途：一般做前后分离项目时使用</p> <pre><code>path('test_json_response', test_json_response), def test_json_response(request):     # content-type是json类型     return JsonResponse(request.GET)</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/a448942a20a2025328e32ead59ee6cab.jpg" alt="request和response——请求响应对象"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/bb52fca78994d1aa5a70f90d8902ade9.jpg" alt="request和response——请求响应对象"></p> <h3 id="文件处理">文件处理</h3> <pre><code>path('test_file_response',test_file_response),  def test_file_response(request):     return FileResponse(open('manage.py','rb'))</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/ea961e8ae99f0f12ee260ae4bad2536d.jpg" alt="request和response——请求响应对象"></p> <h3 id="return-jsonresponse和return-fileresponse的区别">return JsonResponse和return FileResponse的区别</h3> <blockquote> <p>return JsonResponse和return：返回值类型是Json<br /> return FileResponse：返回值类型是文件的类型</p> </blockquote> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <h2> <a id="_0" rel="nofollow"></a>一、理论基础</h2> <p>RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。</p> <p>两个常用的构造方法如下图 (<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/client/RestTemplate.html"  rel="nofollow">点击进入文档地址</a>)</p> <p><img decoding="async" src="http://img.555519.xyz/uploads/20230118/022688cf7850af5bc35eb9d12a51e6ad.jpg" alt="实战代码（十）：Springboot RestTemplate连接池"></p> <p>从上面可以看出，最简单的方式就是使用默认配置，不需要额外的配置，便可以直接使用该工具。对于请求频次比较低的情况下，默认配置完全够用。</p> <p>如果需要大量的请求，可以自定义配置，使用HttpClient的连接池。</p> <h2> <a id="_14" rel="nofollow"></a>二、实战代码</h2> <h3> <a id="21__16" rel="nofollow"></a>2.1 依赖引入</h3> <pre><code>&lt;dependency&gt; 	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 	&lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt; 	&lt;exclusions&gt; 		&lt;exclusion&gt; 			&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 			&lt;artifactId&gt;spring-boot-starter-tomcat&lt;/artifactId&gt; 		&lt;/exclusion&gt; 	&lt;/exclusions&gt; &lt;/dependency&gt; &lt;!-- 将tomcat替换为undertow --&gt; &lt;dependency&gt; 	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 	&lt;artifactId&gt;spring-boot-starter-undertow&lt;/artifactId&gt; &lt;/dependency&gt;  &lt;!-- 自定义的元数据依赖 --&gt; &lt;dependency&gt; 	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 	&lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt; 	&lt;optional&gt;true&lt;/optional&gt; &lt;/dependency&gt;  &lt;!-- httpclient，为了使用其连接池 --&gt; &lt;dependency&gt; 	&lt;groupId&gt;org.apache.httpcomponents&lt;/groupId&gt; 	&lt;artifactId&gt;httpclient&lt;/artifactId&gt; 	&lt;version&gt;4.5.12&lt;/version&gt; &lt;/dependency&gt;  &lt;!-- for fastjson --&gt; &lt;dependency&gt; 	&lt;groupId&gt;com.alibaba&lt;/groupId&gt; 	&lt;artifactId&gt;fastjson&lt;/artifactId&gt; 	&lt;version&gt;1.2.62&lt;/version&gt; &lt;/dependency&gt;  &lt;!-- lombok，减少代码量，idea需要安装lombok插件 --&gt; &lt;dependency&gt; 	&lt;groupId&gt;org.projectlombok&lt;/groupId&gt; 	&lt;artifactId&gt;lombok&lt;/artifactId&gt; 	&lt;optional&gt;true&lt;/optional&gt; &lt;/dependency&gt; </code></pre> <h3> <a id="22__64" rel="nofollow"></a>2.2 配置项</h3> <h3> <a id="221__66" rel="nofollow"></a>2.2.1 配置</h3> <pre><code>http:   pool:     # 连接超时     connectTimeout: 5000     connectionRequestTimeout: 5000     defaultMaxPerRoute: 20     # 最大连接数     maxTotal: 100     # 服务器返回数据(response)的时间     socketTimeout: 5000     validateAfterInactivity: 30000 </code></pre> <h3> <a id="222__83" rel="nofollow"></a>2.2.2 读取配置文件</h3> <pre><code>@Component @ConfigurationProperties(prefix = "http.pool") @Data public class HttpClientProperties {       /**      * 最大连接数      */     private Integer maxTotal;     /**      * 路由是对最大连接数的细分      * 每个路由基础的连接数      */     private Integer defaultMaxPerRoute;     /**      * 连接超时时间      */     private Integer connectTimeout;     /**      * 从连接池中获取连接的超时时间      */     private Integer connectionRequestTimeout;     /**      * 服务器返回数据(response)的时间      */     private Integer socketTimeout;     /**      * 可用空闲连接过期时间      * 重用空闲连接时会先检查是否空闲时间超过这个时间，如果超过，释放socket重新建立      */     private Integer validateAfterInactivity; } </code></pre> <h3> <a id="23__122" rel="nofollow"></a>2.3 配置文件</h3> <pre><code>@Configuration public class RestTemplateConfig {       private final HttpClientProperties httpClientProperties;      public RestTemplateConfig(HttpClientProperties httpClientProperties) {         this.httpClientProperties = httpClientProperties;     }       @Bean     public RestTemplate restTemplate(ClientHttpRequestFactory factory){         return new RestTemplate(factory);     }       @Bean     public ClientHttpRequestFactory clientHttpRequestFactory(){         return new HttpComponentsClientHttpRequestFactory(httpClient());     }       @Bean     public HttpClient httpClient() {         Registry&lt;ConnectionSocketFactory&gt; registry = RegistryBuilder.&lt;ConnectionSocketFactory&gt;create()                 .register("http", PlainConnectionSocketFactory.getSocketFactory())                 .register("https", SSLConnectionSocketFactory.getSocketFactory())                 .build();         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);         connectionManager.setMaxTotal(httpClientProperties.getMaxTotal());         connectionManager.setDefaultMaxPerRoute(httpClientProperties.getDefaultMaxPerRoute());         connectionManager.setValidateAfterInactivity(httpClientProperties.getValidateAfterInactivity());         RequestConfig requestConfig = RequestConfig.custom()                 .setSocketTimeout(httpClientProperties.getSocketTimeout())                 .setConnectTimeout(httpClientProperties.getConnectTimeout())                 .setConnectionRequestTimeout(httpClientProperties.getConnectionRequestTimeout())                 .build();         return HttpClientBuilder.create()                 .setDefaultRequestConfig(requestConfig)                 .setConnectionManager(connectionManager)                 .build();     } } </code></pre> <h3> <a id="24__172" rel="nofollow"></a>2.4 简单的工具类</h3> <pre><code>@Component @Slf4j public class HttpClientUtils {      private final RestTemplate restTemplate;      public HttpClientUtils(RestTemplate restTemplate) {         this.restTemplate = restTemplate;     }      /**      * Get      */     public String get(String uri, Map&lt;String, String&gt; param, String token) {         HttpHeaders headers = new HttpHeaders();         headers.set("token", token);         HttpEntity&lt;String&gt; requestEntity = new HttpEntity&lt;&gt;(null, headers);         StringBuilder url = new StringBuilder();         url.append(uri).append("?");         param.forEach((k, v) -&gt; url.append(k).append("=").append(v).append("&amp;"));         String getUrl = url.substring(0, url.length() - 1);         ResponseEntity&lt;CodeResult&gt; response = restTemplate.exchange(getUrl, HttpMethod.GET, requestEntity, CodeResult.class);         return parseCodeResult(response);     }      /**      * post方式请求接口      * - 参数形式：form-data      */     public String postFormData(String url, MultiValueMap&lt;String, Object&gt; paramMap, String token) {         HttpHeaders headers = new HttpHeaders();         headers.set("token", token);         headers.setContentType(MediaType.MULTIPART_FORM_DATA);         //用HttpEntity封装整个请求报文         HttpEntity&lt;MultiValueMap&lt;String, Object&gt;&gt; files = new HttpEntity&lt;&gt;(paramMap, headers);         ResponseEntity&lt;CodeResult&gt; response = restTemplate.postForEntity(url, files, CodeResult.class);         return parseCodeResult(response);     }      /**      * post方式请求接口      * - 参数形式：json      */     public String postJson(String url, String param, String token) {         HttpHeaders headers = new HttpHeaders();         headers.setContentType(MediaType.APPLICATION_JSON);         headers.set("token", token);         HttpEntity&lt;String&gt; entity = new HttpEntity&lt;&gt;(param, headers);         ResponseEntity&lt;CodeResult&gt; response = restTemplate.postForEntity(url, entity, CodeResult.class);         return parseCodeResult(response);     }      /**      * 解析云端服务接口返回值      */     public String parseCodeResult(ResponseEntity&lt;CodeResult&gt; response) {         if (response.getStatusCodeValue() != HttpStatus.OK.value()) {             throw new RuntimeException("网络请求失败,状态码:" + response.getStatusCodeValue());         }         CodeResult codeResult = response.getBody();         assert codeResult != null;         if (!codeResult.getSuccess()) {             log.error("调用后台服务接口错误,返回值:{}", JSON.toJSON(codeResult));             throw new RuntimeException("调用后台服务接口错误， 错误信息：" + codeResult.getMsg());         }         return JSON.toJSONString(codeResult.getData());     } } </code></pre> <h2> <a id="_245" rel="nofollow"></a>三、源码地址</h2> <p>https://github.com/lysmile/spring-boot-demo/tree/master/spring-boot-resttemplate-demo</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></p>
-                                        <p>下一个：<a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></p>
+                                        <p>上一个：<a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></p>
+                                        <p>下一个：<a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
+                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
-                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
-                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
-                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
+                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
-                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>

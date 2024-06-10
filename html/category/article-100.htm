@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-100.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>适合初学者的C语言字符串讲解_C 语言_ - EgyptAddress</title>
+    <title>spring boot web项目 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">适合初学者的C语言字符串讲解_C 语言_</h1>
+                <h1 class="title" style="word-break: break-all;">spring boot web项目</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>这一篇博客我们来了解一下字符串，看下面这个我们熟知的也是最先学习的代码</p> <blockquote> <p>"Hello world!"</p> </blockquote> <p>这一堆的字母就是字符串字面值，简称字符串，每一个字母都是一个字符，字符串需要用" "双引号来引起，字符需要用’ '单引号来引起，就像下面</p> <blockquote> <p>"Hello world!"  //字符串<br />'a'  //字符<br />'!'  //字符</p> </blockquote> <p>字符串也算常量，上面三条都算字面常量，之前的讲常量的时候就举过这种例子</p> <p>那么字符串有什么用呢？</p> <p>假设我们要把下面的字符串存起来，那么我们需要怎么存呢？</p> <blockquote> <p>"abcdef"</p> </blockquote> <p>我们可以把它放在字符串数组里,有两种形式如下：</p> <div class="ay1code"> <pre class="brush:cpp;">#include&lt;stdio.h&gt;    int main()  {  char arr1[10]="abcdef";                     //形式一  char arr2[10]={'a','b','c','d','e','f'};    //形式二    //我们打印一下这些字符串  printf("%s\n",arr1);  printf("%s\n",arr2);    return 0;  }  </pre> </div> <p>运行的结果：</p> <blockquote> <p>abcdef</p> <p>abcdef</p> </blockquote> <p style="text-align:center"><img decoding="async" alt="请添加图片描述" src="http://img.555519.xyz/uploads3/20220419/b543b6c3d8316cf24471776b1b9d0aa0.jpg"></p> <p>把"abcdef"都存在arr[ ]这个数组里面，[ ]里面数是多少，就能存多少字符</p> <p>arr[10]可以存10个字符 ，但一定要不小于你要存的字符</p> <p>你也可以不写[ ]里面的数字，它会自己根据你要存的字符串来调整，就像这样</p> <div class="ay1code"> <pre class="brush:cpp;">#include&lt;stdio.h&gt;    int main()  {  char arr[]="abcdef";    //char-字符类型，没有字符串类型哦  return 0;  }  </pre> </div> <p>那这两种形式有什么区别呢？</p> <p>我们不写arr[ ]里面的数字，我们来看一下</p> <div class="ay1code"> <pre class="brush:cpp;">#include&lt;stdio.h&gt;    int main()  {  char arr1[]="abcdef";  char arr2[]={'a','b','c','d','e','f'};    //我们打印一下这些字符串  printf("%s\n",arr1);  printf("%s\n",arr2);    return 0;  }  </pre> </div> <p>运行的结果：</p> <blockquote> <p>abcdef</p> <p>abcdef烫烫烫烫烫abcdef</p> </blockquote> <p style="text-align:center"><img decoding="async" alt="请添加图片描述" src="http://img.555519.xyz/uploads3/20220419/a168617c14cc47e2bd0194e123cf012c.jpg"></p> <p>哎，发现没有，它们不一样了，那为什么会出现这种情况呢？</p> <p>先想一个问题，它是根据什么来停止打印的？</p> <p>（啊，你会问：它们后面啥都没有，我怎么会知道它们根据什么来停下来的）</p> <p>那里确实看不见有什么标志，但是那个标志就是看不见的，字符串的结束标志是\0,它是一个我们马上就会学到的转义字符</p> <div class="ay1code"> <pre class="brush:cpp;">char arr1[]="abcdef";  </pre> </div> <p>这个形式一，字符串后面就默认带了一个\0</p> <div class="ay1code"> <pre class="brush:cpp;">char arr2[]={'a','b','c','d','e','f'};</pre> </div> <p>这个形式二，后面没有\0</p> <p>懂了吧，printf去打印的时候要识别到\0才会结束</p> <p>第一个形式最后一个字符结束就识别到了\0，然后结束</p> <p>第二个形式识别到最后的f，一直都没有识别到\0，就一直打印下去，最后就出现刚才的结果</p> <p>那么如果我们给第二个形式加一个\0作为结束标志怎么样，不要光想，我们来做一下试试</p> <div class="ay1code"> <pre class="brush:cpp;">#include&lt;stdio.h&gt;    int main()  {  char arr1[]="abcdef\0";   //我们也试一下给它也加一个\0  char arr2[]={'a','b','c','d','e','f','\0'};    //我们打印一下这些字符串  printf("%s\n",arr1);    //%s是打印字符串的  printf("%s\n",arr2);    //%s是打印字符串的     return 0;  }  </pre> </div> <p>运行的结果：</p> <blockquote> <p>abcdef</p> <p>abcdef</p> </blockquote> <p style="text-align:center"><img decoding="async" alt="请添加图片描述" src="http://img.555519.xyz/uploads3/20220419/82928d9523e0ca1511f6af1149c66003.jpg"></p> <p>结果运行正常了</p> <p>那么\0算不算里面的字符串长度的一部分呢？</p> <p>又来介绍一个好东西，strlen，它可以计算一个字符串长度的函数，但是使用它还是跟以前一样，需要给另一个头文件string.h打一下招呼才能使用它，我们来实操一下：</p> <div class="ay1code"> <pre class="brush:cpp;">#include&lt;string.h&gt;  #include&lt;string.h&gt;    int main()  {  	char a[] = "abc";  	char b[] = "abc\0";  	printf("%d", strlen(a));  	printf("%d", strlen(b));  	return 0;  }  </pre> </div> <p>运行结果：</p> <blockquote> <p>3</p> <p>3</p> </blockquote> <p style="text-align:center"><img decoding="async" alt="请添加图片描述" src="http://img.555519.xyz/uploads3/20220419/feb512ac68ae68c29363357d979587fe.jpg"></p> <blockquote> <p>"abc"</p> </blockquote> <p>这个字符串的长度为3，所以我们可以知道看不见的\0并不算在长度里面的,就算在后面加上\0也是一样</p> <p>大家可以试一试计算一下第二种形式不加\0情况下的字符串长度，保持好奇心，去自己尝试一下。</p> <p>就这样，我们把"abcdef"这个数组储存起来了，那我们要使用里面的字符怎么办？我们还需要再了解一个知识：</p> <p>调用arr里面字符，用arr[2]就可以调用c，用arr[0]就可以调用a，它们的对应关系也就是：</p> <blockquote> <p> a  b  c  d  e  f<br /> 0  1  2  3  4  5</p> </blockquote> <p>我们来实验一下</p> <div class="ay1code"> <pre class="brush:cpp;">#include&lt;stdio.h&gt;    int main()  {  char arr[]="abcdef";  printf("%c",arr[2]);  return 0;  }  </pre> </div> <p>运行结果：</p> <blockquote> <p>a</p> </blockquote> <p style="text-align:center"><img decoding="async" alt="请添加图片描述" src="http://img.555519.xyz/uploads3/20220419/af61bab6337649c7bd9ad55534c0f26d.jpg"></p> <div class="ay1code"> <pre class="brush:cpp;">#include&lt;stdio.h&gt;    int main()  {  char arr[]="abcdef";  printf("%c",arr[0]);  return 0;  }  </pre> </div> <p>运行结果：</p> <blockquote> <p>a</p> </blockquote> <p style="text-align:center"><img decoding="async" alt="请添加图片描述" src="http://img.555519.xyz/uploads3/20220419/cfdae8e06840af16cbbd4c8bfa291c4a.jpg"></p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>建表sql:</p> <pre><code class="language-sql">   CREATE TABLE employee    (    id INT(8) PRIMARY KEY AUTO_INCREMENT ,    lastName VARCHAR(25),    email VARCHAR(64),    gender INT(1),    department_id INT,    birthday DATE,    CONSTRAINT FK_department_id FOREIGN KEY(department_id)  REFERENCES department(id) ON DELETE NO ACTION ON UPDATE NO ACTION     )ENGINE=INNODB DEFAULT CHARSET =utf8;            CREATE TABLE department    (    id INT PRIMARY KEY,    departmentName VARCHAR(64)    )ENGINE=INNODB DEFAULT CHARSET=utf8;</code></pre> <p>&nbsp;</p> <p>&nbsp;</p> <h3><span style="color:#f33b45;">on null context object 异常</span></h3> <p>做查询所有员工功能时，一直报这个错误，网上找了半天，也没搞定。</p> <p>这个错误根本原因还是上下文对象为null导致的。</p> <p>Caused by: org.springframework.expression.spel.SpelEvaluationException<span style="color:#f33b45;">: EL1011E: Method call: Attempted to call method getId() on null context object</span><br /> ------------------</p> <p>2020-04-10 18:21:59.581 ERROR 30800 --- [nio-8088-exec-9] s.e.ErrorMvcAutoConfiguration$StaticView : Cannot render error page for request [/wang/table] and exception [Exception evaluating SpringEL expression: "<span style="color:#f33b45;">emp.getId()"</span> (template: "basic-table" - line 51, col 29)] as the response has already been committed. As a result, the response may have the wrong status code.</p> <pre><code class="language-html">                         &lt;tr th:each="emp : ${employeeList}"&gt;                             &lt;td th:text="${emp.getId()}" &gt;&lt;/td&gt;                             &lt;td th:text="${emp.getLastName()}"&gt;&lt;/td&gt;                             &lt;td th:text="${emp.getEmail()}"&gt;12 May 2017&lt;/td&gt; &lt;!--                            thymeleaf的三元表达式--&gt;                             &lt;td th:text="${emp.getGender()==0?'女':(emp.getGender()==1 ? '男':null)}"&gt;12 May 2017&lt;/td&gt;                             &lt;td th:text="${emp.getDepartment()!=null?emp.getDepartment().getDepartmentName():null}"&gt;12 May 2017&lt;/td&gt; &lt;!--   日期格式转换：  #dates是thymeleaf提供的一个工具，它能帮我们展示想要的日期格式--&gt;                             &lt;td th:text="${#dates.format(emp.getBirthday(),'yyyy-MM-dd HH:mm:ss')}"&gt;Pending&lt;/label&gt;&lt;/td&gt;                              &lt;td &gt; &lt;!--  在修改的时候,我们需要把员工id传递给后台,后台得到员工的详细信息,之后进入修改页面,这里使用的restful风格. --&gt;                                  &lt;a th:href="@{/employee/toUpdatePage/} + ${emp.getId()}"  class="btn btn-sm btn-primary" th:text="修改" &gt;&lt;/a&gt;                                     &lt;a th:href="@{/employee/delete/} + ${emp.getId()}" class="btn btn-sm btn-danger" th:text="删除"&gt;&lt;/a&gt;                                 &lt;/td&gt;                             &lt;/tr&gt;</code></pre> <p>前端代码：之前已经验证过，没有问题，那么根本原因还是在后端，后端没有正确传递数据。</p> <p>最后果然，是因为我的mapper中的sql写的不对。</p> <p>错误版本：</p> <p>由于一开始，我的对象和table的字段一致，我以为就不要写column 和result对应了。其实还是太年轻。。。。</p> <pre><code class="language-html">    &lt;select id="queryAllEmployee" resultMap="employeeMap"&gt;         select e.id as eId,d.id as dId ,e.email,e.birthday,e.gender,e.lastName,d.departmentName          from employee e ,department d          where e.department_id = d.id     &lt;/select&gt;      &lt;resultMap id="employeeMap" type="employee"&gt;                  &lt;association property="department" javaType="department"&gt;                     &lt;/association&gt;     &lt;/resultMap&gt;</code></pre> <p>&nbsp;</p> <p>正确版本：</p> <pre><code class="language-html">    &lt;select id="queryAllEmployee" resultMap="employeeMap"&gt;         select e.id as eId,d.id as dId ,e.email,e.birthday,e.gender,e.lastName,d.departmentName          from employee e ,department d          where e.department_id = d.id     &lt;/select&gt;      &lt;resultMap id="employeeMap" type="employee"&gt;         &lt;result column="eId" property="id"&gt;&lt;/result&gt;         &lt;result column="email" property="email"&gt;&lt;/result&gt;         &lt;result column="lastName" property="lastName"&gt;&lt;/result&gt;         &lt;result column="birthday" property="birthday"&gt;&lt;/result&gt;         &lt;result column="gender" property="gender"&gt;&lt;/result&gt;         &lt;association property="department" javaType="department"&gt;             &lt;result column="dId" property="id"&gt;&lt;/result&gt;             &lt;result column="departmentName" property="departmentName"&gt;&lt;/result&gt;         &lt;/association&gt;     &lt;/resultMap&gt;</code></pre> <p> &nbsp;</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-99.htm">在多行插入的情况下，对MySQL LAST_INSERT_ID()函数的输出有什么影响？</a></p>
-                                        <p>下一个：<a href="/html/category/article-101.htm">Python通过kerberos安全认证操作kafka</a></p>
+                                        <p>上一个：<a href="/html/category/article-99.htm">浅谈快速傅里叶变化的Matlab与Python实现与区别</a></p>
+                                        <p>下一个：<a href="/html/category/article-101.htm">判断数A中是否存在一棵同构于B的子树</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
-                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+                <h4><a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></h4>
+                <p>vue父组件向子组件传值与传递方法 学习笔记 1、父组件向子组件传值（props）  在子组件中，默认是无法访问到父组件中的data上的数据和methods中的方法 父组件可以在引用子组件的时候，通过</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
-                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
+                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
+                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></h4>
-                <p>博客目录 1、union(合并结果集) 2、limit(获取一张表中某部分数据) 3、表——创建表、删除表 4、关于MySQL中的数据类型  一、union(合并结果集)  将两个查询结果合并(可以是</p>
+                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
+                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
-                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+                <h4><a href="/html/category/article-215.htm">你不知道的Python容器</a></h4>
+                <p>你不知道的Python容器  你不知道的Python容器  散列表  ChainMap MappingProxyType   线性表 堆 参考资料    昨天阅读了《Python Tricks: Th</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
+                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
-                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
+                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
-                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
+                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>

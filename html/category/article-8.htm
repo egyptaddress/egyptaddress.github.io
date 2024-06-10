@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-8.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Nacos配置管理基础应用 - EgyptAddress</title>
+    <title>Python调用C语言方法 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Nacos配置管理基础应用</h1>
+                <h1 class="title" style="word-break: break-all;">Python调用C语言方法</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h1>1. Nacos配置管理模型</h1> <p>在Nacos控制太上，我们在配置管理中点击新建配置，需要我们输入Data ID、Group、配置内容等等。对于Nacos配置管理，它就是通过Namespace、group、Data ID能够定位到一个应用的配置集。</p> <p><img fetchpriority="high" decoding="async" alt="" height="746" src="http://img.555519.xyz/uploads3/20220901/73041a0ca99f3608afe8496bac8fefb0.jpg"></p> <hr/> <h2>Nacos配置管理的数据模型</h2> <p class="img-center"><img decoding="async" alt="" height="422" src="http://img.555519.xyz/uploads3/20220901/b057bb4db76f0894af186095b7979eeb.jpg"></p> <hr/> <h2>配置集(Data ID)</h2> <p><strong>在系统中，一个配置文件通常就是一个配置集，一个配置集可以包含了系统的各种配置信息。</strong></p> <p>例如，一个配置集可能包含了数据源、线程池、日志级别等配置项。</p> <p><strong>每个配置集都可以定义一个有意义的名称，就是配置集的ID即Data ID。</strong></p> <hr/> <h2>配置项</h2> <p><strong>配置集中包含的一个个配置内容就是配置项。它代表一个具体的可配置的参数与其值域，通常以 key=value 的形式存在。</strong></p> <p>例如我们常配置系统的日志输出级别（logLevel=INFO|WARN|ERROR） 就是一个配置项。</p> <hr/> <h2>配置分组(Group)</h2> <p>配置分组是对配置集进行分组，通过一个有意义的字符串（如 Buy 或 Trade ）来表示，不同的配置分组下可以有相同的配置集（Data ID）。</p> <p>当您在 Nacos 上创建一个配置时，如果未填写配置分组的名称，则配置分组的名称默认采用<strong>DEFAULT_GROUP</strong>。</p> <p><strong>配置分组的常见场景：可用于区分不同的项目或应用。</strong></p> <p>例如：学生管理系统的配置集，可以定义一个group为：STUDENT_GROUP。</p> <hr/> <h2>命名空间(Namespace)</h2> <p><strong>命名空间（namespace）可用于进行不同环境的配置隔离。</strong></p> <p>例如可以隔离开发环境、测试环境和生产环境，因为它们的配置可能各不相同，或者是隔离不同的用户，不同的开发人员使用同一个nacos管理各自的配置，可通过namespace隔离。</p> <p><strong>不同的命名空间下，可以存在相同名称的配置分组(Group) 或 配置集。</strong></p> <hr/> <h2>最佳实践</h2> <p>Nacos抽象定义了Namespace、Group、Data ID的概念，具体这几个概念代表什么，取决于我们把它们看成什么，这里推荐给大家一种用法，如下图：</p> <blockquote> <p><strong>Namespace ：代表不同环境，如开发、测试、生产环境。</strong></p> <p><strong>Group：代表某项目，如XX医疗项目、XX电商项目</strong></p> <p><strong>DataId：每个项目下往往有若干个工程，每个配置集(DataId)是一个工程的主配置文件</strong></p> </blockquote> <p><img decoding="async" alt="" height="287" src="http://img.555519.xyz/uploads3/20220901/701c7aa4496b2a92e69948447d493278.jpg"></p> <p><strong>获取某配置集需要指定：</strong></p> <ol> <li><strong>nacos服务地址，必须指定</strong></li> <li><strong>namespace，如不指定默认public</strong></li> <li><strong>group，如不指定默认 DEFAULT_GROUP</strong></li> <li><strong>dataId，必须指定</strong></li> </ol> <p>写个测试类，用于获取nacos控制台上创建的配置集：</p> <pre><code class="language-java">public class QueryRemoteConfigInfo { 	public static void main(String[] args) throws NacosException { 		String address = "127.0.0.1:8848"; 		String dataId = "nacos-simple-config.yaml"; 		// 命名空间：开发环境 		String namespace = "b21f780c-df9e-439c-9435-2367bb2f799b"; 		// 应用分组：默认 		String groupId = "DEFAULT_GROUP"; 		Properties properties = new Properties(); 		properties.put("serverAddr", address); 		ConfigService configService = NacosFactory.createConfigService(properties); 		String content = configService.getConfig(dataId, groupId, 5000); 		System.out.println(content); 	} }</code></pre> <p>上边测试类将从“127.0.0.1:8848”的nacos配置中心获取配置，通过以下信息定位配置集：</p> <blockquote> <p><strong>namespace:b21f780c-df9e-439c-9435-2367bb2f799b</strong></p> <p><strong>group:DEFAULT_GROUP</strong></p> <p><strong>Data id:nacos-simple-config.yaml</strong></p> </blockquote> <hr/> <h1>2.Nacos命名空间管理</h1> <h2>2.1&nbsp;命名空间的隔离设计</h2> <p>namespace 的设计是 nacos 基于此做多环境以及多租户（多个用户共同使用nacos）数据(配置和服务)隔离的。</p> <ul> <li>从一个租户 (用户)的角度来看，如果有多套不同的环境，那么这个时候可以根据指定的环境来创建不同的namespce，以此来实现多环境的隔离。</li> <li>例如，你可能有开发，测试和生产三个不同的环境，那么使用一套nacos 集群可以分别建以下三个不同的 namespace。如下图所示：</li> </ul> <p><img loading="lazy" decoding="async" alt="" height="372" src="http://img.555519.xyz/uploads3/20220901/c210d506b6cbc3620bc7fa631aae0b4b.jpg"></p> <ul> <li>从多个租户 (用户)的角度来看，每个租户(用户)可能会有自己的 namespace，每个租户(用户)的配置数据以及注册的服务数据都会归属到自己的 namespace 下，以此来实现多租户间的数据隔离。</li> <li>进入用户管理，我们创建三个租户，依次为：张三、李四、王五。</li> </ul> <p><img loading="lazy" decoding="async" alt="" height="458" src="http://img.555519.xyz/uploads3/20220901/639e3da55ff2ea2c662b6830e7d0ed37.jpg"></p> <ul> <li>分配好了之后，各租户用自己的账户名和密码登录后，创建自己的命名空间</li> </ul> <p><img loading="lazy" decoding="async" alt="" height="518" src="http://img.555519.xyz/uploads3/20220901/002dd7dd59e45483f51a204851db8915.jpg"></p> <ul> <li>在nacos控制台上，进入角色管理，将角色与用户绑定：</li> </ul> <p><img loading="lazy" decoding="async" alt="" height="477" src="http://img.555519.xyz/uploads3/20220901/770f13400614017af3c56d1cefe41511.jpg"></p> <ul> <li>进入权限管理，将角色与资源绑定：</li> </ul> <p><img loading="lazy" decoding="async" alt="" height="455" src="http://img.555519.xyz/uploads3/20220901/394d812eda2ccc5dd7f90bf73fa6ecf0.jpg"></p> <ul> <li>&nbsp;通过创建三个租户、命名空间、权限隔离，最终将形成如下图所示的隔离效果：</li> </ul> <p><img loading="lazy" decoding="async" alt="" height="482" src="http://img.555519.xyz/uploads3/20220901/4c38b2ff6924fe4289e2d7e8a7bec241.jpg"></p> <ul> <li>&nbsp;如下图所示，在不同租户下的命名空间里可以创建属于自己的配置列表。</li> </ul> <p><img loading="lazy" decoding="async" alt="" height="464" src="http://img.555519.xyz/uploads3/20220901/79d9742d12c0e934a5eb0c17a6753048.jpg"></p> <hr/> <h2>2.2 命名空间管理</h2> <p>命名空间(Namespace)是用于隔离多个环境的（如开发、测试、生产），而每个应用在不同环<br /> 境的同一个配置（如数据库数据源）的值是不一样的。因此，我们应针对企业项目实际研发流程、环境进行规划。</p> <p>我们现有开发、测试、生产三套环境，那么我们应该针对这三个环境分别建立三个namespace。</p> <p><img loading="lazy" decoding="async" alt="" height="608" src="http://img.555519.xyz/uploads3/20220901/7921e05876ddf757857ca4bbf163ff19.jpg"></p> <p>&nbsp;建立好三个命名空间后，在配置管理和服务列表下都会包含用于切换namespace的table按钮，如下图：<img loading="lazy" decoding="async" alt="" height="420" src="http://img.555519.xyz/uploads3/20220901/52e4c677e75b59aa48a8eda9f0d6b8ac.jpg"></p> <p>在编写程序获取配置集过程中没有感知到这个参数的输入，那么 nacos 统一会使用一个默认的 namespace作为输入，nacos config 会使用一个空字符串作为默认的参数来初始化，对应界面上就是public命名空间。</p> <blockquote> <p><strong>注意：</strong></p> <p><strong>命名空间public是nacos的一个保留空间，如果我们需要创建属于自己的namespace，则不要和public重名，以一个实际业务场景有具体语义的名字来命名，以免带来字面上不容易区分自己是哪一个namespace。</strong></p> <p><strong>其次，我们在项目开发中，如果需要指定namespace命名空间参数时，则一定要填写命名空间的ID，而不是名称。</strong></p> </blockquote> <p><strong>举个栗子：</strong></p> <p><img loading="lazy" decoding="async" alt="" height="338" src="http://img.555519.xyz/uploads3/20220901/d62b8a75fccc7c52a58e102f29abb069.jpg"></p> <hr/> <h1>3. Nacos的配置管理</h1> <p>Nacos支持基于Namespace和Group的配置分组管理，以便用户更灵活的根据自己的需要按照环境或者应用、模块等分组管理微服务的大量配置，在配置管理中主要提供了配置历史版本、回滚、订阅者查询等核心管理能力。</p> <h2>3.1&nbsp;配置列表</h2> <p>点击Nacos控制台的配置管理-&gt;配置列表菜单，即可看到以下界面展示：</p> <p><img loading="lazy" decoding="async" alt="" height="472" src="http://img.555519.xyz/uploads3/20220901/60e54aceefe8097d6edcff120af56d60.jpg"></p> <p>&nbsp;界面中展示了不同namespace下的配置集列表，可点击左上角的不同namespace进行切换。<br /> 右上角“+"号或点击某配置集后的 编辑 按钮可进入配置集编辑器。</p> <ul> <li><strong>多配置格式编辑器</strong></li> </ul> <p>Nacos支持 YAML、Properties、TEXT、JSON、XML、HTML 等常见配置格式在线编辑、语法高亮、格式校验，帮助用户高效编辑的同时大幅降低格式错误带来的风险。</p> <p><img loading="lazy" decoding="async" alt="" height="571" src="http://img.555519.xyz/uploads3/20220901/59542ab9917a13228e5e157d7bf407c2.jpg"></p> <p>Nacos支持配置标签的能力，帮助用户更好、更灵活的做到基于标签的配置分类及管理。同时支持用户对配置及其变更进行描述，方面多人或者跨团队协作管理配置。</p> <ul> <li><strong>内容比较</strong></li> </ul> <p>Nacos的配置管理支持配置集内容比较能力，帮助我们校验修改的内容，降低改错带来的风险。</p> <p><img loading="lazy" decoding="async" alt="" height="818" src="http://img.555519.xyz/uploads3/20220901/d2682dac9d946362320b762ff366b48e.jpg"></p> <ul> <li><strong>&nbsp;导出</strong></li> </ul> <p><img loading="lazy" decoding="async" alt="" height="576" src="http://img.555519.xyz/uploads3/20220901/717894e7f71f5ec32539b623aa41dcb4.jpg"></p> <ul> <li><strong>&nbsp;导入配置</strong></li> </ul> <p>点击右上角的 导入配置 ，可选择nacos支持的配置文件格式进行导入文件并恢复为nacos配置集。</p> <p><img loading="lazy" decoding="async" alt="" height="536" src="http://img.555519.xyz/uploads3/20220901/99b6eddfa3be4d36a98ab8f217299309.jpg"></p> <ul> <li><strong>克隆配置集</strong></li> </ul> <p>选择所需配置文件记录，点击<strong>克隆</strong>&nbsp;按钮，在弹出的克隆对话框中，选择将配置迁移至其他namespace中。如下图红框所示。</p> <p><img loading="lazy" decoding="async" alt="" height="585" src="http://img.555519.xyz/uploads3/20220901/09c45912bc120579f0722fae2bde816c.jpg"></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-tomorrow-night"> <h2><span style="font-size: 18.72px;">1、为什么要使用Python调用C语言</span><br /></h2> <p>可以将一些耗时的操作的函数使用C语言编写，然后主题代码是python，这样使用python去调用C语言，就可以做既能有python语言的简单性，有可以利用C语言的高性能，从而达到整体既简单又高效的目的</p> <h3> <a id="2CPython_4" rel="nofollow"></a>2、C语言与Python语言的区别</h3> <p>（1）Python不擅长大量运算任务<br /> （2）Python程序的优势在于，适合IO密集型作业，比如打开文件，下载图片，运行脚本等，python作为知名的胶水语言，快速实现“计算密集型作业”的方法就是“把C的代码拿过来直接使用”</p> <h3> <a id="3PythonC_8" rel="nofollow"></a>3、Python调用C语言的步骤</h3> <p>（1）将.c文件编译为动态库文件，即.so文件</p> <pre><code class="prism language-bash"><span class="token comment"># 将C源码文件demo.c编译为动态库文件 demo.so</span> gcc demo.c -shared -o demo.so </code></pre> <p>（2）在python文件中导入cdll</p> <pre><code class="prism language-bash">from ctypes <span class="token function">import</span> cdll </code></pre> <p>（3）然后通过cdll的LoadLibrary加载动态库文件</p> <pre><code class="prism language-bash"><span class="token assign-left variable">result</span><span class="token operator">=</span>cdll.LoadLibrary<span class="token punctuation">(</span><span class="token string">"./demo.so"</span><span class="token punctuation">)</span> </code></pre> <p>（4）然后即可通过上述result调用C文件中的函数了</p> <h3> <a id="4PythonC_31" rel="nofollow"></a>4、Python调用C语言实例演示</h3> <p>（1）编写 demo.c文件，实现一个求1-100的和的函数，代码如下：</p> <pre><code class="prism language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>  <span class="token keyword">int</span>  <span class="token function">add</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span>     <span class="token keyword">int</span> sum<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>     <span class="token keyword">int</span> i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>     <span class="token keyword">for</span><span class="token punctuation">(</span>i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>i<span class="token operator">&lt;</span><span class="token number">100</span><span class="token punctuation">;</span>i<span class="token operator">++</span><span class="token punctuation">)</span>     <span class="token punctuation">{<!-- --></span>         sum<span class="token operator">+=</span>i<span class="token punctuation">;</span>     <span class="token punctuation">}</span>     <span class="token keyword">return</span> sum<span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>（2）将demo.c源码文件编译为动态库文件demo.so</p> <pre><code class="prism language-bash">gcc demo.c -shared -o demo.so </code></pre> <p>（3）编写Python文件</p> <pre><code class="prism language-python"><span class="token keyword">from</span> ctypes <span class="token keyword">import</span> cdll  <span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>     result<span class="token operator">=</span>cdll<span class="token punctuation">.</span>LoadLibrary<span class="token punctuation">(</span><span class="token string">"./demo.so"</span><span class="token punctuation">)</span>     <span class="token keyword">print</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>add<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token keyword">if</span> __name__<span class="token operator">==</span><span class="token string">"__main__"</span><span class="token punctuation">:</span>     main<span class="token punctuation">(</span><span class="token punctuation">)</span> </code></pre> <p>（4）执行 python3 demo.py 这里在python文件中也同样可以拿到C源码函数的返回值<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221207/eeb02ed4d660db8e5b637e19e4a7a0a3.jpg" alt="Python调用C语言方法"></p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-7.htm">taro跳转到tabBar报错问题</a></p>
-                                        <p>下一个：<a href="/html/category/article-9.htm">如何在代码层面提高CPU分支预测效率</a></p>
+                                        <p>上一个：<a href="/html/category/article-7.htm">Vue入门组件实战案例详解</a></p>
+                                        <p>下一个：<a href="/html/category/article-9.htm">JVM将初始和最大内存大小设置为相同值的好处</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
+                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在日常开发中，我学使用原生JavaScript获取元素的时候，最常用的方法就document.getEl</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
+                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
+                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
-                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
+                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-4.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>大数据之hive Serde序列化/反序列化性能对比 - EgyptAddress</title>
+    <title>Kubernetes Ingress作用及Ingress-Nginx实际操作详解 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">大数据之hive Serde序列化/反序列化性能对比</h1>
+                <h1 class="title" style="word-break: break-all;">Kubernetes Ingress作用及Ingress-Nginx实际操作详解</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>java 中我们使用序列化和反序列化主要目的是将对象和字节序列进行相互转换。序列化的作用是什么呢？1，将对象转换成字节序列后进行落盘存储到文件 2，将对象序列化后进行网络传输。然而对于hive 的序列化和反序列化是将hive 表中每一列的值与字节码序列进行转换。hive Serde 包含Serialize和Deserialize 两个功能，比如查询select * from tb_example, Deserialize 是将存储在hdfs中的字节码解析出来成为可读；load 加载数据时，Serialize 是将数据序列化后存储到hdfs 系统中。</p> <p>针对量级比较大的数据，hive 官方支持几种数据压缩格式对数据进行压缩保存，然而不同的数据格式的压缩效率和查询效率等性能却有所差异。以下面的例子对比下(日志文件3.6G,约3700w数据)hive表以不同的数据格式存储的性能表现。</p> <p><img decoding="async" alt="大数据之hive Serde序列化/反序列化性能对比（一）" class="has" src="http://img.555519.xyz/uploads3/20220902/1100ebb78bc9c8e9d1437e1566e0eaa3.jpg"></p> <p>不同数据格式的压缩比（图片来自网络）</p> <ol> <li>创建普通的hive表 tb_iptv_data 作为基础数据表，将数据load 到表中</li> </ol> <pre class="has"><code>hive 默认是使用 org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe create table if not exists tb_iptv_data(expodate string,addcode string,sbtid string,rscode string,rsname string,scid string)row format DELIMITED FIELDS TERMINATED BY '|'LINES TERMINATED BY '\n';//再创建一张sequencefile 格式的表create table if not exists tb_iptv_data_sequence(expodate string,addcode string,sbtid string,rscode string,rsname string,scid string)row format DELIMITED FIELDS TERMINATED BY '|'LINES TERMINATED BY '\n' stored as sequencefile as select * from tb_iptv_data;//用时Stage-Stage-1: Map: 15   Cumulative CPU: 306.47 sec   HDFS Read: 3868909814 HDFS Write: 4310770586 SUCCESSTotal MapReduce CPU Time Spent: 5 minutes 6 seconds 470 msecOKTime taken:  seconds</code></pre> <ol> <li>依据基础数据表创建其他数据格式的表,分别是 orcfile/rcfile/avro/parquetfile，数据表建好后通过执行sql对比其执行效率（集群硬件基础是24c32G）</li> </ol> <pre class="has"><code>SELECT count(*) from (SELECT rscode,sbtid,count(*) FROM tb_iptv_data GROUP BY rscode,sbtid)t</code></pre> <pre class="has"><code>org.apache.hadoop.hive.ql.io.orc.OrcSerde 格式create table if not exists tb_iptv_data_orc(expodate string,addcode string,sbtid string,rscode string,rsname string,scid string)row format DELIMITED FIELDS TERMINATED BY '|'LINES TERMINATED BY '\n' stored as orc;</code></pre> <pre class="has"><code>org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe 格式create table if not exists tb_iptv_data_rc(expodate string,addcode string,sbtid string,rscode string,rsname string,scid string)row format DELIMITED FIELDS TERMINATED BY '|'LINES TERMINATED BY '\n' stored as rcfile as select * from tb_iptv_data;//建表耗时Stage-Stage-1: Map: 15   Cumulative CPU: 255.19 sec   HDFS Read: 3868912709 HDFS Write: 3662099227 SUCCESSTotal MapReduce CPU Time Spent: 4 minutes 15 seconds 190 msecOKTime taken: 300.767 seconds//sql 执行耗时6711120Time taken: 199.498 seconds, Fetched: 1 row(s)</code></pre> <pre class="has"><code>org.apache.hadoop.hive.serde2.avro.AvroSerDe 格式create table if not exists tb_iptv_data_avro(expodate string,addcode string,sbtid string,rscode string,rsname string,scid string)row format DELIMITED FIELDS TERMINATED BY '|'LINES TERMINATED BY '\n' stored as avro as select * from tb_iptv_data;//建表耗时Stage-Stage-1: Map: 15   Cumulative CPU: 550.79 sec   HDFS Read: 3868919834 HDFS Write: 4086779757 SUCCESSTotal MapReduce CPU Time Spent: 9 minutes 10 seconds 790 msecOKTime taken: 356.338 seconds//sql 执行耗时6711120Time taken: 268.299 seconds, Fetched: 1 row(s)</code></pre> <pre class="has"><code>org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe 格式create table if not exists tb_iptv_data_parquet(expodate string,addcode string,sbtid string,rscode string,rsname string,scid string)row format DELIMITED FIELDS TERMINATED BY '|'LINES TERMINATED BY '\n' stored as avro;TERMINATED BY '|'LINES TERMINATED BY '\n' stored as parquetfile;</code></pre> <pre class="has"><code>org.apache.hive.hcatalog.data.JsonSerDe 格式create table if not exists tb_iptv_data_json(expodate string,addcode string,sbtid string,rscode string,rsname string,scid string)row format Serde "org.apache.hive.hcatalog.data.JsonSerDe";</code></pre> <p><img decoding="async" alt="大数据之hive Serde序列化/反序列化性能对比（一）" class="has" src="http://img.555519.xyz/uploads3/20220902/c3308b9138a3052b8646aae0df3d9338.jpg"></p> <p><img decoding="async" alt="大数据之hive Serde序列化/反序列化性能对比（一）" class="has" src="http://img.555519.xyz/uploads3/20220902/947687c93fb85776754454db4f73405d.jpg"></p> <p>各表的数据大小</p> <ol> <li>总结</li> </ol> <ul> <li>数据存储时的压缩耗时 以orc 格式效率最高，其次是qarquet,而 squence/rcfile/avro 的效率较慢</li> <li>数据压缩后大小，以orcfile 格式的压缩比最优，parquet 次之</li> <li>sql 查询性能的对比可以看出，parquet 性能最优,其次是rcfile格式（<strong>此处的对比结果与网上其他文章中的结论不符合，同时也与orc 官网介绍的结论不一样是什么情况？这个问题研究中</strong>）</li> </ul> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-tomorrow-night"> <p></p> <div class="toc"> <ul> <li> <ul></ul> </li> </ul> </div> <h2><a id="Ingress_5" rel="nofollow"></a>什么是Ingress</h2> <p>在k8s里，Ingress是一个可以允许集群外部访问集群内布服务的控制器。通过配置一条条规则（rules）来规定进来的连接被分配到后端的哪个服务。</p> <p>Ingress相当于一个集中的路由中心，例如，可以将<code>xiaofu.com/api/v1/</code>路由到后端的<code>service-v1</code>服务，而将<code>xiaofu.com/api/v2/</code>路由到<code>service-v2</code>服务。</p> <h2><a id="Ingress_vs_NodePort_11" rel="nofollow"></a>Ingress vs NodePort</h2> <p>同样是将集群内部的服务暴露给集群外，很有必要对比下Ingress和上一节学习的NodePort。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220605/57f3b364d7058ec806bf953d70353914.jpg" alt="Kubernetes Ingress作用及Ingress-Nginx实际操作详解"><br /><mark>NodePort是Service的一个类型，并没有额外加入组件</mark>。其会在每个Node上开一个端口，对应到后端的Service。所有访问集群任意节点IP上该端口都可以访问到后端的Service。这样的优点就是简单快速，但是只是起了简单的Node端口到Service端口的映射功能，功能很单一。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220605/830fe8c043694b855d4c8e851c9d0c3e.jpg" alt="Kubernetes Ingress作用及Ingress-Nginx实际操作详解"><br /><mark>Ingress是区别于上一节学的那些Service的另一个单独组件</mark>，可以被单独声明，创建和销毁。引入Ingress的好处就是有一个集中的路由配置项，同时可实现基于内容的七层负载均衡。小小的麻烦就是引入了额外组件，但是其实创建一个Ingress和创建一个k8s中的其他资源的步骤没什么两样。</p> <p>Ingress的实现方式有很多，下面着重学习下官方推荐的基于Nginx的Ingress-Nginx控制器。</p> <h2><a id="IngressNginx_23" rel="nofollow"></a>Ingress-Nginx</h2> <p>可以将上面的Ingress理解为在集群的前端加了一个Nginx，用来提供Nginx所能提供的一切功能，例如基于url的反向代理，https认证，用户鉴权，域名重定向等等<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220605/10fa266051067d65ea42d250204570d5.jpg" alt="Kubernetes Ingress作用及Ingress-Nginx实际操作详解"></p> <p>需要注意几点：</p> <ul> <li>Nginx是基于url的，如果没有DNS解析url到集群中任意ip可以考虑hosts文件劫持</li> <li>Nginx的本质也是NodePort的方式暴露给集群外的一个特殊Service</li> <li>Nginx的配置文件根据Ingress的规则自动添加和修改</li> </ul> <p>更详细的介绍可以查看<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://kubernetes.github.io/ingress-nginx/"  rel="nofollow">官方网站</a>。</p> <h3><a id="_35" rel="nofollow"></a>安装</h3> <p>直接按照<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://kubernetes.github.io/ingress-nginx/deploy/"  rel="nofollow">官方文档</a>进行安装即可。官方提供了minikube以及各厂商的云机器上安装的方式，我们是用kubeadm自己搭建的k8s环境，所以选择<code>Bare-metal</code>部分的安装脚本，只有下面一句脚本即可</p> <pre><code>kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/baremetal/deploy.yaml</code></pre> <blockquote> <p>官方默认采用NodePort的方式安装Nginx，其实还有其余方式，参考https://kubernetes.github.io/ingress-nginx/deploy/baremetal/</p> </blockquote> <p>推荐先将上面这个yaml文件下载到本地，因为以后还可以根据这个文件批量删除或者修改ingress-nginx的资源。</p> <blockquote> <p>kubectl apply -f xxx.yaml 也可以用来修改资源配置<br /> kubectl delete -f xxx.yaml 则可以批量删除资源</p> </blockquote> <pre><code>[root@k8s-master ~]# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/baremetal/deploy.yaml namespace/ingress-nginx created serviceaccount/ingress-nginx created configmap/ingress-nginx-controller created clusterrole.rbac.authorization.k8s.io/ingress-nginx created clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx created role.rbac.authorization.k8s.io/ingress-nginx created rolebinding.rbac.authorization.k8s.io/ingress-nginx created service/ingress-nginx-controller-admission created service/ingress-nginx-controller created deployment.apps/ingress-nginx-controller created validatingwebhookconfiguration.admissionregistration.k8s.io/ingress-nginx-admission created clusterrole.rbac.authorization.k8s.io/ingress-nginx-admission created clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created job.batch/ingress-nginx-admission-create created job.batch/ingress-nginx-admission-patch created role.rbac.authorization.k8s.io/ingress-nginx-admission created rolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created serviceaccount/ingress-nginx-admission created</code></pre> <p>所有的资源都在<code>ingress-nginx</code>这个namespace下</p> <pre><code>[root@k8s-master ~]# kubectl get svc  -n ingress-nginx NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE ingress-nginx-controller             NodePort    10.96.130.237   &lt;none&gt;        80:31958/TCP,443:30265/TCP   54m ingress-nginx-controller-admission   ClusterIP   10.109.76.229   &lt;none&gt;        443/TCP                      54m [root@k8s-master ~]# kubectl get pod -n ingress-nginx NAME                                        READY   STATUS      RESTARTS   AGE ingress-nginx-admission-create-g5sfq        0/1     Completed   0          57m ingress-nginx-admission-patch-tzv5x         0/1     Completed   0          57m ingress-nginx-controller-5575c6cd9d-8xwmt   1/1     Running     0          57m [root@k8s-master ~]# kubectl get deployment -n ingress-nginx NAME                       READY   UP-TO-DATE   AVAILABLE   AGE ingress-nginx-controller   1/1     1            1           57m</code></pre> <p>从上面的svc可以看到，有个以NodePort暴露出来的<code>ingress-nginx-controller</code>的service，对外暴露31958端口对应nginx的80端口，暴露30265端口对应nginx的443端口。下面在实际操作的时候会用到这两个外部端口。</p> <h3><a id="_86" rel="nofollow"></a>实际操作</h3> <p>以下所有yaml文件托管在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/Victor2Code/centos-k8s-init/tree/master/test%20yaml"  rel="nofollow">我的Github仓库</a></p> <p>事先删除上一节的所有service和pod，以免引起混淆。</p> <h4><a id="HTTP_92" rel="nofollow"></a>HTTP代理</h4> <p>首先用yaml文件<code>http-mynginx.yaml</code>创建<code>mynginx:v2</code>版的deployment的常规的ClusterIP的service</p> <pre><code>apiVersion: extensions/v1beta1 kind: Deployment metadata:   name: mynginx-deployment spec:   replicas: 3   template:     metadata:       labels:         app: mynginx         version: v2     spec:       containers:         - name: mynginx           image: mynginx:v2           ports:             - containerPort: 80 --- apiVersion: v1 kind: Service metadata:   name: mynginx-service   namespace: default spec:   type: ClusterIP   selector:     app: mynginx     version: v2   ports:     - name: http       port: 8080       targetPort: 80</code></pre> <p>这里其实就是上一节ClusterIP中的两个yaml文件，用<code>---</code>在同一个yaml文件中进行了合并。</p> <p>成功创建出pod和service</p> <pre><code>[root@k8s-master k8s-ingress]# kubectl apply -f http-mynginx.yaml deployment.extensions/mynginx-deployment created service/mynginx-service created [root@k8s-master k8s-ingress]# kubectl get svc NAME              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE kubernetes        ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP    10d mynginx-service   ClusterIP   10.97.205.233   &lt;none&gt;        8080/TCP   10s [root@k8s-master k8s-ingress]# kubectl get pod -o wide NAME                                 READY   STATUS    RESTARTS   AGE   IP            NODE         NOMINATED NODE   READINESS GATES mynginx-deployment-b66f59f66-bbkgg   1/1     Running   0          14s   10.244.1.77   k8s-node1    &lt;none&gt;           &lt;none&gt; mynginx-deployment-b66f59f66-vfvsw   1/1     Running   0          14s   10.244.1.76   k8s-node1    &lt;none&gt;           &lt;none&gt; mynginx-deployment-b66f59f66-xtk4c   1/1     Running   0          14s   10.244.0.15   k8s-master   &lt;none&gt;           &lt;none&gt;</code></pre> <p>下面需要将上述<code>mynginx-service</code>这个service的8080端口通过nginx暴露出去，用yaml文件<code>http-mynginx-ingress.yaml</code>在nginx中创建一条规则</p> <pre><code>apiVersion: extensions/v1beta1 kind: Ingress metadata:   name: mynginx-http spec:   rules:     - host: mynginx.xiaofu.com       http:         paths:           - path: /             backend:               serviceName: mynginx-service               servicePort: 8080</code></pre> <p>这个规则中将域名<code>mynginx.xiaofu.com</code>的根目录映射到后端的mynginx-service。这里用根目录是因为后端pod中只有一个<code>index.html</code>文件，没有别的路径，实际中这个路径可以根据自己需求去灵活指定。</p> <p>然后修改本地hosts文件，绑定<code>mynginx.xiaofu.com</code>到k8s集群中任意一个node的外网ip即可。Windows下的hosts文件路径为<code>C:\Windows\System32\drivers\etc\hosts</code>。<mark>此后访问该域名的31958端口，数据流就会被导到nginx的80端口，然后到后端服务<code>mynginx-service</code>的8080端口，最后走负载均衡到其中一个pod</mark>。</p> <p>效果如下<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220605/5b3468cc5c70f3a6831c7bb0772428fd.jpg" alt="Kubernetes Ingress作用及Ingress-Nginx实际操作详解"></p> <p>这样就成功完成了nginx中的http反向代理功能，对nginx配置感兴趣的话，可以用类似下面的方法进去nginx的pod中看一下配置文件</p> <pre><code>[root@k8s-master k8s-ingress]# kubectl get pod -n ingress-nginx NAME                                        READY   STATUS      RESTARTS   AGE ingress-nginx-admission-create-g5sfq        0/1     Completed   0          4h18m ingress-nginx-admission-patch-tzv5x         0/1     Completed   0          4h18m ingress-nginx-controller-5575c6cd9d-7b8zt   1/1     Running     0          36m [root@k8s-master k8s-ingress]# kubectl exec ingress-nginx-controller-5575c6cd9d-7b8zt -n ingress-nginx -it -- /bin/bash bash-5.0$ cat /etc/nginx/nginx.conf</code></pre> <p>如果想达到开头时候说的类似访问<code>svc1.mynginx.xiaofu.com</code>和<code>svc2.mynginx.xiaofu.com</code>映射到后端的不同service，只需要将这两个域名都指向集群中node的ip，并在Ingress中添加两条不同规则即可，这里就不演示了。</p> <h4><a id="HTTPS_182" rel="nofollow"></a>HTTPS代理</h4> <p>如果想要网站访问更安全，可以考虑带加密和认证的https协议。在客户端和nginx之间走https协议，<mark>nginx反向代理到后端的时候因为是内网，还是走未加密的http协议即可</mark>。Https的工作方式这里不额外介绍了，要完成配置，我们需要服务端的自签名CA证书和私钥文件。</p> <p>生成所需的两个文件</p> <pre><code>[root@k8s-master ssl]# openssl genrsa -out ca.key 1024 Generating RSA private key, 1024 bit long modulus ..................++++++ .....................++++++ e is 65537 (0x10001) [root@k8s-master ssl]# openssl req -new -key ca.key -out ca.csr You are about to be asked to enter information that will be incorporated into your certificate request. What you are about to enter is what is called a Distinguished Name or a DN. There are quite a few fields but you can leave some blank For some fields there will be a default value, If you enter '.', the field will be left blank. ----- Country Name (2 letter code) [XX]:SG State or Province Name (full name) []: Locality Name (eg, city) [Default City]: Organization Name (eg, company) [Default Company Ltd]:xiaofu Organizational Unit Name (eg, section) []: Common Name (eg, your name or your server's hostname) []: Email Address []:  Please enter the following 'extra' attributes to be sent with your certificate request A challenge password []: An optional company name []: root@k8s-master ssl]# openssl x509 -req -days 365 -in ca.csr -signkey ca.key -out ca.crt Signature ok subject=/C=SG/L=Default City/O=xiaofu Getting Private key [root@k8s-master ssl]# ll total 12 -rw-r--r--. 1 root root 713 May  8 20:07 ca.crt -rw-r--r--. 1 root root 582 May  8 20:02 ca.csr -rw-r--r--. 1 root root 887 May  8 20:01 ca.key</code></pre> <p>将刚才生成的两个文件存储到了k8s的secret里面，这里可以暂时不用管下面的命令具体含义，后面讲到k8s的存储的时候我们再详细学习。</p> <pre><code>[root@k8s-master ssl]# kubectl create secret tls tls-secret --key ca.key --cert ca.crt secret/tls-secret created</code></pre> <p>通过yaml文件<code>https-mynginx.yaml</code>创建一个https加密的域名，采用刚才存储的<code>tls-secret</code>进行认证和加密，映射到后面和刚才一样的service</p> <pre><code>apiVersion: extensions/v1beta1 kind: Ingress metadata:   name: mynginx-https spec:   tls:     - hosts:       - secret.xiaofu.com       secretName: tls-secret   rules:     - host: secret.xiaofu.com       http:         paths:           - path: /             backend:               serviceName: mynginx-service               servicePort: 8080</code></pre> <p>成功创建出来</p> <pre><code>[root@k8s-master k8s-ingress]# kubectl apply -f https-mynginx.yaml ingress.extensions/mynginx-https created</code></pre> <p>之后修改hosts文件，将<code>secret.xiaofu.com</code>绑定到集群中任一node的ip。</p> <p>然后就可以用https访问域名了，<mark>端口是前面ingress暴露出来的443对用的外网端口</mark><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220605/7e85f6ad243463fe670e85ed1b54f82a.jpg" alt="Kubernetes Ingress作用及Ingress-Nginx实际操作详解"><br /> 因为是我们自己签名的证书，所以需要用户认证一下<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220605/ddb2598a3c8904b9590eb00d7a34df0d.jpg" alt="Kubernetes Ingress作用及Ingress-Nginx实际操作详解"><br /> 之后就可以正常访问了<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220605/cd64b39c66297345caf6edcbe038826e.jpg" alt="Kubernetes Ingress作用及Ingress-Nginx实际操作详解"></p> <p>更多tls的相关使用参考k8s的<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://kubernetes.github.io/ingress-nginx/user-guide/tls/"  rel="nofollow">官方文档</a></p> <h4><a id="BasicAuth_264" rel="nofollow"></a>BasicAuth</h4> <p>以下案例参考了k8s<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://kubernetes.github.io/ingress-nginx/examples/auth/basic/"  rel="nofollow">官方文档</a></p> <p>因为要通过apache的htpasswd模块去验证，所以要先安装apache，centos7中就是httpd</p> <pre><code>yum install httpd</code></pre> <p>之后创建用户xiaofu及密码文件auth，并根据auth文件存储到k8s的secret中</p> <pre><code>[root@k8s-master ~]# htpasswd -c auth xiaofu New password: Re-type new password: Adding password for user xiaofu [root@k8s-master ~]# kubectl create secret generic basic-auth --from-file=auth secret/basic-auth created</code></pre> <p>通过yaml文件<code>basicauth-mynginx.yaml</code>来添加一条需要认证的域名</p> <pre><code>apiVersion: extensions/v1beta1 kind: Ingress metadata:   name: mynginx-basicauth   annotations:     nginx.ingress.kubernetes.io/auth-type: basic     nginx.ingress.kubernetes.io/auth-secret: basic-auth     nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - xiaofu' spec:   rules:     - host: auth.xiaofu.com       http:         paths:           - path: /             backend:               serviceName: mynginx-service               servicePort: 8080</code></pre> <p>这里和前面http部分的yaml文件就只是<code>annotations</code>部分。</p> <p>成功创建</p> <pre><code>[root@k8s-master k8s-ingress]# kubectl apply -f basicauth-mynginx.yaml ingress.extensions/mynginx-basicauth created</code></pre> <p>同时在hosts文件中将<code>basicauth.xiaofu.com</code>映射到任意node的ip，之后再访问声明了的域名就要密码了<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220605/ad0ea2861973b5c653fe51b1988d7c04.jpg" alt="Kubernetes Ingress作用及Ingress-Nginx实际操作详解"><br /> 输入刚才创建的用户和密码即可成功访问。</p> <h4><a id="Nginx_313" rel="nofollow"></a>Nginx重写</h4> <p>上面yaml文件中的<code>annotations</code>除了可以声明认证方式外，还有很多重写功能。</p> <p>下面的表格取自<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://kubernetes.github.io/ingress-nginx/examples/rewrite/"  rel="nofollow">官方文档</a></p> <table> <thead> <tr> <th>Name</th> <th>Description</th> <th>Values</th> </tr> </thead> <tbody> <tr> <td>nginx.ingress.kubernetes.io/rewrite-target</td> <td>Target URI where the traffic must be redirected</td> <td>string</td> </tr> <tr> <td>nginx.ingress.kubernetes.io/ssl-redirect</td> <td>Indicates if the location section is accessible SSL only (defaults to True when Ingress contains a Certificate)</td> <td>bool</td> </tr> <tr> <td>nginx.ingress.kubernetes.io/force-ssl-redirect</td> <td>Forces the redirection to HTTPS even if the Ingress is not TLS Enabled</td> <td>bool</td> </tr> <tr> <td>nginx.ingress.kubernetes.io/app-root</td> <td>Defines the Application Root that the Controller must redirect if it’s in ‘/’ context</td> <td>string</td> </tr> <tr> <td>nginx.ingress.kubernetes.io/use-regex</td> <td>Indicates if the paths defined on an Ingress use regular expressions</td> <td>bool</td> </tr> </tbody> </table> <p>下面利用重写功能将访问<code>redirect.xiaofu.com</code>的请求都重定向到<code>mynginx.xiaofu.com</code>。yaml文件<code>mynginx-rewrite.yaml</code>如下</p> <pre><code>apiVersion: extensions/v1beta1 kind: Ingress metadata:   name: mynginx-rewrite   annotations:     nginx.ingress.kubernetes.io/rewrite-target: http://mynginx.xiaofu.com:31958 spec:   rules:     - host: redirect.xiaofu.com       http:         paths:           - path: /             backend:               serviceName: mynginx-service               servicePort: 8080</code></pre> <blockquote> <p>跳转的目的地址要写完整</p> </blockquote> <p>成功创建</p> <pre><code>[root@k8s-master k8s-ingress]# kubectl apply -f mynginx-rewrite.yaml ingress.extensions/mynginx-rewrite configured</code></pre> <p>同时在hosts文件中将<code>redirect.xiaofu.com</code>映射到任意node的ip，此时访问<code>redirect.xiaofu.com:31958/</code>会自动跳转到<code>mynginx.xiaofu.com:31958</code></p> <h2><a id="_354" rel="nofollow"></a>总结</h2> <p>这一节我们学习了通过Ingress将k8s集群内部服务暴露给集群外的方法，到这里Service的部分就全部结束了，下一节我们开始学习k8s中的存储，其中就会学习到这一节中已经用到了的secret。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-3.htm">python 线性规划_线性规划-pulp-复杂矩阵</a></p>
-                                        <p>下一个：<a href="/html/category/article-5.htm">iOS全埋点解决方案-控件点击事件</a></p>
+                                        <p>上一个：<a href="/html/category/article-3.htm">Python中print和字符格式化的小结（Python2.7.5）</a></p>
+                                        <p>下一个：<a href="/html/category/article-5.htm">KMP算法中的next数组详解</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
-                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
+                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
-                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
+                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
+                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
-                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
-                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></h4>
-                <p>1，准备组件popup // components文件夹中popup组件&lt;template&gt;&lt;view&gt;&lt;viewclass="show-box-bg wx-login-</p>
+                <h4><a href="/html/category/article-236.htm">PHP回调/可调用对象详解</a></h4>
+                <p>定义和用法 回调是PHP中的伪类型。在PHP 5.4中，引入了Callable类型提示，类似于Callback。当某个对象被标识为可调用时，意味着它可以用作可调用的函数。可调用对象可以是内置的或用户定</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
+                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
-                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
+                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
-                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>

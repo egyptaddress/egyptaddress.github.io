@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-11.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>vue如何根据条件判断按钮是否可以点击_vue.js - EgyptAddress</title>
+    <title>自定义指令拖拽el-dialog - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">vue如何根据条件判断按钮是否可以点击_vue.js</h1>
+                <h1 class="title" style="word-break: break-all;">自定义指令拖拽el-dialog</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">根据条件判断按钮是否可以点击</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_0_0" rel="nofollow">方法一：使用v-if 、v-else 来判断</a></li> <li><a href="#_lab2_0_1" rel="nofollow">方法二：增加一个变量,判断</a></li> </ul> <li><a href="#_label1" rel="nofollow">vue判断点击当前元素</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_2" rel="nofollow">需要判断你是点击了遮罩层还是form表单</a></li> <li><a href="#_lab2_1_3" rel="nofollow">接下来是分别对e.currentTarget、e.target打印</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>根据条件判断按钮是否可以点击</h2> <p>按钮当在特定环境下不可点击，需要根据判断来控制点击事件。</p> <p class="maodian"><a name="_lab2_0_0" rel="nofollow"></a></p> <h3>方法一：使用v-if 、v-else 来判断</h3> <div class="ay1code"> <pre class="brush:xhtml;">&lt;template&gt;      &lt;div&gt;          &lt;el-button v-if="!isDisabled"&gt;&lt;/el-button&gt;          &lt;el-button v-else @click="getDetail()"&gt;&lt;/el-button&gt;      &lt;/div&gt;  &lt;/template&gt;</pre> </div> <p class="maodian"><a name="_lab2_0_1" rel="nofollow"></a></p> <h3>方法二：增加一个变量,判断</h3> <div class="ay1code"> <pre class="brush:xhtml;">&lt;template&gt;  &lt;el-button @click="!isDisabled &amp;&amp; getDetail()"&gt;&lt;/el-button&gt;  &lt;/template&gt;</pre> </div> <div class="ay1code"> <pre class="brush:js;">&lt;script&gt;  data(){      return{          isDisabled:true,  //为true时可以点击，false时不可点击      }  }  &lt;/script&gt;</pre> </div> <p>两种方法都可以，但第二种相对来说编写的代码更少，具体怎么用看个人习惯。  </p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>vue判断点击当前元素</h2> <p><strong>点击按钮，出现弹窗；然后点击遮罩层，当前弹窗消失。</strong></p> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220420/daf4430faf326471612b9e98018cdaca.jpg"></p> <p>一开始都会在遮罩层上绑定点击事件，但是这样的话，点击了form表单，当前弹窗也会消失。</p> <p class="maodian"><a name="_lab2_1_2" rel="nofollow"></a></p> <h3>需要判断你是点击了遮罩层还是form表单</h3> <p>1.在遮罩层上绑定点击事件 @click=“showfun2($event)”</p> <div class="ay1code"> <pre class="brush:xhtml;">&lt;div class="topfrom" v-show="msg" @click="showfun2($event)"&gt;      &lt;!--子组件--&gt;      &lt;fromdemo btndata="点击咨询"&gt;&lt;/fromdemo&gt;    &lt;/div&gt;</pre> </div> <p>2.判断是否点击了当前元素 e.currentTarget === e.target</p> <div class="ay1code"> <pre class="brush:js;">showfun2(e) {      if (e.currentTarget === e.target) {          this.msg = false      }  },</pre> </div> <p>以上就完成当前事件点击元素的判断。</p> <p class="maodian"><a name="_lab2_1_3" rel="nofollow"></a></p> <h3>接下来是分别对e.currentTarget、e.target打印</h3> <div class="ay1code"> <pre class="brush:js;">showfun2(e) {      console.log(e.currentTarget)      console.log(e.target)  },</pre> </div> <p><strong>第一次点击 遮罩层 </strong></p> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220420/c6248c78246179b90fbda8582922dd41.jpg"></p> <p><strong>第二次点击 form表单</strong></p> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220420/479a87b1709193d23e46a0847fb91800.jpg"></p> <p>发现 e.currentTarget 打印的始终是，绑定点击事件的元素。</p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>vue项目中使用el-dialog弹框时会提一些大大小小的要求，比如需要再窗口中拖拽弹窗。现在使用自定义指令的形式来实现拖拽功能。</p> <h2>一、自定义指令拖拽代码</h2> <pre><code class="language-javascript">export default {   bind(el, binding, vnode) {     const dialogHeaderEl = el.querySelector('.el-dialog__header')     const dragDom = el.querySelector('.el-dialog')     dialogHeaderEl.style.cssText += ';cursor:move;'     dialogHeaderEl.style.cssText += ';user-select:none;'     dragDom.style.cssText += ';top:0px;'     const getStyle = (function() {       if (window.document.currentStyle) {         return (dom, attr) =&gt; dom.currentStyle[attr]       } else {         return (dom, attr) =&gt; getComputedStyle(dom, false)[attr]       }     })()      dialogHeaderEl.onmousedown = e =&gt; {       // 鼠标按下，计算当前元素距离可视区的距离       const disX = e.clientX - dialogHeaderEl.offsetLeft       const disY = e.clientY - dialogHeaderEl.offsetTop        const dragDomWidth = dragDom.offsetWidth       const dragDomheight = dragDom.offsetHeight        const screenWidth = document.body.clientWidth       const screenHeight = document.body.clientHeight        const minDragDomLeft = dragDom.offsetLeft       const maxDragDomLeft = screenWidth - dragDom.offsetLeft - dragDomWidth        const minDragDomTop = dragDom.offsetTop       const maxDragDomTop = screenHeight - dragDom.offsetTop - dragDomheight        // 获取到的值带px 正则匹配替换       let styL = getStyle(dragDom, 'left')       let styT = getStyle(dragDom, 'top')        if (styL.includes('%')) {         styL = Number(document.body.clientWidth) * (Number(styL.replace(/%/g, '')) / 100)         styT = Number(document.body.clientHeight) * (Number(styT.replace(/%/g, '')) / 100)       } else {         styL = Number(styL.replace(/px/g, ''))         styT = Number(styT.replace(/px/g, ''))       }        document.onmousemove = function(e) {         // 通过事件委托，计算移动的距离         let left = e.clientX - disX         let top = e.clientY - disY          // 边界处理         if (-(left) &gt; minDragDomLeft) {           left = -minDragDomLeft         } else if (left &gt; maxDragDomLeft) {           left = maxDragDomLeft         }          if (-(top) &gt; minDragDomTop) {           top = -minDragDomTop         } else if (top &gt; maxDragDomTop) {           top = maxDragDomTop         }          // 移动当前元素         dragDom.style.cssText += `;left:${left + styL}px;top:${top + styT}px;`          // emit onDrag event         vnode.child.$emit('dragDialog')       }        document.onmouseup = function() {         document.onmousemove = null         document.onmouseup = null       }     }   } } </code></pre> <h2>二、在main.js中引用创建写好的指令</h2> <p>在自己的vue项目中的main.js文件中将已经写好的指令逻辑引入，然后使用Vue.directive来创建指令，其中指令名称可以自己定义修改。</p> <pre><code class="language-javascript">import dragDialog from '@/directive/dragDialog/drag' Vue.directive('dragDialog', dragDialog)</code></pre> <p>最后在你的el-dialog组件中将已经创建好的指令写入，如：</p> <pre><code class="language-javascript">&lt;el-dialog title="标题" width="80%" v-drag-dialog :close-on-click-modal="false" :visible.sync="false"&gt;  &lt;/el-dialog&gt;</code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-10.htm">Spring Boot + Mybatis-Plus + jasypt 数据库连接加密</a></p>
-                                        <p>下一个：<a href="/html/category/article-12.htm">脚本如何加入html文件中,html中加载JavaScript脚本文件的常用方式总结</a></p>
+                                        <p>上一个：<a href="/html/category/article-10.htm">Eureka详解系列(四)&#8211;Eureka Client部分的源码和配置</a></p>
+                                        <p>下一个：<a href="/html/category/article-12.htm">FP-growth算法以及代码实现</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
+                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
-                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
+                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
-                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
-                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
+                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
-                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></h4>
-                <p>1，准备组件popup // components文件夹中popup组件&lt;template&gt;&lt;view&gt;&lt;viewclass="show-box-bg wx-login-</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-134.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Vue watch中监听值的变化,判断后修改值方式_vue.js_ - EgyptAddress</title>
+    <title>spring 循环依赖,Bean使用@Async注解 导致项目启动失败 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Vue watch中监听值的变化,判断后修改值方式_vue.js_</h1>
+                <h1 class="title" style="word-break: break-all;">spring 循环依赖,Bean使用@Async注解 导致项目启动失败</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">watch监听值的变化,判断后修改值</a></li> <li><a href="#_label1" rel="nofollow">watch监听data函数中数据改变的三种方式</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_0" rel="nofollow">1.常用型（浅层监听）</a></li> <li><a href="#_lab2_1_1" rel="nofollow">2.深层监听（利用deep属性）</a></li> <li><a href="#_lab2_1_2" rel="nofollow">3.深层监听某一个特定属性（用字符串表示对象属性的调用）</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>watch监听值的变化,判断后修改值</h2> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220413/b5e24fde9e9674356f4d24272ebd3c70.jpg"></p> <p>计数器有最小值与最大值的限制，且中间的文本输入框可自己输入值。</p> <p>实现方式是在watch中监听文本输入框绑定的v-model，跟最大最小值比较后，如果有需要，则改变值。</p> <div class="ay1code"> <pre class="brush:xhtml;">&lt;mu-text-field v-model.number="weightNum" solo full-width &gt;&lt;/mu-text-field&gt;  </pre> </div> <div class="ay1code"> <pre class="brush:js;">watch: {              //监听用户输入的重量值              //如果超过最大重量，弹出提示，并且将输入框重量置于最大值              //如果低于最小重量，弹出提示，并且将输入框重量置于最小值              weightNum(val){                  if(val&lt;this.weightLimit.minWeight){                      this.$toast.showWarn({message: 'You can only enter between ' +this.weightLimit.minWeight+ ' and ' +this.weightLimit.maxWeight});                      this.$data.weightNum = this.weightLimit.minWeight;                  }                  else if(val&gt;this.weightLimit.maxWeight){                      this.$toast.showWarn({message: 'You can only enter between ' +this.weightLimit.minWeight+ ' and ' +this.weightLimit.maxWeight});                      this.$data.weightNum = this.weightLimit.maxWeight;                  }              }                  },  </pre> </div> <p><strong>核心：</strong></p> <div class="ay1code"> <pre class="brush:js;">this.$data.weightNum = this.weightLimit.minWeight;  </pre> </div> <p>这里如果直接</p> <div class="ay1code"> <pre class="brush:js;">this.weightNum = this.weightLimit.minWeight;</pre> </div> <p>是没有用的。</p> <p>Vue_watch()方法，检测数据的改变。</p> <div class="ay1code"> <pre class="brush:js;"> &lt;script type="text/javascript"&gt;              var vm = new Vue({                  el: app01,                  data:{                      a:'test',                  }              })              // 检测数据'a'的改变，放数据改变时执行              vm.$watch('a', function(newval, oldval){                  console.log(newval, oldval);              })              vm.$data.a = 'wdc'          &lt;/script&gt;  </pre> </div> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>watch监听data函数中数据改变的三种方式</h2> <p>在Vue中有一个watch方法可用于监听数据的改变，避免重复添加监听函数，watch中有三种监听数据的方式：</p> <p class="maodian"><a name="_lab2_1_0" rel="nofollow"></a></p> <h3>1.常用型（浅层监听）</h3> <p style="text-align:center"><img fetchpriority="high" decoding="async" alt="" height="396" src="http://img.555519.xyz/uploads3/20220413/5f1def6f1073084b59612b809b92953f.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" height="137" src="http://img.555519.xyz/uploads3/20220413/dd5c434514282cbbd78cc241e0193c72.jpg"></p> <p> 如此即可监听loading值的变化，并进行相应操作。</p> <p class="maodian"><a name="_lab2_1_1" rel="nofollow"></a></p> <h3>2.深层监听（利用deep属性）</h3> <p style="text-align:center"><img decoding="async" alt="" height="396" src="http://img.555519.xyz/uploads3/20220413/dd25e122410a0857f4be7da7a7762f0a.jpg"></p> <p style="text-align:center"><img loading="lazy" decoding="async" alt="" height="199" src="http://img.555519.xyz/uploads3/20220413/2afffe1949959c1ee119005433eb65c1.jpg"></p> <p> 这样利用deep属性，将deep设为true，则可进行深层监听，只要modalForm中任意一个属性的值发生改变，则都会调用handler函数，当然该函数名可随意。</p> <p class="maodian"><a name="_lab2_1_2" rel="nofollow"></a></p> <h3>3.深层监听某一个特定属性（用字符串表示对象属性的调用）</h3> <p style="text-align:center"><img decoding="async" alt="" height="396" src="http://img.555519.xyz/uploads3/20220413/dd25e122410a0857f4be7da7a7762f0a.jpg"></p> <p style="text-align:center"><img loading="lazy" decoding="async" alt="" height="143" src="http://img.555519.xyz/uploads3/20220413/a393bf1b8c29970f9ff1c61bf5b49c30.jpg"></p> <p>此时只会监听modalForm里面的model属性，当他的值发生改变时才会执行回调函数。</p> <p>4、利用computed计算属性</p> <p style="text-align:center"><img decoding="async" alt="" height="396" src="http://img.555519.xyz/uploads3/20220413/dd25e122410a0857f4be7da7a7762f0a.jpg"></p> <p style="text-align:center"><img loading="lazy" decoding="async" alt="" height="257" src="http://img.555519.xyz/uploads3/20220413/fd2a4bd3d2fceeccc05bdb7f6d28321f.jpg"></p> <p> 此时在添加了计算属性后，可以像浅层监听一样的方式监听深层的model属性值的改变。</p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>&nbsp; 一天下午，重新部署测试环境的时候，发现服务启动失败，报如下错误：</p> <pre class="has"><code class="language-java">ERROR o.s.web.context.ContextLoader - Context initialization failed   org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'matchAutoJiaoJuan': Injection of autowired dependencies failed; nested exception is org.springframework.beans.factory.BeanCreationException: Could not autowire field: private com.online.tk.test.service.MatchService com.online.tk.test.task.matchAutoJiaoJuan.matchService; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'matchService': Injection of autowired dependencies failed; nested exception is org.springframework.beans.factory.BeanCreationException: Could not autowire field: private com.online.tk.test.service.testAnswerCardService com.online.tk.test.service.MatchService.testAnswerCardService; nested exception is org.springframework.beans.factory.BeanCurrentlyInCreationException: Error creating bean with name 'testAnswerCardService': Bean with name 'testAnswerCardService' has been injected into other beans [practiceCardDubboService] in its raw version as part of a circular reference, but has eventually been wrapped. This means that said other beans do not use the final version of the bean. This is often the result of over-eager type matching - consider using 'getBeanNamesOfType' with the 'allowEagerInit' flag turned off, for example</code></pre> <p>大致的意思是&nbsp; :启动失败，创建bean失败，名为“testanswercardService”的bean已作为循环引用的一部分，以其原始版本注入到其他bean[practicecardDuboService]中，但最终被包装。这意味着其他bean不使用bean的最终版本。这通常是过度渴望类型匹配的结果-例如，考虑在禁用“allowagerinit”标志的情况下使用“getBeannameSoftype”（Injection 注射&nbsp; Autowired自动装配;注解; nested 嵌套的）</p> <p>简单来说，项目中存在了循环引用。matchService 中注入了testAnswerCardService ，同时在testAnswerCardService 中也引用了</p> <p>matchService ,导致循环引用。因为是老项目中，确实存在着循环引用的问题，关于循环引用如何解决，稍后总结。</p> <p>循环引用这个问题不是最近开发的功能，是一直存在的，为什么今天突然有问题了？</p> <p>一，首先怀疑测试环境代码的有问题,对比了下没有发现什么区别。然后部署了别的分支（match和dev）分支的代码，发现报同样的问题，初步判定不是代码的问题（后来结果证明这个判断是错的，忽略了小小的一个字段）</p> <p>二，然后猜测是不是spring什么相关版本自动升级了，看了看pom文件的结构，都是定义的特别的某个的版本，目前老项目使用的是4.2.5，检查了一遍，也没发现其他异常，排除版本突然升级的问题</p> <p>三，是不是测试环境在搞什么测试动作，重新启动了下其他的两个项目，发现是没问题的，??尴尬了。</p> <p>四，是不是还是代码的问题呢</p> <p>&nbsp;&nbsp;&nbsp;&nbsp; 节前刚上线，那个时候代码还是没有问题的。重新拉了一个分支，然后将代码会滚到节前,竟然发现代码是否运行的。所以应该还是代码的问题??，接着试着将代码还原到昨天，发现代码仍然没有问题。逐步缩小范围，然后git compare,发现了如下代码:</p> <p><img fetchpriority="high" decoding="async" alt="" class="has" height="231" src="http://img.555519.xyz/uploads3/20220707/22456bfa5fdbd766d4d774e17e34775f.jpg"></p> <p>哈哈，在testAnswerCardService 类里面，有一个异步方法。</p> <p>四，虽然找到了原因，但是不理解原理，找了找相关资料</p> <p>&nbsp;原因解释如下：在程序启动的时候，Spring 已经对testAnswerCardService 里面的matchService记载完成，当准备创建matchService的时候发现使用了@Async注解，即Spring又需要江Bean代理一次，然后Spring发现该Bean已经被其他对象注入，所以会造成这个问题。</p> <p>关于@Async生成代理这块，其实还是有些模糊，参考一下文章：</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/lianhuazy167/article/details/66967673"  rel="nofollow">https://blog.csdn.net/lianhuazy167/article/details/66967673</a></p> <p>小结</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 回想这个排查思路，其实挺简单的，但是不够仔细，导致绕了远路。又对spring这一块了解了下，并且对于项目中的整个pom文件结构做了了解,也算学习和提升下，不断进步吧。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-133.htm">Spring @Order注解详解</a></p>
-                                        <p>下一个：<a href="/html/category/article-135.htm">Minikube使用文档</a></p>
+                                        <p>上一个：<a href="/html/category/article-133.htm">PHP重载</a></p>
+                                        <p>下一个：<a href="/html/category/article-135.htm">[js] 回调函数 回调地狱 Promise async/await</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
-                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
-                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
-                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
-                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
+                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
-                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>

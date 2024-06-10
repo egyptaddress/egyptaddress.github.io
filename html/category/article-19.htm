@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-19.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>使用基于Roslyn的编译时AOP框架来解决.NET项目的代码复用问题 - EgyptAddress</title>
+    <title>C#中的委托和事件_C#教程 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">使用基于Roslyn的编译时AOP框架来解决.NET项目的代码复用问题</h1>
+                <h1 class="title" style="word-break: break-all;">C#中的委托和事件_C#教程</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h1 id="理想的代码优化方式">理想的代码优化方式</h1> <p>团队日常协作中，自然而然的会出现很多重复代码，根据这些代码的种类，之前可能会以以下方式处理</p> <table> <thead> <tr> <th style="text-align: left">方式</th> <th style="text-align: left">描述</th> <th style="text-align: left">应用时可能产生的问题</th> </tr> </thead> <tbody> <tr> <td style="text-align: left">硬编码</td> <td style="text-align: left">多数新手，或逐渐腐坏的项目会这么干，会直接复制之前实现的代码</td> <td style="text-align: left">带来的问题显而易见的多，例如架构会逐渐随时间被侵蚀，例外越来越多</td> </tr> <tr> <td style="text-align: left">提取函数</td> <td style="text-align: left">提取成为函数，然后复用</td> <td style="text-align: left">提取函数，然后复用，会比直接硬编码好些，但是仍然存在大量因“例外”而导致增加参数、增加函数重载的情况</td> </tr> <tr> <td style="text-align: left">模板生成器</td> <td style="text-align: left">CodeSmith/T4等</td> <td style="text-align: left">因为是独立进程，所以对于读取用户代码或项目，实现难度较高，且需要现有用户项目先生成成功，再进行生成 ，或者是完全基于新项目</td> </tr> <tr> <td style="text-align: left">代码片段</td> <td style="text-align: left">VS自带的代码片段功能</td> <td style="text-align: left">无法对复杂的环境或条件做出响应</td> </tr> <tr> <td style="text-align: left">AOP框架</td> <td style="text-align: left">面向切面编程，可以解决很多于用户代码前后增加操作的事情</td> <td style="text-align: left">但是大多AOP框架都是基于透明代理形式实现的，对于相互调用较多的代码，但形成性能压力，而且因为要符合透明代理的规则，所以要提供相应的子类或接口。</td> </tr> </tbody> </table> <h1 id="基于rosyln的编译时插入代码">基于Rosyln的编译时插入代码</h1> <p>但以上这几种，AOP算是最理想的方式，但是感觉上还可以有更好的解决方案。</p> <p>直到读到了这篇文章<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/"  target="_blank" rel="nofollow">Introducing C# Source Generators</a>，文中提供了一种新的解决方案，即通过<code>Roslyn</code>的<code>Source Generator</code>在编译时直接读取当前项目中的语法树，处理并生成的新代码，然后在编译时也使用这些新代码。</p> <p>那么如果可以读取现有代码的语法树，通过读取代码中的标记，那么在代码生成过程中是否就能直接生成。<br /> 实现如下效果：<br /><strong>项目中的源代码<code>Program.cs</code></strong></p> <pre><code class="language-C#">internal class Program {     [Log]     private static int Add( int a, int b )     {         return a + b;     } }</code></pre> <p><strong>自动根据<code>LogAttribute</code> 自动编译成的代码<code>Program.g.cs</code></strong></p> <pre><code class="language-C#">internal class Program {     [Log]     private static int Add( int a, int b )     {         Console.WriteLine("Program.Add(int, int) 开始运行.");         int result;         result = a + b;         Console.WriteLine("Program.Add(int, int) 结束运行.");         return result;     } }</code></pre> <p>当然<code>LogAttribute</code>中需要去实现插入代码。<br /> 然后项目自动使用新生成的<code>Program.g.cs</code>进行编译。这样就实现了基于编译时的AOP。</p> <p>即实现以下流程<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b60d3f4115a4368be8e27fe0c26fc6cd.jpg" alt="使用基于Roslyn的编译时AOP框架来解决.NET项目的代码复用问题"></p> <h1 id="使用metalama实现以上流程">使用Metalama实现以上流程</h1> <p>经过寻找，发现其实已经有框架可以实现我上面说的流程了，也就是在编译时实现代码的插入。<br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.postsharp.net/metalama"  target="_blank" rel="nofollow">https://www.postsharp.net/metalama</a> 。</p> <p>下面作一个简单示例</p> <ol> <li>创建一个.NET6.0的控制台应用，我这里命名为<code>LogDemo</code>,<br /> 其中的入口文件<code>Program.cs</code></li> </ol> <pre><code class="language-C#">namespace LogDemo {     public class Program     {         public static void Main(string[] args)         {             var r = Add(1, 2);             Console.WriteLine(r);         }         // 这里写一个简单的方法，一会对这个方法进行代码的插入         private static int Add(int a, int b)         {             var result = a + b;             Console.WriteLine("Add" + result);             return result;         }     } }</code></pre> <ol start="2"> <li>在项目中使用<strong>Metalama</strong></li> </ol> <p>通过引用包<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.nuget.org/packages/Metalama.Framework"  target="_blank" rel="nofollow">https://www.nuget.org/packages/Metalama.Framework</a>, 注意Metalama当前是Preview版本，如果通过可视化Nuget管理器引入，需要注意勾选<strong>包含预发行版</strong></p> <pre><code class="language-ps">dotnet add package Metalama.Framework --version 0.5.7-preview</code></pre> <ol start="3"> <li>编写一个AOP的Attribute</li> </ol> <p>在项目中引入<code>Metalama.Framework</code>后无需多余配置或代码，直接编写一个AOP的<code>Attribute</code></p> <pre><code class="language-C#">using Metalama.Framework.Aspects;  namespace LogDemo {     public class Program     {         public static void Main(string[] args)         {             var r = Add(1, 2);             Console.WriteLine(r);         }         // 在这个方法中使用了下面的Attribute         [LogAttribute]         private static int Add(int a, int b)         {             var result = a + b;             Console.WriteLine("Add" + result);             return result;         }     }     // 这里是增加的 Attribute     public class LogAttribute : OverrideMethodAspect     {         public override dynamic? OverrideMethod()         {             Console.WriteLine(meta.Target.Method.ToDisplayString() + " 开始运行.");             var result = meta.Proceed();             Console.WriteLine(meta.Target.Method.ToDisplayString() + " 结束运行.");             return result;          }     } }</code></pre> <ol start="4"> <li>执行结果如下</li> </ol> <pre><code>Program.Add(int, int) 开始运行. Add3 Program.Add(int, int) 结束运行. 3</code></pre> <ol start="5"> <li>生成的程序集进行反编译，得到的代码如下：</li> </ol> <pre><code class="language-C#">using Metalama.Framework.Aspects; namespace LogDemo {     public class Program     {         public static void Main(string[] args)         {             var r = Add(1, 2);             Console.WriteLine(r);         }         // 在这个方法中使用了下面的Attribute         [LogAttribute]         private static int Add(int a, int b)         {             Console.WriteLine("Program.Add(int, int) 开始运行.");             int result_1;             var result = a + b;             Console.WriteLine("Add" + result);             result_1 = result;             Console.WriteLine("Program.Add(int, int) 结束运行.");             return result_1;         }     } #pragma warning disable CS0067     // 这里是增加的 Attribute     public class LogAttribute : OverrideMethodAspect     {         public override dynamic? OverrideMethod() =&gt;          throw new System.NotSupportedException("Compile-time-only code cannot be called at run-time.");     } #pragma warning restore CS0067 }</code></pre> <h1 id="总结">总结</h1> <p>这样就完全实现了我之前想要的效果，当然使用<code>Metalama</code>还可以实现很多能极大地提高生产力的功能，它不仅可以对方法进行改写，也可以对属性、字段、事件、甚至是类、命名空间进行一些操作 。</p> <h1 id="引用">引用</h1> <p>Introducing C# Source Generators：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/"  target="_blank" rel="nofollow">https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/</a><br /> Metalama官网：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.postsharp.net/metalama"  target="_blank" rel="nofollow">https://www.postsharp.net/metalama</a></p> 			                </div>
+                      				  				  				<h2>一、定义委托</h2> <div class="ay1code"> <pre class="brush:csharp;">delegate void StudentDelegate();//【1】定义一个委托</pre> </div> <h2>二、定义一个调用和定义事件的类</h2> <div class="ay1code"> <pre class="brush:csharp;">    /// &lt;summary&gt;      ///定义事件和调用 事件一定要放在一个类里面      /// &lt;/summary&gt;      class InvokeDefine //【2】定义一个调用和定义事件的类      {          public event StudentDelegate StudentEvent;          public void Invoke()          {              StudentEvent?.Invoke();//?.Null检查运算符          }      }</pre> </div> <h2>三、订阅者</h2> <div class="ay1code"> <pre class="brush:csharp;">    class EventFunction //【3】订阅者      {          public void Student1()          {              Console.WriteLine("我是订阅者1");          }          public void Student2()          {              Console.WriteLine("我是定订阅者2");          }      }</pre> </div> <h2>四、订阅事件</h2> <div class="ay1code"> <pre class="brush:csharp;">        static void Main(string[] args)          {              EventFunction eventFunction = new EventFunction();              InvokeDefine invokeDefine = new InvokeDefine();              invokeDefine.StudentEvent += eventFunction.Student1;//【4】订阅事件              invokeDefine.StudentEvent += eventFunction.Student2;              invokeDefine.Invoke();                            Console.ReadKey();          }</pre> </div> <h2>五、总结</h2> <p>第一点：在定义事件类的外部，他是不能使用=号来操作，只能用+=。<br />第二点：在定义事件类的外部不能调用 事件。<br />第三点：事件就是在委托的前面增加一个event关键字。</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-18.htm">c++堆内存默认大小_线上内存暴涨问题定位和解决</a></p>
-                                        <p>下一个：<a href="/html/category/article-20.htm">Shell基础管道符介绍</a></p>
+                                        <p>上一个：<a href="/html/category/article-18.htm">我们如何计算MySQL中两个时间值之间的差？</a></p>
+                                        <p>下一个：<a href="/html/category/article-20.htm">js  查找字符串中指定字符 模糊查询  不区分大小写</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Java 集合框架ArrayList 储存自定义数组</a></h4>
-                <p>package LinkedList;  import java.util.ArrayList; import java.util.Iterator;  import p.bean.Person;  </p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
-                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
-                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">指针的高级运用——指针进阶</a></h4>
-                <p>文章目录  学习目标 1.1 动态内存分配   引子 1.1动态分配内存函数 1.2malloc函数 1.3 calloc 函数 1.4 realloc函数 1.5 free函数 1.6 动态内存编程</p>
+                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
+                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></h4>
-                <p>???? 个人网站:【 海拥】【小霸王游戏机】 ???? 风趣幽默的前端学习课程：????28个案例趣学前端 ???? 想寻找共同学习交流、摸鱼划水的小伙伴，请点击【摸鱼学习交流群】 ???? 免费且</p>
+                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
+                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
+                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
-                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
+                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
             </div>
         </div>
     </div>

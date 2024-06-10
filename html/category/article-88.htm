@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-88.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>mysql ifnull判断null与空值 - EgyptAddress</title>
+    <title>Rust如何开发eBPF应用 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">mysql ifnull判断null与空值</h1>
+                <h1 class="title" style="word-break: break-all;">Rust如何开发eBPF应用</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>最近遇到一个需求上的问题，运用的数据库是Mysql，涉及到了ifnull函数。</p> <pre><code class="prism language-sql">ifnull（expr1，expr2）   如果expr1为<span class="token boolean">null</span>，则显示expr2<span class="token punctuation">,</span>否则显示expr1。 </code></pre> <p>举个例子：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20230118/4fd85cbd3ac48e35cae21a6da20b47fe.jpg" alt="mysql ifnull判断null与空值"></p> <pre><code class="prism language-sql"><span class="token keyword">SELECT</span> IFNULL<span class="token punctuation">(</span>rcar_id<span class="token punctuation">,</span>rcar_id1<span class="token punctuation">)</span> <span class="token keyword">from</span> wb_busi_gross_rcar  <span class="token keyword">where</span> serial_no <span class="token operator">=</span> <span class="token string">'20000019122617250028'</span> </code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads/20230118/98cfa5cf0b138a23830aa172d6f958bc.jpg" alt="mysql ifnull判断null与空值"></p> <p><strong>1.如果两个都为null,结果为null。</strong><br /><img decoding="async" src="http://img.555519.xyz/uploads/20230118/ffe3f1c062512ae47917bd954c1a7307.jpg" alt="mysql ifnull判断null与空值"><br /><img decoding="async" src="http://img.555519.xyz/uploads/20230118/a965ed6a85633a45961b89d83b0e22e1.jpg" alt="mysql ifnull判断null与空值"></p> <p><strong>2.如果为空（mysql区分null与空字符串），不受影响。</strong><br /><img decoding="async" src="http://img.555519.xyz/uploads/20230118/bc43bedb46ea1bbc8043e1b32e624d4a.jpg" alt="mysql ifnull判断null与空值"><br /><img decoding="async" src="http://img.555519.xyz/uploads/20230118/2c3c1f74d5056d80c52689db077e14fe.jpg" alt="mysql ifnull判断null与空值"><br /> 所以这里需要把空转换为null，才能进行判断，下面给出一个方法。</p> <pre><code class="prism language-sql"><span class="token keyword">SELECT</span> ifnull<span class="token punctuation">(</span><span class="token keyword">case</span> <span class="token keyword">when</span> rcar_id <span class="token operator">=</span> <span class="token string">''</span> <span class="token keyword">then</span> <span class="token boolean">null</span> <span class="token keyword">else</span> rcar_id <span class="token keyword">end</span><span class="token punctuation">,</span><span class="token keyword">case</span> <span class="token keyword">when</span> rcar_id1 <span class="token operator">=</span> <span class="token string">''</span> <span class="token keyword">then</span> <span class="token boolean">null</span> <span class="token keyword">else</span> rcar_id1 <span class="token keyword">end</span><span class="token punctuation">)</span> rcar_id <span class="token keyword">from</span> wb_busi_gross_rcar  <span class="token keyword">where</span> serial_no <span class="token operator">=</span> <span class="token string">'20000019122617250028'</span>  </code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads/20230118/a4377ec3cadeeacab33177ffa2fb4024.jpg" alt="mysql ifnull判断null与空值"><br /> 记录下来，方便学习，如有错误之处，欢迎指正！</p> </p></div> 			                </div>
+                      				  				  				<p><span style="font-size: 24px">前言</span></p> <p><strong>eBPF是一项革命性的技术，可以在Linux内核中运行沙盒程序，而无需重新编译内核或加载内核模块。它能够在许多内核 hook 点安全地执行字节码，主要应用在云原生网络、安全、跟踪监控等方面。</strong></p> <p><strong>eBPF 基金会 (<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://ebpf.io"  target="_blank" rel="nofollow">https://ebpf.io</a>) 是一个为 eBPF 技术而创建的非盈利性组织，隶属于 Linux 基金会，其意在推动 eBPF 更好地发展，使其得到更加广泛的运用。</strong></p> <p>下面我将介绍如何在Rust中开发基于eBPF技术的应用示例。（该示例教程主要面向具备Rust开发基础的同学）</p> <p>(一)环境准备</p> <p>一台VM或Linux系统主机</p> <p>推荐系统：Ubuntu20.04</p> <p>内存：4G以上</p> <p>Rust开发工具链：v1.56~</p> <p>(二)安装llvm13（编译bpf字节码需要）</p> <pre class="language-bash"><code>apt-get update  apt-get -y install wget build-essential software-properties-common lsb-release libelf-dev linux-headers-generic pkg-config wget https://apt.llvm.org/llvm.sh chmod +x llvm.sh ./llvm.sh 13 rm -f ./llvm.sh</code></pre> <pre class="language-bash"><code>//检验是否安装成功，输出版本号表示安装成功 llvm-config-13 --version | grep 13</code></pre> <p>(三)安装 cargo-bpf脚手架</p> <pre class="language-bash"><code>cargo install cargo-bpf --no-default-features --features=llvm13</code></pre> <p>(四)应用示例</p> <pre class="language-bash"><code>#1、创建用户空间代码目录 cargo new bpfdemo cd bpfdemo #2、创建bpf代码目录 cargo bpf new probes ls &gt;&gt;Cargo.lock  Cargo.toml  probes  src #3、编写一个openmonitor bpf程序 输出系统打开的文件 cd probes cargo bpf add openmonitor cd src  ls &gt;&gt;lib.rs  openmonitor cd openmonitor nano main.rs</code></pre> <p>完整openmonitor/main.rs代码如下：</p> <pre class="language-bash"><code>#![no_std] #![no_main]  use probes::openmonitor::*; use redbpf_probes::kprobe::prelude::*;  program!(0xFFFFFFFE, "GPL");  #[map] static mut OPEN_PATHS: PerfMap&lt;OpenPath&gt; = PerfMap::with_max_entries(1024);  #[kprobe] fn do_sys_open(regs: Registers) {     let mut path = OpenPath::default();     unsafe {         let filename = regs.parm2() as *const u8;         if bpf_probe_read_user_str(             path.filename.as_mut_ptr() as *mut _,             path.filename.len() as u32,             filename as *const _,         ) &lt;= 0         {             bpf_trace_printk(b"error on bpf_probe_read_user_str\0");             return;         }         OPEN_PATHS.insert(regs.ctx, &amp;path);     } }</code></pre> <p>完整openmonitor/mod.rs代码如下</p> <pre class="language-bash"><code>pub const PATHLEN: usize = 256;  #[repr(C)] #[derive(Debug, Clone)] pub struct OpenPath {     pub filename: [u8; PATHLEN], }  impl Default for OpenPath {     fn default() -&gt; OpenPath {         OpenPath {             filename: [0; PATHLEN],         }     } }</code></pre> <pre class="language-bash"><code>#4.在probes目录下编译bpf程序,生成openmonitor.elf文件 cargo bpf build --target-dir=../target ls ../target/bpf/programs/openmonitor/openmonitor.elf  #5.在用户空间代码中使用bpf程序，获取系统打开文件 cd ../src nano main.rs</code></pre> <p>完整bpfdemo/src/main.rs代码如下</p> <pre class="language-bash"><code>use futures::stream::StreamExt; use std::{ffi::CStr, ptr}; use tracing::Level; use tracing_subscriber::FmtSubscriber;  use redbpf::load::Loader;  use probes::openmonitor::OpenPath;  fn probe_code() -&gt; &amp;'static [u8] {     include_bytes!(concat!(         env!("CARGO_MANIFEST_DIR"),         "/target/bpf/programs/openmonitor/openmonitor.elf"     )) }  #[tokio::main(flavor = "current_thread")] async fn main() {     let subscriber = FmtSubscriber::builder()         .with_max_level(Level::WARN)         .finish();     tracing::subscriber::set_global_default(subscriber).unwrap();      let mut loaded = Loader::load(probe_code()).expect("error on Loader::load");      let probe = loaded         .kprobe_mut("do_sys_open")         .expect("error on Loaded::kprobe_mut");     probe         .attach_kprobe("do_sys_open", 0)         .expect("error on KProbe::attach_kprobe");     probe         .attach_kprobe("do_sys_openat2", 0)         .expect("error on KProbe::attach_kprobe");      while let Some((map_name, events)) = loaded.events.next().await {         if map_name == "OPEN_PATHS" {             for event in events {                 let open_path = unsafe { ptr::read(event.as_ptr() as *const OpenPath) };                 unsafe {                     let cfilename = CStr::from_ptr(open_path.filename.as_ptr() as *const _);                     println!("{}", cfilename.to_string_lossy());                 };             }         }     } }</code></pre> <pre class="language-bash"><code>#6.在bpfdemo目录下编译运行 cargo build cargo run  #将会输出系统实时打开的文件 &gt;&gt; /proc/driver/nvidia/params /dev/nvidia0 /proc/driver/nvidia/params /dev/nvidia0 /proc/driver/nvidia/params /dev/nvidia0 /etc/localtime /lib/x86_64-linux-gnu/libcuda.so.1 /lib/x86_64-linux-gnu/libm.so.6 /etc/netconfig /sys/fs/cgroup/unified/system.slice/systemd-udevd.service/cgroup.procs /sys/fs/cgroup/unified/system.slice/systemd-udevd.service/cgroup.threads /proc/3084/cmdline /proc/3729/cmdline /proc/3994/cmdline /proc/8823/cmdline /proc/2231364/cmdline /proc/2431788/cmdline /proc/2560949/cmdline /sys/class/hwmon /sys/class/hwmon/hwmon6 /sys/class/hwmon/hwmon4 /sys/class/hwmon/hwmon2 /sys/class/hwmon/hwmon0 /sys/class/hwmon/hwmon7 /sys/class/hwmon/hwmon5</code></pre> <p>完毕！</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-87.htm">vue路由跳转router-link清除历史记录的三种方式(总结)_vue.js_</a></p>
-                                        <p>下一个：<a href="/html/category/article-89.htm">innoDB如何解决幻读详解</a></p>
+                                        <p>上一个：<a href="/html/category/article-87.htm">vue-element-admin 配置接口请求，跨域，版本4</a></p>
+                                        <p>下一个：<a href="/html/category/article-89.htm">19-Spring AOP源码分析-代理对象调用目标方法</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
-                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
+                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">聊聊系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响</a></h4>
-                <p>　　大家好，我是痞子衡，是正经搞技术的痞子。今天痞子衡给大家介绍的是系统看门狗WDOG1在i.MXRT1xxx系统启动中的应用及影响。 　　软件看门狗模块（WDOG）在 MCU 应用里可以说是非常基础</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></h4>
-                <p>博客目录 1、union(合并结果集) 2、limit(获取一张表中某部分数据) 3、表——创建表、删除表 4、关于MySQL中的数据类型  一、union(合并结果集)  将两个查询结果合并(可以是</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
+                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
-                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">SpringSecurity核心服务详解</a></h4>
-                <p>现在我们对 Spring Security 体系结构及其核心类有了一个高层次的概述，让我们更仔细地看一两个核心接口及其实现，特别是AuthenticationManager&nbsp;、UserDet</p>
+                <h4><a href="/html/category/article-261.htm">Centos7服务器上RabbitMQ单机安装_在线工具</a></h4>
+                <p>一、背景 最近项目中用到了RabbitMQ，但是发现自己本地没有安装，此文记录一下本地RabbitMQ的安装过程。注意不同的系统安装方式略有不同，此处我们记录的是Centos7的安装方式。 二、安装方</p>
             </div>
         </div>
     </div>

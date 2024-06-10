@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-78.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>php redis 二进制,关于php:PHP操作redis中bitMap - EgyptAddress</title>
+    <title>jackson   json对象、实体类相互转换 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">php redis 二进制,关于php:PHP操作redis中bitMap</h1>
+                <h1 class="title" style="word-break: break-all;">jackson   json对象、实体类相互转换</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <div style="font-size:16px;"> <p>1、BitMap是什么</p> <p>就是通过一个bit位来示意某个元素对应的值或者状态,其中的key就是对应元素自身。咱们晓得8个bit能够组成一个Byte，所以bitmap自身会极大的节俭贮存空间。</p> <p>2、Redis中的BitMap</p> <p>Redis从2.2.0版本开始新增了setbit,getbit,bitcount等几个bitmap相干命令。尽管是新命令，然而并没有新增新的数据类型，因为setbit等命令只不过是在set上的扩大。</p> <p>3、php怎么操作redis的bitMap</p> <p>$redis = new Redis();</p> <p>$redis-&gt;connect('127.0.0.1');</p> <p>$cacheKey = 'bitmap';</p> <p>//咱们将7,8,10对应的地位设置为1</p> <p>$redis-&gt;setBit($cacheKey, 7, 1);</p> <p>$redis-&gt;setBit($cacheKey, 8, 1);</p> <p>$redis-&gt;setBit($cacheKey, 10, 1);</p> <p>$value = $redis-&gt;get($cacheKey);</p> <p>/**</p> <p>* 解包(redis返回来的是二进制字符串，咱们须要把它解成对应的数字)</p> <p>* 对于unpack的用法，如果不理解，大家能够网上搜寻学习，改天能够独自写篇文章分享</p> <p>*/</p> <p>$bitmap = unpack('C*', $value);</p> <p>print_r($bitmap);</p> <p>}</p> <p>后果：</p> <p>【腾讯云】云产品限时秒杀，爆款1核2G云服务器，首年99元</p> <p>Array</p> <p>(</p> <p>[1] =&gt; 1</p> <p>[2] =&gt; 160</p> <p>)</p> <p>对于不太熟悉bitMap的可能会问，这是什么鬼，不是应该是00000001101 这样吗？在第7 8 10三个地位是1其它都是0，刚开始我也是这么认为的，然而起初发现跟我想的不一样，而后查了材料才发现，unpack 解包的时候，参数C是无符号字符。不懂的能够去看一下pack和unpack。所以unpack返回的后果是两个值，1和160是两个byte下面的值，1byte = 8 bit。所以1对对应的bit应为00000001,160对应的bit应为10100000，所以最终后果应是0000000110100000。</p> <p>因为返回的是两个byte，所以是16个bit。</p> </div></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。</p> <p>首先导入依赖</p> <pre><code>&lt;dependency&gt;     &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;     &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;     &lt;version&gt;2.9.5&lt;/version&gt; &lt;/dependency&gt; </code></pre> <p>常用方法有如下几个：readValue、writer、writeValueAsString</p> <pre><code> public &lt;T&gt; T readValue(File src, Class&lt;T&gt; valueType) throws IOException, JsonParseException, JsonMappingException {         return this._readMapAndClose(this._jsonFactory.createParser(src), this._typeFactory.constructType(valueType));     } </code></pre> <pre><code>    public ObjectWriter writer() {         return this._newWriter(this.getSerializationConfig());     }  </code></pre> <pre><code> public String writeValueAsString(Object value) throws JsonProcessingException {         SegmentedStringWriter sw = new SegmentedStringWriter(this._jsonFactory._getBufferRecycler());          try {             this._configAndWriteValue(this._jsonFactory.createGenerator(sw), value);         } catch (JsonProcessingException var4) {             throw var4;         } catch (IOException var5) {             throw JsonMappingException.fromUnexpectedIOE(var5);         }          return sw.getAndClear();     } </code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-77.htm">ASP.NET Core中的Ocelot网关介绍_实用技巧</a></p>
-                                        <p>下一个：<a href="/html/category/article-79.htm">mysqlbinlog 命令解析binlog文件</a></p>
+                                        <p>上一个：<a href="/html/category/article-77.htm">SpringBoot+Redis实现消息的发布与订阅的示例代码_java</a></p>
+                                        <p>下一个：<a href="/html/category/article-79.htm">MySQL 优化：explain 执行计划详解与示例分析</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></h4>
+                <p>这篇将介绍如何写一个简单的基于Vue+Element的文件上传控件。 控件将具有 1. 上传队列的列表，显示文件名称，大小等信息，可以显示上传进度实时刷新 2. 取消上传  &nbsp;使用Eleme</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></h4>
-                <p>1，准备组件popup // components文件夹中popup组件&lt;template&gt;&lt;view&gt;&lt;viewclass="show-box-bg wx-login-</p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
-                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
+                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
-                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
+                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-145.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>React中事件的写法总结 - EgyptAddress</title>
+    <title>Spark原理篇之Spark Streaming转化操作和输出操作 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">React中事件的写法总结</h1>
+                <h1 class="title" style="word-break: break-all;">Spark原理篇之Spark Streaming转化操作和输出操作</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>首先我们先查看<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//react.docschina.org/docs/handling-events.html"  rel="nofollow">官方规则或者官方文档的介绍</a>，React的事件处理和DOM元素很相似，但是语法上是有不同的：</p> <blockquote> <p>1、react事件采用驼峰命名法，而不是纯小写。<br /><strong>驼峰命名法</strong>(camelCase)：命名的全部全称， 首个单词全部小写后面每个单词的首字母大写。<br /> eg: getElementById onClick<br /> 2、使用JSX语法的时候需要传入一个函数作为事件处理函数， 而不是一个字符串</p> </blockquote> <p><strong>了解基本的以后 ， 下面我们利用九个例子来进行事件的巩固：</strong></p> <h2> <a id="1_11" rel="nofollow"></a><strong>1、普通匿名函数的直接绑定</strong><br /> </h2> <pre><code>按钮1 </code></pre> <p>给onClick后面直接绑定函数，点击以后，就会执行函数里面的内容。</p> <h2> <a id="2_19" rel="nofollow"></a>2、使用箭头函数代替匿名的绑定</h2> <pre><code class="prism language-html">&lt;button onClick={()=&gt;{        alert("点击触发匿名函数"); }}&gt;按钮2<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>  </code></pre> <h2> <a id="3event_27" rel="nofollow"></a>3、箭头函数中获取事件源(等同于原生的event对象)</h2> <pre><code class="prism language-html">&lt;button onClick={(e)=&gt;{       e.target.style.color="red"; }}&gt;点击以后按钮就会变成红色<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>  </code></pre> <p>e就是默认的事件参数 e中的target表示事件发生的目标元素 点击以后按钮就会变成红色</p> <h2> <a id="4_37" rel="nofollow"></a>4、将匿名函数分离封装</h2> <pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token attr-value"><span class="token punctuation">=</span>{<!-- --></span>         <span class="token attr-name">this.show</span> <span class="token attr-name">}</span><span class="token punctuation">&gt;</span></span>点击调用外面的函数<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span> </code></pre> <p>点击按钮以后 触发外面声明的show方法 show方法定义如下</p> <pre><code class="prism language-js">  <span class="token function">constructor</span><span class="token punctuation">(</span>props<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token keyword">super</span><span class="token punctuation">(</span>props<span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token operator">=</span><span class="token punctuation">{<!-- --></span>             num<span class="token punctuation">:</span><span class="token number">10</span>         <span class="token punctuation">}</span>     <span class="token punctuation">}</span>       <span class="token function">show</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>             <span class="token function">alert</span><span class="token punctuation">(</span><span class="token string">"按钮4被点击 但是里面this会脱离上下文关系"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>             <span class="token function">alert</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span>num<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//报错 this是undefined</span>     <span class="token punctuation">}</span>  </code></pre> <p>可以弹框提示 ， 但是会有this指向的问题 ， 接下来 我们看第五步的加强</p> <h2> <a id="5_this__64" rel="nofollow"></a>5、利用箭头函数 对this指向进行加强 改写的代码如下</h2> <pre><code class="prism language-html">&lt;button onClick={          this.show//参数问题就看第六点 }&gt;调用函数<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>  </code></pre> <p>点击以后num就能得到改变</p> <h2> <a id="6__75" rel="nofollow"></a>6、再来研究箭头函数中参数的问题 如果调用的时候带走参数</h2> <pre><code class="prism language-html">&lt;button onClick={//show6能带参数         ()=&gt;{               this.show6("我是参数")           } }&gt;调用带有参数的函数<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span> </code></pre> <p>方法定义的如下 show6为一个箭头函数， content就是形参 ，接受的值为我是参数</p> <pre><code class="prism language-js"> <span class="token function-variable function">show6</span><span class="token operator">=</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>         <span class="token function">alert</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token punctuation">}</span> </code></pre> <h2> <a id="7_93" rel="nofollow"></a>7、事件函数触发是带参数和事件源</h2> <pre><code class="prism language-html">  &lt;button onClick={//show7能带参数 还能带事件源          (e)=&gt;{                this.show7("7777",e);           }   }&gt;带走参数和事件源<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>  </code></pre> <p>show7中第二个参数e需要特别处理， 在(e)中声明 才能带出去， 不然e会是没有定义。</p> <p>方法的定义部分</p> <pre><code class="prism language-js">  <span class="token function-variable function">show7</span><span class="token operator">=</span><span class="token punctuation">(</span>content<span class="token punctuation">,</span>e<span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{<!-- --></span>         e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>innerHTML<span class="token operator">=</span> content<span class="token punctuation">;</span>   <span class="token punctuation">}</span> </code></pre> <p>content就是参数"7777" ，e就是事件源， 通过事件源可以找到目标元素， 然后更新里面的内容</p> <h2> <a id="8_bindbind_bindthis_116" rel="nofollow"></a>8、不使用箭头函数 使用bind加强(bind里面的第一个参数 表示bind前面函数声明里面this的指向)</h2> <pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token attr-value"><span class="token punctuation">=</span>{this.show8.bind(this)}</span><span class="token punctuation">&gt;</span></span>bind加强<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span> </code></pre> <p>方法定义的地方</p> <pre><code class="prism language-js"> <span class="token function">show8</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token function">alert</span><span class="token punctuation">(</span><span class="token string">"bind绑定"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token punctuation">}</span> </code></pre> <h2> <a id="9bind__130" rel="nofollow"></a>9、改写bind 贴近官方推荐写法</h2> <pre><code class="prism language-html">  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token attr-value"><span class="token punctuation">=</span>{this.show9}</span> <span class="token punctuation">&gt;</span></span>bind写法<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span> </code></pre> <p>在show9定义中</p> <pre><code class="prism language-js"> <span class="token function">constructor</span><span class="token punctuation">(</span>props<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token keyword">super</span><span class="token punctuation">(</span>props<span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token operator">=</span><span class="token punctuation">{<!-- --></span>             num<span class="token punctuation">:</span><span class="token number">10</span>         <span class="token punctuation">}</span>         <span class="token keyword">this</span><span class="token punctuation">.</span>show9 <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>show9<span class="token punctuation">.</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//bind的提升 调用的写法和8就不一样了</span>     <span class="token punctuation">}</span>     <span class="token function">show9</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         <span class="token function">alert</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span>num<span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token punctuation">}</span>  </code></pre> <p><strong>总结:</strong></p> <p>react中事件的使用和原生的事件使用极其相似，我们需要解决，函数函数的声明和参数的传递 使用，根据自己的实际情况，合理使用就可以了，不管是箭头函数和普通函数，实际都是殊途同归。</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-github-gist"> <h3><a id="1__0" rel="nofollow"></a>1 转化操作</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DStream的转化操作可以分为无状态和有状态两种。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;① 在无状态转化操作中，每个批次的处理不依赖于之前批次的数据。例如map()、filter()和reduceByKey()等都是无状态转化操作。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;② 有状态转化操作需要使用之前批次的数据或者是中间结果来计算当前批次的数据。有状态转化操作包括基于滑动窗口的转化操作和追踪状态变化的转化操作。</p> <h4><a id="11_4" rel="nofollow"></a>1.1无状态转化操作</h4> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;无状态转化操作就是把简单的RDD转化操作应用到每个批次上，也就是转化DStream中的每一个RDD。部分无状态转化操作列在了下面：<img decoding="async" src="http://img.555519.xyz/uploads3/20220604/ecb998b1e3dc2974de797f6e4865fc7f.jpg" alt="Spark原理篇之Spark Streaming转化操作和输出操作"><br /><strong>注意</strong>：尽管这些函数看起来像作用在整个流上一样，但事实上每个DStream在内部是由许多RDD（批次）组成，且无状态转化操作时分别应用到每个RDD上的。例如，reduceByKey会规约每个时间区间中的数据，但不会规约不同时间区间之间的数据。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;无状态转化操作也能在多个DStream间整合数据，不过也是在各个时间区间内。例如，键值对DStream拥有和RDD一样的与连接相关的转化操作，也就是cogroup()、join()和leftOuterJoin()等。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;最后，如果这些无状态转化操作不够用，DStream还提供了一个叫作transform()的高级操作符，可以让你直接操作其内部的RDD。这个transform()操作允许你对DStream提供任意一个RDD到RDD的函数。这个函数会在数据流中的每个批次中被调用，生成一个新的流。transform()的一个常见应用就是重用你为RDD写的批处理代码。例如，如果你有一个叫做extractOutliers()的函数，用来从一个日志记录的RDD中提取出异常值的RDD（可能通过对消息进行一些统计），你就可以在transform()中重用它。</p> <h4><a id="12__9" rel="nofollow"></a>1.2 有状态转化操作</h4> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DStream的有状态转化操作是跨时间区间跟踪数据的操作；也就是说，一些先前批次的数据也被用来在新的批次中计算结果。主要的两种类型是华东窗口和updateStateByKey()，前者以一个时间阶段为滑动窗口进行操作，后者则用来跟踪每个键的状态变化（例如构建一个代表用户会话的对象）。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;有状态转化操作需要在你的StreamingContext中打开检查点机制来确保容错性。</p> <h5><a id="121__12" rel="nofollow"></a>1.2.1 基于窗口的转化操作</h5> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基于窗口的操作会在一个比StreamingContext的批次间隔更长的时间范围内，通过整合多个批次的结果，计算出整个窗口的结果。所有基于窗口的操作都需要两个参数，分别为窗口时长以及滑动步长，两者都必须是StreamingContext的批次间隔的整数倍。窗口时长控制每次计算最近的多少个批次的数据，其实就是最近的windowDuration/batchInterval个批次。如果有一个以10秒为批次间隔的源DStream，要创建一个最近30秒的时间窗口（即最近3个批次），就应当把windowDuration设为30秒。而滑动步长的默认值与批次间隔相等，用来控制对新的DStream进行计算的间隔。如果源DStream批次间隔为10秒，并且我们只希望每两个批次计算一次窗口结果，就应该把华东步长设置为20秒。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;对DStream可以用的最简单窗口操作时window()，它返回一个新的DStream来表示所请求的窗口操作的结果数据。换句话说，window()生成的DStream中的每个RDD会包含多个批次中的数据，可以对这些数据进行count()和transform()操作。<img decoding="async" src="http://img.555519.xyz/uploads3/20220604/0eb962c4525dec667891de9495a504b4.jpg" alt="Spark原理篇之Spark Streaming转化操作和输出操作"><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;尽管可以使用window()写出所有的窗口操作，Spark Streaming还是提供了一些其他的窗口操作，让用户可以高效而方便地使用。首先，reduceByWindow()和reduceByKeyAndWindow()让我们可以对每个窗口更高效地进行规约操作。它们接收一个规约函数，在整个窗口上执行，比如+。除此以外，它们还有一种特殊的形式，通过只考虑进入窗口的数据和离开窗口的数据，让Spark增量计算规约结果。这种特殊形式需要提供归约函数的一个逆函数，比如+对应的逆函数为-。对于较大的窗口，提供逆函数可以大大提高执行效率。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220604/b1659a895ed7a71ef2b11970142fb1fa.jpg" alt="Spark原理篇之Spark Streaming转化操作和输出操作"></p> <h5><a id="122_UpdateStateByKey_17" rel="nofollow"></a>1.2.2 UpdateStateByKey转化操作</h5> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;updateStateByKey()为我们提供了对一个状态变量的访问，用于键值对形式的DStream。给定一个由（键，事件）对构成的DStream，并传递一个指定如何根据新的事件更新每个键对应状态的函数，它可以构建出一个新的DStream，其内部数据为（键，状态）对。例如，在网络服务器日志中，事件可能是对网站的访问，此时键是用户的ID。使用updateStateByKey()可以跟踪每个用户最近访问的10个界面。这个列表就是“状态”对象，我们会在每个时间到来时更新这个状态。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;要使用updateStateByKey()，提供了一个update(events,oldState)函数，接收与某键相关的时间以及该键之前对应的状态，返回这个键对应的新状态。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;① events：是在当前批次中收到的事件的列表（可能为空）。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;② oldState：是一个可选的状态对象，存放在Option内；如果一个键没有之前的状态，这个值可以空缺。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;③ newState：由函数返回，也以Option形式存在；我们可以返回一个空的Option来表示想要删除该状态。<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;updateStateByKey()的结果会是一个新的DStream，其内部的RDD序列是由每个时间区间对应的（键，状态）对组成的。举个简单的例子，使用updateStateByKey()来跟踪日志消息中各HTTP响应代码的计数。这里的键是响应代码，状态是代表响应代码计数的整数，事件则是页面访问。</p> <h3><a id="2__24" rel="nofollow"></a>2 输出操作</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;输出操作指定了对流数据经转化操作得到的数据所要执行的操作（例如把结果推入外部数据库或输出到屏幕上）。与RDD中的惰性求值类似，如果一个DStream及其派生出的DStream都没有被执行输出操作，那么这些DStream就都不会被求值。如果StreamingContext中没有设定输出操作，整个context就都不会启动。常用的一种调试性输出操作是print()，它会在每个批次中抓取DStream的前十个元素打印出来。当然还有saveAsTextFiles()和foreachRDD()等输出操作。</p> <p>参考文章：<br /> [1]《Spark快速大数据分析》</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-144.htm">PHP 关联数组详解</a></p>
-                                        <p>下一个：<a href="/html/category/article-146.htm">resttemplate  返回中文乱码解决</a></p>
+                                        <p>上一个：<a href="/html/category/article-144.htm">springboot集成swagger碰到的坑（报404）</a></p>
+                                        <p>下一个：<a href="/html/category/article-146.htm">Django 之视图url参数获取</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
-                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-207.htm">MySQL——union(合并结果集)、limit(获取部分数据)、关于MySQL中常用数据类型</a></h4>
-                <p>博客目录 1、union(合并结果集) 2、limit(获取一张表中某部分数据) 3、表——创建表、删除表 4、关于MySQL中的数据类型  一、union(合并结果集)  将两个查询结果合并(可以是</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
+                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
-                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
+                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在日常开发中，我学使用原生JavaScript获取元素的时候，最常用的方法就document.getEl</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
+                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
             </div>
         </div>
     </div>

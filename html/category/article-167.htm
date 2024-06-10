@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-167.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>C++ STL 中的数值算法示例讲解_C 语言 - EgyptAddress</title>
+    <title>SSL及GMVPN握手协议详解 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">C++ STL 中的数值算法示例讲解_C 语言</h1>
+                <h1 class="title" style="word-break: break-all;">SSL及GMVPN握手协议详解</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.iota</a></li> <li><a href="#_label1" rel="nofollow">2.accumulate</a></li> <li><a href="#_label2" rel="nofollow">3.partial_sum</a></li> <li><a href="#_label3" rel="nofollow">4.adjacent_difference</a></li> <li><a href="#_label4" rel="nofollow">5.inner_product</a></li> </ul> </div> <p>以下算法均包含在头文件 numeric 中</p> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.iota</h2> <p>该函数可以把一个范围内的序列从给定的初始值开始累加<br />先看用法。<br />例：<br />假设我需要一个长度为10，从5开始递增的序列</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(10);      iota(begin(a), end(a), 5);        for (auto x : a) {          cout &lt;&lt; x &lt;&lt; " ";      }  </pre> </div> <p>输出：</p> <blockquote> <p>5 6 7 8 9 10 11 12 13 14</p> </blockquote> <p>这样就可以很方便的创建一个递增的序列，而不用使用for循环<br />此外，该函数是使用连续的支持 operator++()的 T 类型值填充序列<br />也就是说double类型也可以使用，string类型也可以使用。<br />只要是重载了++运算符的类型都可以使用。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.accumulate</h2> <p>曾经在算法比赛中看见别人使用accumulate函数计算出了一个数组的和。<br />觉得特别的优雅，像这样：</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(10);      iota(begin(a), end(a), 1);        cout &lt;&lt; accumulate(begin(a), end(a), 0) &lt;&lt; "\n";  // 计算从1加到10的和，从0开始加  </pre> </div> <p>输出：</p> <blockquote> <p>55</p> </blockquote> <p>从那天起，每当我要求一个序列的和的时候，我都会使用这个方法...<br />但是今天，当我看到accumulate的源码之后：</p> <div class="ay1code"> <pre class="brush:cpp;">template &lt;class InputIterator, class T&gt;     T accumulate (InputIterator first, InputIterator last, T init)  {    while (first!=last) {      init = init + *first;  // or: init=binary_op(init,*first) for the binary_op version      ++first;    }    return init;  }  </pre> </div> <p>注意看这里：</p> <p style="text-align:center"><img decoding="async" alt="" src="//img.jbzj.com/file_images/article/202204/%0D%0A202204080826522.png"></p> <p>哇哦，它竟然还支持二元仿函数，<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.jb51.net/article/243625.htm"  target="_blank" rel="nofollow">详解C++ functional库中的仿函数使用方法</a><br />于是，我有了一个大胆的想法。<br />求一个数组的乘积</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(10);      iota(begin(a), end(a), 1);        cout &lt;&lt; accumulate(begin(a), end(a), 1, multiplies&lt;int&gt;()) &lt;&lt; "\n";  // 计算从1加到10的乘积，从1开始乘  </pre> </div> <p>输出：</p> <blockquote> <p>3628800</p> </blockquote> <p>同理，还可以求数组的减，数组的除，数组的模????</p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.partial_sum</h2> <p>这个函数可以用来求前缀和，前缀和指一个数组的某下标之前的所有数组元素的和（包含其自身）。</p> <p>例如，1、2、3、4、5的前缀和数组为 1 3 6 10 15</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(5);      iota(begin(a), end(a), 1);        partial_sum(begin(a), end(a), begin(a)); // 求a的前缀和，赋值给a数组（第三个参数）        for (auto x : a) {          cout &lt;&lt; x &lt;&lt; " ";      }  </pre> </div> <p>输出：</p> <blockquote> <p>1 3 6 10 15</p> </blockquote> <p>有了上一个函数的经验，我们还可以求一个数组的前缀乘、除等</p> <p>例：</p> <div class="ay1code"> <pre class="brush:cpp;">    partial_sum(begin(a), end(a), begin(a), multiplies&lt;int&gt;());  </pre> </div> <p>输出：</p> <blockquote> <p>1 2 6 24 120</p> </blockquote> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>4.adjacent_difference</h2> <p>这个函数可以对一个序列里相邻两个元素进行运算，通过differerce这个词可以看出来，默认是计算相邻两元素的差</p> <div class="ay1code"> <pre class="brush:cpp;">vector&lt;int&gt; a{1, 4, 5, 100, 40};    adjacent_difference(begin(a), end(a), begin(a)); // 求a数组相邻元素的差，赋值给a数组（第三个参数）    for (auto x : a) {      cout &lt;&lt; x &lt;&lt; " ";  }  </pre> </div> <p>输出：</p> <blockquote> <p>1 3 1 95 -60</p> </blockquote> <p>今天我想计算相邻两元素的乘积</p> <div class="ay1code"> <pre class="brush:cpp;">adjacent_difference(begin(a), end(a), begin(a), multiplies&lt;int&gt;());  </pre> </div> <p>输出：</p> <p>1 4 20 500 4000</p> <p class="maodian"><a name="_label4" rel="nofollow"></a></p> <h2>5.inner_product</h2> <p>这个函数默认情况下可以求序列中每个元素的内积之和：</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a(3);      iota(begin(a), end(a), 1);        cout &lt;&lt; inner_product(begin(a), end(a), begin(a), 10) &lt;&lt; "\n"; // 从初值10开始加上序列各元素的内积  </pre> </div> <p>输出：</p> <blockquote> <p>24</p> </blockquote> <p>还可以用来求两个序列元素两两相乘再相加的结果</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a{1, 2, 3};      vector&lt;int&gt; b{2, 3, 4};        // 1 * 2 + 2 * 3 + 3 * 4      cout &lt;&lt; inner_product(begin(a), end(a), begin(b), 0) &lt;&lt; "\n";  </pre> </div> <p>输出：</p> <blockquote> <p>20</p> </blockquote> <p>此外，还可以通过仿函数来替代上述的两个操作符 + 和 *</p> <div class="ay1code"> <pre class="brush:cpp;">    vector&lt;int&gt; a{1, 2, 3};      vector&lt;int&gt; b{2, 3, 4};        cout &lt;&lt; inner_product(begin(a), end(a), begin(b), 1                          , multiplies&lt;int&gt;(), minus&lt;int&gt;()) &lt;&lt; "\n";                              // 原来的加法 +  // 原来的乘法 *                              // 计算 (1 - 2) * (2 - 3) * (3 - 4) = -1  </pre> </div> <p>输出：</p> <blockquote> <p>-1</p> </blockquote> 			                </div>
+                      				  				  				<p>之前写过<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/logchen/p/15159382.html"  target="_blank" rel="nofollow">一篇文章搞懂密码学基础及SSL/TLS协议</a>，主要介绍了加密学的基础，并从整体上对SSL协议做了介绍。由于篇幅原因，SSL握手的详细流程没有深入介绍。本文将拆解握手流程，在消息级别对握手进行详细地介绍。还没有加密学基本概念的、或者不清楚SSL协议的基本情况的建议先看一下前面一篇的内容。另外，本文主要是针对TLSv1.2和GMVPN的情况，对于TLSv1.3暂不涉及。</p> <p>本博客已迁移至<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://catbro666.github.io"  target="_blank" rel="nofollow">CatBro's Blog</a>，那是我自己搭建的个人博客，欢迎关注。<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://catbro666.github.io/posts/59c71edb/"  target="_blank" rel="nofollow">本文链接</a></p> <h2 id="概览">概览</h2> <p>本文将分如下几个部分展开，其中密钥交换和身份认证部分会着重进行讲解。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/24caa371951becd41c0bd98a0b58d6ca.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>我们都知道SSL协议最主要的作用就是用来协商通信双方的安全参数，然后基于协商的安全参数进行安全通信。所以首当其冲地，第一个要解决的问题就是如何进行密钥交换。考虑到对称密码和非对称密码的性能差异显著，在实际使用中往往使用对称密码对数据进行加密，而使用非对称密码来完成重要的密钥交换和身份认证。</p> <h3 id="基本握手流程">基本握手流程</h3> <p>下图是一个我们通常看到的SSL握手流程图，SSL协议分为两个阶段：握手阶段和应用阶段。握手阶段主要负责协商安全参数，应用阶段则基于前面协商的安全参数进行数据通信。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/ab460b9e8bb7069cda61bc8f0c57f690.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>这里先不对每个消息进行详细的介绍，后面的内容中会陆续涉及到。其中带*号的表示可选消息或者根据前面消息的情况而定。ChangeCipherSpec作为单独的一类消息只是表明握手协议已经完成，后续使用协商的加密参数进行通信。Finished消息就是第一个加密的消息，用于验证握手已经顺利完成。这里稍微提一下ServerHelloDone这个消息，这个消息并没有什么实际的内容，它存在的主要原因就是因为前面的消息CertificateRequest是可选的，所以需要明确地告诉客户端服务端这边的消息发完了，否则客户端无从知道是否该等待CertificateRequest消息。</p> <h2 id="如何进行密钥交换">如何进行密钥交换</h2> <p>密钥交换的方法可以分成两大类：一类是基于加密、一类是基于DH。前者有RSA算法、GM的ECC算法；后者则有ECDHE、GM的ECDHE。</p> <p>虽然前面一篇已经讲过了，这里还是稍微带一下这两者的基本原理，以方便在后面实际的握手流程中进行对照。</p> <h3 id="密钥交换原理">密钥交换原理</h3> <p>公钥加密的基本原理如下：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/10b7b87325105612b7a8a920fe6d35b6.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>公钥密码有两个密钥，其中一个是公开密钥，公开密钥可以随意传播，另一个是私有密钥，需要自己严密保管。比如Bob要发消息给Alice，Bob用Alice的公钥对消息进行加密，然后发送给Alice，Alice则用自己的私钥进行解密。</p> <p>DH类算法的原理可以用下图来形象地解释：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/6e9d34410df26a798464fe6280ae1db4.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>首先双方协商一个相同的底色（算法参数），然后各自生成自己私有的颜色（相当于私钥），并通过混合得到对应的公有颜色（相当于公钥）。随后双方交换各自的公有颜色，并与自己的私钥颜色混合，最终协商出一个相同的颜色（即交换的密钥）。窃听者就算得到了双方交换的这些信息，也无法生成相同的密钥，<strong>求解离散对象问题的困难度</strong>保证了DH算法的安全性。</p> <h3 id="tls-rsa密钥交换">TLS RSA密钥交换</h3> <p>这种情况的典型算法套件是AES256-SHA。（相关的消息都已经标成蓝色了，连到消息块上的实线箭头表示该消息中带了相应的内容。）</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/7aa11ce6bbdb0173b6c3d3d60c2e3f4b.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>这种情况比较简单，首先客户端生成一个随机数在ClientHello消息中带过去，服务端同样也生成一个随机数在ServerHello消息中带过去。然后服务端在Certificate消息中将它的证书发送给客户端，证书中包含了它的公钥。客户端收到之后就用服务端的公钥加密一个随机生成的预主密钥，通过ClientKeyExchange消息发送给服务端，服务端则用自己的私钥进行解密得到预主密钥。这里就是应用了前面提到的公钥加密的原理。</p> <p>通过密钥交换之后，双方都得到了预主密钥，再加上前面交换的两个随机数，这3个材料一起进行密钥派生得到主密钥。主密钥再结合两个随机数派生出最终的会话密钥。</p> <p>这里先抛出几个问题供大家思考。为什么不直接用预主密钥，而是要跟两个随机数派生出主密钥？为什么不直接用主密钥，而是再跟两个随机数派生出会话密钥？我暂时不做解答，留到后面分解。</p> <h3 id="tls-ecdhe密钥交换">TLS ECDHE密钥交换</h3> <p>这个情况的典型算法套件如ECDHE-RSA-AES256-GCM-SHA384、ECDHE-ECDSA-AES256-GCM-SHA384。这里的EC表示椭圆曲线，DH表示基于DH算法，最后一个E则表示使用临时密钥进行密钥交换，而不是证书相关的非临时密钥。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/eb0a1769547e0af90431b837c9059fd9.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>我们来比较下跟前一种情况的区别，首先ClientHello和ServerHello消息是一样的，都带了一个随机数。区别在于服务端是通过ServerKeyExchange消息发送了一个临时DH参数给对方（也就是前面将DH原理时的公有颜色），类似地客户端也通过ClientKeyExchange消息把它的临时DH参数发送给服务端。这样双方就交换了彼此的临时DH公钥，然后他们各自利用自己的临时私钥和对方的临时公钥计算出预主密钥。与前一种情况的最大区别就在于此，前者是客户端加密预主密钥发送给服务端，后者是双方交换临时DH公钥，然后各自计算出预主密钥。</p> <p>得到预主密钥后，后续的流程就一样了。结合两个随机数派生出主密钥，然后再派生出会话密钥。</p> <h3 id="gm-ecc密钥交换">GM ECC密钥交换</h3> <p>接下来我们看GM ECC密钥交换的情况，这种情况的典型算法套件为ECC-SM4-SM3。GMVPN协议一个最大的区别就是它引入了双证书体系，每一方都有两个证书（对应地就有两个私钥），一个加密证书负责进行密钥交换，一个签名证书负责进行身份认证。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/5e710a3cb7b323b3a3616d71361cef12.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>跟TLS RSA密钥交换的主要区别是，这种情况的证书消息中包含了双证书，客户端在加密预主密钥时是用服务端加密证书中的公钥。相应地，服务端在解密时则用自己的加密私钥。后续的密钥派生流程都是一样的，这里就不再赘述了。</p> <p>至于GM为什么要引入双证书，是因为这样你的加密私钥就在CA那里有留档，必要时它就可以解密你的消息。Big brother is watching you!</p> <h3 id="gm-ecdhe密钥交换">GM ECDHE密钥交换</h3> <p>这种情况的典型算法套件为ECDHE-SM4-SM3。同样是双证书，ServerKeyExchange消息中带了服务端的临时DH参数，客户端也将双证书以及它的临时DH参数发送给服务端。注意到在计算预主密钥时，有4个材料参与了运算，对方加密证书中的公钥以及临时公钥，自己的加密私钥以及临时私钥，由这4个材料一起计算出预主密钥。作为对比，普通TLS的ECDHE只有自己的临时私钥和对方的临时公钥参与计算。</p> <p>GM ECDHE最大的区别就在于此，所以GM ECDHE的算法套件必须是双向认证的，因为在密钥交换时也需要客户端的加密证书参与。从这里也可以看出GM协议在设计上的不严谨，哪有算法套件只允许双向认证的。而且GM ECDHE因为也有临时密钥参与计算预主密钥，所以就算CA有加密私钥也是无法解密的，这又与双证书的最初目的相悖。。。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b7567b5b808f2ab22d2949d7be5aa058.jpg" alt="SSL及GMVPN握手协议详解"></p> <h3 id="tls12-密钥派生流程">TLS1.2 密钥派生流程</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/0f6d559c63cd920ef45bfbda3e0bc50b.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>密钥派生的流程前面其实已经画出来了，基于加密或者DH双方交换得到预主密钥，预主密钥结合两个随机数派生得到主密钥，TLS1.2中派生是通过PRF进行的，其中secret就是预主密钥，label是一个特定的字符串，seed是前面的两个随机数。</p> <pre><code>master_secret = PRF(pre_master_secret, "master secret", &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;ClientHello.random + ServerHello.random) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[0..47];</code></pre> <p>得到主密钥之后在结合两个随机数派生出会话密钥，同样使用PRF，不过此时secret是主密钥，label字符串不同，seed还是两个随机数。</p> <pre><code>key_block = PRF(SecurityParameters.master_secret, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;"key expansion", &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;SecurityParameters.server_random + &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;SecurityParameters.client_random);</code></pre> <p>得到会话密钥之后，再按照需要切分成MAC key和对称加密的key。图中把IV画成了虚线，因为TLS1.2中一般不需要这个。因为自从TLS1.1改成显式IV之后（为了防止CBC明文选择攻击），iv都是在记录中显式带过去的，只有当使用AEAD算法，需要隐式nonce时还需需要这个。</p> <p>至于前面抛出的两个问题，为什么不直接用预主密钥？一方面是为了统一长度，因为基于加密的密钥交换预主密钥时48字节，而基于DH的密钥交换预主密钥长度取决于具体的算法。更重要的一点，双方的随机数加入计算，可以防重放攻击，还可以增加随机数的熵源，增加安全性。</p> <p>那么为什么不直接用主密钥，还要再次派生出会话密钥呢？这个主要是生命周期的考虑，两者有不同生命周期，主密钥的生命周期较长，会话密钥则较短，只在当前会话有效。后面在讲session重用时就可以看出其区别。</p> <h2 id="如何进行身份认证">如何进行身份认证</h2> <p>前面讨论了如何进行密钥交换，但是密钥交换只管协商出密钥，并不考虑对方是谁？你如何确认对方的身份，防止被中间人攻击呢？所以就引入了身份认证。</p> <p>身份认证需要解决两个问题：</p> <ul> <li>确认对方拥有公钥对应的私钥</li> <li>确认对方的身份</li> </ul> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/784bd94fba385663f0342269c858124a.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>第一个问题，使用单纯的数字签名就可以解决。通过验证对方的数字签名，可以确认对方拥有相应的私钥。</p> <p>而第二个问题，则需要引入数字证书和PKI了。数字证书，说白了就是将一个公钥跟身份信息进行绑定，然后由第三方可信机构（CA）给你做个证明（通过CA签名）。那么CA本身的身份又由谁来证明呢，再通过更上级的CA进行证明。最终的根CA只能通过其他手段进行认证，否则就无限循环了。</p> <h3 id="数字签名原理">数字签名原理</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/3000feb8a28f0231ddbabe2854dca610.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>数字签名的基本原理也很简单，与前面的公钥加密相对，这里是使用私钥对数据进行签名，对方则用公钥对签名数据进行验签。</p> <h3 id="tls-rsa密钥交换时的rsa认证">TLS RSA密钥交换时的RSA认证</h3> <p>典型算法套件仍然是AES256-SHA。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d383de53d8da4602da816d033185964b.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>服务端的认证只涉及Certificate消息，服务端把证书和CA证书链发送给客户端，客户端只需要对证书和证书链进行验证。最终的Root CA需要是本机信任的，否则就存在安全风险，可能受到中间人攻击。</p> <p>如果需要双向认证，即服务端也需要认证客户端，还涉及图中橙色的3个消息。服务端会发送CertificateRequest消息，告诉客户端支持的证书类型、签名哈希算法、以及CA的DN项。客户端根据这些信息选择适合的客户端证书，然后在Certificate消息中将证书和CA证书链发送给服务端，另外还需要用自己的私钥做一个签名，以证明自己拥有证书对应的私钥。这里签名的内容是前面所有的握手消息（从ClientHello开始到当前消息之前的所有消息）。然后服务端对客户端的证书链以及签名进行验证。</p> <h3 id="tls-ecdhe密钥交换时的认证">TLS ECDHE密钥交换时的认证</h3> <p>典型算法套件如ECDHE-RSA-AES256-GCM-SHA384、ECDHE-ECDSA-AES256-GCM-SHA384。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/81589d12d20e1c17aff1968ca0ddee5a.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>跟前一种情况下比，服务端多了一个签名。因为这种情况密钥交换是通过临时DH参数完成的，并没有服务端证书对应的私钥参与，所以需要用证书对应的私钥额外做一个签名，以证明自己确实拥有证书对应私钥。这里签名的内容是两个hello随机数以及服务端的临时DH参数，其实就是参与计算预主密钥的三个材料。</p> <p>客户端除了验证证书链之外，还需要对这个签名进行验证。</p> <p>客户端认证的部分跟前一种情况完全一样，不再进行赘述。</p> <h3 id="gm-ecc密钥交换时的认证">GM ECC密钥交换时的认证</h3> <p>典型算法套件还是ECC-SM4-SM3。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/fd5ff0b7703e25a93d65d38eac305a2a.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>前面TLS RSA的情况，服务端不需要做一个额外的签名。因为密钥交换和身份认证都是通过同一个证书来进行的，服务端能够完成密钥交换（解密出预主密钥）就已经说明了它有对应的私钥。</p> <p>而GM ECC则则不然，因为双证书的关系，密钥交换和身份认证是通过不同证书进行的。所以服务端仍然需要做一个签名证明其私钥持有性。签名是通过签名私钥来进行的，签名的内容有所改变，是两个hello随机数和服务端的加密证书。客户端除了验证证书链，还需要用服务端的签名证书对签名进行验证。</p> <p>客户端认证的流程还是类似，只不过发送的也是双证书，然后在签名时也是用的签名私钥。服务端除了验证证书链，还需要用客户端的签名证书对签名进行验证。</p> <h3 id="gm-ecdhe密钥交换时的认证">GM ECDHE密钥交换时的认证</h3> <p>典型算法套件还是ECDHE-SM4-SM3。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/4d56711ddfaaae8f43e48a628e089819.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>跟前一种情况相比，主要是服务端的签名内容有一点区别，是两个hello随机数+服务端的临时DH参数。我们注意到前面几种情况，服务端签名的内容都是参与计算预主密钥的材料。从这个逻辑上来说，这边在协议设计上也有些问题，因为服务端的加密证书实际上也参与了密钥交换，按照协议设计一致性也应该包含到签名内容中。</p> <p>其他部分跟前一种情况完全一样，不再进行赘述。</p> <h2 id="如何协商协议算法">如何协商协议算法</h2> <p>前面讨论了几种不同的情况，可以看到不同的协议版本、不同的算法套件，它们在握手的处理流程上是不一样的，那么双方如何对此达成一致呢？</p> <p>于是就需要引入一次Hello交互了。这也是为什么完整的SSL握手需要两次交互的主要原因。通过这次Hello交互对使用的协议版本和算法套件达成一致。另外得益于SSL协议引入的扩展机制，不仅仅是协议版本算法套件，双方还可以协商除此之外的很多东西，甚至是用户自定义的扩展项。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1fc2eeea6be852e7a24bc7b82a0775a5.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>不过最基本的还是协议版本、算法套件之类的。客户端发送它支持的版本、算法套件列表、如果是椭圆曲线还会指定支持的曲线列表、签名算法等，服务端基于客户端的信息，选择最终使用的协议版本、算法套件、EC点格式等。</p> <h2 id="如何提升性能">如何提升性能</h2> <p>完整的SSL握手需要两个RTT，而且还需要耗时的非对称运算。协议在设计上也考虑了如何提升性能的问题。在握手流程优化方面，主要就是通过会话重用来简化握手流程。（对于TLSv1.3则有PSK、1-RTT和0-RTT，不过本文将不涉及TLS1.3，）这里主要介绍下会话重用的情况。</p> <h3 id="会话重用基本流程">会话重用基本流程</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/e508da6f27260e167f2e66059e5ec488.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>会话重用的基本流程如上所示。首先是一个完整的握手，然后客户端如果想重用前面的会话，在ClientHello进行相应的指示告诉服务端，服务端如果同意在ServerHello中进行答复，然后就直接进行简化的握手，不需要再进行密钥交换和身份认证。不但省了一次交互，也省去了费时的非对称运算。</p> <h3 id="session-id">Session ID</h3> <p>会话重用有两种方式，首先来看下Session ID的流程：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c8bddef9c8369622cc4846966727db3d.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>前一次握手中，服务端在ServerHello消息中将Session ID告诉客户端，握手正常完成之后，服务端会将对应的Session保存，其中就包含了主密钥。</p> <p>后续客户端想要重用之前那个Session，可以在ClientHello中带上之前的Session ID，服务端收到之后会根据Session ID进行查找，如果找到了且未过期，那么进行会话重用，服务端将Session ID再原样发送给客户端，进入简化的握手流程；否则，服务端还是随机生成新的Session ID发送给客户端，回退到完整的握手流程。</p> <p>会话重用时，使用之前Session的主密钥来推导会话密钥。这里就可以看出其生命周期的不同了，会话重用时主密钥是用的同一个，但是会话密钥每次都是重新生成的。而且注意到，这时也是有两个随机数参与密钥派生的，同样也是出于防重放的考虑。</p> <h3 id="session-ticket">Session Ticket</h3> <p>前一种情况服务端需要保存 session cache，会消耗内存资源，如果是集群的话还会带来cache同步的问题。而session ticket的出现正是为了解决这些问题。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/57395f0def0ff139a55413173e46d849.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>我们来看下它的流程，首先客户端在ClientHello的扩展中带上session_ticket扩展表示它想使用session_ticket功能，服务端如果同意则在ServerHello中回复session_ticket扩展项。服务端不用保存session，而是加密之后通过NewSessionTicket消息发送给客户端。这里session ticket key实际上是个对称密钥，它只有服务端自己知道。</p> <p>后续客户端想要重用该Session，在ClientHello扩展中把之前那个session_ticket塞进去，服务端成功解密且验证通过之后就进行会话重用，否则回退到完整的握手。然后还是同样地根据主密钥重新派生出会话密钥。</p> <p>这样服务端没有了保存session的负担，但是天下没有免费的午餐，session ticket对前向安全性会带来一定的损害。因为session ticket只是单纯使用session ticket key进行加密的，如果session ticket key泄漏了，那么之前基于会话重用的握手就都可以被破解了。</p> <p>所以在实际使用时，session ticket key应该经常更换，减小前向安全性方面的风险。</p> <h2 id="如何保证安全性">如何保证安全性</h2> <p>简单回顾来握手中是如何保证安全性的。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/75a597f1498e11354d8096ce8144979b.jpg" alt="SSL及GMVPN握手协议详解"></p> <p>首先通过两个hello随机数来实现防重放。防止中间人攻击是通过对服务端的认证了完成的。防篡改是通过最后的Finished来完成的，Finished消息中包含了一个verify_data，它也是由PRF计算得到的，其中的seed是前面所有握手消息（ClientHello开始，到当前Finished消息前）的摘要值。</p> <pre><code>verify_data:  PRF(master_secret, finished_label,      Hash(handshake_messages))             [0..verify_data_length-1];</code></pre> <p>前向安全性也是需要特别注意的点，事实上TLS1.3中砍掉了所有没有前向安全性的算法套件，只留下了DHE或ECDHE的算法套件。另外前面也提到了session ticket也会对前向安全性有一定的损害。</p> <p>最后，要特别强调下随机数的重要性。一个好的加密算法，其安全性完全是基于密钥的安全性，如果随机数本身质量不过关，比如可以被预测，那么前面所有的一切都是白忙活。随机数可以说是所有这些的基石。</p> <p>最后的最后，安全领域其实也适用木桶理论，一个通信的安全性取决于其最薄弱的环节。无论是协议设计、代码实现还是在用户使用上，任何一处纰漏都可能导致巨大的安全问题。</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-166.htm">SpringBoot常用拦截器（HandlerInterceptor，ClientHttpRequestInterceptor，RequestInterceptor）</a></p>
-                                        <p>下一个：<a href="/html/category/article-168.htm">JavaScript定时器的各种案例</a></p>
+                                        <p>上一个：<a href="/html/category/article-166.htm">Java字符串比较，==，等于，匹配，compareTo()之间的差异。</a></p>
+                                        <p>下一个：<a href="/html/category/article-168.htm">技能篇：linux服务性能问题排查及jvm调优思路</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
+                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
+                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
+                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
-                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">Springboot 设置过滤器以及重复读取request里的body</a></h4>
-                <p>需求：request的content-type为applciation/json，进入controller之前需要把body中的参数取出来做一次处理，然后和hearder中的另一个参数做对比。 思路：</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>
@@ -172,7 +172,7 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
                 <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
-                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
+                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
             </div>
         </div>
     </div>

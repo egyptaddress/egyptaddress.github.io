@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-209.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>C#中检查null的语法糖_在线工具 - EgyptAddress</title>
+    <title>Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题） - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">C#中检查null的语法糖_在线工具</h1>
+                <h1 class="title" style="word-break: break-all;">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dotnet/csharplang/blob/main/meetings/2022/LDM-2022-04-13.md"  target="_blank"  rel="nofollow">讨论</a>，最后<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://devblogs.microsoft.com/dotnet/csharp-11-preview-updates/"  target="_blank"  rel="nofollow">取消了</a>。然后我又想起来null检查，这个可以说一说。</p> <h2 id="函数参数null检查">函数参数null检查</h2> <h3 id="传统写法">传统写法</h3> <p>写一个函数的时候，最经典的检查，估计也是大家最常使用的null检查，应该是这样的吧：</p> <pre><code class="language-c#">public static void GetV1(string prompt) {     if (prompt is null) throw new ArgumentNullException(nameof(prompt));     Console.WriteLine(prompt); } </code></pre> <h3 id="throwifnull">ThrowIfNull</h3> <p>这个写起来也没啥问题，但是总觉得有点不舒适。.NET 6在<code>ArgumentNullException</code>中新增了<code>ThrowIfNull</code>方法，可以写的更优雅一点。</p> <pre><code class="language-c#">public static void GetV2(string prompt) {     ArgumentNullException.ThrowIfNull(prompt);     Console.WriteLine(prompt); }  </code></pre> <p>异常的时候，就会出现：<code>System.ArgumentNullException: 'Value cannot be null. (Parameter 'prompt')'</code>。这个是不是简单了点？可是还是需要写一行。</p> <h3 id="c-11的语法已经取消">C# 11的!!语法（已经取消）</h3> <p>C# 11刚preview的时候，我就瞄到了这个特性，现在依然可以通过设置<langversion>preview</langversion>来进行启用，但是以后正式发布估计就不行了。</p> <p>它通过在参数后面叠加!!表示此参数不可为空，运行时会自动进行检查，如果是null就直接弹出错误。</p> <pre><code class="language-c#">public static void GetV3(string prompt!!) {     Console.WriteLine(prompt); } </code></pre> <p>这个代码会被编译器翻译成：</p> <pre><code class="language-C#">public static void GetV3(string prompt!!) {     if (prompt is null) {         throw new ArgumentNullException(nameof(prompt));     }     Console.WriteLine(prompt); } </code></pre> <p>这样大家就可以专注于业务代码，不需要经常考虑异常检查了。至于为什么这个东西最后还是被删除了，可以从讨论中看到一丝端倪，首先是感觉非常纠结于这个语法，两个叹号；然后就是已经有比较多的方式可以实现检查了，这个东西是否有必要。反正最终是以后再讨论了，不过也可以看出来C#语言工作组对语言的特性讨论非常谨慎。</p> <p>他们还讨论了很多别的形式，每种都提出了各自的<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/dotnet/csharplang/blob/main/meetings/2022/LDM-2022-04-13.md"  target="_blank"  rel="nofollow">优缺点</a>挺有意思的，能看出来有一点设计语言的严谨和小强迫症在，点赞~</p> <pre><code>void M(string s!!); void M(string! s); void M(string s!); void M(notnull string s); void M(string s ?? throw); void M(string s is not null); void M(checked string s); void M(string s) where s is not null; </code></pre> <h2 id="有关null的一些操作">有关null的一些操作</h2> <p>说起这个，就顺便说说c#处理null的另外几个语法糖吧。</p> <h3 id="">??</h3> <p>如果左边是的null，那么返回右边的操作数，否则就返回左边的操作数，这个在给变量赋予默认值非常好用。</p> <pre><code class="language-c#">int? a = null; int b = a ?? -1; Console.WriteLine(b);  // output: -1 </code></pre> <h3 id="-1">??=</h3> <p>当左边是null，那么就对左边的变量赋值成右边的</p> <pre><code class="language-C#">int? a = null; a ??= -1; Console.WriteLine(a);  // output: -1 </code></pre> <h3 id="-2">?.</h3> <p>当左边是null，那么不执行后面的操作，直接返回空，否则就返回实际操作的值。</p> <pre><code class="language-c#">using System; public class C {     public static void Main() {         string i = null;         int? length = i?.Length;         Console.WriteLine(length ?? -1); //output: -1     } } </code></pre> <h3 id="-3">?[]</h3> <p>索引器操作，和上面的操作类似</p> <pre><code class="language-c#">using System; public class C {     public static void Main() {         string[] i = null;         string result = i?[1];         Console.WriteLine(result ?? "null"); // output:null     } } </code></pre> <blockquote> <p>注意，如果链式使用的过程中，只要前面运算中有一个是null，那么将直接返回null结果，不会继续计算。下面两个操作会有不同的结果。</p> <pre><code class="language-c#">using System; public class C {     public static void Main() {         string[] i = null;         Console.WriteLine(i?[1]?.Substring(0).Length); //不弹错误         Console.WriteLine((i?[1]?.Substring(0)).Length) // System.NullReferenceException: Object reference not set to an instance of an object.     } } </code></pre> </blockquote> <h2 id="一些操作">一些操作</h2> <pre><code class="language-c#">//参数给予默认值 if(x == null) x = "str"; //替换 x ??= "str";   //条件判断 string x; if(i&lt;3)      x = y; else  {       if(z != null) x = z;      else z = "notnull"; } //替换 var x = i &lt; 3 ? y : z ?? "notnull"   //防止对象为null的时候，依然执行代码 if(obj != null)      obj.Act(); //替换 obj?.Act();  //Dictionary取值与赋值 string result; if(dict.ContainKey(key)) {     if(dict[key] == null) result = "有结果为null";     else result = dict[key]; } else      result = "无结果为null"; //替换 var result= dict.TryGetValue(key, out var value) ? value ?? "有结果为null" : "无结果为null"; </code></pre> <h2 id="结语">结语</h2> <p>原来新定的C# 11提供了一个新的??，话说我个人还是挺喜欢这个特性的，不管以什么形式出现吧，期待以后再见。</p> <blockquote> <p>C#中为了处理null给我们准备了许多的语法糖，只能说非常简便了。有很多人会说这个可读性不好，或者觉得这是“茴字的几种写法”似的歪门邪道，我只能说，传统的语法也不是说取消了，语言有发展，只要还是比较审慎的，我觉得还是一件好事。</p> </blockquote> <h2 id="参考资料">参考资料</h2> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-"  target="_blank"  rel="nofollow">https://docs.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/null-coalescing-operator"  target="_blank"  rel="nofollow">https://docs.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/null-coalescing-operator</a></li> </ul> <h2 id="后记">后记</h2> <p>一定要夸一下博客园，写完这篇文章想登陆博客园发布的时候，被登陆卡住了。弹出来和google一样的验证画面，找红绿灯找人行横道什么的，只能说我找了几分钟也没找明白，我确信我已经点的正确了，所有的区块，占上了有一点算不算？不知道也没有反馈，就点呀点呀，密码我已经按照要求设置的够复杂了，还有必要通过这种反人类的东西来验证吗？不理解，京东阿里之类的购物网站的验证也就拖一下完事，这博客园的后台估计比那些个地方还要敏感吧，赞一个！太赞了！</p> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <h2> <a id="Java_29_0" rel="nofollow"></a>Java基础知识 29</h2> <p> 先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们实现了三个窗口共同卖票的问题。但是现实生活中我们打开APP买票时，通常会有广告出现，这些就是线程睡眠的结果。这个线程睡眠可能就会导致共享出现问题，可能会出现0票，甚至还有-1票的问题。那么这是什么原因呢？其实这是由于三个线程之间是抢夺式调度模型，当有一个线程进入了子线程准备购票的时候，这个时候线程中只有1张票了；另一个线程也开始了进入线程准备购票，由于第一个线程进入以后还没有来得及将票数减1，第二个线程已经完成了所有操作，这个时候就会出现0票的情况，而第三个线程又抢先一步于第一个线程完成所有的操作，那么就会出现0票的情况。所以接下我们要研究的是如何解决这个问题？</p> <p>（1）出现了0张票或负数票的问题，原因：这是由于<strong>线程的随机性</strong>导致的。</p> <p>（2）出现了相同的票数，原因：这是由于<strong>线程的原子性</strong>导致的。</p> <p>原子性问题（不可分割性） 线程对（piao–不是一个原子性操作，他要对票这个变量进行读改写三个操作）</p> <p>出现线程安全问题符合三个条件：</p> <p>（1）是否为多线程环境</p> <p>（2）多个线程之间有没有共享数据</p> <p>（3）有没有多条语句在操作这个共享变量piao–</p> <p><strong>对于数据安全的问题，我们把有可能出现数据安全问题的代码使用同步代码块进行包裹。</strong></p> <h4> <a id="_20" rel="nofollow"></a>同步代码块</h4> <p>synchronized（对象）{<!-- --></p> <p> 放你认为有可能出现问题的代码；</p> <p>}</p> <p>锁：你可以用Java里面的任意一个对象来充当锁，多个线程要共享一把锁才能锁住。</p> <p>这个<strong>同步代码块能够保证数据的安全性的一个主要原因是这个对象要被定义成静态成员变量，才能被所有线程共享。需要这个对象被所有的线程所共享，这个对象其实就是一把锁，这个对象习惯叫作监视器。</strong></p> <p><strong>同步代码块的好处</strong>：同步的出现解决了多线程的安全问题。</p> <p><strong>同步代码块的弊端</strong>：当线程相当多时，因为每一个线程都会区判断同步上的锁，很耗费资源，无形中会降低程序的运行效率。</p> <pre><code>public class Mytest {     public static void main(String[] args) {         CellRunnable cellRunnable = new CellRunnable();         Thread thread1 = new Thread(cellRunnable, "窗口1：");         Thread thread2 = new Thread(cellRunnable, "窗口2：");         Thread thread3 = new Thread(cellRunnable, "窗口3：");         thread1.start();         thread2.start();         thread3.start();     } } ---------------------------------- public class CellRunnable implements Runnable{     //这些票让三个线程共享     static int piao=100;     //确保这个锁对象只有一个，多个线程共用一把锁     static Object obj=new Object();     @Override     public void run() {         while (true){             synchronized (obj){                 //当线程1进来同步代码块后，就持有了这个锁，其他线程没有持有锁，那么就处于等待状态，等待在同步代码块的外面。                 if (piao&gt;=1){                     try {                         Thread.sleep(50);                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                     System.out.println(Thread.currentThread().getName()+"正在出售第："+(piao--)+"张票");                 }             }             //执行完了，出了同步代码块，就会释放锁。释放锁了之后，多个线程再去争抢CPU的时间片         }     } } </code></pre> <h4> <a id="_74" rel="nofollow"></a>同步方法</h4> <p><strong>我们可以把一个方法用synchronized这个关键字修饰，来封装一段代码解决线程安全问题。</strong></p> <p><strong>同步方法使用的锁对象是this（隐含对象）。</strong></p> <pre><code>public class Mytest {     public static void main(String[] args) {         CellRunnable cellRunnable = new CellRunnable();         Thread thread1 = new Thread(cellRunnable, "窗口1：");         Thread thread2 = new Thread(cellRunnable, "窗口2：");         Thread thread3 = new Thread(cellRunnable, "窗口3：");         thread1.start();         thread2.start();         thread3.start();     } } ---------------------------------- public class CellRunnable implements Runnable{     //这些票让三个线程共享     static int piao=100;     //确保这个锁对象只有一个，多个线程共用一把锁     static Object obj=new Object();     int i=1;     @Override     public void run() {         while (true){             if (i%2==0){                 //由于同步方法的锁对象默认是this，同步代码块和同步方法使用的锁不是同一个锁，                 // 因为我们要将其改成同一个锁对象。                 synchronized (this){                     //当线程1进来同步代码块后，就持有了这个锁，其他线程没有持有锁，那么就处于等待状态，等待在同步代码块的外面。                     if (piao&gt;=1){                         try {                             Thread.sleep(50);                         } catch (InterruptedException e) {                             e.printStackTrace();                         }                         System.out.println(Thread.currentThread().getName()+"正在出售第："+(piao--)+"张票");                     }                 }             }else {                 maipiao();             }             i++;         }     }     //同步方法：我们可以把一个方法用synchronized这个关键字来修饰，来封装一段代码，解决线程安全问题，     //同步方法默认使用的锁对象就是this     //同步方法使用的锁对象是this，和上面的锁使用的对象不一致，因此我们要将上面的锁对象改为this     private synchronized void maipiao() {         if (piao &gt;= 1) {             try {                 Thread.sleep(50);             } catch (InterruptedException e) {                 e.printStackTrace();             }             System.out.println(Thread.currentThread().getName() + "正在出售第：" + (piao--) + "张票");         }     } } </code></pre> <h4> <a id="_138" rel="nofollow"></a>静态同步方法</h4> <p><strong>静态同步方法的锁对象是当前类的字节码对象。</strong></p> <pre><code>public class Mytest {     public static void main(String[] args) {         CellRunnable cellRunnable = new CellRunnable();         Thread thread1 = new Thread(cellRunnable, "窗口1：");         Thread thread2 = new Thread(cellRunnable, "窗口2：");         Thread thread3 = new Thread(cellRunnable, "窗口3：");         thread1.start();         thread2.start();         thread3.start();     } } ---------------------------------------- public class CellRunnable implements Runnable{     //这些票让三个线程共享     static int piao=100;     //确保这个锁对象只有一个，多个线程共用一把锁     private final static Object obj=new Object();     int i=1;     @Override     public void run() {         while (true){             if (i%2==0){                 //由于静态同步方法和同步代码块使用的锁对象不是同一个锁对象，                 // 因为我们要将同步代码块的锁对象修改成当前类的字节码对象。                 synchronized (CellRunnable.class){                     //当线程1进来同步代码块后，就持有了这个锁，其他线程没有持有锁，那么就处于等待状态，等待在同步代码块的外面。                     if (piao&gt;=1){                         try {                             Thread.sleep(50);                         } catch (InterruptedException e) {                             e.printStackTrace();                         }                         System.out.println(Thread.currentThread().getName()+"正在出售第："+(piao--)+"张票");                     }                 }                 //执行完了，出了同步代码块，就会释放锁。释放锁了之后，多个线程再去争抢CPU的时间片             }else {                 maiPiao();             }         }     }     //同步方法：我们可以把一个方法用synchronized这个关键字修饰，来封装一段代码，解决线程安全的问题。     //静态同步方法：默认使用的锁对象，是当前类的字节码对象。     private static synchronized void maiPiao() {         if (piao &gt;= 1) {             try {                 Thread.sleep(50);             } catch (InterruptedException e) {                 e.printStackTrace();             }             System.out.println(Thread.currentThread().getName() + "正在出售第：" + (piao--) + "张票");         }     } } </code></pre> <h4> <a id="Lock_199" rel="nofollow"></a>Lock锁的概述及使用</h4> <p><strong>lock.lock(); lock.unlock();</strong></p> <pre><code>public class Mytest {     public static void main(String[] args) {         CellRunnable cellRunnable = new CellRunnable();         Thread thread1 = new Thread(cellRunnable, "窗口1：");         Thread thread2 = new Thread(cellRunnable, "窗口2：");         Thread thread3 = new Thread(cellRunnable, "窗口3：");         thread1.start();         thread2.start();         thread3.start();     } } ------------------------------------- public class CellRunnable implements Runnable{     //这些票三个线程共享     static int piao=100;     private final static ReentrantLock lock=new ReentrantLock();     @Override     public void run() {         while (true){             //th1  th2  th3 加锁             lock.lock();             try {                 if (piao&gt;=1){                     try {                         Thread.sleep(50);                         System.out.println(Thread.currentThread().getName()+"正在出售第："+(piao--)+"张票");                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             } catch (Exception e) {                 e.printStackTrace();             } finally {                 lock.unlock();//解锁             }         }     } } </code></pre> <h4> <a id="_244" rel="nofollow"></a>死锁问题概述及使用</h4> <p>如果<strong>出现了同步嵌套，就容易出现死锁问题，指的是两个或者两个以上的线程在执行的过程中，因争夺资源而产生的一种互相等待的现象。</strong></p> <pre><code>public class Mytest {     public static void main(String[] args) throws InterruptedException {         MyThread th1 = new MyThread(true);         MyThread th2 = new MyThread(false);         th1.start();         Thread.sleep(50);         th2.start();     } } ----------------------------------------- public class MyThread extends Thread{     //标记     boolean flag;     public MyThread(boolean flag) {         this.flag = flag;     }     @Override     public void run() {         if (flag){             synchronized (ObjectUtils.objA){                 System.out.println("true  线程持有了objA锁，进来执行了AAA");                 synchronized (ObjectUtils.objB){                     System.out.println("true  线程持有了objB锁，进来执行了BBB");                 }             }         }else {             synchronized (ObjectUtils.objB){                 System.out.println("false  线程持有了objB锁，进来执行了BBB");                 synchronized (ObjectUtils.objA){                     System.out.println("false  线程持有了objA锁，进来执行了AAA");                 }             }         }     } } -------------------------------------- public interface ObjectUtils {     //创建两个对象，来充当两把锁对象     public static final Object objA=new Object();     public static final Object objB=new Object(); } </code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></p>
-                                        <p>下一个：<a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></p>
+                                        <p>上一个：<a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></p>
+                                        <p>下一个：<a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">JavaScript中querySelector和getElementByld(getXXXBy XX)的区别</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在日常开发中，我学使用原生JavaScript获取元素的时候，最常用的方法就document.getEl</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
-                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
+                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
+                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
-                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
-                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
+                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
-                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
+                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-188.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>用JS实现一个秒表计时器 - EgyptAddress</title>
+    <title>Element修改弹窗类组件的层级 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">用JS实现一个秒表计时器</h1>
+                <h1 class="title" style="word-break: break-all;">Element修改弹窗类组件的层级</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <p>秒表计时器的实现：<br /> 效果图如下：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221229/fca2dba29e74762697eef52359cd81dc.jpg" alt="用JS实现一个秒表计时器"></p> <p>附代码，已调试运行</p> <pre><code>&lt;!DOCTYPE html&gt; &lt;html lang="en"&gt;  &lt;head&gt;     &lt;meta charset="UTF-8"&gt;     &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;     &lt;meta http-equiv="X-UA-Compatible" content="ie=edge"&gt;     &lt;title&gt;Document&lt;/title&gt;     &lt;style&gt;         #div1 {             width: 300px;             height: 400px;             background: skyblue;             margin: 100px auto;             text-align: center;         }                  #count {             width: 200px;             height: 150px;             line-height: 150px;             margin: auto;             font-size: 40px;         }                  #div1 input {             width: 150px;             height: 40px;             background: orange;             font-size: 25px;             margin-top: 20px         }     &lt;/style&gt; &lt;/head&gt;  &lt;body&gt;     &lt;div id="div1"&gt;         &lt;div id="count"&gt;             &lt;span id="id_H"&gt;00&lt;/span&gt;             &lt;span id="id_M"&gt;00&lt;/span&gt;             &lt;span id="id_S"&gt;00&lt;/span&gt;         &lt;/div&gt;         &lt;input id="start" type="button" value="开始"&gt;         &lt;input id="pause" type="button" value="暂停"&gt;         &lt;input id="stop" type="button" value="停止"&gt;     &lt;/div&gt;     &lt;script&gt;         //可以将查找标签节点的操作进行简化  var btn = getElementById('btn')         function $(id) {             return document.getElementById(id)         }         window.onload = function() {             //点击开始建 开始计数             var count = 0             var timer = null //timer变量记录定时器setInterval的返回值             $("start").onclick = function() {                 timer = setInterval(function() {                     count++;                     console.log(count)                         // 需要改变页面上时分秒的值                     console.log($("id_S"))                     $("id_S").innerHTML = showNum(count % 60)                     $("id_M").innerHTML = showNum(parseInt(count / 60) % 60)                     $("id_H").innerHTML = showNum(parseInt(count / 60 / 60))                 }, 1000)             }             $("pause").onclick = function() {                     //取消定时器                     clearInterval(timer)                 }                 //停止记数  数据清零  页面展示数据清零             $("stop").onclick = function() {                 //取消定时器                 $("pause").onclick()                     // clearInterval(timer)                     //数据清零  总秒数清零                 count = 0                     //页面展示数据清零                 $("id_S").innerHTML = "00"                 $("id_M").innerHTML = "00"                 $("id_H").innerHTML = "00"             }              //封装一个处理单位数字的函数             function showNum(num) {                 if (num &lt; 10) {                     return '0' + num                 }                 return num             }         }     &lt;/script&gt; &lt;/body&gt;  &lt;/html&gt; </code></pre> </p></div> 			                </div>
+                      				  				  				<h3 id="前情">前情</h3> <p>Element，一套为开发者、设计师和产品经理准备的基于 Vue 2.0 的桌面端组件库，在项目中我们就使用了它，非常nice</p> <h3 id="坑位">坑位</h3> <p>在使用Element组件的时候，一切都十分顺利，但是在使用弹框类组件Popover 的时候，发现并没有效果。</p> <h3 id="why">Why?</h3> <p>通过控制台查看元素后发现，其实Popover是有作用的，只是被页面上别的内容遮挡了，是因为zIndex低于页面上其它元素所致</p> <h3 id="解决方案">解决方案</h3> <p>通过查询Element文挡后发现官方是有考虑到层级问题，需要指定一个初始层级，后面的弹框类组件的层级会累加+1，这样就保证后面触发的层级始终高于前面的组件。</p> <p><strong>Element初始化时重置层级</strong></p> <p>Element组件使用有二种方式，对于不同的使用方式解决方式不同。</p> <p>完整引入 Element：</p> <pre><code class="language-jsx">import Vue from 'vue'; import Element from 'element-ui'; Vue.use(Element, { size: 'small', zIndex: 3000 });</code></pre> <p>按需引入Element:</p> <pre><code class="language-jsx">import Vue from 'vue'; import { Button } from 'element-ui';  Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 }; Vue.use(Button);</code></pre> <p>官方文挡-全局配置项：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://element.eleme.cn/#/zh-CN/component/quickstart"  target="_blank" rel="nofollow">https://element.eleme.cn/#/zh-CN/component/quickstart</a></p> <p><strong>如果Element已经初始化且已使用过弹框类组件</strong></p> <p>这种情况下通过修改Vue.prototype.$ELEMENT已经没有效果了，因为它已经被使用过，这时需要手动修改，后面弹窗的组件会在此值的基础上累加，代码如下：</p> <pre><code class="language-jsx">import PopupManager from "element-ui/lib/utils/popup/popup-manager"; PopupManager.zIndex = 30000;</code></pre> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-187.htm">vue 实现弹窗关闭后刷新效果_vue.js</a></p>
-                                        <p>下一个：<a href="/html/category/article-189.htm">Spring MVC 自定义拦截器</a></p>
+                                        <p>上一个：<a href="/html/category/article-187.htm">OAuth 2.1 框架_在线工具</a></p>
+                                        <p>下一个：<a href="/html/category/article-189.htm">如何从javascript中的集合中删除所有元素？</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
+                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
-                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">vue的自动化路由+分模块管理+路由懒加载</a></h4>
-                <p>近期单独做了一个系统项目，项目不大但是页面太多了，为了后期维护管理容易，做了个自动化加载路由以及模块化的管理。在此记录一下。 直接撸代码 1.首先看目录  router下的index.js是路由配置文</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">VS code vue安装Vetur后还是没有高亮显示之离线安装插件</a></h4>
-                <p>前言 因为公司项目是在云桌面开发，没有网络，需要在有网络的电脑安装vscode及插件然后压缩复制到云桌面，但是 安装了Vetur 压缩过去后vue文件代码还是没有高亮，试过很多种方法，但是都无效。然后</p>
+                <h4><a href="/html/category/article-241.htm">git 回滚到之前某一commit</a></h4>
+                <p>git log git reset –hard 8ff24a6803173208f3e606e32dfcf82db9ac84d8</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">python神经网络使用Keras构建RNN训练_python</a></h4>
-                <p>目录  Keras中构建RNN的重要函数  1、SimpleRNN 2、model.train_on_batch  全部代码     Keras中构建RNN的重要函数  1、SimpleRNN Sim</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>

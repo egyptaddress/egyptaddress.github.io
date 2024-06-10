@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-77.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>ASP.NET Core中的Ocelot网关介绍_实用技巧 - EgyptAddress</title>
+    <title>SpringBoot+Redis实现消息的发布与订阅的示例代码_java - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">ASP.NET Core中的Ocelot网关介绍_实用技巧</h1>
+                <h1 class="title" style="word-break: break-all;">SpringBoot+Redis实现消息的发布与订阅的示例代码_java</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.简介</a></li> <li><a href="#_label1" rel="nofollow">2.Ocelot配置</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_0" rel="nofollow">2.1基础集成（Basic Implementation）</a></li> <li><a href="#_lab2_1_1" rel="nofollow">2.2集成IdentityServer（With IdentityServer）</a></li> <li><a href="#_lab2_1_2" rel="nofollow">2.3多个网关实例集群（Multiple Instances）</a></li> <li><a href="#_lab2_1_3" rel="nofollow">2.4集成Consul服务发现（With Consul）</a></li> <li><a href="#_lab2_1_4" rel="nofollow">2.5集成Service Fabric（With Service Fabric）</a></li> </ul> <li><a href="#_label2" rel="nofollow">3.总结</a></li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.简介</h2> <p>Ocelot原本设计仅为与.NET Core一起使用的，它是一个.NET API网关，作为面向使用.NET运行微型服务/面向服务的体系结构需要统一的系统入口点，即当客户端（Web站点，手机APP）等访问Web API的时候，Ocelot作为统一的入口点会根据请求地址分发到对应的API站点去（寻址）。而Ocelot还集成很多功能，例路由，认证，授权，限速等等功能点，Ocelot官网还建议认证这块最好跟身份验证（IdentityServer4）一起使用，承载令牌轻松集成。具体详情大家可以去官网（<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://ocelot.readthedocs.io/en/latest/introduction/bigpicture.html"   target="_blank" rel="nofollow">https://ocelot.readthedocs.io/en/latest/introduction/bigpicture.html</a>）了解下。</p> <p>而查看Ocelot源码，我们会看到Ocelot是按特定顺序排列的一堆中间件（Middleware）组成的管道。</p> <p>Ocelot将HttpRequest对象操作到由其配置指定的状态，直到到达请求构建器中间件，在中间件中它创建一个HttpRequestMessage对象，该对象用于向下游服务发出请求。发出请求的中间件是Ocelot管道中的最后一件事。它不会调用下一个中间件。来自下游服务的响应存储在每个请求范围的存储库中，并在请求返回Ocelot管道时进行检索。有一块中间件将HttpResponseMessage映射到HttpResponse对象，然后将其返回给客户端。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.Ocelot配置</h2> <p>根据官网介绍，Ocelot有五种配置：</p> <p class="maodian"><a name="_lab2_1_0" rel="nofollow"></a></p> <h3>2.1基础集成（Basic Implementation）</h3> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220423/2740f4b8f344e37d44e1d9c320428c55.jpg"></p> <p>当客户端访问下游服务站点时候，会统一经过Ocelot网关，Ocelot网关Host主机首先会读取configuration.json配置信息，根据配置文件去寻找对应下游服务站点并返回处理结果给客户端。这一个过程可以称为路由寻址。</p> <p class="maodian"><a name="_lab2_1_1" rel="nofollow"></a></p> <h3>2.2集成IdentityServer（With IdentityServer）</h3> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220423/50c9683263c75bada86aaa564699483e.jpg"></p> <p>当服务站点涉及认证跟授权的时候，可以通过在Ocelot网关上集成IdentityServer，当客户端访问下游服务站点时候，会先通过IdentityServer认证跟授权后才分发到下游服务站点。</p> <p class="maodian"><a name="_lab2_1_2" rel="nofollow"></a></p> <h3>2.3多个网关实例集群（Multiple Instances）</h3> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220423/bf27af96acf4628160edb5967ebcc8c5.jpg"></p> <p>单个Ocelot网关是比较危险的，如果这个网关挂掉了，所有下游服务站点都将无法访问，这样子是无法做到高可用的。要解决这个问题，可以部署多台Ocelot网关集群，而Ocelot也集成了负载均衡器。</p> <p class="maodian"><a name="_lab2_1_3" rel="nofollow"></a></p> <h3>2.4集成Consul服务发现（With Consul）</h3> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220423/1df7b7472363fbe30670d051225676dd.jpg"></p> <p>查看官网文档负载均衡这一栏目，我们知道Ocelot已经支持简单的负载功能，当下游站点存在多个服务结点的时候，Ocelot能够承担起负载均衡的作用。但是它不提供健康检查，服务的注册也只能通过手动在配置文件里面添加完成。这不够灵活并且在一定程度下会有风险。这个时候我们就可以用Consul来做服务发现，它能与Ocelot完美结合。</p> <p class="maodian"><a name="_lab2_1_4" rel="nofollow"></a></p> <h3>2.5集成Service Fabric（With Service Fabric）</h3> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220423/95ccee5becf96d3c2750b9b965c87fe2.jpg"></p> <p>如果您在Service Fabric中部署了服务，则通常将使用命名服务来访问它们。</p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.总结</h2> <p>Ocelot网关是系统给外部唯一访问入口，就好比公司的门卫承担着寻址、出入限制、安全检查、位置引导等等功能。它还提供了路由，身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理等等功能。Ocelot网关的核心要点是，所有的客户端和消费端都通过统一的网关接入微服务，在网关层处理所有的非业务功能。通常网关也是提供REST/HTTP的访问API，服务端通过网关注册和管理服务。该章节之后，我会继续根据GitHub贡献者开源项目上面Ocelot Demo实例介绍它的功能。</p> <p>Ocelot Demo地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/catcherwong-archive/APIGatewayDemo"   target="_blank" rel="nofollow">https://github.com/catcherwong-archive/APIGatewayDemo</a>。</p> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.什么是redis的发布与订阅</a></li> <li><a href="#_label1" rel="nofollow">2.Redis发布订阅</a></li> <li><a href="#_label2" rel="nofollow">3.命令行实现功能</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_2_0" rel="nofollow">订阅主题</a></li> <li><a href="#_lab2_2_1" rel="nofollow">模式匹配订阅</a></li> <li><a href="#_lab2_2_2" rel="nofollow">发布消息</a></li> <li><a href="#_lab2_2_3" rel="nofollow">取消订阅</a></li> <li><a href="#_lab2_2_4" rel="nofollow">测试</a></li> </ul> <li><a href="#_label3" rel="nofollow">4.SpringBoot实现功能</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_3_5" rel="nofollow">Springboot整合Redis</a></li> <li><a href="#_lab2_3_6" rel="nofollow">配置消息监听</a></li> <li><a href="#_lab2_3_7" rel="nofollow">测试</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.什么是redis的发布与订阅</h2> <p>在官网的文档介绍中有一行介绍：Redis是一个快速稳定的发布/订阅消息系统。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.Redis发布订阅</h2> <p>机制</p> <p>Redis提供了发布与订阅的功能，可以用于消息的传输，Redis的发布订阅机制包括三部分，发布者、订阅者和Channel（主题或者队列）。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/d564a53fab47e10c53ce5b912a4d256f.jpg"></p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.命令行实现功能</h2> <p class="maodian"><a name="_lab2_2_0" rel="nofollow"></a></p> <h3>订阅主题</h3> <p>Redis采用SUBSCRIBE channel命令订阅某个主题，返回的参数subscribe表示已经成功订阅主题，第二个参数表示订阅的主题名称，第三个表示当前订阅数</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; SUBSCRIBE ORDER-PAY-SUCCESS  Reading messages... (press Ctrl-C to quit)  1) "subscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_1" rel="nofollow"></a></p> <h3>模式匹配订阅</h3> <p>模式匹配功能是允许客户端订阅匹配某种模式的频道，Redis采用PSUBSCRIBE channel命令订阅匹配某种模式的所有频道，用*表示模式，*可以被任意值代替。</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; PSUBSCRIBE ORDER-PAY-*  Reading messages... (press Ctrl-C to quit)  1) "psubscribe"  2) "ORDER-PAY-*"  3) (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_2" rel="nofollow"></a></p> <h3>发布消息</h3> <p>Redis采用PUBLISH channel message命令在某个主题上发布消息，返回的参数是接收到消息的订阅者个数</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; PUBLISH ORDER-PAY-SUCCESS DD202109071525  (integer) 1  </pre> </div> <p class="maodian"><a name="_lab2_2_3" rel="nofollow"></a></p> <h3>取消订阅</h3> <p>Redis采用UNSUBSCRIBE channel或PUNSUBSCRIBE channel命令取消某个主题的订阅，由于Redis的订阅操作是阻塞式的，因此一旦客户端订阅了某个频道或模式，就将会一直处于订阅状态直到退出。在 SUBSCRIBE，PSUBSCRIBE，UNSUBSCRIBE 和 PUNSUBSCRIBE 命令中，其返回值都包含了该客户端当前订阅的频道和模式的数量，当这个数量变为0时，该客户端会自动退出订阅状态。</p> <div class="ay1code"> <pre class="brush:sql;">127.0.0.1:6379&gt; UNSUBSCRIBE ORDER-PAY-SUCCESS  1) "unsubscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 0  127.0.0.1:6379&gt; PUNSUBSCRIBE ORDER-PAY-SUCCESS  1) "punsubscribe"  2) "ORDER-PAY-SUCCESS"  3) (integer) 0  </pre> </div> <p class="maodian"><a name="_lab2_2_4" rel="nofollow"></a></p> <p class="maodian"><a name="_lab2_3_7" rel="nofollow"></a></p> <h3>测试</h3> <p>首先三个订阅者订阅ORDER-PAY-SUCCESS主题，当发送者在这个主题内发送订单号时，所有的订阅者都会收到这个主题的消息。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/615a3510bb29bac13626b72774c41e64.jpg"></p> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>4.SpringBoot实现功能</h2> <p class="maodian"><a name="_lab2_3_5" rel="nofollow"></a></p> <h3>Springboot整合Redis</h3> <p>引入依赖包</p> <div class="ay1code"> <pre class="brush:xml;">&lt;dependencies&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;              &lt;version&gt;2.2.10.RELEASE&lt;/version&gt;          &lt;/dependency&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;              &lt;version&gt;2.2.10.RELEASE&lt;/version&gt;          &lt;/dependency&gt;          &lt;dependency&gt;              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;              &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;              &lt;version&gt;2.4.1&lt;/version&gt;          &lt;/dependency&gt;      &lt;/dependencies&gt;  </pre> </div> <p>配置yaml文件</p> <div class="ay1code"> <pre class="brush:plain;">server:    port: 8888    spring:    application:      name: spring-boot-redis    redis:      host: 127.0.0.1      port: 6379</pre> </div> <p class="maodian"><a name="_lab2_3_6" rel="nofollow"></a></p> <h3>配置消息监听</h3> <div class="ay1code"> <pre class="brush:java;">import com.demo.redis.listener.MessageListener;  import org.springframework.context.annotation.Bean;  import org.springframework.context.annotation.Configuration;  import org.springframework.data.redis.connection.RedisConnectionFactory;  import org.springframework.data.redis.core.StringRedisTemplate;  import org.springframework.data.redis.listener.PatternTopic;  import org.springframework.data.redis.listener.RedisMessageListenerContainer;  import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;    /**   * @author Bai   * @date 2021/4/29 上午 11:17   * @description   */  @Configuration  public class RedisMessageConfig {        /**       * 监听订单支付完成主题       */      private static final String ORDER_PAY_SUCCESS = "ORDER-PAY-SUCCESS";        /**       * 注入消息监听适配器       * @param messageListener       * @return {@link MessageListenerAdapter}       * @throws       * @author Bai       * @date 2021/9/7 下午 03:54       */      @Bean      public MessageListenerAdapter getMessageListenerAdapter(MessageListener messageListener){          return new MessageListenerAdapter(messageListener, "onMessage");      }        /**       * 注入消息监听容器       * @param redisConnectionFactory       * @param messageListenerAdapter       * @return {@link RedisMessageListenerContainer}       * @throws       * @author Bai       * @date 2021/9/7 下午 03:54       */      @Bean      public RedisMessageListenerContainer getRedisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory, MessageListenerAdapter messageListenerAdapter){          RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();          redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);            //订阅订单支付成功主题          redisMessageListenerContainer.addMessageListener(messageListenerAdapter, new PatternTopic(ORDER_PAY_SUCCESS));          return redisMessageListenerContainer;      }        /**       * 处理内容       * @param connectionFactory       * @return {@link StringRedisTemplate}       * @throws       * @author Bai       * @date 2021/9/7 下午 04:01       */      @Bean      StringRedisTemplate template(RedisConnectionFactory connectionFactory) {          return new StringRedisTemplate(connectionFactory);      }  }</pre> </div> <p>接收消息</p> <div class="ay1code"> <pre class="brush:java;">import org.springframework.stereotype.Component;    /**   * @author Bai   * @date 2021/9/7 下午 03:51   * @description   */  @Component  public class MessageListener {        public void onMessage(String message){          System.out.println("接收消息：" + message);      }  }</pre> </div> <h3>测试</h3> <p>发送订单支付成功的消息</p> <div class="ay1code"> <pre class="brush:java;">import org.junit.Test;  import org.junit.runner.RunWith;  import org.springframework.boot.test.context.SpringBootTest;  import org.springframework.data.redis.core.StringRedisTemplate;  import org.springframework.test.context.junit4.SpringRunner;    import javax.annotation.Resource;    /**   * @author Bai   * @date 2021/9/7 下午 04:32   * @description   */  @RunWith(value = SpringRunner.class)  @SpringBootTest  public class RedisPubTest {        /**       * 订单支付完成主题       */      private static final String ORDER_PAY_SUCCESS = "ORDER-PAY-SUCCESS";        @Resource      private StringRedisTemplate stringRedisTemplate;        /**       * 模拟发送5调订单支付完成的消息       * @throws       * @author Bai       * @date 2021/9/7 下午 04:57       */      @Test      public void sendMessage(){          for (int i = 0; i &lt; 5; i++) {              stringRedisTemplate.convertAndSend(ORDER_PAY_SUCCESS,"DD" + System.currentTimeMillis());          }      }  }</pre> </div> <p>接收到订单支付成功的消息</p> <blockquote> <p>  .   ____          _            __ _ _<br /> /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \<br />( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \<br /> \\/  ___)| |_)| | | | | || (_| |  ) ) ) )<br />  '  |____| .__|_| |_|_| |_\__, | / / / /<br /> =========|_|==============|___/=/_/_/_/<br /> :: Spring Boot ::       (v2.2.10.RELEASE)</p> <p>2021-09-07 16:56:54.729  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : Starting RedisSubPubApplication on DESKTOP-595LI4G with PID 3712 (D:\Bai\Sources\spring-boot-demo\redis-sub-pub\target\classes started by 1 in D:\Bai\Sources\spring-boot-demo)<br />2021-09-07 16:56:54.735  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : No active profile set, falling back to default profiles: default<br />2021-09-07 16:56:55.205  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode!<br />2021-09-07 16:56:55.207  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.<br />2021-09-07 16:56:55.229  INFO 3712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 11 ms. Found 0 Redis repository interfaces.<br />2021-09-07 16:56:55.557  INFO 3712 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8888 (http)<br />2021-09-07 16:56:55.565  INFO 3712 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]<br />2021-09-07 16:56:55.565  INFO 3712 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.38]<br />2021-09-07 16:56:55.669  INFO 3712 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext<br />2021-09-07 16:56:55.669  INFO 3712 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 895 ms<br />2021-09-07 16:56:56.032  INFO 3712 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'<br />2021-09-07 16:56:56.950  INFO 3712 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8888 (http) with context path ''<br />2021-09-07 16:56:56.952  INFO 3712 --- [           main] com.demo.redis.RedisSubPubApplication    : Started RedisSubPubApplication in 2.557 seconds (JVM running for 3.436)<br />接收消息：DD1631005025949<br />接收消息：DD1631005025964<br />接收消息：DD1631005025965<br />接收消息：DD1631005025967<br />接收消息：DD1631005025968</p> </blockquote> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-76.htm">Docker知识点问题总结</a></p>
-                                        <p>下一个：<a href="/html/category/article-78.htm">php redis 二进制,关于php:PHP操作redis中bitMap</a></p>
+                                        <p>上一个：<a href="/html/category/article-76.htm">深入理解mmap&#8211;内核代码分析及驱动demo示例</a></p>
+                                        <p>下一个：<a href="/html/category/article-78.htm">jackson   json对象、实体类相互转换</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
-                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+                <h4><a href="/html/category/article-256.htm">2、java mybatis 命名空间</a></h4>
+                <p>命名空间： 在之前版本的 MyBatis 中，命名空间（Namespaces）的作用并不大，是可选的。 但现在，随着命名空间越发重要，你必须指定命名空间。 命名空间的作用有两个，一个是利用更长的全限定</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
-                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
-                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+                <h4><a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></h4>
+                <p>使用Python实现KNN算法解决简单分类问题 KNN分类 KNN算法属于监督学习算法，它可以解决分类问题，也可以解决回归问题。对于一组带标签的数据，当我们使用KNN算法进行分类时，有两种分类方式。K</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-207.htm">C ++中的虚拟基类</a></h4>
+                <p>在本教程中，我们将讨论一个程序，以了解C ++中的虚拟基类。 虚拟类主要在多重继承期间使用。为了避免将同一类的多个实例带到同一类中，这随后会引起歧义，因此使用虚拟类。 示例 #include&nbsp</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
+                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-222.htm">vue 配置全局模块、SASS（自动引入模块）</a></h4>
+                <p>ProvidePlugin Automatically load modules instead of having to import or require them everywhere 自动引入</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
-                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-243.htm">tomcat服务器项目迁移到另外一台tomcat服务器</a></h4>
+                <p>流程  打开虚拟机, 访问需要迁移的服务器(账号密码请向领导或运维索要) 找到需要迁移的项目, 一般在所在tomcat盘符/公司名/项目名, 例如我所在的公司服务放置在 D:\tomcat\tomca</p>
             </div>
         </div>
     </div>

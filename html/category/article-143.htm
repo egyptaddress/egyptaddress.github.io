@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-143.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Java调用ffmpeg处理视频，并记录下遇到的坑 - EgyptAddress</title>
+    <title>Git基础之协作模式详解 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Java调用ffmpeg处理视频，并记录下遇到的坑</h1>
+                <h1 class="title" style="word-break: break-all;">Git基础之协作模式详解</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3>目录</h3> <ul> <li><a href="#_1" rel="nofollow">需求</a></li> <li><a href="#JavaCVffmpeg1_4" rel="nofollow">基于JavaCV跨平台执行ffmpeg命令[^1]</a></li> <li><a href="#___27" rel="nofollow">坑一 内存不足</a></li> <li><a href="#_ffmpegIOio_error_31" rel="nofollow">坑二 多个ffmpeg进程并行导致IO负载大，进而导致io error?</a></li> <li><a href="#_Javaffmpeg_34" rel="nofollow">坑三 使用Java操作ffmpeg时，有时会卡死</a></li> <li><a href="#_ProcesswaitFor_37" rel="nofollow">坑四 Process的waitFor死锁问题及解决办法</a></li> </ul> </div> <h1> <a id="_1" rel="nofollow"></a>需求</h1> <p>给透明背景的视频自动叠加一张背景图片</p> <h1> <a id="JavaCVffmpeg1_4" rel="nofollow"></a>基于JavaCV跨平台执行ffmpeg命令<sup class="footnote-ref"><a href="#fn1" id="fnref1" rel="nofollow">1</a></sup><br /> </h1> <p>我测试发现的本需求的最小依赖：</p> <pre><code class="prism language-xml"><span class="token comment">&lt;!-- Optional GPL builds with (almost) everything enabled --&gt;</span>     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>       <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.bytedeco<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>       <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>ffmpeg-platform-gpl<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>       <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>5.0-1.5.7<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span> </code></pre> <p>核心代码：</p> <pre><code class="prism language-java">  <span class="token class-name">String</span> ffmpeg <span class="token operator">=</span> <span class="token class-name">Loader</span><span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span>org<span class="token punctuation">.</span>bytedeco<span class="token punctuation">.</span>ffmpeg<span class="token punctuation">.</span>ffmpeg<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token class-name">String</span> tempFilePath <span class="token operator">=</span> newVideoName<span class="token punctuation">;</span>   <span class="token class-name">ProcessBuilder</span> pb <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ProcessBuilder</span><span class="token punctuation">(</span>ffmpeg<span class="token punctuation">,</span>       <span class="token string">"-y"</span><span class="token punctuation">,</span> <span class="token string">"-i"</span><span class="token punctuation">,</span> BACKGROUND_PNG<span class="token punctuation">,</span> <span class="token string">"-c:v"</span><span class="token punctuation">,</span> <span class="token string">"libvpx-vp9"</span><span class="token punctuation">,</span> <span class="token string">"-i"</span><span class="token punctuation">,</span> aliVideoUrl<span class="token punctuation">,</span> <span class="token string">"-filter_complex"</span><span class="token punctuation">,</span>       <span class="token string">"[0][1]overlay=0:0[video2];[video2]select=between(n\\,1\\,54000)"</span><span class="token punctuation">,</span> <span class="token string">"-b:v"</span><span class="token punctuation">,</span> <span class="token string">"2m"</span><span class="token punctuation">,</span> <span class="token string">"-r"</span><span class="token punctuation">,</span>       <span class="token string">"30"</span><span class="token punctuation">,</span> <span class="token string">"-c:v"</span><span class="token punctuation">,</span> <span class="token string">"libx264"</span><span class="token punctuation">,</span> <span class="token string">"-pix_fmt"</span><span class="token punctuation">,</span> <span class="token string">"yuv420p"</span><span class="token punctuation">,</span> <span class="token string">"-profile:v"</span><span class="token punctuation">,</span> <span class="token string">"high"</span><span class="token punctuation">,</span> <span class="token string">"-preset:v"</span><span class="token punctuation">,</span>       <span class="token string">"veryslow"</span><span class="token punctuation">,</span> <span class="token string">"-tune"</span><span class="token punctuation">,</span> <span class="token string">"film"</span><span class="token punctuation">,</span> <span class="token string">"-level"</span><span class="token punctuation">,</span> <span class="token string">"4.2"</span><span class="token punctuation">,</span> tempFilePath<span class="token punctuation">)</span><span class="token punctuation">;</span>   pb<span class="token punctuation">.</span><span class="token function">inheritIO</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">waitFor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token class-name">File</span> tempFile <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span>tempFilePath<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <h1> <a id="___27" rel="nofollow"></a>坑一 内存不足</h1> <p>服务器内存不足导致合成视频实际失败，许多的合成文件只有48B，但是没有与之相关的错误日志。<br /> 每个服务器节点原来只有2G内存，扩容后解决。</p> <h1> <a id="_ffmpegIOio_error_31" rel="nofollow"></a>坑二 多个ffmpeg进程并行导致IO负载大，进而导致io error?</h1> <p>这只是一种推测。现象是我会有多个Java线程，每个线程都来调用ffmpeg命令。合成的视频有概率缺失后面一段，并可以在日志中观察到io error, read error。源视频越大，Java线程数越多，出现这种情况的概率越大。当我把Java程序改为单线程，就没有这种问题了。但当我尝试用iostat命令去服务器节点观察IO状态时，并没有观察到所谓IO负载大的证据。<sup class="footnote-ref"><a href="#fn2" id="fnref2" rel="nofollow">2</a></sup></p> <h1> <a id="_Javaffmpeg_34" rel="nofollow"></a>坑三 使用Java操作ffmpeg时，有时会卡死</h1> <p>只发生在我本地Mac，在服务器没有出现过。我找了很久原因，最后发现是我的Mac跑了一段时间后自动休眠了。。不过也记录下很多人都遇到过的这个坑吧：</p> <h1> <a id="_ProcesswaitFor_37" rel="nofollow"></a>坑四 Process的waitFor死锁问题及解决办法</h1> <p>大意是：当Runtime对象调用exec(cmd)后，JVM会启动一个子进程，该进程会与JVM进程建立三个管道连接：标准输入，标准输出和标准错误流。假设该程序不断在向标准输出流和标准错误流写数据，而JVM不读取的话，当缓冲区满之后将无法继续写入数据，而Java的waitfor()是阻塞等待子进程完成的。所以会最终造成阻塞在waitfor()这里。解决的主要思路是Java要及时消费这个缓冲区的io流，或者直接不让ffmpeg输出日志。一些参考：</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/psyduck/p/14085657.html"  rel="nofollow">使用Procees+Runtime操作ffmpeg时，执行比较大的文件操作会卡死，但cmd打开ffmpeg能正常执行</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/qq_16504067/article/details/114962498?app_version=5.8.1&amp;code=app_1562916241&amp;csdn_share_tail=%7B%22type%22:%22blog%22,%22rType%22:%22article%22,%22rId%22:%22114962498%22,%22source%22:%22qq_23204557%22%7D&amp;uLinkId=usr1mkqgl919blen&amp;utm_source=app"  rel="nofollow">Java process.waitFor() 卡死问题</a>里提到了，也可以直接给ffmpeg命令加上<code>-loglevel quiet</code>参数来不让输出日志。</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/qq_34680444/article/details/109642653"  rel="nofollow">Process的waitFor死锁问题及解决办法</a></p> <hr class="footnotes-sep"/> <section class="footnotes"> <ol class="footnotes-list"> <li id="fn1" class="footnote-item"> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.51cto.com/eguid/4894370"  rel="nofollow">如何跨平台调用ffmpeg？史上最简单基于JavaCV跨平台执行ffmpeg命令</a> <a href="#fnref1" class="footnote-backref" rel="nofollow">↩︎</a></p> </li> <li id="fn2" class="footnote-item"> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/ggjucheng/archive/2013/01/13/2858810.html"  rel="nofollow">Linux IO实时监控iostat命令详解</a> <a href="#fnref2" class="footnote-backref" rel="nofollow">↩︎</a></p> </li> </ol> </section> </div> 			                </div>
+                      				  				  				<div class="toc"> <div class="toc-container-header">目录</div> <ul> <li><a href="#1%E5%88%86%E5%B8%83%E5%BC%8F%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B" rel="nofollow">1、分布式工作流程</a></li> <li><a href="#2%E9%9B%86%E4%B8%AD%E5%BC%8F%E5%B7%A5%E4%BD%9C%E6%B5%81" rel="nofollow">2、集中式工作流</a></li> <li><a href="#3%E5%88%86%E6%94%AF%E5%B7%A5%E4%BD%9C%E6%B5%81" rel="nofollow">3、分支工作流</a></li> <li><a href="#4gitflow-%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%9C%80%E6%B5%81%E8%A1%8C" rel="nofollow">4、GitFlow 工作流(最流行)</a></li> <li><a href="#5forking-%E5%B7%A5%E4%BD%9C%E6%B5%81%E5%81%B6%E5%B0%94%E4%BD%BF%E7%94%A8" rel="nofollow">5、Forking 工作流(偶尔使用)</a></li> <li><a href="#6%E6%80%BB%E7%BB%93" rel="nofollow">6、总结</a></li> </ul> </div> <h2 id="1分布式工作流程">1、分布式工作流程</h2> <p>与传统的集中式版本控制系统（CVCS）相反，Git 的分布式特性，使开发者间的协作变得更加灵活多样。</p> <p>在集中式版本控制系统中，每个开发者就像是连接在集线器上的节点，彼此的工作方式大体相像。 而在 Git 中，每个开发者同时扮演着节点和集线器的角色。也就是说， 每个开发者既可以将自己的代码贡献到其他的仓库中，同时也能维护自己的公开仓库， 让其他人可以在其基础上工作并贡献代码。</p> <p>由此，Git 的分布式协作可以为你的项目和团队，衍生出种种不同的工作流程， 接下来会介绍几种常见Git工作流程。</p> <p>你可以选择使用其中的某一种，或者将它们的特性混合搭配使用。</p> <h2 id="2集中式工作流">2、集中式工作流</h2> <p>Git为了便于客户机之间的协同工作，Git版本控制系统一般会设置一个中央版本库服务器，目的是让所有客户机都从该主机更新版本，提交最新版本，该工作模式下的客户机地位都平等。</p> <p>集中式工作流像SVN一样，以中央仓库作为项目所有修改的单点实体，所有修改都提交到<code>Master</code>分支上。这种方式与 SVN 的主要区别就是开发人员有本地库，但是Git 很多特性并没有用到。</p> <p>如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/14d852b39670524d5989c2421a7e24c9.jpg" alt="Git基础之协作模式详解"></p> <p>上图说明：</p> <ul> <li>一个远程仓库。</li> <li>一个主分支<code>master</code>。</li> <li>团队每个成员都有一个本地仓库，在本地仓库中进行代码的编辑、暂存和提交工作。</li> </ul> <p><strong>集中式工作流总结：</strong></p> <ul> <li>适用人群：小型开发小团队，习惯使用SVN工具的小团队。</li> <li>工作方式： <ul> <li>团队组长创建远程仓库，创建一个<code>master</code>分支，组员可读可写。</li> <li>每个开发人员都<code>git clone</code>远程仓库到本地仓库，在<code>master</code>分支上开发。</li> <li>每次开发都要<code>git pull</code>更新远程仓库的<code>master</code>分支版本到本地。</li> <li>每次开发完成就<code>git commit</code>到本地仓库， 接着<code>git push</code>到远程仓库。</li> </ul> </li> <li>缺点： <ul> <li>忘了<code>git push</code>，一直会提交到本地仓库，没有推送到远程仓库。</li> <li>忘了<code>git pull</code>，导致本地仓库与中央仓库不一致，发生文件冲突。</li> <li>大量操作<code>git pull</code>，导致增加Git分支合并次数，增加了Git变基次数，降低了Git的性能。</li> </ul> </li> </ul> <h2 id="3分支工作流">3、分支工作流</h2> <p>功能分支工作流在集中式工作流的基础上，为各个新功能分配一个专门的分支来开发，即在<code>master</code>主分支外在创建一个分支，程序员开发的新功能全部<code>push</code>到此分支上，等到功能成熟的时候，再把此分支合并到主分支<code>master</code>上。</p> <p>如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d155620202148844d2f8f55884807563.jpg" alt="Git基础之协作模式详解"></p> <p><strong>分支工作流总结：</strong></p> <ul> <li>适用人群：小型开发团队，熟悉Git分支的团队。</li> <li>工作方式： <ul> <li>团队组长创建远程仓库，创建一个<code>master</code>分支，组员可读不可写。</li> <li>每个开发人员都<code>git clone</code>远程仓库到本地仓库。</li> <li>每个开发人员创建自己的<code>feature</code>分支，在<code>feature</code>分支上开发。（记住，<code>feature</code>分支是基于<code>master</code>分支）</li> <li>每个开发人员每次开发完成就<code>git commit</code>到本地仓库中自己的<code>feature</code>分支， 接着<code>git push</code>到远程仓库。</li> <li>通过<code>pull request</code>提醒团队组长，浏览组员提交<code>feature</code>分支。</li> <li>组长把<code>feature</code>分支拉下来，然后合并到自己本地仓库的<code>master</code>分支上测试。</li> <li>组长测试<code>feature</code>分支通过之后，由组长负责把<code>feature</code>分支合并到远程仓库的<code>master</code>分支上。</li> <li>组长在远程仓库把合并过的<code>feature</code>分支删除。</li> <li>组员在本地仓库把合并过的<code>feature</code>分支删除。</li> <li>组员将本地仓库分支切换为<code>master</code>分支，然后<code>git pull</code>将本地仓库的<code>master</code>分支更新到远程仓库的<code>master</code>分支版本。</li> </ul> </li> <li>缺点： <ul> <li>增加团队组长的工作量。</li> <li>增加团队组员提交步骤。</li> </ul> </li> </ul> <blockquote> <p>说明：<code>Pull Request</code>作用是可以让其他组员或组长可以查看你的代码，并可以提出代码修改意见或者讨论。</p> </blockquote> <h2 id="4gitflow-工作流最流行">4、GitFlow 工作流(最流行)</h2> <p><strong>Gitflow工作流</strong>没有用超出上面<strong>功能分支工作流</strong>的概念和命令，而是为不同的分支，分配一个很明确的角色，并定义分支之间如何交互，和什么时候进行交互。</p> <ul> <li>除了有<code>master</code>主分支（用于存储正式发布的历史版本）外，还有一个作为功能集成分支的<code>develop</code>分支。<br /> 当初始化完成后，某个程序员想要开发一个功能，并不是直接从<code>master</code>分支上拉出新分支，而是使用<code>develop</code>分支作为父分支来拉出新分支。<br /> 当新功能完成后，再合并回父分支，<strong>新功能的提交并不与<code>master</code>分支直接交互</strong>。</li> <li>一旦<code>develop</code>分支上有了做一次发布（或者说快到了既定的发布日）的足够功能，就从<code>develop</code>分支上<code>checkout</code>一个发布分支。<br /> 新建的发布分支用于开始发布循环，所以从这个时间点开始之后新的功能，不能再加到这个分支上，该分支只应该做Bug修复、文档生成和其它面向发布任务。<br /> 一旦对外发布的工作都完成了，发布分支合并到<code>master</code>分支，并分配一个版本号打好<code>Tag</code>。<br /> 另外，这些从新建发布分支以来的做的修改，要合并回<code>develop</code>分支上。</li> <li>维护分支或说是热修复（<code>hotfix</code>）分支用于，快速给产品发布版本（<code>production releases</code>）打补丁，这是唯一可以直接从<code>master</code>分支<code>fork</code>出来的分支。<br /> 修复完成，修改应该马上合并回<code>master</code>分支和<code>develop</code>分支（当前的发布分支），<code>master</code>分支应该用新的版本号打好<code>Tag</code>。<br /> 为Bug修复使用专门分支，让团队可以快速处理掉问题，而不用打断其它工作或是等待下一个发布循环。<br /> 你可以把维护分支想成是一个直接在<code>master</code>分支上处理的临时发布。</li> </ul> <p><strong>总结就是</strong>：<code>Gitflow</code> 工作流通过为<strong>功能开发</strong>、<strong>发布准备</strong>和<strong>维护</strong>设立了独立的分支，让发布迭代过程更流畅，充分的利用了分支的特点。严格的分支模型也为大型项目提供了一些非常必要的结构。</p> <p>下图是完整的<code>Gitflow</code> 工作流开发方式图，但实际开发工作环境可能会精简：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/128079da63c4d3c8fe3d658b95391160.jpg" alt="Git基础之协作模式详解"></p> <p><strong>Gitflow工作流总结：</strong></p> <ul> <li>适用人群：任何开发团队，熟悉Git分支的团队。</li> <li>工作方式： <ul> <li>项目维护者创建项目维护者的远程仓库，创建<code>master</code>分支与<code>develop</code>分支，贡献者可读不可写。</li> <li>每个贡献者<code>git clone</code>远程仓库中的<code>develop</code>分支到本地仓库。（记住，<code>develop</code>分支相当于<code>master</code>的分支，包括功能开发，修改，测试。<code>master</code>分支相当于最终分支）</li> <li>每个贡献者在本地仓库创建自己的<code>feature</code>分支，在<code>feature</code>分支上开发。</li> <li>在<code>feature</code>分支又可以创建多个<code>feature</code>分支，继续开发项目。</li> <li>每个贡献者每次开发完成就<code>git commit</code>到本地仓库中自己的<code>feature</code>分支， 接着<code>git push</code>到远程仓库。</li> <li>通过<code>pull request</code>提醒项目维护者，浏览贡献者提交<code>feature</code>分支。</li> <li>项目维护者把<code>feature</code>分支拉下来，然后合并到自己本地仓库的<code>develop</code>分支上测试。</li> <li>组长测试<code>feature</code>分支通过之后，由组长负责把<code>feature</code>分支合并到远程仓库的<code>develop</code>分支上。</li> <li>项目维护者会<code>release</code>分支上<code>git tag</code>打上版本号。</li> <li>项目维护者可以从<code>develop</code>分支创建<code>release</code>分支，接着把<code>release</code>分支合并到<code>master</code>分支上，同时<code>master</code>分支同步到<code>develop</code>分支。</li> <li>项目维护者在远程仓库把合并过的<code>feature</code>分支删除。</li> <li>每个贡献者在本地仓库把合并过的<code>feature</code>分支删除。</li> <li>每个贡献者将本地仓库分支切换为<code>develop</code>分支，然后<code>git pull</code>将本地仓库的<code>master</code>分支更新到远程仓库的<code>develop</code>分支版本。</li> </ul> </li> </ul> <blockquote> <p>说明：Gitflow工作流是<code>Vincent Driessen</code>工程师提出的多分支工作流。</p> </blockquote> <h2 id="5forking-工作流偶尔使用">5、Forking 工作流(偶尔使用)</h2> <p>分叉(<code>Forking</code>)工作流也可以叫做分布式工作流，是在 GitFlow工作流的基础上的衍生，充分利用了Git在分支和克隆上的优势，再加上<code>pull request</code> 的功能，以达到代码审核的目的。既可以管理大团队的开发者（<code>developer</code>）的提交，也可以接受不信任贡献者（<code>contributor</code>）的提交。</p> <p><strong>这种工作流使得每个开发者都有一个服务端仓库（此仓库只有自己可以<code>push</code>推送，但是所有人都可以<code>pull</code>拉取修改）</strong>，每个程序员都<code>push</code>代码到自己的服务端仓库，但不能<code>push</code>到正式仓库，只有项目维护者才能<code>push</code>到正式仓库，这样项目维护者可以接受任何开发者的提交，但无需给他正式代码库的写权限。</p> <p>这种工作流适合开源社区的开源项目，大家统一对项目做贡献，但是有一个人或一个团队作为开发者来管理项目，所有的贡献者的代码由开发者审核，其功能完善之后再由开发者<code>push</code>到正式仓库中。</p> <p><strong>总结：</strong></p> <ul> <li>分叉(<code>Forking</code>)工作流更适合安全可靠地管理大团队的开发者，而且能接受不信任贡献者的提交。</li> <li>在实际工作中，如果偶尔有需要团队外的成员帮我们解决问题时，可能会用到。</li> <li>这种工作流程并不常用，只有当项目极为庞杂，或者需要多级别管理时，才会体现出优势。 利用这种方式，项目总负责人（即主管）可以把大量分散的集成工作，委托给不同的小组负责人分别处理，然后在不同时刻将大块的代码子集统筹起来，用于之后的整合。</li> </ul> <p>图示如下：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1164f0fa7eda7f6ee4a1e60d4f7cf0a2.jpg" alt="Git基础之协作模式详解"></p> <blockquote> <p>提示：</p> <ul> <li>每个成员都可以从中央版本库中拉取代码。</li> <li>每级成员都只能向上一级提交代码。</li> <li>上一级合并代码之后继续向上级提交代码。</li> <li>最后只有独裁者才能向中央版本库提交代码。</li> </ul> </blockquote> <p><strong>分叉工作流（分布式仓库工作流）总结：</strong></p> <ul> <li>适用人群：大型开发团队，熟悉Git分支的团队。</li> <li>工作方式： <ul> <li>主项目维护者创建远程仓库，创建一个<code>master</code>分支，从项目维护者可读不可写。</li> <li>从项目维护者通过<code>fork</code>主项目维护者的远程仓库的副本，到自己的远程仓库，包括<code>master</code>分支。（记住，从项目维护者的远程仓库独立于主项目维护者的远程仓库）</li> <li>从项目维护者<code>git clone</code>主项目维护者的远程仓库的副本到本地仓库。</li> <li>从项目维护者创建自己的<code>feature</code>分支，在<code>feature</code>分支上开发。</li> <li>从项目维护者每次开发完成就<code>git commit</code>到本地仓库中自己的<code>feature</code>分支， 接着<code>git push</code>到远程仓库。</li> <li>通过<code>pull request</code>命令，从项目维护者合并自己<code>feature</code>分支，到从项目维护者的远程仓库的<code>master</code>分支上。</li> <li>从项目维护者在远程仓库把合并过的<code>feature</code>分支删除。</li> <li>从项目维护者在本地仓库把合并过的<code>feature</code>分支删除。</li> <li>从项目维护者在远程仓库通过<code>pull request</code>向主项目维护者的远程仓库的推送。</li> <li>主项目维护者通过<code>pull request</code>获取从项目维护者的远程仓库的推送。</li> <li>主项目维护者进行从项目维护者的远程仓库代码审查，测试。</li> <li>主项目维护者确认无误后，可以直接合并到主项目维护者的远程仓库。</li> </ul> </li> </ul> <h2 id="6总结">6、总结</h2> <p>上面介绍了在Git分布式系统中经常使用的工作流程，但是在实际的开发中，你会遇到许多可能适合你的特定工作流程的变种，你可以按照实际的情况，灵活的进行组合和拓展。</p> <blockquote> <p>参考：</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/shengzhu1/article/details/77990582"  target="_blank" rel="nofollow">https://blog.csdn.net/shengzhu1/article/details/77990582</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/weixin_43691058/article/details/106427915"  target="_blank" rel="nofollow">https://blog.csdn.net/weixin_43691058/article/details/106427915</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/weixin_30344795/article/details/96683694"  target="_blank" rel="nofollow">https://blog.csdn.net/weixin_30344795/article/details/96683694</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://git-scm.com/book/zh/v2/"  target="_blank" rel="nofollow">https://git-scm.com/book/zh/v2/</a></li> </ul> </blockquote> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-142.htm">vue中自定义右键菜单插件_vue.js_</a></p>
-                                        <p>下一个：<a href="/html/category/article-144.htm">PHP 关联数组详解</a></p>
+                                        <p>上一个：<a href="/html/category/article-142.htm">Zookeeper的Watch机制实现配置中心</a></p>
+                                        <p>下一个：<a href="/html/category/article-144.htm">springboot集成swagger碰到的坑（报404）</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-204.htm">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></h4>
+                <p>今天在学习Kafka的时候，写了个脚本，用于集群中kafka的群起。发现启动不了。???? 去掉-daemon参数后，继续启动，看到了它报的错误(日志中也有显示)。找不到java？？？ 看了相关资料后</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
+                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-250.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></h4>
+                <p>Redis的数据淘汰策略  volatile-lru（least recently used）：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰 vol</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
+                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
+                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
             </div>
         </div>
     </div>

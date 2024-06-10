@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-158.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Nginx部署多个spring-boot项目(jar方式部署) - EgyptAddress</title>
+    <title>idea中配置maven仓库 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Nginx部署多个spring-boot项目(jar方式部署)</h1>
+                <h1 class="title" style="word-break: break-all;">idea中配置maven仓库</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.open-xcloud.com/"  rel="nofollow">个人技术网站</a>&nbsp;欢迎关注</p> <p>springboot项目部署到服务器常见的方式就是打成war包部署Tomcat或者打成jar包直接使用内置容易运行，很多人现在都打成war包部署到tomcat，这种方式虽然没问题 &nbsp;但是后期维护比较麻烦。从官方的说明中 打成jar部署是最好的方式，但是这样又有个问题 如果同时部署多个spring-boot项目 端口不一样 &nbsp;怎么通过域名来访问呢，接下来就需要Nginx出手了，<span style="color:#333333;">Nginx</span><span style="color:#333333;">&nbsp;是一个高性能的</span><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://baike.baidu.com/item/HTTP"  rel="nofollow">HTTP</a><span style="color:#333333;">和</span><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://baike.baidu.com/item/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"  rel="nofollow">反向代理</a><span style="color:#333333;">服务器，也是一个IMAP/POP3/SMTP</span><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://baike.baidu.com/item/%E6%9C%8D%E5%8A%A1%E5%99%A8"  rel="nofollow">服务器</a><span style="color:#333333;">。很适合部署springboot，<span style="color:#333333;">Nginx的安装这里不在做教程 &nbsp;给出主要nginx.conf的配置</span></span></p> <pre class="has"><code class="language-html">server {     listen       80;     server_name  127.0.0.1;     access_log logs/book.log;     error_log logs/book.error;      #将/wx-service请求转发给http://127.0.0.1:8011/wx-service处理     location /wx-service {         proxy_set_header Host $host;         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;         proxy_pass http://127.0.0.1:8011/wx-service;     }      #将/bootdo请求转发给http://127.0.0.1:8012/bootdo处理     location /bootdo {         proxy_set_header Host $host;         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;         proxy_pass http://127.0.0.1:8012/bootdo;     }      #将/xcloud-service请求转发给http://127.0.0.1:8013/xcloud-api处理     location /xcloud-service {         proxy_set_header Host $host;         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;         proxy_pass http://127.0.0.1:8013/xcloud-api;     }      #将/eureka-service请求转发给http://127.0.0.1:8081/eureka-service处理     location /eureka-service {         proxy_pass http://127.0.0.1:8081/eureka-service; #这里的端口记得改成项目对应的哦         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;         proxy_set_header X-Forwarded-Proto $scheme;         proxy_set_header X-Forwarded-Port $server_port;     }      #将/xcloud-api请求转发给http://127.0.0.1:8082/xcloud-api处理     location /xcloud-api {         proxy_pass http://127.0.0.1:8082/xcloud-api; #这里的端口记得改成项目对应的哦         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;         proxy_set_header X-Forwarded-Proto $scheme;         proxy_set_header X-Forwarded-Port $server_port;     } }</code></pre> <p><span style="color:#333333;"><span style="color:#333333;">将nginx的端口改成80端口 域名就可以直接访问 service_name可以为localhost 代表本机 localtion /XXX这块就是配置nginx端口转发 不输了几个项目就配置几个 也可以将tomcat中的项目配置在这 也是没问题的 &nbsp;根据上述配置 在sbin目录执行 ./nginx -s reload 刷新nginx配置就会生效了</span></span></p> <p><span style="color:#333333;"><span style="color:#333333;">在这提供一个spring-boot快速重启shell脚本 亲测有效</span></span></p> <pre class="has"><code class="language-html">export JAVA_HOME=/usr/local/java/jdk1.8.0_162 export PATH=$JAVA_HOME/bin:$PATH export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar  Port=8081 JarName=clouddo-server.jar LogsPatch=./logs_$Port   ID=`ps -ef | grep $Port | grep -v "grep" | awk '{print $2}'`   echo $ID   echo "---------------"   for id in $ID   do   kill -s 9 $id   echo "killed $id"   done   echo "---------------"    rm -rf $LogsPatch mkdir $LogsPatch  export LANG=zh_CN.UTF-8  set -m   nohup java -jar -Dlogging.path=$LogsPatch  $JarName&gt;$LogsPatch/catlina.out 2&gt;&amp;1 &amp;  tail -f $LogsPatch/catlina.out</code></pre> <p><span style="color:#333333;"><span style="color:#333333;">保存命名为xx.sh</span></span></p> <p><span style="color:#333333;"><span style="color:#333333;">记住 &nbsp;springboot项目得在配置文件中配置</span></span></p> <pre class="has"><code class="language-html">server:   &nbsp;&nbsp;&nbsp;context-path: /xcloud-api</code></pre> <p><span style="color:#555555;">Spring boot</span><span style="color:#555555;">默认是</span><span style="color:#555555;">/<span style="color:#555555;">这样直接通过</span><span style="color:#555555;"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://ip/"  rel="nofollow">http://ip:port/</a></span><span style="color:#555555;">就可以访问到</span><span style="color:#555555;">index</span><span style="color:#555555;">页面 但是我们要通过nginx配置多项目的话就要给每一个项目单独指定context-path</span></span></p> <p><span style="color:#333333;"><span style="color:#333333;">在服务器目录根据个人喜好新建一个文件夹 专门用来存放spring-boot打包成的jar 和重启脚本 类似这样</span></span></p> <p><span style="color:#333333;"><span style="color:#333333;"><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/55bd5125e3da3cfc8ca9eb38a41670c5.jpg"></span></span></p> <p><span style="color:#333333;"><span style="color:#333333;"><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/7afe4fdad32b1ca22dc1dbd4e0e3efa5.jpg"></span></span></p> <p><span style="color:#333333;"><span style="color:#333333;"><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/4d97a92bc117c4d768d14810e85bb708.jpg"></span></span></p> <p><span style="color:#333333;"><span style="color:#333333;">这样方便管理 logs目录是启动脚本之后生成的日志文件夹 &nbsp;忽略 一个项目对应一个文件夹 里面包含项目jar和一个重启shell脚本</span></span></p> <p><span style="color:#333333;"><span style="color:#333333;">这样就可以同时后台启动多个springboot项目并且通过一个域名来访问这些项目 &nbsp;如果要实时查看日志 请进入到每个项目文件的logs-目录执行</span></span></p> <p><span style="color:#333333;"><span style="color:#333333;">tail -f catlina.out就可以查看了 &nbsp; 如有不足请指出 &nbsp;多多谅解......</span></span></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>1、首先选择File—找到new project setting —setting for new ......</p> <p><img fetchpriority="high" decoding="async" alt="" height="533" src="http://img.555519.xyz/uploads3/20220603/8f9738bcc5b2c2f67afe1f8d6aa33248.jpg"></p> <p>&nbsp;2、在弹出框选择build 里边的maven 根据如图所示进行配置</p> <p><img decoding="async" alt="" height="887" src="http://img.555519.xyz/uploads3/20220603/2ec787ee6c717c2f6a8d5df5f700cb4a.jpg"></p> <p><img decoding="async" alt="" height="604" src="http://img.555519.xyz/uploads3/20220603/fb4b848761c4fd5a28ed5a132fd66e63.jpg"></p> <p><img loading="lazy" decoding="async" alt="" height="887" src="http://img.555519.xyz/uploads3/20220603/e83db078ee4c7974d229f24c299be0c2.jpg"></p> <p>配置完成之后，maven仓库在idea就可以使用了</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-157.htm">浅谈Vue的双向绑定和单向数据流冲突吗_vue.js_</a></p>
-                                        <p>下一个：<a href="/html/category/article-159.htm">记一次 Nuxt 3 在 Windows 下的打包问题</a></p>
+                                        <p>上一个：<a href="/html/category/article-157.htm">实现一个通讯录，可以用来存储1000个人的信息，每个人的信息包括：姓名，年龄，性别，电话，住址</a></p>
+                                        <p>下一个：<a href="/html/category/article-159.htm">Servlet的url-pattern配置</a></p>
                                     </div>
 
                             </div>
@@ -92,37 +92,7 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
+                <h4><a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></h4>
                 <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
             </div>
         </div>
@@ -132,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
-                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
+                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
             </div>
         </div>
     </div>
@@ -142,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
-                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>
@@ -152,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">使用JSR-303 Validation后端验证</a></h4>
-                <p>&nbsp; 一、JSR-303简介：官网  JSR-303 是 JAVA EE 6 中的一项子规范，叫做 Bean Validation，官方参考实现是Hibernate Validator。 此实</p>
+                <h4><a href="/html/category/article-260.htm">dataframe数据自动对齐</a></h4>
+                <p>import pandas as pd import numpy as np  # Pandas 可以根据索引实现数据自动对齐，索引不重合的部分被置为NaN  df1 = pd.DataFrame(n</p>
             </div>
         </div>
     </div>
@@ -162,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
-                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -172,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -182,8 +152,38 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
+                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
+                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
+                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-230.htm">java中RabbitMQ高级应用_java</a></h4>
+                <p>目录  1、消息可靠性投递   1.1、确认模式  1.2、退回模式  1.3、确认机制  2、消费端限流  3、消息过期时间  4、死信队列   4.1、死信概念  4.2、延迟队列     1、消</p>
             </div>
         </div>
     </div>

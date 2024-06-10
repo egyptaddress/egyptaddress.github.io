@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-234.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>数据传输POST心法分享，做前端的你还解决不了这个bug？ - EgyptAddress</title>
+    <title>Pandas 如何处理超大规模数据 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">数据传输POST心法分享，做前端的你还解决不了这个bug？</h1>
+                <h1 class="title" style="word-break: break-all;">Pandas 如何处理超大规模数据</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h3 id="背景">背景</h3> <p>随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。</p> <p>由于代码没有发生任何变动，前端相关依赖也没有升级，服务端java版本也没有变化，所以我们可以推定为环境问题；进一步仔细检查，经过反复对比后突然发现服务端收到的压缩内容变长了；和前端请求内容进行对比，发现所有的\r和\n都变成了\r\n。</p> <p>综合以上分析我们初步判断：问题出在了浏览器转译之中。为了验证猜想是否正确，葡萄将chrome版本回退到92版，异常消失，服务端接收的内容也没有被替换。</p> <p>问题是顺利解决了，但是Chrome POST数据内容居然会在传输过程中发生变化。一直擅长大前端技术的葡萄绝不认输，为了弄明白这一原因，我们来看看POST的细节操作到底有什么。<br /> 控制字符<br /> 首先我们需要搞清楚几个控制字符的含义。</p> <ul> <li>回车符（CR）和换行符（LF）是文本文件用于标记换行的控制字符（control characters）或字节码（bytecode）。</li> <li>CR = Carriage Return，回车符号（\r，十六进制 ascii 码为0x0D，十进制 ascii 码为13），用于将鼠标移动到行首，并不前进至下一行。</li> <li>LF = Line Feed，换行符号（ \n, 十六进制 ascii 码为 0x0A，十进制 ascii 码为10）。<br /> 紧邻的 CR 和 LF（组成 CRLF，\r\n，或十六进制 0x0D0A）将鼠标移动到下一行行首。（Windows 操作系统默认的文本换行符为 CRLF；Linux 以及 macOS 系统默认使用 LF，早期的 mac os 系统使用 CR 换行。）</li> </ul> <p>在代码管理中，在不同操作系统下CRLF会有很大不同。下面在不同系统中为大家实际演示一下：<br /> 在Mac Visual Code中新建一个文档默认为LF，而Windows中为CRLF，可以选择切换行尾序列的内容的类型。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/20f0f6dbc568b27e342172e15e11fec6.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"><br /> Mac版Visual Code</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5b90cc40f0afbff5a392674266874bd1.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"><br /> Windows 版</p> <p>面对这种情况，需要开发者统一CRLF，以免不同操作系统开发导致代码管理的混乱。</p> <h3 id="post传输的数据变化">POST传输的数据变化</h3> <p>弄明白了在不同系统中，控制字符会出现不同的原因，接下来我们就需要搞清楚为什么POST的数据在传输过程中发生了变化。</p> <p></p> <p>我们来写个简单Demo测试一下。先在页面上放一个允许换行的textarea， 输入带换行的文本，获取内容看到只有\n转译。通过FormData直接post数据到服务端，然后直接返回，看到\n全部变成了\r\n。</p> <pre><code>            var uploadData = document.getElementById("ta").value             var formData = new FormData();             formData.append("data", uploadData)             fetch("http://localhost:8088/spread/getpdf", {                     body: formData,                     method: "POST"                 }).then(resp =&gt; resp.text())                 .then(text =&gt; {                     console.log(JSON.stringify(text));                     document.getElementById("result").innerHTML= JSON.stringify(text)                 })</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/b61c1f6c5b484f405522f3cd233ff9e8.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"></p> <p>浏览器标识：</p> <pre><code>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36</code></pre> <p>回退Chrome到92版本，发送和接收文本此时编为一致：</p> <pre><code>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36</code></pre> <p>深入探究这一原因，我们了解到互联网请求意见稿2046（RFC 2046）4.1.1.中有明确说明：</p> <pre><code> “ The canonical form of any MIME‘text’ subtype MUST always represent a    line break as a CRLF sequence. “</code></pre> <p>这里我们可以看到所有的文本类型都要使用CRLF，而Chrome只是修复了一个“bug”，对于用户而言，在普通文本中用户感知不到CR、LF和CRLF的区别，但是当使用场景转换到解压的文本内容就变得十分重要。</p> <h3 id="三种解决方式">三种解决方式</h3> <p>大家都知道POST是HTTP的一个常用方法，而另一个我们常用的方法是GET。<br /> 关于GET和POST区别以及使用相关问题这里不做赘述，要解决POTS传输的数据变化问题，最相关的是Content-Type。</p> <p>首先我们来了解Content-Type和MIME分别是什么：<br /> Content-Type，内容类型，一般是指网页中存在的Content-Type，用于定义网络文件的类型和网页的编码，决定浏览器将以什么形式、什么编码读取这个文件，这就是经常看到一些Asp网页点击的结果却是下载到的一个文件或一张图片的原因。</p> <p>在POST中常用的Content-Type有application/x-www-form-urlencoded、multipart/form-data和application/json。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/439fc658d40caf3b64a6ea1a8a791151.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"></p> <p>1、 application/x-www-form-urlencoded<br /> 将需要内容提交表单后，内容会按照name1=value1&amp;name2=value2的方式编码，并且key和valu  e都会进行URL转码。<br /> 对于"\n"和"\r" 会被转码为'%0A'和'%0D'，通过这种传输方式，避免了浏览器的对CRLF的修正可以解决以上问题。<br /> 但是这样转码会增加文本长度，原本1个字符变成了3个，结果是压缩的文本又变长了。</p> <p>2、multipart/form-data<br /> 当需要想服务器提交文件时，就需要使用这种方式。前面代码中我们可以看到当formData是普通文本是会被修正，为了解决这个情况我们可以将string内容封装到Blob中作为文件流传输，来避免修正。<br /> 这样传输，服务端会以文件方式收到内容，直接读取Stream内容；对于压缩文本，这种处理方式最优。</p> <pre><code>           var formData = new FormData();             formData.append("data", uploadData)             formData.append("data1", new Blob( [uploadData]))</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/bef64d1a957f758b36121392276c6a95.jpg" alt="数据传输POST心法分享，做前端的你还解决不了这个bug？"></p> <p>上图展示了同样的内容，使用不同方式进行传输。</p> <p>3、 application/json<br /> Json也是目前比较流行的传输方式，json的内容在post传输中也不会被改变，如果文本内容不长，也是不错的方式。</p> <pre><code>          fetch("http://localhost.charlesproxy.com:8088/spread/postjson", {                     headers: {                         'Content-Type': 'application/json',                     },                     body: JSON.stringify({data: uploadData}),                     method: "POST"                 }).then(resp =&gt; resp.text())                 .then(text =&gt; {                     console.log(JSON.stringify(text));                     document.getElementById("result").innerHTML= JSON.stringify(text)                 })</code></pre> <h3 id="总结">总结</h3> <p>作为一个前端er，除了HTML、CSS和Javascript三大件，熟练使用Axios等类库调用API，更不可忽视的是要了解如何调试网络请求，在项目出现问题时能快速定位到问题的所在。</p> <p>这里提供了在 Angular 框架下动态加载js文件时返回 Content-Type 为text/html 的Demo，大家感兴趣的可以自行下载试试。</p> <p>Demo 地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://gcdn.grapecity.com.cn/forum.php?mod=attachment&amp;aid=NDc5OTJ8YmU1Mjk0NDN8MTY1MDI2MTI0M3wxfDUwOTgw"  target="_blank" rel="nofollow">https://gcdn.grapecity.com.cn/forum.php?mod=attachment&amp;aid=NDc5OTJ8YmU1Mjk0NDN8MTY1MDI2MTI0M3wxfDUwOTgw</a></p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <div id="js_content"> <blockquote> <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思</p> </blockquote> <p><strong>处理大规模数据集时常是棘手的事情，尤其在内存无法完全加载数据的情况下。在资源受限的情况下，可以使用 Python Pandas 提供的一些功能，降低加载数据集的内存占用。可用技术包括压缩、索引和数据分块。</strong></p> <p>在上述过程中需要解决一些问题，其中之一就是数据量过大。如果数据量超出本机内存的容量，项目执行就会产生问题。</p> <p>对此有哪些解决方案？</p> <p>有多种解决数据量过大问题的方法。它们或是消耗时间，或是需要增加投资。</p> <p style="text-align: center"> <strong>可能的解决方案</strong> </p> <ol> <li> <p>投资解决：新购有能力处理整个数据集，具有更强 CPU 和更大内存的计算机。或是去租用云服务或虚拟内存，创建处理工作负载的集群。</p> </li> <li> <p>耗时解决：如果内存不足以处理整个数据集，而硬盘的容量要远大于内存，此时可考虑使用硬盘存储数据。但使用硬盘管理数据会大大降低处理性能，即便是 SSD 也要比内存慢很多。</p> </li> </ol> <p>只要资源允许，这两种解决方法均可行。如果项目资金充裕，或是不惜任何时间代价，那么上述两种方法是最简单也是最直接的解决方案。</p> <p>但如果情况并非如此呢？也许你的资金有限，或是数据集过大，从磁盘加载将增加 5~6 倍甚至更多的处理时间。是否有无需额外资金投入或时间开销的大数据解决方案呢？</p> <p>这个问题正中我的下怀。</p> <p>有多种技术可用于大数据处理，它们无需额外付出投资，也不会耗费大量加载的时间。本文将介绍其中三种使用 Pandas 处理大规模数据集的技术。</p> <p style="text-align: center"><strong>压&nbsp; 缩 </strong></p> <p>第一种技术是数据压缩。压缩并非指将数据打包为 ZIP 文件，而是以压缩格式在内存中存储数据。</p> <p>换句话说，数据压缩就是一种使用更少内存表示数据的方法。数据压缩有两种类型，即无损压缩和有损压缩。这两种类型只影响数据的加载，不会影响到处理代码。</p> <p style="text-align: center"> <strong>无损压缩</strong> </p> <p>无损压缩不会对数据造成任何损失，即原始数据和压缩后的数据在语义上保持不变。执行无损压缩有三种方式。在下文中，将使用美国按州统计的新冠病毒病例数据集依次介绍。</p> <ul> <li> <p>加载特定的数据列</p> </li> </ul> <p>例子中所使用的数据集具有如下结构：</p> <pre class="has"><code class="language-go">import pandas as pd data = pd.read_csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv") data.sample(10)</code></pre> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/1819d88c625b2b58966da0c07aa8208a.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p>加载整个数据集需要占用 111MB 内存！</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/c3cc453732f6a5d9141e912108525d04.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p>如果我们只需要数据集中的两列，即州名和病例数，那么为什么要加载整个数据集呢？加载所需的两列数据只需 36MB，可降低内存使用 32%。</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/e35b4fd18c05f8b056168868369c7e21.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p>使用 Pandas 加载所需数据列的代码如下：</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/4ee007f80abf5590863f56fcb3cce2fd.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p>本节使用的代码片段如下：</p> <pre class="has"><code class="language-go"># 加载所需软件库 Import needed library import pandas as pd # 数据集 csv = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv" # 加载整个数据集 data = pd.read_csv(csv) data.info(verbose=False, memory_usage="deep") # 创建数据子集 df = data[["county", "cases"]] df.info(verbose=False, memory_usage="deep") # 加速所需的两列数据 df_2col = pd.read_csv(csv , usecols=["county", "cases"]) df_2col.info(verbose=False, memory_usage="deep")</code></pre> <p>代码地址：</p> <p style="text-align: left"><em>https://gist.github.com/SaraM92/3ba6cac1801b20f6de1ef3cc4a18c843#file-column_selecting-py</em></p> <ul> <li> <p>操作数据类型</p> </li> </ul> <p>另一个降低数据内存使用量的方法是截取数值项。例如将 CSV 加载到 DataFrame，如果文件中包含数值，那么一个数值就需要 64 个字节存储。但可通过使用 int 格式截取数值以节省内存。</p> <ul> <li> <p>int8 存储值的范围是 -128 到 127；</p> </li> <li> <p>int16 存储值的范围是 -32768 到 32767；</p> </li> <li> <p>int64 存储值的范围是 -9223372036854775808 到 9223372036854775807。</p> </li> </ul> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/ca10e4294203cbcd40cfb8603baa5323.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p>如果可预先确定数值不大于 32767，那么就可以使用 int16 或 int32 类型，该列的内存占用能降低 75%。</p> <p>假定每个州的病例数不超过 32767（虽然现实中并非如此），那么就可截取该列为 int16 类型而非 int64。</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/f7781c8757b1bacfab9d0e11439ee9e2.jpg" alt="Pandas 如何处理超大规模数据"/></p> <ul> <li> <p>稀疏列</p> </li> </ul> <p>如果数据集的一或多个列中具有大量的 NaN 空值，那么可以使用 稀疏列表示 降低内存使用，以免空值耗费内存。</p> <p>假定州名这一列存在一些空值，我们需要跳过所有包含空值的行。该需求可使用 pandas.sparse 轻松实现（译者注：原文使用 Sparse Series，但在 Pandas 1.0.0 中已经移除了 SparseSeries）。</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/f7781c8757b1bacfab9d0e11439ee9e2.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p style="text-align: center"> <strong>有损压缩</strong> </p> <p>如果无损压缩并不满足需求，还需要进一步压缩，那么应该如何做？这时可使用有损压缩，权衡内存占用而牺牲数据百分之百的准确性。</p> <p>有损压缩有两种方式，即修改数值和抽样。</p> <ul> <li> <p>修改数值：有时并不需要数值保留全部精度，这时可以将 int64 截取为 int32 甚至是 int16。</p> </li> <li> <p>抽样：如果需要确认某些州的新冠病例数要高于其它州，可以抽样部分州的数据，查看哪些州具有更多的病例。这种做法是一种有损压缩，因为其中并未考虑到所有的数据行。</p> </li> </ul> <p style="text-align: center"> <strong>第二种技术：数据分块（chunking）</strong> </p> <p>另一个处理大规模数据集的方法是数据分块。将大规模数据切分为多个小分块，进而对各个分块分别处理。在处理完所有分块后，可以比较结果并给出最终结论。</p> <p>本文使用的数据集中包含了 1923 行数据。</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/d1ad51da33f494e22105b336282961bc.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p>假定我们需要找出具有最多病例的州，那么可以将数据集切分为每块 100 行数据，分别处理每个数据块，从这各个小结果中获取最大值。</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/3b108e863e28dc27d793de062d9d1fa8.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p>本节代码片段如下：</p> <pre class="has"><code class="language-go"># 导入所需软件库 import pandas as pd # 数据集 csv = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv" # 循环处理每个数据块，获取每个数据块中的最大值 result = {} for chunk in pd.read_csv(csv, chunksize=100): max_case = chunk["cases"].max() max_case_county = chunk.loc[chunk[ cases ] == max_case,  county ].iloc[0] result[max_case_county] = max_case # 给出结果 print(max(result, key=result.get) , result[max(result, key=result.get)])</code></pre> <p>代码地址：</p> <p><em>https://gist.github.com/SaraM92/808ed30694601e5eada5e283b2275ed7#file-chuncking-py</em></p> <p style="text-align: center"> <strong>第三种方法：索引 </strong></p> <p>数据分块非常适用于数据集仅加载一次的情况。但如果需要多次加载数据集，那么可以使用索引技术。</p> <p>索引可理解为一本书的目录。无需读完整本书就可以获取所需得信息。</p> <p>例如，分块技术非常适用于获取指定州的病例数。编写如下的简单函数，就能实现这一功能。</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/f4d777c6f0e1580270120ba2827f6854.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p style="text-align: center"> <strong>索引 vs 分块</strong> </p> <p>分块需读取所有数据，而索引只需读取部分数据。</p> <p>上面的函数加载了每个分块中的所有行，但我们只关心其中的一个州，这导致大量的额外开销。可使用 Pandas 的数据库操作，例如简单的做法是使用 SQLite 数据库。</p> <p>首先，需要将 DataFrame 加载到 SQLite 数据库，代码如下：</p> <pre class="has"><code class="language-go">import sqlite3 csv = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv" # 创建新的数据库文件 db = sqlite3.connect("cases.sqlite") # 按块加载 CSV 文件 for c in pd.read_csv(csv, chunksize=100): # 将所有数据行加载到新的数据库表中 c.to_sql("cases", db, if_exists="append") # 为“state”列添加索引 db.execute("CREATE INDEX state ON cases(state)") db.close()</code></pre> <p>代码地址：</p> <p style="text-align: left"><em>https://gist.github.com/SaraM92/5b445d5b56be2d349cdfa988204ff5f3#file-load_into_db-py</em></p> <p>为使用数据库，下面需要重写 get_state_info 函数。</p> <p style="text-align: center"><img decoding="async" src="http://img.555519.xyz/uploads/20221230/d87bc6a29b430441e03c98a6754e1800.jpg" alt="Pandas 如何处理超大规模数据"/></p> <p>这样可降低内存占用 50%。</p> <p style="text-align: center"> <strong>小&nbsp; 结</strong> </p> <p>处理大规模数据集时常是棘手的事情，尤其在内存无法完全加载数据的情况下。一些解决方案或是耗时，或是耗费财力。毕竟增加资源是最简单直接的解决方案。</p> <p>但是在资源受限的情况下，可以使用 Pandas 提供的一些功能，降低加载数据集的内存占用。其中的可用技术包括压缩、索引和数据分块。</p> <p style="text-align: center">&lt; END &gt;</p> </div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></p>
-                                        <p>下一个：<a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></p>
+                                        <p>上一个：<a href="/html/category/article-233.htm">使用Python实现KNN算法解决简单分类问题</a></p>
+                                        <p>下一个：<a href="/html/category/article-235.htm">C#中检查null的语法糖_在线工具</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">C ++程序查找n个数的GCD和LCM</a></h4>
-                <p>这是找出n个数字的GCD和LCM的代码。两个或更多不都是零的整数的GCD或最大公除数是将每个整数相除的最大正整数。GCD也被称为最大公因数。 两个数字的最小公倍数(LCM)是两个数字的倍数的最小数字（</p>
+                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
+                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
-                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
-                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+                <h4><a href="/html/category/article-248.htm">vue父组件向子组件传值与传递方法</a></h4>
+                <p>vue父组件向子组件传值与传递方法 学习笔记 1、父组件向子组件传值（props）  在子组件中，默认是无法访问到父组件中的data上的数据和methods中的方法 父组件可以在引用子组件的时候，通过</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
-                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-212.htm">ElasticSearch学习：springboot集成ElasticSearch</a></h4>
-                <p>跟其他的菲关系类型数据库一样集成springboot，在生成代码时，勾选web和非关系数据库里面的ElasticSearch就可以。 demo的git地址我放在下面：git es demo 代码 这里</p>
+                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
+                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">vue动态获取ref方式</a></h4>
-                <p>&lt;div v-for="(item,index) in list" :key="index"              :class=" circleAnimation === 1 ? 'bal</p>
+                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
+                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
-                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+                <h4><a href="/html/category/article-227.htm">vue更新数据后重新请求数据并刷新页面</a></h4>
+                <p>首先要配置好路由 在app.vue添加下面代码 export default {   provide() {     return {       reload: this.reload,     }</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
-                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-109.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>微任务和宏任务哪个先执行_在线工具 - EgyptAddress</title>
+    <title>正则表达式匹配IP的表达式 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">微任务和宏任务哪个先执行_在线工具</h1>
+                <h1 class="title" style="word-break: break-all;">正则表达式匹配IP的表达式</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p><strong>宏任务</strong></p> <p>先说一下事件循环：先执行宏任务，再检查有没有微任务，如果有就执行微任务，然后渲染dom，最后进入下一次事件循环。</p> <p><strong>为什么有人认为微任务先执行？ </strong></p> <pre class="language-javascript"><code>     setTimeout(() =&gt; {       console.log("宏任务");     }, 0);     Promise.resolve().then((e) =&gt; {       console.log("微任务");     });</code></pre> <p>因为上面的代码会先输出<code>微任务</code>，再输出<code>宏任务</code>，</p> <p>这是因为宏任务是下一个事件循环开始的宏任务，而微任务是这次事件循环就执行的微任务，他们之间隔了一个dom渲染。所以造成了微任务比宏任务更快执行的错觉。</p> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>原文：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.jb51.net/article/101221.htm"  rel="nofollow">https://www.jb51.net/article/101221.htm</a></p> <p>这里给大家详细讲解一下一个匹配IP地址的正则表达式，</p> <p>　　有关正则方面的知识，会在详细的讲解中提到。</p> <p>　　在讲解之前，我先给大家介绍一下，ip地址的生成规则。</p> <p>　　IP地址，是由32位数字二进制转为四个十进制的字符串组成。</p> <p>　　怎么转化？下面讲解：</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 二进制：11111111111111111111111111111111</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 分为四部分：11111111.11111111.11111111.11111111</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 转化：2^7+2^6+2^5+2^4+2^3+2^2+2^1+2^0=255</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 转为十进制范围：0~255.0~255.0~255.0~255</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 这就是IP地址的范围。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 根据这个生成IP的规则和范围，我们可以用正则表达式来匹配出IP地址，但怎么匹配呢？各人有各人的方法，这里我讲解一下我的思路。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 根据IP地址的字符串规律，我把匹配IP地址的表达式分为两部分来考虑。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 第一部分：匹配3个0~255.（注意后面的一个点）</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 第二部分：匹配最后的数字0~255</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 也就是说，先匹配出 0~255.（注意后面的一个点） 这个字符串，然后重复匹配3次，然后再匹配最后的数字部分0~255。这就是我匹配IP地址的思路。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 首先，我要提一下，正则是没有办法做数字运算的，所以，我们无法用数字运算的方式筛选出IP的数字范围。既然没法用数字运算的方式筛选出IP的数字范围，那么我们应该用什么其他方式来筛选这个数字范围呢？我的思路是分组讨论，然后再把这些分组合并起来组成IP的数字范围。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ①、假设IP的数字是百位数，那么根据IP的数字范围，我们可以得出下面几种情况。假设第一个数字为1，那么这个数字的范围就为1[0-9][0-9]。这个应该不难理解，就不解释。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ②、假设第一个数字为2，那么根据IP数字的范围规则，这里又要分为两种情况，为什么？你想想，最大数字是255，当十位数为5时，个位数最大只能为5是吧？而当十位数为0到4时，个位数可以是任意数字对吧？</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 所以，这里的两种情况分别为：</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A、2[0-4][0-9]</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B、25[0-5]</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ③、分析完了百位数的情况，接下来就是十位数的情况了，假如是十位数，那么十位数的前面第一个数不能为零是吧？</p> <p>所以十位数的情况可以是：[1-9][0-9]</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ④、剩下的就是个位数的情况了，个位数的情况，大家应该很容易得出结论，就是：[0-9]。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 四种情况分析下来，我们得出了IP数字的范围分组为：</p> <p>　　　　　　　　1[0-9][0-9]</p> <p>　　　　　　　　2[0-4][0-9]</p> <p>　　　　　　　　25[0-5]</p> <p>　　　　　　　　[1-9][0-9]</p> <p>　　　　　　　　[0-9]</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 怎么把上面的分组用正则表达式表示出来呢？很简单，用正则的或符号|和分组符号()就可以了，所以上面的分组正则表达式为：</p> <pre class="has"><code class="hljs">(1[0-9][0-9])|(2[0-4][0-9])|(25[0-5])|([1-9][0-9])|([0-9]) </code></pre> <p>&nbsp;</p> <p>写到这里，数字的匹配范围正则表达式已经写好了，那么根据我前面的思路： 第一部分：匹配3个0~255.（注意后面的一个点）</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 第二部分：匹配最后的数字0~255</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 我们来匹配IP地址的第一部分，正则表达式如下：　</p> <pre class="has"><code class="hljs">(1[0-9][0-9]\.)|(2[0-4][0-9]\.)|(25[0-5]\.)|([1-9][0-9]\.)|([0-9]\.) </code></pre> <p>　我在每个数字的后面加了一个点就是匹配出0~255.（注意后面的一个点）</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 那么怎么重复匹配三次呢？很简单，我们只要把这五个分组当成整体，再重复匹配三次就行了，正则表达式如下：　</p> <pre class="has"><code class="hljs">((1[0-9][0-9]\.)|(2[0-4][0-9]\.)|(25[0-5]\.)|([1-9][0-9]\.)|([0-9])\.)){3} </code></pre> <p>第一部分已经匹配出来了，接下来就是拼接上第二部分的数字了，数字部分上面已经写得很清楚了，就不再解释了，下面是完整的正则表达式：</p> <pre class="has"><code class="hljs">((1[0-9][0-9]\.)|(2[0-4][0-9]\.)|(25[0-5]\.)|([1-9][0-9]\.)|([0-9]\.)){3}((1[0-9][0-9])|(2[0-4][0-9])|(25[0-5])|([1-9][0-9])|([0-9]))</code></pre> <p>&nbsp;</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-108.htm">nginx+tomcat负载均衡集群</a></p>
-                                        <p>下一个：<a href="/html/category/article-110.htm">PyMySQL中where __ in__ 的用法</a></p>
+                                        <p>上一个：<a href="/html/category/article-108.htm">C++之string类字符串连接</a></p>
+                                        <p>下一个：<a href="/html/category/article-110.htm">js promise 详解</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-208.htm">vue3.0下如何使用mapState，mapGetters和mapActions</a></h4>
-                <p>vue3.0下如何使用mapState，mapGetters和mapActions      1、新建useMapper.js 2、新建useState.js 3、新建useGetters.js 4、</p>
+                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
+                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-248.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></h4>
-                <p>前提： 由于业务需要在entity Product已经实现了@version的乐观锁的基础上再加上了悲观锁的控制 @Lock(value = LockModeType.PESSIMISTIC_WRIT</p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
-                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
+                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-231.htm">通俗易懂：窗口函数案例详解</a></h4>
+                <p>什么是窗口函数 相信很多人都比较熟悉 SQL 聚合函数的语法，比如 count(), sum(), max()等， 窗口函数类似聚合函数，不同的是窗口函数不改变原有的行。 窗口函数是数据分析和数据开发</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
-                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
-                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">vue的自动化路由+分模块管理+路由懒加载</a></h4>
-                <p>近期单独做了一个系统项目，项目不大但是页面太多了，为了后期维护管理容易，做了个自动化加载路由以及模块化的管理。在此记录一下。 直接撸代码 1.首先看目录  router下的index.js是路由配置文</p>
+                <h4><a href="/html/category/article-209.htm">Java基础知识 29（同步代码块，同步方法，静态同步方法，Lock锁，死锁问题）</a></h4>
+                <p>Java基础知识 29  先回顾一下上节课讲的多个窗口共同卖票的问题，首先我们设置三个不同的线程来同步进行卖票，我们把所有的票数全部设置成静态变量，让这三个线程可以共享这些票。通过设置这个静态变量我们</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
-                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>

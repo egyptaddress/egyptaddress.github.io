@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-148.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>什么是JavaSpring框架? - EgyptAddress</title>
+    <title>MySQL如何将没有定界符的数字和字符串解释为日期？ - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">什么是JavaSpring框架?</h1>
+                <h1 class="title" style="word-break: break-all;">MySQL如何将没有定界符的数字和字符串解释为日期？</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>　　Spring框架是一个开源应用程序框架，通过提供基础设施支持来支持Java应用程序的开发。它是著名的Java企业版框架之一。Spring通过使用普通旧Java对象 (POJO) 帮助开发人员创建高效的应用程序。</p> <p>　　在引入Enterprise Java Beans (EJB) 之前，Java开发人员需要利用JavaBeans来创建Web应用程序。虽然JavaBeans有助于创建用户界面(UI) 组件，但它无法提供事务管理和安全等服务，这些服务对于开发安全可靠的企业应用程序至关重要。</p> <p>　　EJB的引入被认为是对这个问题的回答。EJB扩展了Java组件，包括Web以及企业组件，并且还提供服务来帮助开发企业级应用程序。</p> <p>　　但是，使用EJB构建企业应用程序很困难，因为开发人员必须完成各种任务，例如创建主接口和远程接口以及实现生命周期回调方法，所有这些都增加了编写 EJB 代码的复杂性。由于这种复杂性，开发人员开始寻找一种更简单的方法来构建企业应用程序。</p> <p class="img-center"><img fetchpriority="high" decoding="async" alt="" height="311" src="http://img.555519.xyz/uploads3/20220603/e2668e70053bb67d8d814d0baa4458a6.jpg"></p> <p>　　Spring框架正在成为这些问题的解决方案。它采用多种新技术来构建企业应用程序，包括普通旧Java 对象(POJO)、面向方面编程 (AOP) 和依赖注入(DI)。</p> <p>　　它消除了使用EJB创建企业应用程序所涉及的困难。Spring是一个开源的轻量</p> <p>　　级框架，它允许Java EE 7开发人员使用AOP、POJO和DI构建简单、可靠且可扩展的企业应用程序。</p> <p>　　该框架的主要重点是为你提供多种管理业务资产的选项。与传统的Java框架以及Java数据库连接 (JDBC) 和JavaServer Pages (JSP)和Java Servlet等应用程序编程接口(API) 相比，它使Web应用程序的创建更加简单。</p> <p>　　Spring框架可以被认为是子框架的集合，也称为层，例如Spring AOP、Spring Web Flow、Spring Object-Relational Mapping (Spring ORM) 和Spring Web MVC。在构建 Web应用程序时，你可以单独使用这些模块中的任何一个。这些模块也可以组合在一起以在Web应用程序中提供更好的功能。</p> </div> 			                </div>
+                      				  				  				<p>如果提供日期，则即使格式为<strong>&nbsp;YYYYMMDDHHMMSS</strong>或<strong>YYMMDDHHMMSS</strong>的字符串或数字（即使没有任何定界符）也很有意义，然后MySQL将该字符串解释为有效日期。</p> <p>给出了有效日期和无效日期的示例-</p> <pre>mysql&gt;&nbsp;Select&nbsp;Timestamp(20171022040536); +---------------------------+ |&nbsp;Timestamp(20171022040536)&nbsp;| +---------------------------+ |&nbsp;2017-10-22&nbsp;04:05:36&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| +---------------------------+ 1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)  mysql&gt;&nbsp;Select&nbsp;Timestamp('20171022040536'); +-----------------------------+ |&nbsp;Timestamp('20171022040536')&nbsp;| +-----------------------------+ |&nbsp;2017-10-22&nbsp;04:05:36&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| +-----------------------------+ 1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)  mysql&gt;&nbsp;Select&nbsp;Timestamp('171022040536'); +---------------------------+ |&nbsp;Timestamp('171022040536')&nbsp;| +---------------------------+ |&nbsp;2017-10-22&nbsp;04:05:36&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| +---------------------------+ 1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre> <p>以上查询显示了有效字符串以及数字的示例，MySQL可以将其解释为日期值。</p> <pre>mysql&gt;&nbsp;Select&nbsp;Timestamp('20171022048536'); +-----------------------------+ |&nbsp;Timestamp('20171022048536')&nbsp;| +-----------------------------+ |&nbsp;NULL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| +-----------------------------+ 1&nbsp;row&nbsp;in&nbsp;set,&nbsp;1&nbsp;warning&nbsp;(0.00&nbsp;sec)</pre> <p>上面的查询是无效字符串的示例。MySQL返回NULL是因为字符串在一分钟内具有错误的值(85)。</p> <pre>mysql&gt;&nbsp;Select&nbsp;Timestamp('20171322040536'); +-----------------------------+ |&nbsp;Timestamp('20171322040536')&nbsp;| +-----------------------------+ |&nbsp;NULL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| +-----------------------------+ 1&nbsp;row&nbsp;in&nbsp;set,&nbsp;1&nbsp;warning&nbsp;(0.00&nbsp;sec)</pre> <p>在上面的查询中，MySQL返回NULL，因为该字符串在一个月内的值(13)错误。</p> <div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-147.htm">vue+element-ui+axios多文件上传的实现并显示整体进度_vue.js</a></p>
-                                        <p>下一个：<a href="/html/category/article-149.htm">02-SpringMVC @RequestMapping注解</a></p>
+                                        <p>上一个：<a href="/html/category/article-147.htm">es6操作数组方法</a></p>
+                                        <p>下一个：<a href="/html/category/article-149.htm">Hyperledger Fabric无系统通道启动及通道的创建和删除</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">ubuntu 18及以上版本配置IP的方法，你get了吗_在线工具</a></h4>
-                <p>本文讲讲 Ubuntu 18 及以上版本配置 IP 的方法，为什么它值得一讲，因为以 Ubuntu 16 为首的版本的配置方法已经不适用了，如果你还不知道，那本文正好 get 一个新技能。 Ubunt</p>
+                <h4><a href="/html/category/article-226.htm">C\C++ 中 malloc、calloc、realloc 函数的用法</a></h4>
+                <p>C\C++ 中 malloc、calloc、realloc 函数的用法 转自：https://www.jianshu.com/p/d6f209b8796d 前言 C\C++提供了底层的内存操作，为程序</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-233.htm">Spring Security 一键接入验证码登录和小程序登录</a></h4>
-                <p>最近实现了一个多端登录的Spring Security组件，用起来非常丝滑，开箱即用，可插拔，而且灵活性非常强。我觉得能满足大部分场景的需要。目前完成了手机号验证码和微信小程序两种自定义登录，加上默认</p>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
-                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></h4>
-                <p>IP地址是指互联网协议地址（英语：Internet Protocol Address，又译为网际协议地址），是IP Address的缩写。IP地址是IP协议提供的一种统一的地址格式，它为互联网上的每一</p>
+                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
+                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-208.htm">数据类产品设计和实现思路_在线工具</a></h4>
+                <p>数据类产品 对数据类产品(或服务)的需求是信息化发展到一定阶段的必然产物, 在信息化时代, 现实世界的大部分活动都已经(或即将)被投射成数据, 在这个大背景下, 数据产品的作用也越来越大.  对于所有</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">request和response——请求响应对象</a></h4>
-                <p>请求对象——request 获取get请求的值  一次请求，返回一个响应。 地址栏：http://127.0.0.1:8000/day3/get_request?lan=python 问号：代表请求参</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-209.htm">C#中检查null的语法糖_在线工具</a></h4>
-                <p>今天看到已经更新了devblogs，新增的C# 11的!!（用于检查null的语法）经过非常长的讨论，最后取消了。然后我又想起来null检查，这个可以说一说。 函数参数null检查 传统写法 写一个函</p>
+                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
+                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
             </div>
         </div>
     </div>

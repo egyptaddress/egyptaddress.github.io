@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-186.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Vue3的vue-router路由详解 - EgyptAddress</title>
+    <title>Mybatis动态SQL原理解析 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Vue3的vue-router路由详解</h1>
+                <h1 class="title" style="word-break: break-all;">Mybatis动态SQL原理解析</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>这篇文章是接着【<a class="link-info" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://yydpt.blog.csdn.net/article/details/124733067"  title="三分钟快速搭建Vue3+webpack项目" rel="nofollow">三分钟快速搭建Vue3+webpack项目</a>】的内容做的开发，有基础的可以跳过&nbsp;【<a class="link-info" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://yydpt.blog.csdn.net/article/details/124733067"  title="三分钟快速搭建Vue3+webpack项目" rel="nofollow">三分钟快速搭建Vue3+webpack项目</a>】，直接看以下的内容。</p> <p>Vue3的vue-router路由详解：</p> <p>首先安装路由依赖模块：</p> <pre><code class="language-bash">npm install vue-router@4</code></pre> <p>所需代码文件如下图：<br /> 图1</p> <p style="text-align:center;"><img decoding="async" src="http://img.555519.xyz/uploads3/20220818/3113b1058ba0c6b0f285501d2c7ce13d.jpg" alt="Vue3的vue-router路由详解"></p> <p>所需要的主要文件：<strong>index.html、index.js、App.vue</strong></p> <p><strong>index.html</strong>：模板页面，项目中的代码编译之后都是放入到模板页面中id为app的元素这种。<br /> 代码如下：</p> <pre><code class="language-html">&lt;!DOCTYPE html&gt; &lt;html&gt; &nbsp; &lt;head&gt; &nbsp; &nbsp; &lt;meta charset="utf-8"&gt; &nbsp; &nbsp; &lt;meta name="viewport" content="width=device-width,initial-scale=1.0"&gt; &nbsp; &nbsp; &lt;title&gt;Vue&lt;/title&gt; &nbsp; &lt;/head&gt; &nbsp; &lt;body&gt; &nbsp; &nbsp; &lt;div id="app"&gt;&lt;/div&gt; &nbsp; &lt;/body&gt; &lt;/html&gt;</code></pre> <p><strong>index.js</strong>：创建一个vue应用，将路由放入应用之中，并挂载到模板页面id为app的元素上。<br /> 代码如下：</p> <pre><code class="language-javascript">import { createApp } from 'vue' import { createRouter,createWebHashHistory } from 'vue-router' import App from './App.vue'  // 1. 定义路由组件：这里直接用的对象数据，也可以导入其他组件。 const Main = { render(){ return '月影WEB 欢迎大家来学习各种技术知识！'} } const Lists = { render(){ return '月影WEB-列表页面'} } const Details = { render(){ return '月影WEB-详情页面'} }  // 2. 定义一些路由：每个路由都需要映射到一个组件。 const routes = [ &nbsp; &nbsp; { path: '/', component: Main }, &nbsp; &nbsp; { path: '/lists', component: Lists }, &nbsp; &nbsp; { path: '/details', component: Details }, ]  // 3. 创建路由实例并传递 `routes` 配置。 const router = createRouter({ &nbsp; &nbsp; // 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。 &nbsp; &nbsp; history: createWebHashHistory(), &nbsp; &nbsp; routes, // `routes: routes` 的缩写 })  // 4.创建一个vue应用，将App组件和定义的路由放入到vue应用，并挂载到模板页面id为app的元素上。 createApp(App).use(router).mount('#app')</code></pre> <p><strong>1. 定义路由组件：这里直接用的对象数据，也可以导入其他组件。</strong><br /> const Main = { render(){ return '月影WEB 欢迎大家来学习各种技术知识！'} }<br /> const Lists = { render(){ return '月影WEB-列表页面'} }<br /> const Details = { render(){ return '月影WEB-详情页面'} }</p> <p><strong>注意：Main、Lists 、Details 定义了三个路由组件，return后面就是每个路由组件展示的UI。</strong></p> <p><strong>2. 定义一些路由：每个路由都需要映射到一个组件。</strong><br /> const routes = [<br /> &nbsp; &nbsp; { path: '/', component: Main },<br /> &nbsp; &nbsp; { path: '/lists', component: Lists },<br /> &nbsp; &nbsp; { path: '/details', component: Details },<br /> ]</p> <p><strong>注意：path是路由路径，也是地址栏会显示的路径，component是放路由组件的，每个路由路径都可以进行组件映射。</strong></p> <p><strong>3. 创建路由实例并传递 `routes` 配置。</strong><br /> const router = createRouter({<!-- --><br /> &nbsp; &nbsp; // 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。<br /> &nbsp; &nbsp; history: createWebHashHistory(),<br /> &nbsp; &nbsp; routes, // `routes: routes` 的缩写<br /> })</p> <p><strong>注意：这里只做了简单的配置，history是路由的模式，routes放定义的路由，createRouter创建路由实例。</strong></p> <p><strong>4.创建一个vue应用，将App组件和定义的路由放入到vue应用，并挂载到模板页面id为app的元素上。</strong><br /> createApp(App).use(router).mount('#app')</p> <p><strong>App.vue</strong>：用来展示不同的路由页面UI。<br /> 代码如下：</p> <pre><code class="language-html">&lt;template&gt; &nbsp; &nbsp; &lt;router-view&gt;&lt;/router-view&gt; &lt;/template&gt; &lt;script&gt; export default {  } &lt;/script&gt;</code></pre> <p><strong>注意：&lt;router-view&gt;是用来展示路由对应的组件UI的。</strong></p> <p>启动服务的效果如下：</p> <p> { path: '/', component: Main }</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220818/e26f90d7a8c17f74555b8a3f532f26f5.jpg" alt="Vue3的vue-router路由详解"></p> <p>{ path: '/lists', component: Lists }</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220818/adbae65ba21e534b6658c4fb041308b2.jpg" alt="Vue3的vue-router路由详解"></p> <p> { path: '/details', component: Details }</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220818/60beb55265084aee7aece3f851fcfc99.jpg" alt="Vue3的vue-router路由详解"></p> <p>关注公众号（月影WEB），了解更多的前后端知识；<br /> 欢迎大家关注互相交流学习；</p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <h1>资料准备</h1> <h2>官网</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 首先翻阅官网文档，（<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mybatis.org/mybatis-3/dynamic-sql.html"  rel="nofollow">https://mybatis.org/mybatis-3/dynamic-sql.html</a>）这页文档首先描述了Mybatis的动态SQL是多么牛逼，解决了哪些问题，又讲了如何使用，而我们想知道他是如何实现的，所以这不是我们想要的。</p> <blockquote> <h2>Dynamic SQL</h2> <p>One of the most powerful features of MyBatis has always been its Dynamic SQL capabilities. If you have any experience with JDBC or any similar framework, you understand how painful it is to conditionally concatenate strings of SQL together, making sure not to forget spaces or to omit a comma at the end of a list of columns. Dynamic SQL can be downright painful to deal with.</p> <p>While working with Dynamic SQL will never be a party, MyBatis certainly improves the situation with a powerful Dynamic SQL language that can be used within any mapped SQL statement.</p> </blockquote> <h2>源码&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</h2> <p>现在，我们去找mybatis源码（<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/mybatis/mybatis-3/releases/tag/mybatis-3.5.4"  rel="nofollow">https://github.com/mybatis/mybatis-3/releases/tag/mybatis-3.5.4</a>）</p> <h1>源码解析</h1> <h2>1.从哪创建的SqlSource</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 首先，在Mybatis中，首先从可以看到<strong>LanguageDriver</strong>接口中的createSqlSource方法，该类其中有2个方法，和2个实现类<strong>XMLLanguageDriver</strong>和<strong>RawLanguageDriver</strong>，他们的关系如下：</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<img fetchpriority="high" decoding="async" alt="" height="243" src="http://img.555519.xyz/uploads/20230129/afb2c56da092e6c81bff14312523b908.jpg"></p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 接下来我们可以看到该接口的其中2个方法：</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 1.<strong>通过解析XML文件为XNode数据</strong></p> <pre><code class="language-java">/**  * Creates an {@link SqlSource} that will hold the statement read from a mapper xml file.   * It is called during startup, when the mapped statement is read from a class or an xml file.  *   * @param configuration The MyBatis configuration  * @param script XNode parsed from a XML file  * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.  * @return  */ SqlSource createSqlSource(Configuration configuration, XNode script, Class&lt;?&gt; parameterType);</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; <strong>2.通过解析注解内容</strong></p> <pre><code class="language-java">/**  * Creates an {@link SqlSource} that will hold the statement read from an annotation.  * It is called during startup, when the mapped statement is read from a class or an xml file.  *   * @param configuration The MyBatis configuration  * @param script The content of the annotation  * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.  * @return   */ SqlSource createSqlSource(Configuration configuration, String script, Class&lt;?&gt; parameterType);</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 这两种方式都是为了获得<strong>SqlSource</strong>对象，第一个方法就是我们常规的通过XML配置SQL语句的方式创建，而第二种是在数据访问层通过对方法加对应注解（eg：@Select）的方式创建。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 而<strong>XMLLanguageDriver</strong>类实现了这两个方法</p> <pre><code class="language-java">@Override   public SqlSource createSqlSource(Configuration configuration, XNode script, Class&lt;?&gt; parameterType) {     XMLScriptBuilder builder = new XMLScriptBuilder(configuration, script, parameterType);     return builder.parseScriptNode();   }    @Override   public SqlSource createSqlSource(Configuration configuration, String script, Class&lt;?&gt; parameterType) {     // issue #3     if (script.startsWith("&lt;script&gt;")) {       XPathParser parser = new XPathParser(script, false, configuration.getVariables(), new XMLMapperEntityResolver());       return createSqlSource(configuration, parser.evalNode("/script"), parameterType);     } else {       // issue #127       script = PropertyParser.parse(script, configuration.getVariables());       TextSqlNode textSqlNode = new TextSqlNode(script);       if (textSqlNode.isDynamic()) {         return new DynamicSqlSource(configuration, textSqlNode);       } else {         return new RawSqlSource(configuration, script, parameterType);       }     }   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 可以看到，在通过尝试使用注解的方式创建SqlSource对象时，仍然会检查是否是包含以“script”为开头的字符串，若包含，则仍会调用XML方式对其进行解析，也就是说，我们可以在注解中加入script头的方式使用动态语句使其使用XML方式解析。当然，不是必要的情况下不建议这么做。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在方法结尾处，会通过TextSqlNode对象来判定该SqlNode是否是动态的，如果是动态的则使用<strong>DynamicSqlSource</strong>方式解析，若是静态，则使用<strong>RawSqlSource</strong>方式解析。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 而在<strong>LanguageDriver</strong>中，我们也看到了<strong>RawLanguageDriver</strong>类又继承了<strong>XMLLanguageDriver</strong>，但它和前者的区别就是<strong>RawLanguageDriver</strong>仅支持静态语句方式解析。</p> <h2>2.它是怎样解析数据的</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 这时，我们回到<strong>XMLLanguageDriver</strong>的<strong>createSqlSource</strong>方法中，它是调用了<strong>XMLScriptBuilder</strong>的<strong>parseScriptNode</strong>方法来进行解析创建的，而这个方法又做了什么呢？</p> <pre><code class="language-java">XMLScriptBuilder builder = new XMLScriptBuilder(configuration, script, parameterType);     return builder.parseScriptNode();</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 这个方法做了2个事，首先是将SqlNode集合混合，转换为MixedSqlNode对象，再判断是否为动态语句，再来决定是通过DynamicSqlSource还是RawSqlSource解析。</p> <pre><code class="language-java">public SqlSource parseScriptNode() {     MixedSqlNode rootSqlNode = parseDynamicTags(context);     SqlSource sqlSource = null;     if (isDynamic) {       sqlSource = new DynamicSqlSource(configuration, rootSqlNode);     } else {       sqlSource = new RawSqlSource(configuration, rootSqlNode, parameterType);     }     return sqlSource;   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 而我们目前需要关心的是它的parseDynamicTags方法，看它是如何将多个SqlNode转换为MixedSqlNode对象的。</p> <pre><code class="language-java">protected MixedSqlNode parseDynamicTags(XNode node) {     List&lt;SqlNode&gt; contents = new ArrayList&lt;SqlNode&gt;();     NodeList children = node.getNode().getChildNodes();     for (int i = 0; i &lt; children.getLength(); i++) {       XNode child = node.newXNode(children.item(i));       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {         String data = child.getStringBody("");         TextSqlNode textSqlNode = new TextSqlNode(data);         if (textSqlNode.isDynamic()) {           contents.add(textSqlNode);           isDynamic = true;         } else {           contents.add(new StaticTextSqlNode(data));         }       } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628         String nodeName = child.getNode().getNodeName();         NodeHandler handler = nodeHandlerMap.get(nodeName);         if (handler == null) {           throw new BuilderException("Unknown element &lt;" + nodeName + "&gt; in SQL statement.");         }         handler.handleNode(child, contents);         isDynamic = true;       }     }     return new MixedSqlNode(contents);   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在上述方法中，会将节点中所有childNode转换为<strong>List&lt;SqlNode&gt;</strong>对象，再调用节点处理方法。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 首先将当前标签（&lt;SELECT&gt;）中所有子Node获取出来，再检查Node的类型：</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 1.若该childNode类型为CDATA节点或静态SQL节点，再检查是否为动态语句，若为动态语句则直接将当前Node加入到SqlNode中，若为静态语句，则使用StaticTextSqlNode对象加入到SqlNode。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 2.若该childNode类型为元素节点（if，choose），则根据节点名从预设节点处理集合中找到Node处理方式，若未从预设节点处理集合中找到对应的处理方法，则抛出构造器异常。</p> <p><strong>（注意，在这里处理动态SQLNode的时候，会进行handleNode方法的递归调用，用于处理所有嵌套的动态语句）</strong></p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 现在，我们继续看下去（以<strong>IfHandler</strong>为例）</p> <pre><code class="language-java">MixedSqlNode mixedSqlNode = parseDynamicTags(nodeToHandle);       String test = nodeToHandle.getStringAttribute("test");       IfSqlNode ifSqlNode = new IfSqlNode(mixedSqlNode, test);       targetContents.add(ifSqlNode);</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在处理完所有节点后，会返回一个MixedSqlNode节点，再通过nodeToHandle方法获取到对应的校验字符串（eg ：null ！= a），再将上述节点与该校验字符串混合，生成IfSqlNode对象，最后将IfSqlNode对象加入<strong>List&lt;SqlNode&gt;</strong>。</p> <h2>3.它是如何处理数据的</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在处理数据的时候，就会用到我们上面每个动态语句对应的nodeHandler了，同样，以IfHandler为例，</p> <pre><code class="language-java">@Override   public boolean apply(DynamicContext context) {     if (evaluator.evaluateBoolean(test, context.getBindings())) {       contents.apply(context);       return true;     }     return false;   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在IfHandler中，它只需要判断True/False,再根据是否结果，决定是否将当前动态语句是否加入到SqlNode中。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在当前运算中，调用了表达式评估器ExpressionEvaluator的evaluateBoolean方法，传入了表达式与参数值。</p> <pre><code class="language-java">public boolean evaluateBoolean(String expression, Object parameterObject) {     Object value = OgnlCache.getValue(expression, parameterObject);     if (value instanceof Boolean) {       return (Boolean) value;     }     if (value instanceof Number) {       return new BigDecimal(String.valueOf(value)).compareTo(BigDecimal.ZERO) != 0;     }     return value != null;   }</code></pre> <p>&nbsp; &nbsp; &nbsp; &nbsp; 在evaluateBoolean方法中，将表达式通过OgnlCache方法进行判定，若结果是Boolean，则直接返回，若结果是Number，再通过BigDecimal对象的compareTo对象检查，然后返回最终结果。</p> <p>（<strong>注意：这里的对象使用的是OgnlCache，打开类描述可以看到这里面对表达式有缓存</strong>）</p> <p>&nbsp;</p> <p>至此，从动态语句的创建，到解析，到处理完成，过两天下一篇来看看Mybatis的<strong>SqlSessionFactory</strong>是如何构建的！！！</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-185.htm">kafka生产者发送消息可靠性</a></p>
-                                        <p>下一个：<a href="/html/category/article-187.htm">vue 实现弹窗关闭后刷新效果_vue.js</a></p>
+                                        <p>上一个：<a href="/html/category/article-185.htm">[vmware to openstack] 安装virtio驱动</a></p>
+                                        <p>下一个：<a href="/html/category/article-187.htm">OAuth 2.1 框架_在线工具</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">Springboot 设置过滤器以及重复读取request里的body</a></h4>
-                <p>需求：request的content-type为applciation/json，进入controller之前需要把body中的参数取出来做一次处理，然后和hearder中的另一个参数做对比。 思路：</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></h4>
-                <p>1，准备组件popup // components文件夹中popup组件&lt;template&gt;&lt;view&gt;&lt;viewclass="show-box-bg wx-login-</p>
+                <h4><a href="/html/category/article-257.htm">postman测试@pathvariable,@requestparam,@requestbody发送情况</a></h4>
+                <p>postman测试@pathvariable,@requestparam,@requestbody发送情况  1、三种方式简单说明  1.1、@Pathvariable 通过占位符的方式获取入参，前端</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
-                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">vue实现页面刷新动画_vue.js_</a></h4>
-                <p>本文实例为大家分享了vue实现页面刷新动画的具体代码，供大家参考，具体内容如下 做一个vue的页面刷新动画，找了好多动画样式，感谢大佬们造的轮子。 主要就是在index.html文件里面写一个动画样式</p>
+                <h4><a href="/html/category/article-238.htm">js数组删除的方法</a></h4>
+                <p>js的数组删除，我建议大家使用splice函数，不要使用slice函数，因为slice是返回一个新数组，并不是从原来的数组中删除。 比如： let a=[111,222,333,444]; a.spl</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-259.htm">python的collections.Counter方法</a></h4>
+                <p>哈希表在python中可以用collections.Counter计数来体现。 该方法用于统计某序列中每个元素出现的次数，以键值对的方式存在字典中。但类型其实是Counter。 nums=[1,2,3</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">Unity 内置渲染管线转URP</a></h4>
-                <p>一、CG 替换 HLSL   未使用光照计算的shader升级后不做修改仍然可以使用，但是可能会不兼容SRP Batcher，所以仍然需要修改，使用了光照计算的shader必须要修改。   SubSh</p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>

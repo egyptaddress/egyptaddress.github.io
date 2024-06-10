@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-84.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Python清理PC端微信产生的超大数据 - EgyptAddress</title>
+    <title>Caused by: java.lang.ClassNotFoundException: springfox.documentation.schema.ModelReference 错误解决 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Python清理PC端微信产生的超大数据</h1>
+                <h1 class="title" style="word-break: break-all;">Caused by: java.lang.ClassNotFoundException: springfox.documentation.schema.ModelReference 错误解决</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h2 id="pc">&nbsp;</h2> <blockquote> <p>电脑上安装了PC版本的微信，最近发现C盘不够用了。一查发现微信的聊天记录能占到20G，当然微信自带了清理聊天记录。在家隔离期间，闲来无事用Python写了一个小方法来统计微信路径下Data文件夹下每年产生的数据量，并清理了指定年的数据。</p> </blockquote> <h2 id="python">涉及Python内置模块</h2> <ul> <li>os</li> <li>datetime</li> </ul> <h2>涉及函数</h2> <ol> <li>os模块中的listdir函数，返回指定文件夹下的文件及文件夹列表</li> <li>os.path.join函数，用于拼接文件路径</li> <li>os.path.isfile函数，判断参数是否为文件（注意：参数必须为完整的绝对路径）</li> <li>os.path.getctime函数，返回文件path的创建时间</li> <li>datetime.fromtimestamp函数，把参数时间戳转换成格式化日期时间并返回</li> <li>os.path.getsize函数，获取文件大小（字节）</li> <li>os.remove函数，用于删除指定的路径文件</li> </ol> <h2 id="-1">代码示例</h2> <pre><code class="language-python">import os from datetime import datetime   # 字节转化KB\M\G def format_size(bt):     try:         bts = float(bt)         kb = bts / 1024     except Exception as e:         print(e)         return "Error"      if kb &gt;= 1024:         M = kb / 1024         if M &gt;= 1024:             G = M / 1024             return "%fG" % (G)         else:             return "%fM" % (M)     else:         return "%fkb" % (kb)    def get_data_size(path):     '''     :param path: 绝对路径     :return: 返回字典结构 年份为key value为该年所有文件的大小     '''     # 空字典用来存储按年计算的文件大小     year_files_size = {}     # 遍历该路径下所有的文件及文件夹     for item_file in os.listdir(path):         # 使用join方法拼接完整的绝对路径         full_path = os.path.join(path, item_file)         # 判断是否为文件         if os.path.isfile(full_path):             # 获取文件创建时间并格式化             t = datetime.fromtimestamp(os.path.getctime(full_path))             # 获取格式化后日期时间中的年份，判断是否在空字典中存在。如不存在设置年份为key，文件大小为value             # 否则进行value累加             if t.year not in year_files_size:                 year_files_size[t.year] = os.path.getsize(full_path)             else:                 year_files_size[t.year] += os.path.getsize(full_path)      # 格式化字节重新赋值     for k, v in year_files_size.items():         year_files_size[k] = format_size(v)      return year_files_size   def del_year_data(path, years):    '''          :param path: 绝对路径     :param years: 返回删除总条数     :return:      '''     total_num = 0     for item in os.listdir(path):         full_path = os.path.join(path, item)         if os.path.isfile(full_path):             t = datetime.fromtimestamp(os.path.getctime(full_path))             if t.year in years:                 os.remove(full_path)                 print("清理数据{}成功！".format(full_path))                 total_num += 1     print("共清理数据{}条".format(total_num))     return total_num   if __name__ == '__main__':     path = r"C:\Users\Documents\WeChat Files\xxxx\Data"     data = get_data_size(path)     print(data)     del_years = [2018]     del_year_data(path, del_years)</code></pre> <p>清理之前：</p> <p><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/52b344a54931b0d58c64ea3e14c4a46d.jpg"></p> <p><img fetchpriority="high" decoding="async" alt="" height="178" src="http://img.555519.xyz/uploads/20230108/4b9482d1eca3b3c432448d7f710ea058.jpg"></p> <p>清理之后：&nbsp;</p> <p><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230108/0945493211764b32138e9b16823e6ca5.jpg"></p> <p>&nbsp;</p> <hr/> <p>电脑清理完后，可以放心睡觉了。应该是在家隔离闲的！</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>造成这种错误的原因是父类的pom中&lt;dependecies&gt;&lt;/dependecies&gt;有springfox的依赖，在这里面的依赖是的所有工程都必须继承这个，因此会导致不需要这个或说没有用到swagger注解的工程，在执行导致上面的类找不到的错误。</p> <p>解决方法， 是将这个springfox移除&lt;dependecies&gt;&lt;/dependecies&gt; 放入&nbsp;&nbsp; &nbsp;&lt;dependencyManagement&gt;&nbsp;&nbsp; &nbsp;&lt;/dependencyManagement&gt;让需要它进行声明继承和使用。</p> <p>&lt;dependencies&gt;和&lt;dependencyManagement&gt;作用和区别见</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/liutengteng130/article/details/46991829"  rel="nofollow">https://blog.csdn.net/liutengteng130/article/details/46991829</a></p> <p>这个链接的文章说明。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-83.htm">聊一聊Vue3.2中setup语法糖+volar</a></p>
-                                        <p>下一个：<a href="/html/category/article-85.htm">Docker镜像构建之docker commit</a></p>
+                                        <p>上一个：<a href="/html/category/article-83.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></p>
+                                        <p>下一个：<a href="/html/category/article-85.htm">Java时间 之 Instant</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">SpringBoot实战数据访问整合Mybatis和Redis</a></h4>
-                <p>前言 在开发中我们通常会对数据库的数据进行操作，SpringBoot对关系性和非关系型数据库的访问操作都提供了非常好的整合支持。SpringData是spring提供的一个用于简化数据库访问、支持云服</p>
+                <h4><a href="/html/category/article-210.htm">JAVA8 | 日期时间API（LocalDate、LocalDateTime、LocalTime）</a></h4>
+                <p>目录      日期 时间 合并日期和时间 时间戳 时间段   Duration Period   操作日期 日期格式化 时区 日历       Java8 引入全新的日期和时间API，主要包括Loc</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-218.htm">利用Python实现RSA加密解密方法实例_python</a></h4>
-                <p>目录  前言 一、安装模块 二、生成密钥对 三、加密 四、解密 五、完整代码 总结    前言  加密技术在数据安全存储，数据传输中发挥着重要作用，能够保护用户隐私数据安全，防止信息窃取。RSA是一种</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-244.htm">Spring按业务模块输出日志到不同的文件_在线工具</a></h4>
+                <p>一、背景 在我们开发的过程中，可能存在如下情况： 1、有些时候我们需要调用第三方的接口，一般情况下，调用接口，我们都会记录请求的入参和响应的。如果我们自己系统的日志和第三方的日志混合到一个日志文件中，</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
-                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+                <h4><a href="/html/category/article-255.htm">解决antdv的table因数据量过大导致的卡顿问题</a></h4>
+                <p>遇到的问题：antdv的table表格使用时因数据量过大，造成标签页切换卡顿的问题 解决办法：绑定滚动事件，页面只显示在可视区域内的数据，没在可视区域内的数据不予展示，dom元素的scrollHeig</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-220.htm">C/C++编程：异常处理(exception handling)的原理</a></h4>
-                <p>引入原因  问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？  回答：异常不能被忽略。  如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数</p>
+                <h4><a href="/html/category/article-249.htm">vue 使用echarts绘制折线图</a></h4>
+                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-258.htm">vue实现自定义全局右键菜单_vue.js</a></h4>
+                <p>前段时间公司在做一个webIDE项目，其中有对文件树的各种操作，主要通过右键菜单实现，今天就来记录一下怎么在vue项目中实现全局的自定义右键菜单。效果如图所示：  注意： 需要在项目中找到页面整体布局</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-217.htm">vue项目模拟假数据</a></h4>
+                <p>开发vue项目的时候需要用到一些假数据，这里我就分享一下用json-server这个包来托管数据。 首先就是npm&nbsp;install&nbsp;-g&nbsp;json-server来全局安装</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
-                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+                <h4><a href="/html/category/article-242.htm">PyQt5 按钮Button 添加事件(信号/槽)</a></h4>
+                <p>本文基于PyQt5 按钮Buttons样式设计，针对按钮添加响应的点击事件触发。 效果截图:  PyQt 模型设计：  &nbsp;PyQt 设计器截图：  *.UI 源码 &lt;?xml vers</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">springboot+layui有关分页问题</a></h4>
-                <p>问题描述 分页不生效明明可以分页 但是后端接收到的pagenum始终是1  &nbsp;   &nbsp;  &nbsp; 提示：这里描述项目中遇到的问题： 例如：分页出问题 @Override pu</p>
+                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
+                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
             </div>
         </div>
     </div>

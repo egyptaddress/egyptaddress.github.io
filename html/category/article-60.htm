@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-60.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Source Generator实战 - EgyptAddress</title>
+    <title>redis专题：redis键值设计、性能优化以及redis连接池配置 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Source Generator实战</h1>
+                <h1 class="title" style="word-break: break-all;">redis专题：redis键值设计、性能优化以及redis连接池配置</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h2 id="前言">前言</h2> <p>最近刷B站的时候浏览到了老杨的关于Source Generator的<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.bilibili.com/video/BV1CZ4y1Q7oK"  title="简介视频" target="_blank" rel="nofollow">简介视频</a>。其实当初.Net 6刚发布时候看到过微软介绍这个东西，但并没有在意。因为粗看觉得这东西限制蛮多的，毕竟C#是强类型语言，有些动态的东西不好操作，而且又有Fody、Natasha这些操作IL的库。</p> <p>最近写前端比较多，看到<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/antfu/unplugin-auto-import"  target="_blank" rel="nofollow">这个</a>和<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/unjs/unimport"  target="_blank" rel="nofollow">这个</a>，都是自动引入相关包，极大的提高了我开发前端的舒适度。又联想到隔壁Java的有Lombok，用起来都很香。搜了一下也没看到C#有相关的东西，于是决定自己动手开发一个，提高C#开发体验。</p> <h2 id="实现一个source-generator">实现一个Source Generator</h2> <p>这里不对Source Generator做基本的使用介绍，直接实操。如果需要了解相关信息，建议直接看<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview"  target="_blank" rel="nofollow">官方文档</a>或者去搜索相关文章。</p> <p>首先我们看一下效果，假如我的代码是</p> <pre><code class="language-c#">namespace SourceGenerator.Demo {     public partial class UserClass     {         [Property]         private string _test;     } }</code></pre> <p>那么，最终生成的应该是</p> <pre><code class="language-c#">// Auto-generated code namespace SourceGenerator.Demo {     public partial class UserClass     {         public string Test { get =&gt; _test; set =&gt; _test = value; }     } }</code></pre> <p>我们按最简单的实现来考虑，那么只需要</p> <ol> <li>在语法树中找到field</li> <li>找到字段的class、namespace</li> <li>生成代码</li> </ol> <h3 id="第一步">第一步</h3> <p>首先我们来看第一步。第一步需要找到field，这个我们借助Attribute的特性，能够很快的找到，在SourceGenerator中只需要判断一下Attribute的名字即可<br /> 定义一个SyntaxReciver，然后在SourceGenerator中注册一下</p> <pre><code class="language-csharp">// file: PropertyAttribute.cs using System;  namespace SourceGenerator.Common {     [AttributeUsage(AttributeTargets.Field)]     public class PropertyAttribute : Attribute     {         public const string Name = "Property";     } } // file: AutoPropertyReceiver.cs public class AutoPropertyReceiver : ISyntaxReceiver {     public List&lt;AttributeSyntax&gt; AttributeSyntaxList { get; } = new List&lt;AttributeSyntax&gt;();      public void OnVisitSyntaxNode(SyntaxNode syntaxNode)     {         if (syntaxNode is AttributeSyntax cds &amp;&amp; cds.Name is IdentifierNameSyntax identifierName &amp;&amp;             (                 identifierName.Identifier.ValueText == PropertyAttribute.Name ||                 identifierName.Identifier.ValueText == nameof(PropertyAttribute))            )         {             AttributeSyntaxList.Add(cds);         }     } }  // file: AutoPropertyGenerator.cs [Generator] public class AutoPropertyGenerator : ISourceGenerator {     public void Initialize(GeneratorInitializationContext context)     {         context.RegisterForSyntaxNotifications(() =&gt; new AutoPropertyReceiver());     }      // other code     ... }</code></pre> <h3 id="第二步">第二步</h3> <p>第二步就是SyntaxTree的查找，熟悉SyncaxTree的话比较容易完成</p> <pre><code class="language-csharp">public void Execute(GeneratorExecutionContext context) {     var syntaxReceiver = (AutoPropertyReceiver)context.SyntaxReceiver;     var attributeSyntaxList = syntaxReceiver.AttributeSyntaxList;      if (attributeSyntaxList.Count == 0)     {         return;     }      // 保存一下类名，因为一个类中可能有有多个字段生成，这里去掉重复     var classList = new List&lt;string&gt;();     foreach (var attributeSyntax in attributeSyntaxList)     {         // 找到class，并且判断一下是否有parital字段         var classDeclarationSyntax = attributeSyntax.FirstAncestorOrSelf&lt;ClassDeclarationSyntax&gt;();         if (classDeclarationSyntax == null ||             !classDeclarationSyntax.Modifiers.Any(m =&gt; m.IsKind(SyntaxKind.PartialKeyword)))         {             continue;         }          // 找到namespace         var namespaceDeclarationSyntax =             classDeclarationSyntax.FirstAncestorOrSelf&lt;BaseNamespaceDeclarationSyntax&gt;();          if (classList.Contains(classDeclarationSyntax.Identifier.ValueText))         {             continue;         }          // 找到field         var fieldDeclarationList = classDeclarationSyntax.Members.OfType&lt;FieldDeclarationSyntax&gt;().ToList();         if (fieldDeclarationList.Count == 0)         {             continue;         }         // 其他代码         ...     } }</code></pre> <h3 id="第三步">第三步</h3> <p>第三步就是简单粗暴的根据第二步中拿到的信息，拼一下字符串。</p> <p>当然其实拼字符串是很不好的行为，最好是用模板去实现，其次就算是拼字符串也理应用<code>StringBuilder</code>，但这里只是做一个Demo，无所谓了</p> <pre><code class="language-csharp">public void Execute(GeneratorExecutionContext context) {         ...         // 上面是第二步的代码         // 拼源代码字符串         var source = $@"// Auto-generated code  namespace {namespaceDeclarationSyntax.Name.ToString()} {{ public partial class {classDeclarationSyntax.Identifier} {{";         var propertyStr = "";         foreach (var fieldDeclaration in fieldDeclarationList)         {             var variableDeclaratorSyntax = fieldDeclaration.Declaration.Variables.FirstOrDefault();              var fieldName = variableDeclaratorSyntax.Identifier.ValueText;             var propertyName = GetCamelCase(fieldName);              propertyStr += $@" public string {propertyName} {{ get =&gt; {fieldName}; set =&gt; {fieldName} = value; }}";         }          source += propertyStr;         source += @" } } ";         // 添加到源代码，这样IDE才能感知         context.AddSource($"{classDeclarationSyntax.Identifier}.g.cs", source);         // 保存一下类名，避免重复生成         classList.Add(classDeclarationSyntax.Identifier.ValueText);     } }</code></pre> <h3 id="使用">使用</h3> <p>写一个测试类</p> <pre><code class="language-csharp">using SourceGenerator.Common;  namespace SourceGenerator.Demo;  public partial class UserClass {     [Property] private string _test = "test";      [Property] private string _test2; }</code></pre> <p>然后重启IDE，可以看到效果，并且直接调用属性是不报错的<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/4df308b46d6afba4248bb71016be6d6e.jpg" alt="Source Generator实战"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5a338e1f337622878e0331e7c84b91f0.jpg" alt="Source Generator实战"></p> <h3 id="结尾">结尾</h3> <p>这里仅演示了最基本的Source Generator的功能，限于篇幅也无法深入讲解，上面的代码可以在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/Weilence/SourceGenerator/tree/8776f50bef8093bf05726aa0d64022f4a2d4ffe3"  target="_blank" rel="nofollow">这里</a>查看，目前最新的代码还实现了字段生成构造函数，appsettings.json生成AppSettings常量字段类。</p> <p>如果你只是想使用，可以直接nuget安装<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.nuget.org/packages/SourceGenerator.Library/"  target="_blank" rel="nofollow">SourceGenerator.Library</a>。</p> <h3 id="以下为个人观点">以下为个人观点</h3> <p>Source Generator在我看来最大的价值在于提供开发时的体验。至于性能，可以用Fody等库Emit IL代码，功能更强大更完善，且没有分部类的限制。但此类IL库最大的问题在Design-Time时无法拿到生成后的代码，导致需要用一些奇奇怪怪的方法去用生成代码。</p> <p>Source Generator未来可以做的事情有很多，比如</p> <ol> <li>ORM实体映射<br /> 如果数据库是Code First，那么其实还好。但如果说是Db First，主流的ORM库都是通过命令去生成Model的，但命令通常我记不住，因为用的频率并不高。<br /> 如果后期加字段，要么我重新生成一次，我又得去找这个命令。要么我手动去C#代码中加这个字段，我能保证自己可以写正确，但是团队其他成员呢？</li> <li>结合Emit IL技术<br /> 上面其实说了Emit是无法在Design-Time中使用的，但如果我们使用Source Generator创建一些空的方法，然后用IL去改写，应该可以解决这个问题</li> <li>依赖注入<br /> 目前而言我们在Asp.net Core中创建了服务，那么我们需要AddSingleton等方法添加进去，这个其实很痛苦，因为首先会显得代码很长，其次这个操作很无聊且容易遗漏。<br /> 现在主流的框架都是通过Assembly扫描的方式去动态注册，避免手动去添加服务。但如果通过Source Generator扫码这些类，就可以在编译时添加进DI容器</li> <li>对象映射<br /> Java里面有个库叫做<code>MapStruct</code>，原理是用maven插件生成静态的java代码，然后按字段赋值。C#里面我好像没有看到这种方法，目前我用过的Automapper和Tinymapper都是先去做Bind，然后再使用。（插个题外话，Tinymapper以前的版本是不需要Bind，直接用的，但后来就要了，似乎是为了解决多线程的问题）<br /> Bind其实很痛苦，我很讨厌写这种样板代码，以至于我根本就不想用这类Mapper，直接Json Copy。</li> </ol> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3>文章目录</h3> <ul> <li><a href="#1redis_3" rel="nofollow">1.redis键值设计</a></li> <li> <ul> <li><a href="#key_6" rel="nofollow">①：key设计规范</a></li> <li><a href="#value_27" rel="nofollow">②：value设计规范</a></li> </ul> </li> <li><a href="#2__90" rel="nofollow">2. 命令使用优化</a></li> <li><a href="#3_redis_117" rel="nofollow">3. redis连接池配置参数设计</a></li> <li><a href="#4_redis_167" rel="nofollow">4. redis连接池预热</a></li> <li><a href="#5_rediskey_210" rel="nofollow">5. redis的key过期删除策略</a></li> <li><a href="#6_redis_266" rel="nofollow">6. 秒杀场景下redis性能提升策略</a></li> </ul> </div> <p></p> <h1><a id="1redis_3" rel="nofollow"></a>1.redis键值设计</h1> <p>redis合理的键值设计，可以增加可读性和可管理性，特别在大型项目中，要特别注意！</p> <h2><a id="key_6" rel="nofollow"></a>①：key设计规范</h2> <ol> <li>【建议】: 可读性和可管理性 以业务名(或数据库名)为前缀(防止key冲突)，用冒号分隔，比如业务名:表名:id</li> </ol> <pre><code>//表示交易系统中的订单号 1 trade:order:1</code></pre> <ol start="2"> <li>【建议】：简洁性 保证语义的前提下，控制key的长度，当key较多时，内存占用也不容忽视，例如：</li> </ol> <pre><code>// 表示某用户的朋友发来的消息 user:{uid}:friends:messages:{mid} 简化为 u:{uid}:fr:m:{mid}</code></pre> <ol start="3"> <li>【强制】：不要包含特殊字符<br /> 反例：包含空格、换行、单双引号以及其他转义字符</li> </ol> <p></p> <h2><a id="value_27" rel="nofollow"></a>②：value设计规范</h2> <p><strong>（1）【强制】：拒绝bigkey(防止网卡流量、慢查询)</strong></p> <p><strong>什么是bigkey?</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在Redis中，一个字符串最大512MB，一个二级数据结构（例如hash、list、set、zset）可以存 储大约40亿个(2^32-1)个元素，这么大的存储空间，为bigkey的产生创造了条件。如果有以下情况，就认为是bigkey！</p> <p>①：字符串类型：它的big体现在单个value值很大，一般认为超过10KB就是bigkey。</p> <p>②：非字符串类型：哈希、列表、集合、有序集合，它们的big体现在元素个数太多。 一般来说，string类型控制在10KB以内，hash、list、set、zset元素个数不要超过5000。</p> <p><strong>bigkey是如何产生的？</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在一般来说，bigkey的产生都是由于程序设计不当，或者对于数据规模预料不清楚造成的，比如：<br /> ①：社交类：粉丝列表，如果某些明星或者大v不精心设计下，必是bigkey<br /> ②：统计类：例如按天存储某项功能或者网站的用户集合，除非没几个人用，否则必是bigkey。<br /> ③：缓存类：将数据从数据库load出来序列化放到Redis里。注意缓存必要字段即可！</p> <p><strong>bigkey的危害是什么?</strong></p> <ol> <li> <p>导致redis阻塞<br /> 由于redis操作命令是单线程的，当bigkey太大时，操作bigkey耗时过长，其他命令都会被阻塞！</p> </li> <li> <p>网络拥塞<br /> bigkey也就意味着每次获取要产生的网络流量较大，假设一个bigkey为1MB，客户端每秒访问量为1000，那么每秒产生1000MB的流量，对于普通的千兆网卡(按照字节算是128MB/s)的服务器来说简直是灭顶之灾，而且一般服务器会采用单机多实例的方式来部署，也就是说一个bigkey可能会对其他实例也造成影响，其后果不堪设想。</p> </li> <li> <p>过期删除<br /> 有个bigkey，它安分守己（只执行简单的命令，例如hget、lpop、zscore等），但它设置了过期时间，当它过期后，会被删除，如果没有使用Redis 4.0的过期异步删除(lazyfree-lazy-expire yes)，就会存在阻塞Redis的可能性。</p> </li> </ol> <p><strong>如何优化bigkey？</strong></p> <ol> <li> <p>拆<br /> 比如一个bigkey，存储了100w的用户数据，那么可以把这个key拆分成200个key，每个key下存储5000个用户数据</p> </li> <li> <p>避免使用hgetAll全量获取<br /> 如果bigkey不可避免，也要思考一下要不要每次把所有元素都取出来(例如有时候仅仅需要 hmget，而不是hgetall)，删除也是一样，不要使用del删除，使用hscan、sscan、zscan方式渐进式删除，尽量使用优雅的方式来处理。</p> </li> </ol> <p><strong>（2）【推荐】：选择适合的数据类型。</strong><br /> 场景：存储某个用户(要合理控制和使用数据结构，但也要注意节省内存和性能之间的平衡)</p> <p>正例：使用hash结构</p> <pre><code>hmset user:1 name tom age 19 favor football</code></pre> <p>反例：使用string结构</p> <pre><code>set user:1:name tom set user:1:age 19 set user:1:favor football</code></pre> <p><strong>（3） 【推荐】：控制key的生命周期，redis不是垃圾桶。</strong><br /> 建议使用expire设置过期时间(条件允许可以打散过期时间，防止集中过期)。</p> <p>注意：redis内部默认有16个数据库，<strong>在微服务场景下，不要用redis的数据库做业务数据区分</strong>，比如订单放1库，商品放2库，这样做毫无作用，因为这些库都是一个redis服务，在高并发场景下，虽然访问的时不同的库，但redis还是单线程执行的！！</p> <p></p> <h1><a id="2__90" rel="nofollow"></a>2. 命令使用优化</h1> <p>1.【推荐】 使用命令时关注N的数量<br /> 例如hgetall、lrange、smembers、zrange、sinter等并非不能使用，但是需要明确N的值。有遍历的需求可以使用hscan、sscan、zscan代替。</p> <p>2.【推荐】：禁用命令<br /> 禁止线上使用keys、flushall、flushdb等，通过redis的rename机制禁掉命令，或者使用scan的方式渐进式处理。</p> <p>3.【推荐】合理使用redis数据库<br /> redis的多数据库较弱，使用数字进行区分，很多客户端支持较差，同时多业务用多数据库实际还是单线程处理，会有干扰。</p> <p>4.【推荐】使用批量操作提高效率</p> <pre><code>原生命令：例如mget、mset。 非原生命令：可以使用pipeline提高效率。</code></pre> <p>但要注意控制一次批量操作的元素个数(例如500以内，实际也和元素字节数有关)。<br /> 注意两者不同：</p> <ol> <li>原生命令是原子操作，pipeline是非原子操作。</li> <li>pipeline可以打包不同的命令，原生命令做不到</li> <li>pipeline需要客户端和服务端同时支持。</li> </ol> <p>5.【建议】Redis事务功能较弱，不建议过多使用，可以用lua替代</p> <p></p> <h1><a id="3_redis_117" rel="nofollow"></a>3. redis连接池配置参数设计</h1> <p>redis连接池参数如下：</p> <table> <thead> <tr> <th>参数</th> <th>含义</th> <th>默认值</th> <th>使用建议</th> </tr> </thead> <tbody> <tr> <td>maxTotal</td> <td>资源池中最大连接数</td> <td>8</td> <td>设置建议见下文</td> </tr> <tr> <td>maxIdle</td> <td>资源池允许最大空闲的连接数</td> <td>8</td> <td>设置建议见下文</td> </tr> <tr> <td>minIdle</td> <td>资源池确保最少空闲的连接数</td> <td>0</td> <td>设置建议见下文</td> </tr> <tr> <td>blockWhenExhausted</td> <td>当资源池用尽后，调用者是否要等待。只有当为true时，下面的maxWaitMillis才会生效</td> <td>true</td> <td>建议使用默认值</td> </tr> <tr> <td>maxWaitMillis</td> <td>当资源池连接用尽后，调用者的最大等待时间(单位为毫秒)</td> <td>-1：表示永不超时</td> <td>不建议使用默认值</td> </tr> <tr> <td>testOnBorrow</td> <td>向资源池借用连接时是否做连接有效性检测(ping)，无效连接会被移除</td> <td>false</td> <td>业务量很大时候建议设置为false(多一次ping的开销)。</td> </tr> <tr> <td>testOnReturn</td> <td>向资源池归还连接时是否做连接有效性检测(ping)，无效连接会被移除</td> <td>false</td> <td>业务量很大时候建议设置为false(多一次ping的开销)。</td> </tr> <tr> <td>jmxEnabled</td> <td>是否开启jmx监控，可用于监控</td> <td>true</td> <td>建议开启，但应用本身也要开启</td> </tr> </tbody> </table> <p>优化建议：</p> <p><strong>①：maxtotal：连接池最大连接数，早期版本叫maxActive！</strong><br /> 对于maxtotal的优化要考虑很多因素：</p> <ol> <li>业务希望的redis并发量(QPS)</li> <li>命令执行时间</li> <li>小于redis允许最大连接数<br /> 例如： nodes(例如应用个数) * maxTotal 是不能超过redis的最大连接数maxclients。</li> </ol> <p>用一个例子说明<br /><strong>假如：</strong><br /> 1.业务希望的QPS(每秒并发量)是50000<br /> 2.通过压测工具测得一次命令执行(拿连接+执行命令+归还连接)平均耗时为1ms，算得一个连接的QPS(每秒并发量)是1000</p> <p><strong>结论：</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;那么理论上需要的资源池大小是50000 / 1000 = 50个。但事实上这是个理论值，还要考虑到要比理论值预留一些资源，通常来讲maxTotal可以比理论值大一些，比如60个。但这个值不是越大越好，连接太多会一方面占用客户端和服务端资源，另一方面对于Redis这种高QPS的服务器，一个大命令的阻塞即使设置再大资源池仍然会无济于事。</p> <p><strong>②：maxIdle：业务需要的最大连接数</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxTotal是为了给出余量，而maxIdle才是业务需要的最大连接数，所以maxIdle不要设置过小，如果设置与maxTotal差距过大，则会有new Jedis(新建连接)开销。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一般推荐maxIdle可以设置为按上面的业务期望QPS计算出来的理论连接数50个，这样就避免连接池伸缩带来的性能干扰，maxTotal可以再放大一些，为redis预留一些资源！</p> <p><strong>③：minIdle（最小空闲连接数）</strong><br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minIdle是至少需要保持的空闲的连接数。</p> <p><strong>注意：redis连接池是懒加载的，一开始不会有任何连接，用一个连接连接池帮我们生成一个连接，连接数量根据并发量增加，redis默认取maxIdle配置的连接数量。</strong></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如 minIdle = 10 ；maxIdle = 20 ；maxtotal = 40。随着并发量逐渐增加，连接数量逐渐变大，但不会超过40，一段时间后，并发量下降，由于redis默认取maxIdle配置的连接数量20，所以超出20的连接会被释放，池中稳定存在20个连接，在这里minIdle配置显得无意义，可以通过配置修改minIdle为redispool默认连接数。</p> <p>在并发非常高的情况下，为了保持redis最佳性能，可以配置maxTotal = maxIdle</p> <p></p> <h1><a id="4_redis_167" rel="nofollow"></a>4. redis连接池预热</h1> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;由于redis连接池初始化时不会有连接，当系统启动时，突然爆发大量请求要获取redis数据，这样在短时间内会创建大量连接，影响系统性能，为了避免出现这种情况，可以给redis连接池做预热！</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如在系统启动时创建一些redis连接，执行简单命令，类似ping()，快速的将连接池里的空闲连接提升到minIdle的数量。注意执行ping()时不能立即把连接放回连接池，不然连接池只会有一个连接！</p> <p>预热代码如下：</p> <pre><code>List&lt;Jedis&gt; minIdleJedisList = new ArrayList&lt;Jedis&gt;(jedisPoolConfig.getMinIdle());  //拿到minIdle得数量 for (int i = 0; i &lt; jedisPoolConfig.getMinIdle(); i++) {     Jedis jedis = null;     try {         jedis = pool.getResource();         minIdleJedisList.add(jedis);                  //ping建立连接         jedis.ping();              } catch (Exception e) {         logger.error(e.getMessage(), e);     } finally {         //注意，这里不能马上close将连接还回连接池，否则最后连接池里只会建立1个连接。。         //jedis.close();     } } //统一将预热的连接还回连接池 for (int i = 0; i &lt; jedisPoolConfig.getMinIdle(); i++) {     Jedis jedis = null;     try {         jedis = minIdleJedisList.get(i);         //将连接归还回连接池         jedis.close();     } catch (Exception e) {         logger.error(e.getMessage(), e);     } finally {     } }</code></pre> <p></p> <h1><a id="5_rediskey_210" rel="nofollow"></a>5. redis的key过期删除策略</h1> <p><code>redis对于设置了过期时间，且已过期的key有三种清除策略</code>：</p> <ul> <li><strong>①：惰性删除</strong><br /> 当key过期时，不会立即删除，而是等到下一次读/写这个key时，才会先执行删除，再读/写，这也被称为惰性删除。缺点是如果后续一直不访问这个key，那么它会一直留在redis中，占用不必要的内存空间，对内存不友好</li> <li><strong>②：定时删除</strong><br /> 为每个键设置一个定时器，一旦过期时间到了，则将键删除。这种策略对内存很友好，但是对 CPU 不友好，因为每个定时器都会占用一定的 CPU 资源。</li> <li><strong>③：定期扫描</strong><br /> 系统每隔一段时间就定期扫描一次，发现过期的键就进行删除。不过 Redis 的定期扫描只会扫描设置了过期时间的键，因为设置了过期时间的键 Redis 会单独存储，所以不会出现扫描所有键的情况。这种策略相对来说是上面两种策略的折中方案</li> </ul> <p><code>如果reids中所有的key都没有过期，而且此时内存满了</code>，那么客户端继续执行 set 等命令时 Redis 会怎么处理呢？<code>Redis 当中提供了不同的内存淘汰策略来处理这种场景</code>。在Redis 4.0 之前一共实现了 6 种内存淘汰策略，<strong>可通过maxmemory-policy(默认是noeviction)来配置</strong>！在 4.0 之后，又增加了 2 种策略，总共8种如下：</p> <p><strong>a) 针对设置了过期时间的key做处理：</strong></p> <ol> <li>volatile-ttl：在筛选时，会针对设置了过期时间的键值对，根据过期时间的先后进行删除，越早过期的越先被删除。</li> <li>volatile-random：就像它的名称一样，在设置了过期时间的键值对中，进行随机删除。</li> <li>volatile-lru：会使用 LRU 算法筛选设置了过期时间的键值对删除。</li> <li>volatile-lfu：会使用 LFU 算法筛选设置了过期时间的键值对删除。</li> </ol> <p><strong>b) 针对所有的key做处理：</strong></p> <ol start="5"> <li> <p>allkeys-random：从所有键值对中随机选择并删除数据。</p> </li> <li> <p>allkeys-lru：使用 LRU 算法在所有数据中进行筛选删除。</p> </li> <li> <p>allkeys-lfu：使用 LFU 算法在所有数据中进行筛选删除。</p> </li> </ol> <p><strong>c) 不处理：</strong></p> <ol start="8"> <li>noeviction：不会剔除任何数据，拒绝所有写入操作并返回客户端错误信息"(error) OOM command not<br /> allowed when used memory"，此时Redis只响应读操作。redis默认操作</li> </ol> <p><strong>LRU 算法（Least Recently Used，最近最少使用）</strong></p> <ul> <li>传统的LRU算法目的是：淘汰很久没被访问过的数据。在 Redis 当中，并没有采用传统的 LRU 算法，因为传统的 LRU 算法存在 2 个问题：</li> </ul> <ol> <li>需要额外的空间进行存储。</li> <li>可能存在某些 key 值使用很频繁，但是最近没被使用，从而被 LRU 算法删除。</li> </ol> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;为了避免以上 2 个问题，<code>Redis 当中对传统的 LRU 算法进行了改造，通过抽样的方式进行删除</code>。配置文件中提供了一个属性<code>maxmemory_samples</code><code>5</code>，默认值就是 5，表示随机抽取 5 个 key 值，然后对这 5 个 key 值按照 LRU 算法进行删除，所以很明显，key 值越大，删除的准确度越高。</p> <p><strong>LFU 算法（Least Frequently Used，最近最少频率使用）</strong></p> <ul> <li>淘汰最近一段时间被访问次数最少的数据，以次数作为参考。<strong>热点数据通常用LFU算法！以次数为准</strong></li> </ul> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;以上8中清除策略，应根据自身业务类型，配置好maxmemory-policy(默认是noeviction)，推荐使用volatile-lru。如果不设置最大内存，当 Redis 内存超出物理内存限制时，内存的数据会开始和磁盘产生频繁的交换 (swap)，会让 Redis 的性能急剧下降。</p> <p><strong>注意：当Redis运行在主从模式时，只有主节点才会执行过期删除策略，然后把删除操作”del key”同步到从结点删除数据。</strong></p> <p></p> <h1><a id="6_redis_266" rel="nofollow"></a>6. 秒杀场景下redis性能提升策略</h1> <p>①：<strong>多商品抢购场景下</strong>，可以加redis服务器。如果是大促场景下，有很多商品待抢购，由于不同的商品id通过槽位分布在不同的redis集群节点上，可以通过增加redis服务器来分散槽位分配，实现高可用的redis架构！</p> <p>②：<strong>单商品秒杀场景下</strong>，增加redis服务器已无法起到优化作用，因为一个商品只能被分配到某一个redis集群节点中，秒杀这个商品会对当前redis节点产生较大压力！可以使用分段库存锁的思路来解决！</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;比如要秒杀id为001号商品，库存有1000个，可以把001拆分成001-1、001-2、001-3 … 001-10共拆分成10个小id来表示001号商品，每一个小id存储100库存，通过分段锁把单商品抢购优化为多商品抢购！这样在set key设置商品时由于hash(key)%16384得到的槽位不同，这些商品就被分配到不同的集群节点上，在抢购时判断001-1上是否还有库存，如果没有去其他节点减库存，这样就非常巧妙的实现了水平扩容，增强了系统性能！</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-59.htm">Window系统，MySQL服务器如何设置开机启动和关闭</a></p>
-                                        <p>下一个：<a href="/html/category/article-61.htm">idea中配置maven仓库</a></p>
+                                        <p>上一个：<a href="/html/category/article-59.htm">HCNP Routing&amp;Switching之MUX VLAN</a></p>
+                                        <p>下一个：<a href="/html/category/article-61.htm">Dapr 远程调试之 Nocalhost</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-213.htm">springboot读取resources下文件方式</a></h4>
-                <p>项目中很多时候需要读取自定义配置文件，本地开发工具怎么写都成功但是部署到服务其上就出现问题， 异常BOOT-INF/classes!/config.xml (文件名、目录名或卷标语法不正确.)路径中带</p>
+                <h4><a href="/html/category/article-245.htm">Docker从入门到放弃(1) Docker简介与安装_在线工具</a></h4>
+                <p>​ 目录 一、Docker简介 1、Docker是什么： 2、为什么有docke的出现： 3、docker与传统容器的区别： 4、docker基本组成 5、docker工作原理： 二、Docker安装</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
-                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
+                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-237.htm">Vue3实现跑马灯效果_vue.js</a></h4>
+                <p>本文实例为大家分享了Vue3实现跑马灯效果的具体代码，供大家参考，具体内容如下 先看效果：  html部分代码  &lt;div class="app"&gt;              &lt;p </p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">最大生成树Bad Cowtractors_在线工具</a></h4>
-                <p>题目链接：http://poj.org/problem?id=2377；     仔细阅读题目，你会发现一个词-" as large as possible"，这个词的意思是尽可能最大；  来，我们翻</p>
+                <h4><a href="/html/category/article-211.htm">谨慎使用Arrays.asList()</a></h4>
+                <p>经过了两个月的【深入学习Java编程方法】课程学习，对Java的一些新特性有了更多的了解。依旧，坑洼遍地。 Java中的Collection类是一个很好用、很常用的类，省去了当年C语言手动链表的麻烦之</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Spring Security教程（13）&#8212;- 验证码功能的实现</a></h4>
-                <p>有三中方法可以实现验证码的功能 第一种是自定义一个filter，放在SpringSecurity过滤器之前，在用户登录的时候会先经过这个filter，然后在这个filter中实现对验证码进行验证的功能</p>
+                <h4><a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></h4>
+                <p>encodeURI：适用于url跳转时。 encodeURIComponent：适用于url作为参数传递时。 tips：当url作为参数传递时如果没有用encodeURIComponent进行编码，会</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-251.htm">SpringMVC拦截器path路径的坑</a></h4>
+                <p>SpringMVC提供了很方便的拦截器供我们开发使用。在配置文件中通过&lt;mvc:mapping path="" /&gt;进行配置拦截的路径，但是这个path在配置的时候有一个小坑 我们都知道在</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-256.htm">Vue3项目中的骨架屏</a></h4>
-                <p>实现场景:刚进入页面的时候,需要后端接口回传的数据,还没有回来,为了客户有更好的体验,需要设置骨架屏,效果图如下:  &nbsp;实现步骤: 1.设置通用组件骨架屏(可以设置的属性:高，宽，背景颜色，</p>
+                <h4><a href="/html/category/article-234.htm">Pandas 如何处理超大规模数据</a></h4>
+                <p>作者&nbsp;|&nbsp;Sara&nbsp;A.&nbsp;Metwalli 译者&nbsp;|&nbsp;盖磊 策划&nbsp;|&nbsp;陈思  处理大规模数据集时常是棘手的事情，尤其在内</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-210.htm">Code For Better 谷歌开发者之声—— 在 Windows 10 上对 Google Chrome 进行故障排除</a></h4>
-                <p>???? 个人网站:【 海拥】【小霸王游戏机】 ???? 风趣幽默的前端学习课程：????28个案例趣学前端 ???? 想寻找共同学习交流、摸鱼划水的小伙伴，请点击【摸鱼学习交流群】 ???? 免费且</p>
+                <h4><a href="/html/category/article-220.htm">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</a></h4>
+                <p>今天执行 user_1@test_1:/opt/kafka$ sudo bin/zookeeper-server-start.sh config/zookeeper.properties/opt/ka</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-214.htm">JavaScript找到两个数组之间的差异方法详解</a></h4>
+                <p>我们有两个这样的数字数组- const&nbsp;arr1&nbsp;=&nbsp;[12,&nbsp;54,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;34,&nbsp;3]; co</p>
             </div>
         </div>
     </div>

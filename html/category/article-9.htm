@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-9.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>如何在代码层面提高CPU分支预测效率 - EgyptAddress</title>
+    <title>JVM将初始和最大内存大小设置为相同值的好处 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">如何在代码层面提高CPU分支预测效率</h1>
+                <h1 class="title" style="word-break: break-all;">JVM将初始和最大内存大小设置为相同值的好处</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p><span style="font-size: 1em;">说几个常见的能够提升CPU分支预测效率的方法。</span></p> <h3>将最常见的条件比较单独从switch中移出</h3> <p data-pid="ArQDDrLO">分支预测除了需要预测方向，还需要预测分支的目标地址。目标地址BTA(Branch Target Address)分为两种：</p> <ul> <li data-pid="kkGZ5out">直接跳转(PC-relative, direct) ： offset以立即数形式固定在指令中，所以目标地址也是固定的。</li> <li data-pid="cHPpELa1">间接跳转(absolute, indirect)：目标地址来自通用寄存器，而寄存器的值不固定。</li> </ul> <p data-pid="BaneM2qD">对于直接跳转，使用BTB可以很好的进行预测。但是对于间接跳转，目标地址不固定，更难预测。switch-case的指令实现(类似<code>jmpq *$rax</code>，$rax是case对应label地址)、C++虚函数调用就属于间接跳转。间接跳转如果还用直接跳转的BTB预测，准确率只有50%左右。</p> <p data-pid="_Sqvm3rG">很多CPU针对间接跳转都有单独的预测器，比如的Intel的论文<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//www.ece.ucdavis.edu/~akella/270W05/centrino+microarchitecture+and+performance.pdf"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">The Intel Pentium M Processor: Microarchitecture and Performance</a>中介绍额Indirect Branch Predictor：通过额外引入context-information——Global Branch History来提高间接跳转的目标地址预测准确率。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/6e8fd883bda4de1da5207559b461fe3d.jpg" alt="如何在代码层面提高CPU分支预测效率" class="content_image lazy" data-caption="" data-size="normal" data-actualsrc="https://pica.zhimg.com/50/v2-95792370007181005cb78c6cb1ef5bbb_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> <p data-pid="IJFPDyVY">switch-case的优点是将诸多if/else(conditional branch)转换为统一的unconditioal branch，但缺点就是目标地址难以预测。如果某个case的命中率特别高，就可以将其从switch中单独提出来，这样该分支的预测方向 &amp;&amp; 目标地址都很好预测。</p> <p data-pid="H6E-BHP8">比如<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//github1s.com/apache/dubbo/blob/HEAD/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/dispatcher/ChannelEventRunnable.java"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">java dubbo代码里的一个例子：</a>：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/9fa24c43115d0171b3831af745d898fb.jpg" alt="如何在代码层面提高CPU分支预测效率" width="1416" class="origin_image zh-lightbox-thumb lazy" data-caption="" data-size="normal" data-rawwidth="1416" data-rawheight="1061" data-default-watermark-src="https://pica.zhimg.com/50/v2-afa0c41c03c2d64a87cf4738525a886c_720w.jpg?source=1940ef5c" data-original="https://pic1.zhimg.com/v2-10be5de9ab63643490383a617938bd17_r.jpg?source=1940ef5c" data-actualsrc="https://pica.zhimg.com/50/v2-10be5de9ab63643490383a617938bd17_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> <p data-pid="fecnnu-V">超过99.9%情况state取值都是<code>ChannelState.RECEIVED</code>&nbsp;，将其单独提出来。<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//dubbo.apache.org/zh/blog/2019/02/03/%25E6%258F%2590%25E5%2589%258Dif%25E5%2588%25A4%25E6%2596%25AD%25E5%25B8%25AE%25E5%258A%25A9cpu%25E5%2588%2586%25E6%2594%25AF%25E9%25A2%2584%25E6%25B5%258B/"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">官网博客有一个benchmark</a>，性能有很大的改观。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/02bc34b77842d50958bb74cd62c46bc8.jpg" alt="如何在代码层面提高CPU分支预测效率" width="994" class="origin_image zh-lightbox-thumb lazy" data-caption="" data-size="normal" data-rawwidth="994" data-rawheight="316" data-default-watermark-src="https://pic2.zhimg.com/50/v2-19b15c6c16058f0bb740fe6595559efa_720w.jpg?source=1940ef5c" data-original="https://pic1.zhimg.com/v2-901e0d7bbd2a88bf644632c33d3e613d_r.jpg?source=1940ef5c" data-actualsrc="https://pic2.zhimg.com/50/v2-901e0d7bbd2a88bf644632c33d3e613d_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> <h3>将使用【控制】的条件转移转换为使用【数据】的条件转移</h3> <p data-pid="YUFn9yle">CMOV指令就是典型的例子。<strong>CPU无需进行分支预测</strong>，但是会计算一个条件的两种结果，然后通过检查条件码，要么更新目的寄存器，要么保持不变。</p> <p data-pid="BGDfjo8Y">比如</p> <div class="highlight"> <pre><code>v = test-expr ? then-expr : else-expr</code></pre> </div> <p data-pid="AqS7-Udj">会转换为下列伪代码：</p> <div class="highlight"> <pre><code>v = then-expr; ve = else-expr; t = test-expr; if(!t) v=ve;</code></pre> </div> <p data-pid="43xwBoDw">编译器会倾向于将使用三元运算符且两种结果的计算量不大的表达式转换为CMOV条件数据转移。<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//github1s.com/facebook/folly/blob/main/folly/FBString.h%23L404"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">例如facebook folly中的例子</a>，注意看注释：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/4baa13a2600caecd1573dd275ded07a1.jpg" alt="如何在代码层面提高CPU分支预测效率" width="960" class="origin_image zh-lightbox-thumb lazy" data-caption="" data-size="normal" data-rawwidth="960" data-rawheight="563" data-default-watermark-src="https://pica.zhimg.com/50/v2-da0175054957a2a150d8ea6ec5abbe7f_720w.jpg?source=1940ef5c" data-original="https://pic3.zhimg.com/v2-e3448b9e83a27a146c7c73f0efe58b1b_r.jpg?source=1940ef5c" data-actualsrc="https://pica.zhimg.com/50/v2-e3448b9e83a27a146c7c73f0efe58b1b_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> <p data-pid="0fD_qaiZ"><strong>当分支的结果完全由外部输入决定，local branch history和global branch history都毫无规律时，效果会更好。</strong>下面这个是《Computer Systems A Programmer's Perspective 》5.11.2小节的例子，第二个版本性能是第一个三倍：</p> <div class="highlight"> <pre><code>/* Rearrange two vectors so that for each i, b[i] &gt;= a[i] */ void minmax1(long a[], long b[], long n) {   long i;   for (i = 0; i &lt; n; i++) {     if (a[i] &gt; b[i]) {       long t = a[i];       a[i] = b[i];       b[i] = t;     }   } }  /* Rearrange two vectors so that for each i, b[i] &gt;= a[i] */ void minmax2(long a[], long b[], long n) {   long i;   for (i = 0; i &lt; n; i++) {     long min = a[i] &lt; b[i] ? a[i] : b[i];     long max = a[i] &lt; b[i] ? b[i] : a[i];     a[i] = min;     b[i] = max;   } }</code></pre> </div> <h3>使用算数逻辑代替分支</h3> <p data-pid="wo4OfPsE">比如<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=http%3A//www.davespace.co.uk/arm/efficient-c-for-arm/unsignedrange.html"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">ARM优化手册</a>里提到，可以将范围比较转换为无条件计算，编译器有时候也会自动做这个转换：</p> <div class="highlight"> <pre><code>// origin version int insideRange1(int v, int min, int max) {   return v &gt;= min &amp;&amp; v &lt; max; }  // optimized version int insideRange2(int v, int min, int max) {   return (unsigned) (v - min) &lt; (max - min); }</code></pre> </div> <p data-pid="nEFaw8QS">韦易笑大佬针对这个做过更详细的优化和测试，反正我是看晕了：</p> <div class="RichText-LinkCardContainer"> <p class="md-end-block md-p"><span class="md-link md-pair-s"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://zhuanlan.zhihu.com/p/144963553"  rel="nofollow">https://zhuanlan.zhihu.com/p/144963553</a></span></p> <p class="md-end-block md-p md-focus"><span class="md-link md-pair-s"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://zhuanlan.zhihu.com/p/147039093"  rel="nofollow">https://zhuanlan.zhihu.com/p/147039093</a></span></p> </div> <p data-pid="o0J9D8WT">引用文章内的<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//quick-bench.com/q/EbCR9psA3lUEhpn8bYLwVtJ-FWk"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">测试数据</a>：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/2e1af4966bc88308b808cd7cb15556fa.jpg" alt="如何在代码层面提高CPU分支预测效率" width="2246" class="origin_image zh-lightbox-thumb lazy" data-caption="" data-size="normal" data-rawwidth="2246" data-rawheight="1109" data-default-watermark-src="https://pica.zhimg.com/50/v2-e02d9890c38786a7710bf5b6424b53da_720w.jpg?source=1940ef5c" data-original="https://pic2.zhimg.com/v2-2cd5e95da0ff0233591a9e4ee9526304_r.jpg?source=1940ef5c" data-actualsrc="https://pic3.zhimg.com/50/v2-2cd5e95da0ff0233591a9e4ee9526304_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> <p data-pid="SS2rZVgj"><a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//www.chessprogramming.org/Avoiding_Branches%23Absolute_value_of_an_Integer"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">Avoiding Branches</a>里有更多的例子，不过用之前还是做测试更靠谱。</p> <h3>使用template移除分支</h3> <p data-pid="EWhVdfub">2018年Stephen Yang的博士论文<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//www.usenix.org/system/files/conference/atc18/atc18-yang.pdf"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">NanoLog: A Nanosecond Scale Logging System</a>介绍了一款C++日志库Nanolog，将日志调用开销的中位数降为了个位数纳秒级别。作者在文章<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//web.stanford.edu/~ouster/cgi-bin/papers/YangPhD.pdf"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">NANOLOG: A NANOSECOND SCALE LOGGING SYSTEM</a>中提到了Nanolog的关键技术和优化，第三条就是将printf在运行时的大量分支逻辑利用C++ template优化成编译期的运算。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/759e6eace0e901be37e7c6b5cd3e0443.jpg" alt="如何在代码层面提高CPU分支预测效率" width="1651" class="origin_image zh-lightbox-thumb lazy" data-caption="" data-size="normal" data-rawwidth="1651" data-rawheight="589" data-default-watermark-src="https://pic1.zhimg.com/50/v2-2878d969b6a4b84beb7b9bc1bd9cedde_720w.jpg?source=1940ef5c" data-original="https://pic3.zhimg.com/v2-fa5011f2b84df8b3c2698ff3b892b8fd_r.jpg?source=1940ef5c" data-actualsrc="https://pica.zhimg.com/50/v2-fa5011f2b84df8b3c2698ff3b892b8fd_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> <h3>likely/unlikely</h3> <p data-pid="9ZjiraMw">这个很多人已经介绍过了，<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//en.cppreference.com/w/cpp/language/attributes/likely"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">C++20已经将其标准化</a>，支持将更可能执行的代码放在hot path上，对icache更友好。<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=https%3A//github1s.com/facebook/folly/blob/main/folly/FBString.h%23L501-L502"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">例如facebook folly中的例子</a>：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/64e04468398523a68de1de4547aef6c2.jpg" alt="如何在代码层面提高CPU分支预测效率" width="1616" class="origin_image zh-lightbox-thumb lazy" data-caption="" data-size="normal" data-rawwidth="1616" data-rawheight="433" data-default-watermark-src="https://pica.zhimg.com/50/v2-33c14cb00e0fc814f60ae165484aef88_720w.jpg?source=1940ef5c" data-original="https://pic3.zhimg.com/v2-2d92d999be5a94bdca5bd2be858e9e75_r.jpg?source=1940ef5c" data-actualsrc="https://pic1.zhimg.com/50/v2-2d92d999be5a94bdca5bd2be858e9e75_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> <p data-pid="hX8YEiyi"><code>FOLLY_LIKELY</code>是一个包装：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/714207a2f8893ce12a8317c82d654c2f.jpg" alt="如何在代码层面提高CPU分支预测效率" width="1465" class="origin_image zh-lightbox-thumb lazy" data-caption="" data-size="normal" data-rawwidth="1465" data-rawheight="1047" data-default-watermark-src="https://pica.zhimg.com/50/v2-24f6e8e34e2afee59083857ccf618553_720w.jpg?source=1940ef5c" data-original="https://pic3.zhimg.com/v2-66ea0b1f7c06e3268871228f611599a1_r.jpg?source=1940ef5c" data-actualsrc="https://pic1.zhimg.com/50/v2-66ea0b1f7c06e3268871228f611599a1_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> <p data-pid="lh7W5ouq">更进一步，有些ISA的分支指令有一个bit，支持programmer去指定分支是否taken。现代CPU使用的<a class="wrap external" href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://link.zhihu.com/?target=http%3A//www.irisa.fr/caps/people/seznec/JILP-COTTAGE.pdf"  target="_blank" data-za-detail-view-id="1043" rel="nofollow">TAGE分支预测器</a>，部分实现会使用该bit去初始化predictor(是初始化，不是一直使用programmer指定的跳转结果)。TAGE预测器可以参考下我开头放的回答：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.zhihu.com/question/486239354/answer/2410692045"  rel="nofollow">https://www.zhihu.com/question/486239354/answer/2410692045</a></p> <p data-pid="lh7W5ouq"> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/3bd5ef629020e63fd77e216d7e45099f.jpg" alt="如何在代码层面提高CPU分支预测效率" width="2066" class="origin_image zh-lightbox-thumb lazy" data-caption="" data-size="normal" data-rawwidth="2066" data-rawheight="1008" data-default-watermark-src="https://pic2.zhimg.com/50/v2-618c0f9fbb0d6ad5d74635b99cd9fe01_720w.jpg?source=1940ef5c" data-original="https://pic2.zhimg.com/v2-7537152214f116d15b1930b5de8f452b_r.jpg?source=1940ef5c" data-actualsrc="https://pica.zhimg.com/50/v2-7537152214f116d15b1930b5de8f452b_720w.jpg?source=1940ef5c" data-lazy-status="ok"/></p> 			                </div>
+                      				  				  				  			 <div id="log-box">  				<div id="catalog"><ul id="catalog-ul"> <li><i class="be be-arrowright"></i> <a href="#title-0" title="操作系统的内存分配和解除分配">操作系统的内存分配和解除分配</a></li> </ul><span class="log-zd"><span class="log-close"><a title="隐藏目录"><i class="be be-cross"></i><strong>目录</strong></a></span></span></div>  			</div> <blockquote> <p>微信公众号：<strong>Java大家族</strong></p> </blockquote> <h3>JVM将初始和最大内存大小设置为相同值的好处</h3> <p>&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;启动应用程序时，我们指定初始内存大小和最大内存大小。对于在 JVM（Java 虚拟机）上运行的应用程序，初始和最大内存大小通过 “-Xms” 和 “-Xmx” 参数指定。如果 Java 应用程序在容器上运行，则通过“-XX：InitialRAMPercentage”和“-XX：MaxRAMPercentage”参数指定它。大多数企业将初始内存大小设置为低于最大内存大小的值。与这种普遍接受的做法相反，将初始内存大小设置为与最大内存大小相同具有如下优势。让我们在这篇文章中讨论它们。</p> <h3>1. 可用性</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;假设您正在启动应用程序，初始堆大小为 2GB，最大堆大小为 24GB。这意味着当应用程序启动时，操作系统将为您的应用程序分配 2GB 的内存。从那时起，当应用程序开始处理新请求时，将分配额外的内存，直到达到最大 24GB。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;假设当您的应用程序的内存消耗正在从2GB增长到24GB的过程中，此时，服务器启动了其他一些进程，并且这些进程开始消耗内存。这种情况在生产/云环境中非常常见，尤其是在应用程序与其他进程（如自定义脚本、cron 作业、监视代理等）一起运行时。</p> <p>发生这种情况时，您的应用程序将遇到以下情况：</p> <p>“java.lang.OutOfMemoryError：Java heap space”<br />操作系统将终止您的应用程序，并显示“内存不足：杀死进程。<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;这意味着您的应用程序将在事务过程中崩溃。如果应用程序在启动期间以最大内存启动，则应用程序将是安全的。操作系统将仅终止内存消耗正在增长的新启动的脚本/cron 作业，而不会终止在启动期间内存已完全分配的应用程序。</p> <h3>2. 性能</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;我们还观察到，以相同的初始堆大小和最大堆大小启动的应用程序往往比以较低的初始堆大小启动的应用程序的性能相对较好。</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;这是一个真实的案例研究：我们使用记忆密集型应用程序进行测试。此应用程序处理非常大的二进制堆转储文件并生成分析报告。在这个应用程序中，我们反复分析一个11GB大小的二进制文件，这样它就会给操作系统带来内存压力。</p> <p>我们进行了两个测试场景：</p> <p>方案 1：我们将初始堆大小设置为 2GB，最大堆大小设置为 24GB。<br />方案 2：我们将初始堆大小和最大堆大小都设置为 24GB。<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在场景 1 中，我们观察到平均响应时间为 385.32 秒，而在场景 2 中，我们观察到平均响应时间为 366.55 秒。响应时间缩短了 5.11%。响应时间的这种改善是由于以下两个原因：</p> <span class="directory"></span><h4 id="title-0">操作系统的内存分配和解除分配</h4> <p>GC 暂停时间影响<br />让我们在这里讨论它们：</p> <p>从操作系统分配和解除分配内存<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当您为初始堆大小和最大堆大小设置了不同的大小时，JVM 将不得不与操作系统协商，以便在需要时分配内存。同样，当应用程序对内存的需求在运行时出现故障时，操作系统将占用分配的内存。这种持续的分配和解除分配将增加应用程序的开销。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/3fcb5a6294a52473838f2dbe0e1f511c.jpg" alt="JVM将初始和最大内存大小设置为相同值的好处"></p> <p>&nbsp;场景 1：内存分配波动（按 GCeasy 绘制的图表）</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上图显示了场景 1 JVM 的已分配和已解除分配的内存。从图表中，您可以注意到内存在不断波动（在 2GB 到 24GB 之间波动）。当应用程序处理堆转储时，内存最多可达 24GB。处理后，内存将回落到 2GB。当它再次处理新的堆转储时，内存会回弹到 24GB。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/0fe4cc5fbfd9cc1a6a7c8644fcdaba95.jpg" alt="JVM将初始和最大内存大小设置为相同值的好处"></p> <h5>场景 2：内存分配常量（由 GCeasy 绘制）</h5> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上图显示了场景 2 JVM 在其生命周期内分配的内存。你可以看到没有波动。内存是在启动期间从操作系统保留的，从那时起，没有波动。无论应用程序中的活动如何，它始终保持在24GB。此行为有可能在一定程度上提高应用程序的性能。</p> <h5>GC 暂停时间影响</h5> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当垃圾回收运行时，它会暂停应用程序，这将对客户产生负面影响。我们使用 GCeasy 工具研究了两种方案的垃圾回收性能。结果如下：</p> <h5>垃圾回收性能结果</h5> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;我们注意到 GC 吞吐量和 GC 暂停时间略有下降。在方案 1 中，GC 吞吐量为 96.59%，而在方案 2 中，GC 吞吐量略好 （97.83%）。同样，在场景 1 中，Max GC 的暂停时间为 5.23 秒，而在场景 2 中仅为 1.65 秒。。</p> <p><strong>应用程序启动时间</strong><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如果将初始堆大小设置为与最大堆大小相同，则应用程序的启动时间也会更好。以下是 Oracle 文档的摘录：</p> <p><strong>“</strong><strong>如果初始堆太小，Java 应用程序的启动速度会变慢，因为 JVM 被迫频繁地执行垃圾回收，直到堆增长到更合理的大小。为获得最佳启动性能，请将初始堆大小设置为与最大堆大小相同。</strong><strong>"</strong></p> <h3>4. 成本</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;无论您将初始堆大小 （-Xms） 和最大堆大小 （-Xmx） 设置为相同值还是其他值，您支付给云托管提供商的计算成本都不会更改。假设您正在使用阿里云、腾讯云等云厂商的实例，那么无论设置初始堆大小和最大堆大小的值如何，您最终都将支付固定小时的费用。云提供商不会根据您在该计算机中使用的内存量向您收费。它们仅根据您使用实例的时间收费。因此，将初始堆大小设置为低于最大堆大小不会节省成本。</p> <h3>结论</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在配置线程池或连接池时，将初始堆大小配置为小于最大堆大小是有意义的。在这些资源中，过度分配会产生不必要的影响，但是，内存并非如此。因此，如果要构建企业应用程序，强烈建议将初始堆大小和最大堆大小设置为相同的值。</p> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-8.htm">Nacos配置管理基础应用</a></p>
-                                        <p>下一个：<a href="/html/category/article-10.htm">Spring Boot + Mybatis-Plus + jasypt 数据库连接加密</a></p>
+                                        <p>上一个：<a href="/html/category/article-8.htm">Python调用C语言方法</a></p>
+                                        <p>下一个：<a href="/html/category/article-10.htm">Eureka详解系列(四)&#8211;Eureka Client部分的源码和配置</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">uniapp中封装一个弹框组件</a></h4>
-                <p>1，准备组件popup // components文件夹中popup组件&lt;template&gt;&lt;view&gt;&lt;viewclass="show-box-bg wx-login-</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">「BUAA OO Unit 2 HW8」第二单元总结_在线工具</a></h4>
-                <p>「BUAA OO Unit 2 HW8」第二单元总结   目录   「BUAA OO Unit 2 HW8」第二单元总结  Part 0 前言  Part 1 第五次作业  1.1 作业要求 1.2 </p>
+                <h4><a href="/html/category/article-232.htm">树莓派安装centos运行dotnet应用的实践</a></h4>
+                <p>在树莓派3上运行dotnet应用，这个过程走了很多弯路，也浪费了不少时间，所以记录一下，供大家参考。树莓派官方提供的镜像系统，是Debian系统，由于习惯了centos的操作，所以选择了安装cento</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-229.htm">pandas高阶应用</a></h4>
+                <p>1、时间序列相关操作 pd的date_range中的基本时间序列频率     Alias   Description（偏移量类型）   说明     B   business day frequenc</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-252.htm">Azure Virtual Desktop创建配置管理详解</a></h4>
-                <p>一，引言 Azure 虚拟创面是一项 Azure 服务，可以让我们管理： 　　1）VDI（虚拟桌面基础架构） 　　2）云端的 RDSH：RDSH 是 RDS（远程桌面服务）中的一个角色。这些类型的服务</p>
+                <h4><a href="/html/category/article-262.htm">Azure DevOps 中 Dapr项目自动部署流程实践</a></h4>
+                <p>注：本文中主要讨论 .NET6.0项目在 k8s 中运行的 Dapr 的持续集成流程, 但实际上不是Dapr的项目部署到K8s也是相同流程，只是k8s的yaml配置文件有所不同 流程选择 基于 Dap</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></h4>
-                <p>线程安全是指某个方法或某段代码，在多线程中能够正确的执行，不会出现数据不一致或数据污染的情况，我们把这样的程序称之为线程安全的，反之则为非线程安全的。在 Java 中，解决线程安全问题有以下 3 种手</p>
+                <h4><a href="/html/category/article-250.htm">Redis的数据淘汰策略和数据过期后的删除策略</a></h4>
+                <p>Redis的数据淘汰策略  volatile-lru（least recently used）：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰 vol</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-246.htm">实战代码（十）：Springboot RestTemplate连接池</a></h4>
+                <p>一、理论基础 RestTemplate是Springboot中内置的Http请求工具，可以直接注入使用。 两个常用的构造方法如下图 (点击进入文档地址)  从上面可以看出，最简单的方式就是使用默认配置</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">C语言：关键字&#8212;union（声明共用体类型）</a></h4>
-                <p>C语言32个关键字 有32个关键字详细说明，还有跳转链接！   一、union 简介 union 是C语言中一种声明共用体的数据类型。union(共用体)在某种程度上类似struct(结构体)的一种数</p>
+                <h4><a href="/html/category/article-239.htm">vue中watch监听，ajax异步问题解决</a></h4>
+                <p>1.组装参数调方法 getResult(){ 	//组装requestParam1和requestParam2参数  	let requestParam1 = {} 	let requestParam</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-211.htm">MaxCompute SQL函数详解 ODPS SQL函数详解之日期相关函数</a></h4>
-                <p>MaxCompute SQL函数详解 ODPS SQL函数详解 日期函数  to_date函数  返回类型：datetime   语法：to_date(类型 参数1,类型 参数2); 	 to_dat</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-231.htm">Java中时间类使用方法总结</a></h4>
-                <p>//java.util.Date; Date类用法Date date = new Date();System.out.println(date);System.out.println("=======</p>
+                <h4><a href="/html/category/article-218.htm">到底什么是消息队列</a></h4>
+                <p>最近公司重构订单中心，用到消息中间件，闲暇时间对此进行学习了解，下面是学习内容的总结。 一、什么是消息队列 消息（Message）是指在应用之间传送的数据，消息可以非常简单，比如只包含文本字符串，也可</p>
             </div>
         </div>
     </div>

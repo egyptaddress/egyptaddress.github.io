@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-146.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>resttemplate  返回中文乱码解决 - EgyptAddress</title>
+    <title>Django 之视图url参数获取 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">resttemplate  返回中文乱码解决</h1>
+                <h1 class="title" style="word-break: break-all;">Django 之视图url参数获取</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <pre class="has"><code class="language-java">@Bean 	public RestTemplate restTemplate(ClientHttpRequestFactory factory) { 		RestTemplate restTemplate = new RestTemplate(factory);         List&lt;HttpMessageConverter&lt;?&gt;&gt;messageConverters =   restTemplate.getMessageConverters();         Iterator&lt;HttpMessageConverter&lt;?&gt;&gt; iterator=messageConverters.iterator();         while(iterator.hasNext()){             HttpMessageConverter&lt;?&gt; converter=iterator.next();             //原有的String是ISO-8859-1编码 去掉             if(converter instanceof StringHttpMessageConverter){                 iterator.remove();             }                      }         messageConverters.add(new StringHttpMessageConverter(Charset.forName("utf-8"))); 		return restTemplate; 	}</code></pre> <p>我们来看下RestTemplate&nbsp; 构造方法的源码</p> <pre class="has"><code class="language-java">/** 	 * Create a new instance of the {@link RestTemplate} using default settings. 	 * Default {@link HttpMessageConverter}s are initialized. 	 */ 	public RestTemplate() { 		this.messageConverters.add(new ByteArrayHttpMessageConverter()); 		this.messageConverters.add(new StringHttpMessageConverter()); 		this.messageConverters.add(new ResourceHttpMessageConverter(false)); 		this.messageConverters.add(new SourceHttpMessageConverter&lt;&gt;()); 		this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());  		if (romePresent) { 			this.messageConverters.add(new AtomFeedHttpMessageConverter()); 			this.messageConverters.add(new RssChannelHttpMessageConverter()); 		}  		if (jackson2XmlPresent) { 			this.messageConverters.add(new MappingJackson2XmlHttpMessageConverter()); 		} 		else if (jaxb2Present) { 			this.messageConverters.add(new Jaxb2RootElementHttpMessageConverter()); 		}  		if (jackson2Present) { 			this.messageConverters.add(new MappingJackson2HttpMessageConverter()); 		} 		else if (gsonPresent) { 			this.messageConverters.add(new GsonHttpMessageConverter()); 		} 		else if (jsonbPresent) { 			this.messageConverters.add(new JsonbHttpMessageConverter()); 		}  		if (jackson2SmilePresent) { 			this.messageConverters.add(new MappingJackson2SmileHttpMessageConverter()); 		} 		if (jackson2CborPresent) { 			this.messageConverters.add(new MappingJackson2CborHttpMessageConverter()); 		} 	} </code></pre> <p>初始化RestTemplate默认初始化了几个&nbsp;MessageConverter ，不过StringHttpMessageConverter 默认使用的是ISO_8859_1编码，我们只需移除旧的，初始化新的UTF-8的StringHttpMessageConverter，设置进去就行。</p> <p>&nbsp;</p> <p>&nbsp;</p> <p>同理，如果我们不需要使用默认的json转换器，想使用国产的FASTJSON，也可通过替换完成。下篇文章说明。</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <div>  <span style="color:#000000;">Django </span><br />  <span style="color:#000000;">中的视图主要是负责接受 </span><br />  <span style="color:#000000;">Web </span><br />  <span style="color:#000000;">请求 </span><br />  <span style="color:#000000;">HttpRequest</span><br />  <span style="color:#000000;">，同时进行逻辑处理，并返回 </span><br />  <span style="color:#000000;">Web </span><br />  <span style="color:#000000;">响应 </span><br />  <span style="color:#000000;">HttpResponse给请求者。</span> </div> <div></div> <div>  <span style="color:#000000;">通过创建一个 webtest2 项目以及创建一个 book 应用为例进行说明</span> </div> <div> <pre><code class="language-python">#创建一个 webtest2 项目，执行如下命令：  django-admin startproject webtest2</code></pre> <div>   <span style="color:#000000;">进入 </span><br />   <span style="color:#000000;">webtest2 </span><br />   <span style="color:#000000;">项目目录，并创建 </span><br />   <span style="color:#000000;">book </span><br />   <span style="color:#000000;">应用，命令如下： </span>  </div> <div> <pre><code class="language-python">cd webtest2 python manage.py startapp book</code></pre> <div>    <span style="color:#000000;">在 </span><br />    <span style="color:#000000;">webtest2/settings.py </span><br />    <span style="color:#000000;">中 </span><br />    <span style="color:#000000;">INSTALLED_APPS </span><br />    <span style="color:#000000;">项安装应用</span>   </div> <div> <pre><code class="language-python">INSTALLED_APPS = [     'django.contrib.admin',     'django.contrib.auth',     'django.contrib.contenttypes',     'django.contrib.sessions',     'django.contrib.messages',     'django.contrib.staticfiles',     'book',  #添加book应用到项目中 ]</code></pre> <div>     <span style="color:#000000;">在 </span><br />     <span style="color:#000000;">webtest2/settings.py </span><br />     <span style="color:#000000;">中 </span><br />     <span style="color:#000000;">DATABASES </span><br />     <span style="color:#000000;">项配置使用 </span><br />     <span style="color:#000000;">MySQL </span><br />     <span style="color:#000000;">数据库 </span><br />     <span style="color:#000000;">dbtest</span>    </div> <div> <pre><code class="language-python">DATABASES = {     'default': {         'ENGINE': 'django.db.backends.mysql',         'NAME': "dbtest",    #数据名提前设置好         'HOST':"localhost",         'PORT':"3306",         'USER':"root",         'PASSWORD':"XXX", #密码自己设置     } }</code></pre> <div>      <span style="color:#000000;">创建模板目录结构 templates/book,如下:</span><br />      <img decoding="async" alt="" height="183" src="http://img.555519.xyz/uploads/20230108/a0cb808842880ccfb805068ace71f2a8.jpg"> </div> <div> <div>       <span style="color:#000000;">在 </span><br />       <span style="color:#000000;">webtest2/settings.py </span><br />       <span style="color:#000000;">中 </span><br />       <span style="color:#000000;">TEMPLATES </span><br />       <span style="color:#000000;">项配置模板查找路径:</span>      </div> <div> <pre><code class="language-python">TEMPLATES = [     {         'BACKEND': 'django.template.backends.django.DjangoTemplates',         'DIRS': [os.path.join(BASE_DIR,"templates")],  ##########填写这一条         'APP_DIRS': True,         'OPTIONS': {             'context_processors': [                 'django.template.context_processors.debug',                 'django.template.context_processors.request',                 'django.contrib.auth.context_processors.auth',                 'django.contrib.messages.context_processors.messages',             ],         },     }, ]</code></pre> <div>        <span style="color:#000000;">跳转webtest2/webtest2/__init__.py </span><br />        <span style="color:#000000;">文件，写入代码:</span>       </div> <div> <pre><code class="language-python">import pymysql pymysql.install_as_MySQLdb()</code></pre> <p>大概配置好了可以跳转了，<span style="color:#000000;">使用命令启动 </span><span style="color:#000000;">Django 服务器：python manage.py runserver</span></p> <p><span style="color:#000000;">这时候在编译器中可以看到:</span></p> <pre><code>#PS D:\Program Files (x86)\python\webtest2&gt; python manage.py runserver Performing system checks...  System check identified no issues (0 silenced). December 15, 2021 - 20:36:45 Django version 1.11.28, using settings 'webtest2.settings' Starting development server at http://127.0.0.1:8000/ Quit the server with CTRL-BREAK.</code></pre> <p>点击倒数第二行的 htto://127.0.0.1:8000/</p> <p><img fetchpriority="high" decoding="async" alt="" height="347" src="http://img.555519.xyz/uploads/20230108/854466e3deb52648e414c94178411818.jpg"></p> </p></div> </p></div> </p></div> <p>&nbsp;</p> <div>      <span style="color:#000000;">实际上，视图就是一个 </span><br />      <span style="color:#000000;">Python </span><br />      <span style="color:#000000;">函数，被定义在</span><br />      <span style="color:#000000;">"</span><br />      <span style="color:#000000;">应用</span><br />      <span style="color:#000000;">/views.py"</span><br />      <span style="color:#000000;">文件中。使用视图时需要进行两方面操作，分 别是定义视图、配置 URL</span><br />      <span style="color:#000000;">，且两个操作不分先后顺序。</span>     </div> <div>      在<br />      <span style="color:#000000;">webtest2/book/views.py </span><br />      <span style="color:#000000;">文件中定义一个视图函数：</span>     </div> <div> <pre><code class="language-python">from django.shortcuts import render from django.http import HttpResponse  # Create your views here. def index(request):     return render(request,"book/index.html")</code></pre> <p>在webtest2&gt;&gt;&gt;templates&gt;&gt;&gt;book&gt;&gt;&gt;创建一个index.html</p> </p></div> <div> <pre><code class="language-python">&lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;head&gt;     &lt;meta charset="UTF-8"&gt;     &lt;title&gt;Title&lt;/title&gt; &lt;/head&gt; &lt;body&gt;     &lt;h1&gt;首页&lt;/h1&gt; &lt;/body&gt; &lt;/html&gt;</code></pre> <div>       <span style="color:#000000;">重要的一步来了，即配置 </span><br />       <span style="color:#000000;">URL</span><br />       <span style="color:#000000;">，将视图函数和 </span><br />       <span style="color:#000000;">url </span><br />       <span style="color:#000000;">对应起来，在 </span><br />       <span style="color:#000000;">webtest2/urls.py </span><br />       <span style="color:#000000;">中：</span>      </div> <div></div> </p></div> <p>&nbsp;</p> <pre><code class="language-python">from django.conf.urls import url,include from django.contrib import admin  urlpatterns = [     url(r'^admin/', admin.site.urls),     url(r"^",include("book.urls")),     #包含booktes应用中的 urls 文件 ] </code></pre> <div>      <span style="color:#000000;">在 </span><br />      <span style="color:#000000;">book </span><br />      <span style="color:#000000;">目录下创建 </span><br />      <span style="color:#000000;">urls.py </span><br />      <span style="color:#000000;">文件并编辑其内容：</span>     </div> <div> <pre><code class="language-python">from django.conf.urls import url from . import views  urlpatterns = [     url(r"^index$",views.index), #建立 url 和 views.index 视图函数的关联     url(r"^show(\d+)$",views.show) ]</code></pre> <div>       <span style="color:#000000;">启动服务器并通过浏览器访问 http://127.0.0.1:8000/index，可以看到就是打开index.html页面的样子:</span><br />       <img decoding="async" alt="" height="266" src="http://img.555519.xyz/uploads/20230108/b0d9ae546d3eb12992ed8f3c27c3b2fb.jpg"> </div> <p>当请求的 url 被看做是一个普通的 Python 字符串且进行匹配时，通常是不包括域名、get 或 post 参数的。请求地址如下： http://127.0.0.1:8000/show1?hello=666</p> <p>①若去除掉域名和参数部分，并将最前面的/去除后，只剩下如下部分与正则匹配，如下： show</p> <p>②此时，打开 book/urls.py 文件，定义与这个地址匹配的 url 如下： url(r'^show$',views.show), # 定义 url</p> <p>③在 book/views.py 中补充创建视图函数 show()</p> <pre><code class="language-python">def show(request,id):     return HttpResponse('show')</code></pre> <hr/> <p>我们可以在匹配过程中从 url 中捕获参数，并把每个捕获的参数都作为一个普通的 Python 字符串传 递给视图的。获取值需要在正则表达式中使用小括号表示，下面两种方式完成：</p> <div>       <span style="color:#000000;">(1)</span><br />       <span style="color:#000000;">位置参数； </span>      </div> <div>       <span style="color:#000000;">(2)</span><br />       <span style="color:#000000;">关键字参数。</span>      </div> <div> <hr/> <p>1：位置参数</p> </p></div> <p>此时，可以直接使用小括号，并通过位置参数传递给视图。以下是详细步骤：</p> <p>①为了提取参数值，我们可以修改上面的正则表达式如下： url(r"^show(\d+)$",views.show),</p> <p>②修改视图函数 show()，如下：</p> <pre><code class="language-python">def show(request,id):     return HttpResponse('show参数值:%s'%id)</code></pre> <p>③完成上述操作后，在地址栏输入如下地址： http://127.0.0.1:8000/show666</p> <p><img loading="lazy" decoding="async" alt="" height="169" src="http://img.555519.xyz/uploads/20230108/c7f071817fedcfff376316170c371264.jpg"></p> <hr/> <p>&nbsp;2：关键字参数</p> <p>此时，可以在正则表达式部分为组命名，这就是关键字参数，需要使用到的正则表达式为组命名</p> <table border="1" cellpadding="1" cellspacing="1" style="width:500px;"> <tbody> <tr> <td> <div>           <span style="color:#000000;">(?P&lt;name&gt;)</span>          </div> </td> <td> <div>           <span style="color:#000000;">分组起别名</span>          </div> </td> </tr> </tbody> </table> <p>①修改正则表达式，其中，?P 部分表示为这个参数定义的名称为 bid[注：后边使用时，必须写相同的名称]， 也可以是其它名称，如下： url(r"^show(?P&lt;bid&gt;\d+)$",views.show),</p> <p>②修改视图 show()函数，注意该视图函数 show()必须要有一个参数名为 bid，否则报错：</p> <pre><code class="language-python">from django.http import HttpResponse def show(request, bid):      return HttpResponse("显示关键字参数值:%s" % bid)</code></pre> <hr/> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.djangoproject.com/zh-hans/2.0/"  title="Django 文档 | Django 文档 | Django (djangoproject.com)" rel="nofollow">Django 文档 | Django 文档 | Django (djangoproject.com)</a></p> <p>有兴趣可以自行阅读</p> </p></div> </p></div> </p></div> </p></div> </div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-145.htm">React中事件的写法总结</a></p>
-                                        <p>下一个：<a href="/html/category/article-147.htm">vue+element-ui+axios多文件上传的实现并显示整体进度_vue.js</a></p>
+                                        <p>上一个：<a href="/html/category/article-145.htm">Spark原理篇之Spark Streaming转化操作和输出操作</a></p>
+                                        <p>下一个：<a href="/html/category/article-147.htm">es6操作数组方法</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-203.htm">C++逆向 可变参数Hook</a></h4>
-                <p>目录  C++逆向 可变参数Hook  0x00 前言： 0x01 C++可变参数：  可变参数简介 可变参数代码实战   0x02 逆向分析C++可变参数原理 0x03 printf Hook实战 </p>
+                <h4><a href="/html/category/article-216.htm">Java String.equals()与==。</a></h4>
+                <p>equals()方法将此字符串与指定的对象进行比较。当且仅当参数不为null并且是一个String对象，表示与此对象相同的字符序列时，结果为true。 示例 public&nbsp;class&nbs</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-226.htm">Vue &#8211; 缓存页面（keepAlive）</a></h4>
-                <p>前言  项目主流程缓存优化，主流程页面（组件）切换时保持之前加载的状态，避免反复渲染影响页面性能，同时也可以很大程度上减少接口请求，减小服务器压力。  例如，我们将某个列表类组件内容滑动到第 100 </p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-235.htm">SpringCloud系列之五&#8212;集中配置组件Config+消息总线Bus</a></h4>
-                <p>文章目录        前言 集中配置组件SpringCloudConfig   1.SpringCloudConfig 简介 2.配置客户端 3.配置服务端 4.测试   消息总线 SpringCl</p>
+                <h4><a href="/html/category/article-224.htm">go语言panic函数详解</a></h4>
+                <p>程序异常被叫做panic，直译为运行时恐慌 当panic被抛出异常后，如果我们没有在程序中添加任何保护措施的话，程序就会打印出panic的详细情况之后，终止运行  panic: runtime err</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-227.htm">企业应用架构研究系列十九：Docker开发环境</a></h4>
-                <p>　　软件行业流行这样一个说法，由于Docker 技术的成熟和该技术被广大厂商的普遍应用，成就了微服务领域的快速成长，衍生了云原生技术和公有云的进一步推广。我个人认为Dockers 技术、微服务技术、云</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-247.htm">使用类在C ++中实现矢量数量</a></h4>
-                <p>在本教程中，我们将讨论一个程序，以了解如何使用类在C ++中实现向量数量。 向量量既具有幅度又具有方向性。在这里，我们将使用类来实现它们，然后对它们执行基本操作。 示例 #include&nbsp;&</p>
+                <h4><a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></h4>
+                <p>这篇将介绍如何写一个简单的基于Vue+Element的文件上传控件。 控件将具有 1. 上传队列的列表，显示文件名称，大小等信息，可以显示上传进度实时刷新 2. 取消上传  &nbsp;使用Eleme</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Spark连接Hive，进行Hive数据表的读写操作</a></h4>
-                <p>基础环境   Hadoop安装-1，hadoop安装-2  spark安装 Hive安装   配置  将Hive的conf目录下的hive-site-xml文件拷贝到spark的conf目录下； 将H</p>
+                <h4><a href="/html/category/article-228.htm">Android jetpack room+ViewModel+liveData 数据自动更新</a></h4>
+                <p>Android jetpack room的使用_安果移不动的博客-CSDN博客 接上篇博客 我们用google推荐的这种方式  &nbsp; 修改： StudentDao package com.an</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-251.htm">Python 认识列表和元组</a></h4>
-                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+                <h4><a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></h4>
+                <p>要使用SVG绘制正弦波，请使用以下近似正弦波的一半。我使用三次贝塞尔近似。使用&lt;path&gt;元素。 示例 &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &n</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-205.htm">SpringBoot扩展点EnvironmentPostProcessor_在线工具</a></h4>
-                <p>一、背景 之前项目中用到了Apollo配置中心，对接Apollo配置中心后，配置中心的属性就可以在程序中使用了，那么这个是怎么实现的呢？配置中心的属性又是何时加载到程序中的呢？那么我们如果找到了这个是</p>
+                <h4><a href="/html/category/article-212.htm">从查询重写角度理解elasticsearch的高亮原理</a></h4>
+                <p>一、高亮的一些问题 elasticsearch提供了三种高亮方式，前面我们已经简单的了解了elasticsearch的高亮原理; 高亮处理跟实际使用查询类型有十分紧密的关系，其中主要的一点就是muti</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm">Springboot使用@Cacheable注解实现数据缓存</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本文介绍如何在Springboot中通过@Cacheable注解实现数据缓存。在每次调用添加了@Cach</p>
+                <h4><a href="/html/category/article-213.htm">Redis 如何保证数据库和缓存双写一致性？</a></h4>
+                <p>前言  数据库和缓存（比如：redis）双写数据一致性问题，是一个跟开发语言无关的公共问题。尤其在高并发的场景下，这个问题变得更加严重。 我很负责的告诉大家，该问题无论在面试，还是工作中遇到的概率非常</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">vue 使用echarts绘制折线图</a></h4>
-                <p>&lt;template&gt;     &lt;div&gt;         &lt;!-- 方法一，注册echarts到vue的原型对象中，指定某个div作为echarts的画布 --&gt; </p>
+                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
+                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@
         <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-220.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>C/C++编程：异常处理(exception handling)的原理 - EgyptAddress</title>
+    <title>kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -30,7 +30,7 @@
                             <a class="nav-link" href="/xcblog/">首页</a>
                         </li>
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/category/">文章分类</a>
+                            <a class="nav-link" href="/html/category/">文章分类</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="#">关于</a>
@@ -64,7 +64,7 @@
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">C/C++编程：异常处理(exception handling)的原理</h1>
+                <h1 class="title" style="word-break: break-all;">kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -79,10 +79,10 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-dracula"> <h1><a id="_0" rel="nofollow"></a>引入原因</h1> <blockquote> <p>问题：很久之前，C程序是使用错误码来处理错误的，那为什么C++还要引入异常呢？</p> </blockquote> <p>回答：异常不能被忽略。</p> <ul> <li>如果一个函数通过设置一个状态变量来返回错误码来表示一个异常状态，没有办法保证函数调用将一定检测变量或者测试错误代码。结果程序会从它遇到的异常状态继续运行，异常没有被捕获，程序立即会终止执行。</li> <li>C程序员能够仅通过setjmp和longjmp来完成与异常处理相似的功能，但是当longjmp在C++中使用时，它存在一些缺陷，当它调整堆栈时不能堆局部对象调用析构函数。而C++程序员一来这些析构函数的调用，所以setjmp和longjmp不能替换异常处理。如果你需要一个方法，能够通知不可忽视的异常状态，并且搜索栈空间以便找到异常处理代码时，还需要确保局部对象的析构函数必须被调用，这时你就需要使用C++异常处理。</li> </ul> <h1><a id="_7" rel="nofollow"></a>异常处理</h1> <p>欲支持异常处理，编译器的主要工作就是找出catch子句，以处理被丢出来的exception。</p> <ul> <li>这多少需要追踪程序堆栈中的每一个函数的当前作用区域(包括追踪函数中的local class objects当前的情况)</li> <li>同时，编译器必须提供某种查询exception objects的方法，以知道其实际类型(这直接导致某种形式的执行期类型识别，也就是RTTI)。</li> <li>最后，还需要某种机制用以管理被丢出的object，包括它的产生、存储、可能的析构(如果有相关的析构)、清理(clean up)，以及一般存取。</li> </ul> <p>也可能有一个以上的objects同时起作用。一般而言，异常处理机制需要与编译器所产生的数据结构以及执行期的一个异常库紧密合作。在程序大小和执行速度之间，编译器必须有所抉择：</p> <ul> <li>为了维持执行速度，编译器可以在编译时期建立起用于支持的数据结构。这会导致程序膨胀的大小，但编译器可以几乎忽略这些结构，直到有异常被丢出来</li> <li>为了维护程序大小，编译器可以在执行期建立其用于支持的数据结构。这会影响程序的执行速度，但意味着编译器只有在必要的时候才建立那些数据结构（并且可以抛弃之）</li> </ul> <h1><a id="_17" rel="nofollow"></a>异常处理的快速检阅</h1> <p>C++的异常处理由三个主要的词汇组件构成：</p> <ul> <li>一个throw子句。它在程序某处抛出一个异常。被抛出的异常可以时内建类型，也可以是使用者自定义类型</li> <li>一个或者多个catch子句。每一个catch子句都是一个exception handling。它用来表示说，这个子句准备处理某种类型的异常，并且在封闭的大括号区段中提供实际的处理程序</li> <li>一个try区段。它被围绕以一系列的statements，这些statements可能会引发catch子句起作用</li> </ul> <p>抛出一个异常时，控制权会从函数调用中被释放出来，并寻找一个吻合的catch子句。如果没有找到，那么调用默认处理terminate()。当控制权被放弃后，堆栈中的每一个函数调用也就被popped up。这个程序称为unwinding the stack。在每一个函数被poped up堆栈之前，函数的local class object的析构函数会被调用。</p> <p>异常处理比较不那么直观的是它对那些似乎没什么事做的函数所带来的影响。比如下面这个函数：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/e848ebacd8edc4898e59ff09e44a8dda.jpg" alt="C/C++编程：异常处理(exception handling)的原理"></p> <ul> <li>如果有一个异常在第一个调用foo() (L5)时抛出，那么这个mumble()函数会被pop出程序堆栈。由于调用foo()的操作并不在一个try区段之内，也就是不需要尝试和一个catch子句吻合。这里没有任何local clas object需要析构。</li> <li>然而如果异常在第二个调用foo()(L11)时抛出，异常处理机制就必须在"从程序堆栈中unwinding这个函数"之前，先调用p的析构函数</li> <li>在异常处理之下，L4-L8和L9-L16被视为两块语意不同的区域，因为当异常被丢出来时，这两块区域由不同的执行期语意。而且，欲支持异常处理，需要额外的一些"登记"操作与数据。编译器的做法有两种，一种是把两个区域以个别的"将被摧毁的local objects"链表(已在编译时备妥)联合起来。另一种做法是让两块区域共享同一个链表，该链表会在执行期扩大或缩小</li> </ul> <h1><a id="_31" rel="nofollow"></a>对异常处理的支持</h1> <p>当一个异常发生时，编译系统必须完成以下事情：</p> <ul> <li>检验发生throw操作的函数</li> <li>决定throw操作是否发生在try区段中 <ul> <li>如果是，编译系统必须把exception type拿来和每一个catch子句比较</li> <li>如果比较吻合，流程控制应该交给catch子句</li> </ul> </li> <li>如果throw的发生并不在try区段中，或者没有catch子句吻合，那么系统就必须： <ul> <li>销毁所有的active local objects</li> <li>从堆栈中将当前的函数unwind掉</li> <li>进行到程序堆栈中的下一个函数中去，然后重复上面</li> </ul> </li> </ul> <h2><a id="throwtry_42" rel="nofollow"></a>决定throw操作是否发生在try区段中</h2> <p>一个函数可以被想象成好几个区域：</p> <ul> <li>try区段以外的区域，而且没有active local objects</li> <li>try区段以外的区域，但是有一个(以上)的ctive local objects需要解构</li> <li>try区段以内的区域</li> </ul> <p>编译器必须标示出以上各区域，并使它们对执行期的异常处理系统有所作用。有一个策略是构造出program counter-range表格</p> <p>program counter内含下一个即将执行的指令。为了在一个内含try区段的函数中标识出某个区域，可以把program counter的起始值和结束值存储在一个表格中。</p> <p>当throw操作发生时，当前的program counter值被拿出来与对应的范围表格进行比较，以决定当前作用域中的区域是否在一个try区段中。如果是，就需要找出相关的catch子句。如果这个异常无法被处理(或者它继续抛出)，当前的这个函数会从程序堆栈中被poped，而program counter会被设定为调用端地址，然后这样的循环再重新开始。</p> <h2><a id="exception_typecatch_55" rel="nofollow"></a>将exception type和每一个catch子句的类型比较</h2> <p>对于每一个被抛出的异常，编译器必须产生一个类型描述器，对异常的类型进行编码。如果那是一个derived type，则编码内容必须包括其所有基类的类型信息。只编进public base class的类型是不够的，因为这个异常可能被一个成员函数捕捉，而一个成员函数的作用域中，在派生类和nonpublic base class之间可以转换。</p> <p>类型描述器是必要的，因为真正的异常是在执行期被处理，其对象必须有自己的类型信息。RTTI正是因为支持EH而获得的副产品。</p> <p>编译器必须为每一个catch子句产生一个类型描述器。执行期的异常处理会对"被抛出的类型描述器"和"每一个catch子句的类型描述器"继续比较，直到找到吻合的一个，或者直到堆栈已经被"unwound"而terminate()已经被调用</p> <p>每一个函数会产生一个异常表格，它描述与函数相关的各区域，任何必要的善后码(cleanup code，被local clas object析构函数调用)，以及catch子句的位置(如果某个区域是在try区段中)</p> <h2><a id="_64" rel="nofollow"></a>当一个实际对象在程序执行时被抛出，会发生什么事</h2> <p>当一个异常被抛出时，exception object会被产生出来并通常放置在相同形式的exception数据堆栈中。从throw段传染给catch子句的是exception object的地址、类型描述器(或是一个函数指针，该函数会传回与该exception type有关的类型描述器对象)，以及可能会有的exception object描述器(如果有人定义它的话)</p> <p>如果有</p> <pre><code class="prism language-cpp"><span class="token keyword">catch</span><span class="token punctuation">(</span>exPoint p<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">throw</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p>以及一个exception object，类型为exVertex，派生自exPoint。这两种类型都吻合，于是catch子句会作用起来，那么p会发生什么事情呢？</p> <ul> <li>p将以exception object作为初值，就像是一个函数参数一样。这意味着如果定义有(或者由编译器合成出)一个拷贝构造函数和一个析构函数的话，它们会被实施于local copy上</li> <li>由于p是一个object而不是一个reference，当其内容被拷贝的时候，这个exception object的non-exPoint部分会被切掉。此外，如果为了exception的继承而提供有virtual function，那么p的vptr会被设为exPoint的虚函数表；exception object的vptr不会被拷贝</li> </ul> <p>当这个异常再被抛出一次时，会发生什么事情呢？p现在是繁殖出来的object？还是从throw端产生的原始exception object？p是一个本地对象，在catch子句的末端被销毁。丢出p需要产生另一个临时对象。原来的exception object被再一次抛出，任何对p的丢个都会被抛弃。</p> <p>而：</p> <pre><code class="prism language-cpp"><span class="token keyword">catch</span><span class="token punctuation">(</span>exPoint<span class="token operator">&amp;</span>p<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">throw</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p>任何对此object的改变都会被繁殖到下一个catch子句中</p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atelier-sulphurpool-light"> <p>今天执行</p> <pre><code class="prism language-java">user_1<span class="token annotation punctuation">@test_1</span><span class="token operator">:</span><span class="token operator">/</span>opt<span class="token operator">/</span>kafka$ sudo bin<span class="token operator">/</span>zookeeper<span class="token operator">-</span>server<span class="token operator">-</span>start<span class="token punctuation">.</span>sh config<span class="token operator">/</span>zookeeper<span class="token punctuation">.</span>properties<span class="token operator">/</span>opt<span class="token operator">/</span>kafka<span class="token operator">/</span>bin<span class="token operator">/</span>kafka<span class="token operator">-</span>run<span class="token operator">-</span><span class="token keyword">class</span><span class="token punctuation">.</span>sh<span class="token operator">:</span> line<span class="token number">309</span><span class="token operator">:</span> exec<span class="token operator">:</span> java<span class="token operator">:</span> not found</code></pre> <p>但却出现报错kafka-run-class.sh: line 309: exec: java: not found，<br /> 根据网上查询，说可能是jdk问题，之后我又在/etc/profile下检查jdk</p> <pre><code class="prism language-java"># java JAVA_HOME<span class="token operator">=</span><span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>java<span class="token operator">/</span>jdk<span class="token operator">-</span><span class="token number">11.0</span><span class="token number">.6</span> JRE_HOME<span class="token operator">=</span>$JAVA_HOME CLASSPATH<span class="token operator">=</span><span class="token punctuation">.</span><span class="token punctuation">:</span>$JAVA_HOME<span class="token operator">/</span>lib<span class="token operator">:</span>$JRE_HOME<span class="token operator">/</span>lib<span class="token operator">:</span>$CLASSPATH PATH<span class="token operator">=</span>$PATH<span class="token operator">:</span>$JAVA_HOME<span class="token operator">/</span>bin export JAVA_HOME CLASSPATH PATH JRE_HOME  # java<span class="token number">8</span> #JAVA_HOME<span class="token operator">=</span><span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>java<span class="token operator">/</span>jdk1<span class="token punctuation">.</span><span class="token number">8.0</span>_231 #JRE_HOME<span class="token operator">=</span><span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>java<span class="token operator">/</span>jdk1<span class="token punctuation">.</span><span class="token number">8.0</span>_231<span class="token operator">/</span>jre #CLASS_PATH<span class="token operator">=</span><span class="token punctuation">.</span><span class="token punctuation">:</span>$JAVA_HOME<span class="token operator">/</span>lib<span class="token operator">/</span>dt<span class="token punctuation">.</span>jar<span class="token operator">:</span>$JAVA_HOME<span class="token operator">/</span>lib<span class="token operator">/</span>tools<span class="token punctuation">.</span>jar<span class="token operator">:</span>$JRE_HOME<span class="token operator">/</span>lib #PATH<span class="token operator">=</span>$PATH<span class="token operator">:</span>$JAVA_HOME<span class="token operator">/</span>bin<span class="token operator">:</span>$JRE_HOME<span class="token operator">/</span>bin #export JAVA_HOME JRE_HOME CLASS_PATH PATH</code></pre> <p>发现也没有什么错误呀，再一想我使用的是普通用户登录进来在root用户下的目录下（/opt/kafka）进行操作，虽然给该文件夹了755权限并且还带了sudo执行，但是否是还可能是因为用户权限问题呢？之后我把用户切换成了root用户，再一执行，发现开启成功。</p> <p>随后我想，之前我只赋予了/opt/kafka755权限，就试试把这个/opt/kafka增加chmod 777 权限后再用普通用户登录，看是否有效。</p> <p>实验了一下<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220821/bc8a630c54e677bc68e10e40191c110a.jpg" alt="kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found"><br /> 发现还是不行，可能是因为调用需要用到jdk可能还要再给jdk增加权限。</p> <p>得了，那我就把kafka放到普通用户的文件夹下使用就行了。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220821/eed6afc0eebd34e25b9fb11fce3fb8da.jpg" alt="kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found"></p> <p>再来实验一下<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220821/b2b7aea028b91aed4549f231a4a7d9b4.jpg" alt="kafka踩坑java找不到kafka-run-class.sh: line 309: exec: java: not found"><br /> 启动成功！</p> <ul> <li> <p>扩展知识：<br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.jianshu.com/p/4720cbedd790"  rel="nofollow">Linux的文件访问权限及修改权限命令chmod</a></p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/zhi-leaf/p/11442878.html"  rel="nofollow">Linux中文件权限查看和修改</a></p> </li> </ul> <h3><a id="KafkausrbinjavaJAVA_HOMEbinjava_45" rel="nofollow"></a>再进行深入分析后发现是Kafka的默认<code>/usr/bin/java</code>路径与我们实际的<code>$JAVA_HOME/bin/java</code>路径不一致导致的。</h3> <p>这里我们有两种修改方式：</p> <ol> <li>修改我们的实际路径（<code>$JAVA_HOME</code>）</li> <li>设置一个软连接就可以了</li> </ol> <p>参考文章：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/qq_44766883/article/details/109250866?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control"  rel="nofollow">Kafka启动报错处理：/opt/module/kafka/bin/kafka-run-class.sh: 第 258 行:exec: java: 未找到</a></p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-219.htm">正则表达式-匹配ip及rtsp</a></p>
-                                        <p>下一个：<a href="/html/category/article-221.htm">线程安全问题的解决方案有哪些？</a></p>
+                                        <p>上一个：<a href="/html/category/article-219.htm">如何使用HTML5 SVG绘制正弦波？</a></p>
+                                        <p>下一个：<a href="/html/category/article-221.htm">关于encodeURI和encodeURIComponent的使用场景</a></p>
                                     </div>
 
                             </div>
@@ -92,8 +92,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-234.htm">数据传输POST心法分享，做前端的你还解决不了这个bug？</a></h4>
-                <p>背景 随时随地给大家提供技术支持的葡萄又来了。这次的事情是这样的，提供demo属于是常规操作，但是前两天客户突然反馈压缩传输模块抛出异常，具体情况是压缩内容传输到服务端后无法解压。 由于代码没有发生任</p>
+                <h4><a href="/html/category/article-206.htm">眼见不一定为实：调用链HBase倾斜修复</a></h4>
+                <p>hello，大家好，我是小楼。 今天给大家分享一个关于HBase数据倾斜的排查案例，不懂调用链？不懂HBase？没关系，看完包懂~ 背景 最近HBase负责人反馈HBase存储的调用链数据偶尔出现极其</p>
             </div>
         </div>
     </div>
@@ -102,8 +102,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">go语言实战&#8212;&#8211;28&#8212;&#8211;Gin、rest full api和mysql实现增删改查</a></h4>
-                <p>一 Gin、rest full api和mysql实现增删改查  1 目前架构、含义以及对项目进行go mod gin_restful的项目目录。 每个目录的意思描述： 对gin_restful项目进</p>
+                <h4><a href="/html/category/article-203.htm">Python tkinter库图形绘制例子分享_python_</a></h4>
+                <p>目录  一、椭圆绘制 二、矩形绘制 三、多边形绘制    一、椭圆绘制 实例代码：  import tkinter as tk                    # 导入tkinter库，并重命名</p>
             </div>
         </div>
     </div>
@@ -112,8 +112,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">@Scheduled 动态配置cron</a></h4>
-                <p>一、在application.yml中添加cron scheduled:   cron:     test:"*/10 * * * * ?" 二、在启动类添加@EnableScheduling @Sp</p>
+                <h4><a href="/html/category/article-225.htm">坑——java里List的remove方法</a></h4>
+                <p>写过的类似代码： /**  * 2018年5月20日上午9:54:02  */ package com.test;  import java.util.ArrayList; import java.u</p>
             </div>
         </div>
     </div>
@@ -122,8 +122,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-261.htm">docker存储路径修改</a></h4>
-                <p>docker修改对应的存储路径 修改daemon.json的内容不进行复述。 假设你已经编辑好/etc/docker/daemon.json文件的graph配置，要将其从d01修改到d02 {   "</p>
+                <h4><a href="/html/category/article-240.htm">vue写一个简单的文件上传控件</a></h4>
+                <p>这篇将介绍如何写一个简单的基于Vue+Element的文件上传控件。 控件将具有 1. 上传队列的列表，显示文件名称，大小等信息，可以显示上传进度实时刷新 2. 取消上传  &nbsp;使用Eleme</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">分布式服务请求报错：Read timed out executing POST http://businessApi/app/app/login</a></h4>
-                <p>问题描述： 发送POST请求，控制台打印： 错误信息:Read timed out executing POST http://xxx 解决方法： 在配置文件中添加超时配置即可</p>
+                <h4><a href="/html/category/article-205.htm">Ribbon（一）远程调用RestTemplate</a></h4>
+                <p>目录 一、RestTemplate介绍 二、需求说明 1、业务结构及说明 三、模块搭建 1、新建一个maven项目 2、添加ribbon依赖 3、编辑yml 4、主程序 5、编辑RibbonContr</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-262.htm">Kerberos (五) &#8212;&#8212;&#8212; Hive 用户认证配置</a></h4>
-                <p>目录  一、前置要求 二、配置认证 三、启动hiveserver2     一、前置要求 A、Hadoop 集群启动 Kerberos 认证 按照上述步骤为Hadoop集群开启Kerberos安全认证</p>
+                <h4><a href="/html/category/article-223.htm">Spring Security——【认证、授权、注销及权限控制】</a></h4>
+                <p>目录 Spring Security简介： 实验环境搭建： 认证和授权 权限控制和注销  Spring Security简介： Spring Security 是针对Spring项目的安全框架，也是S</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-206.htm">redis专题：redis键值设计、性能优化以及redis连接池配置</a></h4>
-                <p>文章目录  1.redis键值设计   ①：key设计规范 ②：value设计规范   2. 命令使用优化 3. redis连接池配置参数设计 4. redis连接池预热 5. redis的key过期</p>
+                <h4><a href="/html/category/article-253.htm">Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List parame</a></h4>
+                <p>问题：Resolved [org.springframework.web.bind.MissingServletRequestParameterException: Required List par</p>
             </div>
         </div>
     </div>
@@ -162,8 +162,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-229.htm">基于docker部署Oracle 19c的详细记录_docker</a></h4>
-                <p>目录  一. 拉取Oracle 19c镜像 二. 查看镜像 三. 创建Oracle 19c镜像的容器  3.1创建目录 3.2 创建实例 3.3 查看日志  四、 修改密码  五、连接数据库  5.1</p>
+                <h4><a href="/html/category/article-252.htm">Android 4.0.1破坏了WebView HTML 5本地存储？</a></h4>
+                <p>要解决此问题，请执行以下步骤- 对于版本低于4.4的android，将数据加载到具有这样的目录的文件方案的web视图中将不起作用。 browser.loadDataWithBaseUrl("file:</p>
             </div>
         </div>
     </div>
@@ -172,8 +172,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-204.htm">图解Redis之数据结构篇压缩列表</a></h4>
-                <p>前言 &nbsp;&nbsp;&nbsp;&nbsp;同整数集合一样压缩列表也不是基础数据结构，而是 Redis 自己设计的一种数据存储结构。它有点儿类似数组，通过一片连续的内存空间，来存储数据。不过</p>
+                <h4><a href="/html/category/article-247.htm">.NET如何快速比较两个byte数组是否相等</a></h4>
+                <p>前言  之前在群里面有群友问过一个这样的问题，在.NET中如何快速的比较两个byte数组是否完全相等，听起来是一个比较两个byte数组是完全相等是一个简单的问题，但是深入研究以后，觉得还是有很多方案的</p>
             </div>
         </div>
     </div>
@@ -182,8 +182,8 @@
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">Asp.Net在线预览Word文档的解决方案与思路</a></h4>
-                <p>前几天有个老项目找到我，有多老呢？比我工作年限都长，见到这个项目我还得叫一声前辈。 这个项目目前使用非常稳定，十多年了没怎么更新过，现在客户想加一个小功能：在线预览Word文档。 首先想到的是用第三方</p>
+                <h4><a href="/html/category/article-254.htm">如何保证Redis缓存和数据库一致性？</a></h4>
+                <p>首先我们先了解下缓存是什么？ 缓存就是把低速存储的结果，临时保存在高速存储的技术。 为什么使用redis进行缓存数据？ Redis嘛，就是一种运行速度很快，并发很强的跑在内存上的NoSql数据库，支持</p>
             </div>
         </div>
     </div>
