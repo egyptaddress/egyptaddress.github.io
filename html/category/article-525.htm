@@ -2,10 +2,10 @@
 <html lang="zh-CN">
 
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-71.htm" />
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-525.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>go web 处理文件上传 - EgyptAddress</title>
+    <title>Firefox中的HTML5输入类型“数字” - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -75,7 +75,7 @@ var _hmt = _hmt || [];
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">go web 处理文件上传</h1>
+                <h1 class="title" style="word-break: break-all;">Firefox中的HTML5输入类型“数字”</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -90,10 +90,10 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h1>一&nbsp;点睛</h1> <p>go&nbsp;web中怎样实现文件上传，下面一一道来。</p> <p>要使表单能够上传文件，第一步就是要添加 form 的 enctype 属性，enctype 属性有如下三种情况。</p> <ul> <li>application/x-www-form-urlencoded：表示在发送前编码所有字符（默认）。</li> <li>multipart/form-data：不对字符编码。在使用包含文件上传控件的表单时，必须使用该值。</li> <li>text/plain：空格转换为"+"加号，但不对特殊字符编码。</li> </ul> <h1>二&nbsp;实战</h1> <h2>1&nbsp;前端代码</h2> <p>创建新的表单 html 文件，命名为 upload.html</p> <pre><code class="language-html">&lt;html&gt; &lt;head&gt;     &lt;title&gt;上传文件&lt;/title&gt; &lt;/head&gt; &lt;body&gt; &lt;form enctype="multipart/form-data" action="/upload" method="post"&gt;   &lt;input type="file" name="uploadfile" /&gt;   &lt;input type="hidden" name="token" value="{<!-- -->{.}}"/&gt;   &lt;input type="submit" value="upload" /&gt; &lt;/form&gt; &lt;/body&gt; &lt;/html&gt;</code></pre> <h2>2&nbsp;服务器端代码</h2> <pre><code class="language-Go">package main  import (    "crypto/md5"    "fmt"    "html/template"    "io"    "log"    "net/http"    "os"    "strconv"    "time" )  // 上传文件逻辑 func upload(w http.ResponseWriter, r *http.Request) {    fmt.Println("method:", r.Method) // 获取请求的方法    if r.Method == "GET" {       crutime := time.Now().Unix()       h := md5.New()       io.WriteString(h, strconv.FormatInt(crutime, 10))       token := fmt.Sprintf("%x", h.Sum(nil))       t, _ := template.ParseFiles("src\\goweb\\demo6\\upload.html")       t.Execute(w, token)    } else {       r.ParseMultipartForm(32 &lt;&lt; 20)       file, handler, err := r.FormFile("uploadfile")       if err != nil {          fmt.Println(err)          return       }       defer file.Close()       fmt.Fprintf(w, "%v", handler.Header)       f, err := os.OpenFile("./test/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666) // test目录放在 GOPATH 目录下       if err != nil {          fmt.Println(err)          return       }       defer f.Close()       io.Copy(f, file)    } }  func main() {    http.HandleFunc("/upload", upload)       // 设置访问的路由    err := http.ListenAndServe(":9090", nil) // 设置监听的端口    if err != nil {       log.Fatal("ListenAndServe: ", err)    } }</code></pre> <h2>3&nbsp;说明</h2> <p>处理文件上传需要调用 r.ParseMultipartForm，它的参数表示 maxMemory，调用 ParseMultipartForm 之后，上传的文件存储在 maxMemory 大小的内存里面，如果文件大小超过了 maxMemory，那么剩下的部分将存储在系统的临时文件中。</p> <p>通过 r.FormFile 获取文件句柄，</p> <p>通过 io.Copy 来存储文件。</p> <p>获取其他非文件字段信息的时候就不需要调用 r.ParseForm，因为在需要的时候 Go 自动会去调用。</p> <p>ParseMultipartForm 调用一次之后，后面再次调用不会再有效果。</p> <h2>4&nbsp;小结</h2> <p>上传文件三步曲：</p> <p><strong>a&nbsp;前端表单中增加 enctype="multipart/form-data"。</strong></p> <p><strong>b 服务端调用 r.ParseMultipartForm，把上传的文件存储在内存和临时文件中。</strong></p> <p><strong>c 使用 r.FormFile 获取文件句柄，然后对文件进行存储处理。</strong></p> <p>文件 handler 是 multipart.FileHeader&nbsp;结构</p> <blockquote> <p>type FileHeader struct {<!-- --></p> <p>&nbsp;&nbsp;&nbsp;&nbsp;Filename string</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;Header&nbsp;&nbsp;&nbsp;textproto.MIMEHeader</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;// contains filtered or unexported fields</p> <p>}</p> </blockquote> <h2>5&nbsp;测试结果</h2> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220905/601c7850518e46ceba32f53ae601f2c3.jpg"></p> <h1>三&nbsp;客户端上传文件</h1> <p>Go 支持模拟客户端表单功能支持文件上传。</p> <h2>1&nbsp;代码</h2> <pre><code class="language-Go">package main  import (    "bytes"    "fmt"    "io"    "io/ioutil"    "mime/multipart"    "net/http"    "os" )  // 模拟客户端表单功能支持文件上传 func postFile(filename string, targetUrl string) error {    bodyBuf := &amp;bytes.Buffer{}    bodyWriter := multipart.NewWriter(bodyBuf)    // 操作源文件    fileWriter, err := bodyWriter.CreateFormFile("uploadfile", filename)    if err != nil {       fmt.Println("error writing to buffer")       return err    }     // 打开文件句柄操作    fh, err := os.Open(filename)    if err != nil {       fmt.Println("error opening file")       return err    }    defer fh.Close()     // iocopy    _, err = io.Copy(fileWriter, fh)    if err != nil {       return err    }     contentType := bodyWriter.FormDataContentType()    bodyWriter.Close()     resp, err := http.Post(targetUrl, contentType, bodyBuf)    if err != nil {       return err    }    defer resp.Body.Close()    resp_body, err := ioutil.ReadAll(resp.Body)    if err != nil {       return err    }    fmt.Println(resp.Status)    fmt.Println(string(resp_body))    return nil }  // 测试 func main() {    target_url := "http://localhost:9090/upload"    filename := "a.txt"    postFile(filename, target_url) }</code></pre> <h2>2&nbsp;测试</h2> <p>客户端打印如下：</p> <blockquote> <p>200 OK</p> <p>map[Content-Disposition:[form-data; name="uploadfile"; filename="a.txt"] Content-Type:[application/octet-stream]]</p> </blockquote> <h2>3&nbsp;上传效果</h2> <p><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220905/d0237661ed287810ebdef047c54ddf68.jpg"></p> <h2>4&nbsp;说明</h2> <p>该例子展示了客户端如何向服务器上传一个文件的例子，客户端通过 multipart.Write 把文件的文本流写入一个缓存中，然后调用 http 的 Post 方法把缓存传到服务器。</p> </div> 			                </div>
+                      				  				  				<p>Firefox不支持输入类型编号的<em>min</em>属性，但在Google Chrome中可以正常使用。</p> <h2>示例</h2> <p>让我们看一个例子-</p> <pre>&lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; &nbsp;&nbsp;&nbsp;&lt;head&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;HTML&nbsp;input&nbsp;number&lt;/title&gt; &nbsp;&nbsp;&nbsp;&lt;/head&gt; &nbsp;&nbsp;&nbsp;&lt;body&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;form&nbsp;action&nbsp;=&nbsp;""&nbsp;method&nbsp;=&nbsp;"get"&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mention&nbsp;any&nbsp;number&nbsp;between&nbsp;1&nbsp;to&nbsp;10 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type&nbsp;=&nbsp;"number"&nbsp;name&nbsp;=&nbsp;"num"&nbsp;min&nbsp;=&nbsp;"1"&nbsp;max&nbsp;=&nbsp;"10"&gt;&lt;br&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type&nbsp;=&nbsp;"submit"&nbsp;value&nbsp;=&nbsp;"Submit"&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/form&gt; &nbsp;&nbsp;&nbsp;&lt;/body&gt; &lt;/html&gt;</pre> <div></div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-70.htm">Vite2+Vue3+ts的eslint设置踩坑</a></p>
-                                        <p>下一个：<a href="/html/category/article-72.htm">mysql 窗口函数</a></p>
+                                        <p>上一个：<a href="/html/category/article-262.htm">Python 认识列表和元组</a></p>
+                                        <p>下一个：<a href="/html/category/article-526.htm">SpringBoot生成docx文件并返回其Base64编码</a></p>
                                     </div>
 
                             </div>
@@ -103,48 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
-                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-245.htm">创建型设计模式: 单例模式(Singleton Pattern)</a></h4>
-                <p>创建型设计模式: 单例模式(Singleton Pattern)  CSDN专栏: 设计模式(UML/23种模式)  单例模式(Singleton Pattern)保证一个类仅有一个实例，并提供一个访</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-239.htm">Vue假数据应用——表格的添加、删除、搜索</a></h4>
-                <p>Vue实现假数据的添加、删除、搜索 HTML &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;script type="text/</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
-                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">如何保证redis和数据库的一致性</a></h4>
-                <p>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证</p>
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
             </div>
         </div>
     </div>
@@ -163,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">Android中EditText光标的显示与隐藏方法</a></h4>
-                <p>目录  Android EditText的光标的显示和隐藏 Android之第一次不显示EditText光标 总结   Android EditText的光标的显示和隐藏 一、java代码 1.编辑框</p>
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
             </div>
         </div>
     </div>
@@ -173,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-237.htm">Java空指针异常和解决办法</a></h4>
-                <p>目录  问题描述：   尝试1： 尝试2：   使用Optional防止出现空指针异常 引用    问题描述： public class Main20220419 {     public stati</p>
+                <h4><a href="/html/category/article-233.htm">echarts根据数据动态生成不同条数的折线图</a></h4>
+                <p>一、功能需求背景 1、后台可自定义折线图的折线名称、数据、数量（几条） 2、满足不同折线图之间随意切换 3、折线图可鼠标拖动缩放和滚动条收缩查看 4、同一页面涉及多个echarts 二、功能涉及ech</p>
             </div>
         </div>
     </div>
@@ -183,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
-                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
+                <h4><a href="/html/category/article-256.htm">feign post 参数对象不加@RequestBody的用法</a></h4>
+                <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。 代码我就改造了下，不直接上真实代码。 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是</p>
             </div>
         </div>
     </div>
@@ -193,8 +153,48 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
-                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
+                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
+                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
+                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
+                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
+                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
+                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
             </div>
         </div>
     </div>
