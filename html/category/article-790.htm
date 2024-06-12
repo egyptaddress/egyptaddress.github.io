@@ -2,10 +2,10 @@
 <html lang="zh-CN">
 
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-65.htm" />
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-790.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>工作纪实微服务Feign调用出现的各种异常解决方案 - EgyptAddress</title>
+    <title>详细分析虚拟DOM与diff算法 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -75,7 +75,7 @@ var _hmt = _hmt || [];
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">工作纪实微服务Feign调用出现的各种异常解决方案</h1>
+                <h1 class="title" style="word-break: break-all;">详细分析虚拟DOM与diff算法</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -90,10 +90,9 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h3><a id="feign_0" rel="nofollow"></a>feign调用问题汇总</h3> <h4><a id="1_feigngetpost_not_supported_1" rel="nofollow"></a>1. feign调用微服务get请求提示post not supported</h4> <ol> <li>fein定义和controller接口的请求方法不一致[一定要都是get方法才行]</li> <li>如果排除掉第一个问题，fein接口的Get方法接口，此时请求参数前面没有加上@RequestParam也会有此报错【我也不知道为什么，但就是这样解决的】</li> </ol> <h4><a id="2feign_5" rel="nofollow"></a>2.feign调用微服务超时</h4> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220722/225a327b0df4eadd9dc19832d6de8c4d.jpg" alt="工作纪实微服务Feign调用出现的各种异常解决方案"><br /> feign、ribbon的超时通用设置</p> <pre><code class="prism language-bash"><span class="token comment">#默认为10s</span> feign.client.config.default.connectTimeout<span class="token operator">=</span> 10000<span class="token comment">#默认为60s</span> feign.client.config.default.readTimeout<span class="token operator">=</span> 60000 ribbon.ConnectTimeout<span class="token operator">=</span> 10000 ribbon.ReadTimeout<span class="token operator">=</span> 60000 ribbon.eager-load.enabled<span class="token operator">=</span><span class="token boolean">true</span> feign.okhttp.enabled<span class="token operator">=</span><span class="token boolean">true</span> feign.compression.request.enabled<span class="token operator">=</span><span class="token boolean">false</span> feign.compression.response.enabled<span class="token operator">=</span><span class="token boolean">false</span> feign.httpclient.max-connections<span class="token operator">=</span> 1000 feign.httpclient.max-connections-per-route<span class="token operator">=</span> 500</code></pre> <p>如果还是不行，出现<code>hystrix</code>方面的报错，再加上<code>hystrix</code>的超时即可</p> <p>如果还是不行，出现服务器方面的报错，再把服务器的连接超时时候设置一下就可以</p> <p>不管怎么解决问题，feign、ribbon的重试机制，能关闭掉就关闭掉！</p> </div> 			                </div>
+                      				  				  				<h2 id="虚拟dom与diff算法">????虚拟DOM与diff算法</h2> <p>在vue、react等技术出现之前，每次修改DOM都需要通过遍历查询DOM树的方式，找到需要更新的DOM，然后修改样式或结构，资源损耗十分严重。而对于虚拟DOM来说，每次DOM的更改就变成了JS对象的属性的更改，能方便的查找JS对象的属性变化，要比查询DOM树的性能开销小，所以能够改善浏览器的性能问题。</p> <p>对于vue，从vue2就开始支持虚拟DOM。</p> <p><strong>diff算法</strong>：简单来说就是找出两个对象的差异，只对有差异的一小块DOM进行更新，而不是整个DOM，从而达到最小量更新的效果</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/71caa7675ec634c13769e9b12812c93e.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p><strong>虚拟DOM</strong>：内部会把代码段解析成一个对象（真实DOM是通过模板编译变成虚拟DOM的）</p> <p>用JS对象描述DOM的层次结构，DOM中的一切属性都在虚拟DOM中有对应的属性</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/94e4013420bcd05ffdf9ae27dcaf884c.jpg" alt="详细分析虚拟DOM与diff算法"></p> <h2 id="snabbdom环境搭建">snabbdom环境搭建</h2> <p>是虚拟DOM库，diff算法的鼻祖，vue源码借鉴了<code>snabbdom</code></p> <p>官方git:<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/snabbdom/snabbdom"  target="_blank" rel="nofollow">https://github.com/snabbdom/snabbdom</a></p> <p>git上的<code>snabbdom</code>源码是用<code>TypeScript</code>写的，如果要直接使用编译出来的<code>Javascript</code>版的<code>snabbdom</code>库，可以从npm上下载<code>npm i -D snabbdom</code></p> <p><code>snabbdom</code>库是DOM库，不能在node js环境运行，需要搭建<code>webpack</code>和<code>webpack-dev-server</code>开发环境。需要注意的是必须安装<code>webpack@5</code>。</p> <pre><code>npm i -D webpack@5 webpack-cli@3 webpack-dev-server@3</code></pre> <p>配置<code>webpack.config.js</code>文件，参考官网进行配置：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://webpack.docschina.org/"  target="_blank" rel="nofollow">https://webpack.docschina.org/</a></p> <pre><code>const path = require('path');  module.exports = {     // 入口     entry: './src/index.js',      // 出口     output: {         // 虚拟打包路径，文件夹不会真正生成，而是在8080端口虚拟生成         publicPath: 'xuni',         // 打包出来的文件名         filename: "bundle.js",     },     // 配置webpack-dev-server     devServer: {         // 端口号         port: 8082,         // 静态根目录         contentBase: 'www',     }, }</code></pre> <p>将项目根目录下的<code>package.json</code>文件中修改<code>script</code>的配置，就可以通过<code>npm run dev</code>启动项目</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/e546fb2791532ebd6dca1be00608acc0.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>配置完之后将官网的Example进行测试，由于示例要获取id=container的节点，所以我们需要提前准备一个id为container的div。</p> <pre><code>&lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;head&gt;     &lt;meta charset="UTF-8"&gt;     &lt;title&gt;Title&lt;/title&gt; &lt;/head&gt; &lt;body&gt;     &lt;div id="container"&gt;&lt;/div&gt;     &lt;script src="/xuni/bundle.js"&gt;&lt;/script&gt; &lt;/body&gt; &lt;/html&gt;</code></pre> <p>需要注意的点</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/8bacae341fdaca181733065a89731a89.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>页面出现如下状态即表示配置完成</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/8696902bb836118c627c35c63d6c5043.jpg" alt="详细分析虚拟DOM与diff算法"></p> <h2 id="虚拟dom和h函数">虚拟DOM和h函数</h2> <p>diff是发生在虚拟DOM上的</p> <p>新虚拟DOM和老虚拟DOM进行diff(精细化比较)，算出应该如何最小量更新，最后反映到真正的DOM上。</p> <p>h函数用来产生虚拟节点(vnode)</p> <pre><code>h('a',{ props: { href: 'https://www.baidu.com' } }, '百度');</code></pre> <p>会得到这样的虚拟节点</p> <pre><code>{ "sel": "a", "data": { props: { href: 'https://www.baidu.com' } }, "text": "百度" }</code></pre> <p>它表示的真正的DOM节点</p> <pre><code>&lt;a href="https://www.baidu.com"&gt;百度&lt;/a&gt;</code></pre> <p>如果需要让虚拟节点上树，需要借助<code>patch</code>函数</p> <pre><code>import {     init,     classModule,     propsModule,     styleModule,     eventListenersModule,     h, } from "snabbdom";  // 创建patch函数 var patch = init([classModule, propsModule, styleModule, eventListenersModule]);  //创建虚拟节点 var vNode1 = h('a',{ props: { href: 'https://www.baidu.com' } }, '百度');  // 让虚拟节点上树 const container = document.getElementById('container'); patch(container,vNode1);</code></pre> <p><strong>h函数可以嵌套使用，从而得到虚拟DOM树</strong></p> <pre><code>h('ul',{},[ 	h('li',{},'可乐'); 	h('li',{},'雪碧'); 	h('li',{},'椰汁'); ])</code></pre> <h2 id="diff算法">diff算法</h2> <p>实现最小量更新。需要<code>key</code>。<code>key</code>是这个节点的唯一标识，告诉diff算法，在更改前后它们是同一个DOM节点。</p> <p><strong>只有同一个虚拟节点，才进行精细化比较。</strong>否则就是暴力删除旧的、插入新的。</p> <p>同一个虚拟节点：选择器相同且key相同</p> <p><strong>只进行同层比较，不会进行跨层比较。</strong></p> <p>比如下面这两个DOM节点，虽然是同一片虚拟节点，但是跨层了，依旧会暴力删除旧的、插入新的。</p> <pre><code>const vnode1 = h('div',{},[ 	h('p',{ key: 'A' }, 'A'), 	h('p',{ key: 'B' }, 'B'), 	h('p',{ key: 'C' }, 'C'), 	h('p',{ key: 'D' }, 'D'), ]);  const vnode2 = h('div',{},h('section',{},[ 	h('p',{ key: 'A' }, 'A'), 	h('p',{ key: 'B' }, 'B'), 	h('p',{ key: 'C' }, 'C'), 	h('p',{ key: 'D' }, 'D'), ]))</code></pre> <p>分析源码也可以验证以上所述</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/44d0356766fcfa2395a24eed73dedcbe.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>首先会去判断是不是虚拟节点，不是的话会先去把它包装成虚拟节点</p> <p>然后判断是不是同一个节点，不是的话插入新的、删除旧的，是的话精细化比较</p> <p>执行的流程图</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/1dab75bcc07fe515f3454bbf2a405a76.jpg" alt="详细分析虚拟DOM与diff算法"></p> <h3 id="patch函数">patch函数</h3> <p>首先判断oldVnode是否是虚拟节点，如果是DOM节点的话先把oldVnode包装成虚拟节点</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/62c0f62099f70ae0b3145b484278625b.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>然后判断新节点和旧节点是否是同一个节点，判断<code>key</code>的值是否相同，标签名是否相同，是否都定义了data(data包含一些具体的信息，onclick、style等)</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/886ad3ad795ee129174a9230af2c789f.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>如果不是同一节点，新节点直接替换老节点，删除旧的、插入新的。在源码中，创建所有的子节点时，需要递归。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/33ab4d34bb65e04d50a2fd28ca8d13db.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>如果新旧节点是同一个节点时，会执行<code>patchVnode</code>进行子节点比较</p> <h3 id="patchvnode函数">patchVnode函数</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5254e9112b53c414fbbac740de9f7528.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>首先会找到对应的真实DOM</p> <pre><code>const elm = (vnode.elm = oldVnode.elm)!;</code></pre> <p>如果新老节点相同，直接返回<code>if(oldVnode === vnode) return</code></p> <ul> <li> <p>如果vnode没有文本节点(<code>isUndef(vnode.text)</code>)</p> <ul> <li> <p>都有children且不相同</p> <p>使用<code>updateChildren</code>对比children（<strong>diff算法的核心</strong>）</p> </li> <li> <p>只有vnode有children</p> <p>则oldVnode是一个空标签或者是文本节点，如果是文本节点就清空文本节点，然后将vnode的children创建为真实DOM后插入到空标签内。</p> </li> <li> <p>只有oldVnode有children</p> <p>vnode没有的东西，在oldVnode内需要删除掉<code>removeVnodes</code>（oldVnode有且vnode没有的，都清空或移除）</p> </li> <li> <p>只有oldVnode有文本</p> <p>清空文本</p> </li> </ul> </li> <li> <p>如果vnode有text属性且不同</p> <p>以<code>vnode</code>为标准，无论<code>oldVnode</code>是什么类型节点，直接设置为<code>vnode</code>内的文本</p> </li> </ul> <h3 id="updatechildren函数">updateChildren函数</h3> <p>updateChildren方法的核心：</p> <ul> <li> <p>提取出新老节点的子节点：新节点子节点ch和老节点子节点oldCh</p> </li> <li> <p>ch和oldCh分别设置StartIdx(头指针)和EndIdx(尾指针)变量，相互比较。此时就有四个变量：<code>oldStartIdx、oldEndIdx、newStartIdx、newEndIdx</code>(这里采用双指针的思想)</p> <p>有四种方式来比较：</p> <ol> <li> <p>oldStartIdx和newStartIdx比较</p> <p>如果匹配，DOM不用修改，将oldStartIdx和newStartIdx的下标往后移一位</p> </li> <li> <p>oldEndIdx和newEndIdx比较</p> <p>如果匹配，DOM不用修改，将oldEndIdx和newEndIdx的下标往前移一位</p> </li> <li> <p>oldStartIdx和newEndIdx比较</p> <p>如果匹配，DOM不用修改，将oldStartIdx对应的真实DOM插入到最后一位，oldStartIdx的下标后移一位，newEndIdx的下标前移一位。</p> </li> <li> <p>oldEndIdx和newStartIdx比较</p> <p>如果匹配，DOM不用修改，将oldEndIdx对应的真实DOM插入到oldEndIdx对应真实Dom的前面，oldEndIdx的下标前移一位，newStartIdx的下标后移一位。</p> </li> </ol> </li> </ul> <p>如果4种方式都没有匹配成功，如果设置了key就通过key进行比较，在比较过程中startIdx++，endIdx--，一旦<code>StartIdx &gt; EndIdx</code>表明ch或者oldCh至少有一个已经遍历完成，此时就会结束比较</p> <p>处理结束后，如果新节点有剩余，就添加；如果旧节点有剩余，就删除</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5967b0cd211529836be9f3672a70c2cf.jpg" alt="详细分析虚拟DOM与diff算法"></p> <h2 id="v-for中key作用与原理">v-for中key作用与原理</h2> <p>key是虚拟DOM对象的标识，当数据发生变化时，Vue会根据【新数据】产生【新的虚拟DOM】，随后Vue进行【新虚拟DOM】与【旧虚拟DOM】的差异比较，比较规则如下：</p> <p>（1）旧虚拟DOM中找到了与新虚拟DOM相同的key</p> <p>		①若虚拟DOM中内容没变，直接使用之前的真实DOM</p> <p>		②若虚拟DOM中内容变了，则生成新的真实DOM，随后替换掉页面中之前的真实DOM</p> <p>（2）旧虚拟DOM中未找到与新虚拟DOM相同的key</p> <p>		创建新的真实DOM，随后渲染到页面</p> <p>所以，如果用index作为key可能会引发的问题：</p> <p>（1）若对数据进行：逆序添加、逆序删除等破环顺序操作，会产生没有必要的真实DOM更新==&gt;界面效果没问题，但效率低</p> <p>（2）如果结构中还包含输入类的DOM，会产生错误DOM错误==&gt;界面有问题</p> <p><strong>实际开发中如何选择key</strong></p> <ol> <li>最好使用每条数据的<strong>唯一标识</strong>作为key，比如id、手机号、身份证号、学号等唯一值</li> <li>如果不存在对数据的逆序添加、逆序删除等破坏顺序操作，仅用于渲染列表用于展示，使用index作为key是没有问题的</li> </ol> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-64.htm">字符串和输入输出缓冲区</a></p>
-                                        <p>下一个：<a href="/html/category/article-66.htm">JavaScript获取URL参数的方法分享_javascript技巧</a></p>
+                                        <p>上一个：<a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></p>
                                     </div>
 
                             </div>
@@ -113,8 +112,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Redis事务详解</a></h4>
-                <p>大家好，我是七淅。 如果你了解过关系型数据库事务的话，相信这篇文章对你来说是很容易理解的了。具体什么是事务我就不说不多了，直接讲 Redis 事务相关的部分。 首先，我们先来看下，Redis 是怎么执</p>
+                <h4><a href="/html/category/article-232.htm">Android中EditText光标的显示与隐藏方法</a></h4>
+                <p>目录  Android EditText的光标的显示和隐藏 Android之第一次不显示EditText光标 总结   Android EditText的光标的显示和隐藏 一、java代码 1.编辑框</p>
             </div>
         </div>
     </div>
@@ -123,18 +122,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-241.htm">如何保证redis和数据库的一致性</a></h4>
-                <p>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
-                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
+                <h4><a href="/html/category/article-207.htm">restTemplate配置及使用</a></h4>
+                <p>文章目录      1 场景 2 依赖 3 配置 4 使用   4.1 GET请求   4.1.1 普通访问 4.1.2 返回HTTP状态 4.1.3 映射请求参数   4.2 POST请求   4.</p>
             </div>
         </div>
     </div>
@@ -153,8 +142,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">Android中EditText光标的显示与隐藏方法</a></h4>
-                <p>目录  Android EditText的光标的显示和隐藏 Android之第一次不显示EditText光标 总结   Android EditText的光标的显示和隐藏 一、java代码 1.编辑框</p>
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
             </div>
         </div>
     </div>
@@ -163,8 +152,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
-                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -173,8 +162,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
-                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
+                <h4><a href="/html/category/article-525.htm">Firefox中的HTML5输入类型“数字”</a></h4>
+                <p>Firefox不支持输入类型编号的min属性，但在Google Chrome中可以正常使用。 示例 让我们看一个例子- &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; </p>
             </div>
         </div>
     </div>
@@ -183,8 +172,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-228.htm"># kubernetes调度之nodeName与NodeSelector</a></h4>
-                <p>系列目录  Kubernetes的调度有简单，有复杂，指定NodeName和使用NodeSelector调度是最简单的，可以将Pod调度到期望的节点上。 本文主要介绍kubernetes调度框架中的N</p>
+                <h4><a href="/html/category/article-212.htm">定时器中 this 指向修改实现方法和原理讲解</a></h4>
+                <p>定时器中 this 指向修改实现方法和原理讲解      1. 变量替换 2. 箭头函数 3. bind() 方法       定时器属于全局 window ，window.setTimeout();</p>
             </div>
         </div>
     </div>
@@ -193,8 +182,18 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
-                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
+                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
             </div>
         </div>
     </div>
