@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-1053.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Spring Cloud中使用Feign实现负载均衡详解 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
+     crossorigin="anonymous"></script>
+</head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/html/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">Spring Cloud中使用Feign实现负载均衡详解</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：</p> <blockquote> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/83651732"  rel="nofollow">【夯实Spring Cloud】Dubbo沉睡5年，Spring Cloud开始崛起！</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/83585344"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中基于maven的分布式项目框架的搭建</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/85002026"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中的Eureka服务注册与发现详解</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/85226439"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中如何完善Eureka中的服务信息</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/85252697"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中使用Eureka集群搭建高可用服务注册中心</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/85561179"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中的Eureka和Zookeeper的区别在哪？</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/86182477"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中使用Ribbon实现负载均衡详解（上）</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/86225272"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中使用Ribbon实现负载均衡详解（下）</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/86578207"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中自定义Ribbon负载均衡策略</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/86590402"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中使用Feign实现负载均衡详</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/86628622"  rel="nofollow">【夯实Srping Cloud】Spring Cloud中使用Hystrix实现断路器原理详解（上）</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/86673843"  rel="nofollow">【夯实Srping Cloud】Spring Cloud中使用Hystrix实现断路器原理详解（下）</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/86689681"  rel="nofollow">【夯实Spring Cloud】Spring Cloud中使用Zuul实现路由网关详解</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/eson_15/article/details/86715157"  rel="nofollow">【夯实Spring Cloud】Spring Cloud分布式配置中心详解</a><br /> 【夯实Spring Cloud】未完待续</p> </blockquote> <hr/> <p>前面几篇文章，对 Ribbon 负载均衡做了详细的分析，这一节来介绍一下使用 Feign 负载均衡。在介绍之前，我们先来对 Feign 做一下简单的介绍，先来理解一下什么是 Feign。</p> <h2><a id="1_Feign__21" rel="nofollow"></a>1. Feign 是什么？</h2> <p>我们看一下官方的解释：Feign 是一个声明式 WebService 客户端。使用 Feign 能让编写的 WebService 客户端更加简洁，它的使用方法式定义一个接口，然后在上面添加注解。Spring Cloud 对 Feign 进行了封装，使其支持了 Spring MVC 标准注解和 HttpMessageConverters。Feign 可以与 Eureka 和 Ribbon 组合使用以支持负载均衡。</p> <h2><a id="2__Feign_24" rel="nofollow"></a>2. 为什么要使用 Feign？</h2> <p>Feign 旨在使编写 Java Http 客户端变得更容易。</p> <p>前面在使用 Ribbon + RestTemplate 时，利用 RestTemplate 对 http 请求的封装处理，形成了一套模板化的调用方法。<strong>但是在实际开发中，由于对服务依赖的调用可能不止一处，往往一个接口会被多处调用，所以通常都会针对每个微服务自行封装一些客户端类来包装这些依赖服务的调用</strong>。</p> <p>所以，Feign 在此基础上做了进一步的封装，由它来帮助我们定义和实现依赖服务接口的定义。<strong>使用 Feign 只需要创建一个接口并使用一个注解来配置它即可</strong>。这就类似于我们在 dao 层的接口上标注 @Mapper 注解一样。这样的话，即完成了对服务提供方的接口绑定，简化了使用 Spring Cloud Ribbon 时的开发量。</p> <p>我们用实例来说明。</p> <h2><a id="3_Feign__33" rel="nofollow"></a>3. Feign 的使用</h2> <h3><a id="31__34" rel="nofollow"></a>3.1 依赖导入</h3> <pre><code class="prism language-xml"><span class="token comment">&lt;!--eureka Client--&gt;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.cloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-cloud-starter-netflix-eureka-client<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span><span class="token comment">&lt;!-- feign的支持 --&gt;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.cloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-cloud-starter-openfeign<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span></code></pre> <h3><a id="32__48" rel="nofollow"></a>3.2 启动类注解配置</h3> <pre><code class="prism language-java"><span class="token annotation punctuation">@SpringBootApplication</span><span class="token annotation punctuation">@EnableEurekaClient</span><span class="token annotation punctuation">@EnableFeignClients</span><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">OrderConsumerFeign</span><span class="token punctuation">{<!-- --></span><span class="token keyword">public</span><span class="token keyword">static</span><span class="token keyword">void</span><span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>         SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>OrderConsumerFeign<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p>启动类需要添加注解<code>@EnableFeignClients</code>，表示启用 Feign 客户端。</p> <h3><a id="33_Feign__62" rel="nofollow"></a>3.3 Feign 客户端</h3> <p>我们先来回忆一下，提供订单的服务名称为：MICROSERVICE-ORDER，然后订单服务中提供的两个获取订单信息的接口url如下：</p> <pre><code class="prism language-java"><span class="token comment">/**  * feign客户端  * @author shengwu ni  */</span><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"MICROSERVICE-ORDER"</span><span class="token punctuation">)</span><span class="token keyword">public</span><span class="token keyword">interface</span><span class="token class-name">OrderClientService</span><span class="token punctuation">{<!-- --></span><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/provider/order/get/{id}"</span><span class="token punctuation">)</span>     TOrder<span class="token function">getOrder</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"id"</span><span class="token punctuation">)</span> Long id<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/provider/order/get/list"</span><span class="token punctuation">)</span>     List<span class="token generics function"><span class="token punctuation">&lt;</span>TOrder<span class="token punctuation">&gt;</span></span><span class="token function">getAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p>可以看到，Feign 客户端要添加<code>@FeignClient</code> 注解，value 属性表示作用到哪个微服务上，这里表示负载均衡作用到请求订单服务上。要记住，Feign 也是客户端的负载均衡。</p> <p>方法内定义了两个接口，接口上即和普通的 SpringMVC 没什么区别，url 即订单提供服务的url。这就是 Feign 客户端，通过注解 + 接口的方式来和订单服务的接口绑定。</p> <h3><a id="34_Feign__83" rel="nofollow"></a>3.4 Feign 客户端的使用</h3> <p>定义好了 Feign 客户端接口后，我们就可以在代码里通过<code>@Resource</code> 正常引入进来，然后通过普通的方法调用即可实现对订单服务的调用，如下：</p> <pre><code class="prism language-java"><span class="token annotation punctuation">@RestController</span><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/consumer/order"</span><span class="token punctuation">)</span><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">OrderConsumerController</span><span class="token punctuation">{<!-- --></span><span class="token comment">/**      * 上面定义的 Feign Client      */</span><span class="token annotation punctuation">@Resource</span><span class="token keyword">private</span> OrderClientService orderClientService<span class="token punctuation">;</span><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/get/{id}"</span><span class="token punctuation">)</span><span class="token keyword">public</span> TOrder<span class="token function">getOrder</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span> Long id<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span> orderClientService<span class="token punctuation">.</span><span class="token function">getOrder</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/get/list"</span><span class="token punctuation">)</span><span class="token keyword">public</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>TOrder<span class="token punctuation">&gt;</span></span><span class="token function">getAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span> orderClientService<span class="token punctuation">.</span><span class="token function">getAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p>启动 eureka 集群、三个订单提供服务和这个带有 Feign 的服务消费方（端口 9001）。通过在浏览器中访问：http://localhost:9001//consumer/order/get/1 可以看到，轮流访问三个订单服务。说明 Feign 默认是集成了 Ribbon 的轮询方案。</p> <h2><a id="4_Feign__Ribbon__110" rel="nofollow"></a>4. Feign 如何结合 Ribbon 切换均衡算法</h2> <p>以上就是 Feign 的使用，很简单，也符合我们平时的接口调用习惯。但是这是默认的轮询负载均衡算法。在上一节我们知道，Ribbon 中支持很多自带的均衡算法，我们只要在代码中根据具体情况，选择合适的均衡算法即可。甚至我们可以选择自己自定义的均衡算法。</p> <p>那么使用 Feign 的时候，如何去切换到 Ribbon 中其他均衡策略呢？甚至切换到自定义的策略呢？</p> <p>也很简单，我们可以在 application.yml 配置文件中来指定，如下：</p> <pre><code class="prism language-yml"><span class="token comment"># feign和ribbon结合，指定策略。feign默认的是轮询的策略，这里的配置可以自定义</span><span class="token key atrule">MICROSERVICE-ORDER</span><span class="token punctuation">:</span><span class="token key atrule">ribbon</span><span class="token punctuation">:</span><span class="token key atrule">NFLoadBalancerRuleClassName</span><span class="token punctuation">:</span> com.netflix.loadbalancer.RandomRule</code></pre> <p>MICROSERVICE-ORDER 表示作用到哪个微服务，<code>com.netflix.loadbalancer.RandomRule</code> 即前面介绍 Ribbon 时里面的随机策略，当然，我们也可以指定为其他策略，包括我们自己定义的，只要把相应的包路径写到这即可，很方便。</p> <p>重新启动一下服务消费方的程序，访问上面那个测试 url，可以看到三个订单服务是随机调用的，说明配置生效。</p> <p></p> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-790.htm">详细分析虚拟DOM与diff算法</a></p>
+                                        <p>下一个：<a href="/html/category/article-1054.htm">mysql 中插入百万条数据</a></p>
+                                    </div>
+
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-233.htm">echarts根据数据动态生成不同条数的折线图</a></h4>
+                <p>一、功能需求背景 1、后台可自定义折线图的折线名称、数据、数量（几条） 2、满足不同折线图之间随意切换 3、折线图可鼠标拖动缩放和滚动条收缩查看 4、同一页面涉及多个echarts 二、功能涉及ech</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
+                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-260.htm">Vue中 Vue.prototype 详解及使用</a></h4>
+                <p>我们可能会在很多组件里用到数据/实用工具，但是不想污染全局作用域。这种情况下，可以通过在原型上定义它们使其在每个 Vue 的实例中可用。 1. 基本示例 在main.js中添加一个变量到 Vue.pr</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-251.htm">C# 有关List&lt;T&gt;的Contains与Equals方法_在线工具</a></h4>
+                <p>【以下内容仅为本人在学习中的所感所想，本人水平有限目前尚处学习阶段，如有错误及不妥之处还请各位大佬指正，请谅解，谢谢！】 #Updated【2022.5.2 修复移动端排版混乱的问题】 ！！！观前提醒</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-241.htm">如何保证redis和数据库的一致性</a></h4>
+                <p>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">26</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>

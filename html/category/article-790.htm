@@ -38,7 +38,7 @@ var _hmt = _hmt || [];
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
                     <ul class="navbar-nav ml-auto">
                                                 <li class="nav-item">
-                            <a class="nav-link" href="/xcblog/">首页</a>
+                            <a class="nav-link" href="/">首页</a>
                         </li>
                                                 <li class="nav-item">
                             <a class="nav-link" href="/html/category/">文章分类</a>
@@ -93,21 +93,12 @@ var _hmt = _hmt || [];
                       				  				  				<h2 id="虚拟dom与diff算法">????虚拟DOM与diff算法</h2> <p>在vue、react等技术出现之前，每次修改DOM都需要通过遍历查询DOM树的方式，找到需要更新的DOM，然后修改样式或结构，资源损耗十分严重。而对于虚拟DOM来说，每次DOM的更改就变成了JS对象的属性的更改，能方便的查找JS对象的属性变化，要比查询DOM树的性能开销小，所以能够改善浏览器的性能问题。</p> <p>对于vue，从vue2就开始支持虚拟DOM。</p> <p><strong>diff算法</strong>：简单来说就是找出两个对象的差异，只对有差异的一小块DOM进行更新，而不是整个DOM，从而达到最小量更新的效果</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/71caa7675ec634c13769e9b12812c93e.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p><strong>虚拟DOM</strong>：内部会把代码段解析成一个对象（真实DOM是通过模板编译变成虚拟DOM的）</p> <p>用JS对象描述DOM的层次结构，DOM中的一切属性都在虚拟DOM中有对应的属性</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/94e4013420bcd05ffdf9ae27dcaf884c.jpg" alt="详细分析虚拟DOM与diff算法"></p> <h2 id="snabbdom环境搭建">snabbdom环境搭建</h2> <p>是虚拟DOM库，diff算法的鼻祖，vue源码借鉴了<code>snabbdom</code></p> <p>官方git:<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/snabbdom/snabbdom"  target="_blank" rel="nofollow">https://github.com/snabbdom/snabbdom</a></p> <p>git上的<code>snabbdom</code>源码是用<code>TypeScript</code>写的，如果要直接使用编译出来的<code>Javascript</code>版的<code>snabbdom</code>库，可以从npm上下载<code>npm i -D snabbdom</code></p> <p><code>snabbdom</code>库是DOM库，不能在node js环境运行，需要搭建<code>webpack</code>和<code>webpack-dev-server</code>开发环境。需要注意的是必须安装<code>webpack@5</code>。</p> <pre><code>npm i -D webpack@5 webpack-cli@3 webpack-dev-server@3</code></pre> <p>配置<code>webpack.config.js</code>文件，参考官网进行配置：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://webpack.docschina.org/"  target="_blank" rel="nofollow">https://webpack.docschina.org/</a></p> <pre><code>const path = require('path');  module.exports = {     // 入口     entry: './src/index.js',      // 出口     output: {         // 虚拟打包路径，文件夹不会真正生成，而是在8080端口虚拟生成         publicPath: 'xuni',         // 打包出来的文件名         filename: "bundle.js",     },     // 配置webpack-dev-server     devServer: {         // 端口号         port: 8082,         // 静态根目录         contentBase: 'www',     }, }</code></pre> <p>将项目根目录下的<code>package.json</code>文件中修改<code>script</code>的配置，就可以通过<code>npm run dev</code>启动项目</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/e546fb2791532ebd6dca1be00608acc0.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>配置完之后将官网的Example进行测试，由于示例要获取id=container的节点，所以我们需要提前准备一个id为container的div。</p> <pre><code>&lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;head&gt;     &lt;meta charset="UTF-8"&gt;     &lt;title&gt;Title&lt;/title&gt; &lt;/head&gt; &lt;body&gt;     &lt;div id="container"&gt;&lt;/div&gt;     &lt;script src="/xuni/bundle.js"&gt;&lt;/script&gt; &lt;/body&gt; &lt;/html&gt;</code></pre> <p>需要注意的点</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/8bacae341fdaca181733065a89731a89.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>页面出现如下状态即表示配置完成</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/8696902bb836118c627c35c63d6c5043.jpg" alt="详细分析虚拟DOM与diff算法"></p> <h2 id="虚拟dom和h函数">虚拟DOM和h函数</h2> <p>diff是发生在虚拟DOM上的</p> <p>新虚拟DOM和老虚拟DOM进行diff(精细化比较)，算出应该如何最小量更新，最后反映到真正的DOM上。</p> <p>h函数用来产生虚拟节点(vnode)</p> <pre><code>h('a',{ props: { href: 'https://www.baidu.com' } }, '百度');</code></pre> <p>会得到这样的虚拟节点</p> <pre><code>{ "sel": "a", "data": { props: { href: 'https://www.baidu.com' } }, "text": "百度" }</code></pre> <p>它表示的真正的DOM节点</p> <pre><code>&lt;a href="https://www.baidu.com"&gt;百度&lt;/a&gt;</code></pre> <p>如果需要让虚拟节点上树，需要借助<code>patch</code>函数</p> <pre><code>import {     init,     classModule,     propsModule,     styleModule,     eventListenersModule,     h, } from "snabbdom";  // 创建patch函数 var patch = init([classModule, propsModule, styleModule, eventListenersModule]);  //创建虚拟节点 var vNode1 = h('a',{ props: { href: 'https://www.baidu.com' } }, '百度');  // 让虚拟节点上树 const container = document.getElementById('container'); patch(container,vNode1);</code></pre> <p><strong>h函数可以嵌套使用，从而得到虚拟DOM树</strong></p> <pre><code>h('ul',{},[ 	h('li',{},'可乐'); 	h('li',{},'雪碧'); 	h('li',{},'椰汁'); ])</code></pre> <h2 id="diff算法">diff算法</h2> <p>实现最小量更新。需要<code>key</code>。<code>key</code>是这个节点的唯一标识，告诉diff算法，在更改前后它们是同一个DOM节点。</p> <p><strong>只有同一个虚拟节点，才进行精细化比较。</strong>否则就是暴力删除旧的、插入新的。</p> <p>同一个虚拟节点：选择器相同且key相同</p> <p><strong>只进行同层比较，不会进行跨层比较。</strong></p> <p>比如下面这两个DOM节点，虽然是同一片虚拟节点，但是跨层了，依旧会暴力删除旧的、插入新的。</p> <pre><code>const vnode1 = h('div',{},[ 	h('p',{ key: 'A' }, 'A'), 	h('p',{ key: 'B' }, 'B'), 	h('p',{ key: 'C' }, 'C'), 	h('p',{ key: 'D' }, 'D'), ]);  const vnode2 = h('div',{},h('section',{},[ 	h('p',{ key: 'A' }, 'A'), 	h('p',{ key: 'B' }, 'B'), 	h('p',{ key: 'C' }, 'C'), 	h('p',{ key: 'D' }, 'D'), ]))</code></pre> <p>分析源码也可以验证以上所述</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/44d0356766fcfa2395a24eed73dedcbe.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>首先会去判断是不是虚拟节点，不是的话会先去把它包装成虚拟节点</p> <p>然后判断是不是同一个节点，不是的话插入新的、删除旧的，是的话精细化比较</p> <p>执行的流程图</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/1dab75bcc07fe515f3454bbf2a405a76.jpg" alt="详细分析虚拟DOM与diff算法"></p> <h3 id="patch函数">patch函数</h3> <p>首先判断oldVnode是否是虚拟节点，如果是DOM节点的话先把oldVnode包装成虚拟节点</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/62c0f62099f70ae0b3145b484278625b.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>然后判断新节点和旧节点是否是同一个节点，判断<code>key</code>的值是否相同，标签名是否相同，是否都定义了data(data包含一些具体的信息，onclick、style等)</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/886ad3ad795ee129174a9230af2c789f.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>如果不是同一节点，新节点直接替换老节点，删除旧的、插入新的。在源码中，创建所有的子节点时，需要递归。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/33ab4d34bb65e04d50a2fd28ca8d13db.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>如果新旧节点是同一个节点时，会执行<code>patchVnode</code>进行子节点比较</p> <h3 id="patchvnode函数">patchVnode函数</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5254e9112b53c414fbbac740de9f7528.jpg" alt="详细分析虚拟DOM与diff算法"></p> <p>首先会找到对应的真实DOM</p> <pre><code>const elm = (vnode.elm = oldVnode.elm)!;</code></pre> <p>如果新老节点相同，直接返回<code>if(oldVnode === vnode) return</code></p> <ul> <li> <p>如果vnode没有文本节点(<code>isUndef(vnode.text)</code>)</p> <ul> <li> <p>都有children且不相同</p> <p>使用<code>updateChildren</code>对比children（<strong>diff算法的核心</strong>）</p> </li> <li> <p>只有vnode有children</p> <p>则oldVnode是一个空标签或者是文本节点，如果是文本节点就清空文本节点，然后将vnode的children创建为真实DOM后插入到空标签内。</p> </li> <li> <p>只有oldVnode有children</p> <p>vnode没有的东西，在oldVnode内需要删除掉<code>removeVnodes</code>（oldVnode有且vnode没有的，都清空或移除）</p> </li> <li> <p>只有oldVnode有文本</p> <p>清空文本</p> </li> </ul> </li> <li> <p>如果vnode有text属性且不同</p> <p>以<code>vnode</code>为标准，无论<code>oldVnode</code>是什么类型节点，直接设置为<code>vnode</code>内的文本</p> </li> </ul> <h3 id="updatechildren函数">updateChildren函数</h3> <p>updateChildren方法的核心：</p> <ul> <li> <p>提取出新老节点的子节点：新节点子节点ch和老节点子节点oldCh</p> </li> <li> <p>ch和oldCh分别设置StartIdx(头指针)和EndIdx(尾指针)变量，相互比较。此时就有四个变量：<code>oldStartIdx、oldEndIdx、newStartIdx、newEndIdx</code>(这里采用双指针的思想)</p> <p>有四种方式来比较：</p> <ol> <li> <p>oldStartIdx和newStartIdx比较</p> <p>如果匹配，DOM不用修改，将oldStartIdx和newStartIdx的下标往后移一位</p> </li> <li> <p>oldEndIdx和newEndIdx比较</p> <p>如果匹配，DOM不用修改，将oldEndIdx和newEndIdx的下标往前移一位</p> </li> <li> <p>oldStartIdx和newEndIdx比较</p> <p>如果匹配，DOM不用修改，将oldStartIdx对应的真实DOM插入到最后一位，oldStartIdx的下标后移一位，newEndIdx的下标前移一位。</p> </li> <li> <p>oldEndIdx和newStartIdx比较</p> <p>如果匹配，DOM不用修改，将oldEndIdx对应的真实DOM插入到oldEndIdx对应真实Dom的前面，oldEndIdx的下标前移一位，newStartIdx的下标后移一位。</p> </li> </ol> </li> </ul> <p>如果4种方式都没有匹配成功，如果设置了key就通过key进行比较，在比较过程中startIdx++，endIdx--，一旦<code>StartIdx &gt; EndIdx</code>表明ch或者oldCh至少有一个已经遍历完成，此时就会结束比较</p> <p>处理结束后，如果新节点有剩余，就添加；如果旧节点有剩余，就删除</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/5967b0cd211529836be9f3672a70c2cf.jpg" alt="详细分析虚拟DOM与diff算法"></p> <h2 id="v-for中key作用与原理">v-for中key作用与原理</h2> <p>key是虚拟DOM对象的标识，当数据发生变化时，Vue会根据【新数据】产生【新的虚拟DOM】，随后Vue进行【新虚拟DOM】与【旧虚拟DOM】的差异比较，比较规则如下：</p> <p>（1）旧虚拟DOM中找到了与新虚拟DOM相同的key</p> <p>		①若虚拟DOM中内容没变，直接使用之前的真实DOM</p> <p>		②若虚拟DOM中内容变了，则生成新的真实DOM，随后替换掉页面中之前的真实DOM</p> <p>（2）旧虚拟DOM中未找到与新虚拟DOM相同的key</p> <p>		创建新的真实DOM，随后渲染到页面</p> <p>所以，如果用index作为key可能会引发的问题：</p> <p>（1）若对数据进行：逆序添加、逆序删除等破环顺序操作，会产生没有必要的真实DOM更新==&gt;界面效果没问题，但效率低</p> <p>（2）如果结构中还包含输入类的DOM，会产生错误DOM错误==&gt;界面有问题</p> <p><strong>实际开发中如何选择key</strong></p> <ol> <li>最好使用每条数据的<strong>唯一标识</strong>作为key，比如id、手机号、身份证号、学号等唯一值</li> <li>如果不存在对数据的逆序添加、逆序删除等破坏顺序操作，仅用于渲染列表用于展示，使用index作为key是没有问题的</li> </ol> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></p>
+                                        <p>下一个：<a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></p>
                                     </div>
 
                             </div>
             <div class="col-md-4 w3l-services">
                 <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-230.htm">Vuex的各个模块封装</a></h4>
-                <p>一、各个模块的作用：   state 用来数据共享数据存储  mutation 用来注册改变数据状态（同步）  getters 用来对共享数据进行过滤并计数操作  action 解决异步改变共享数据（</p>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="row w3l-achievements">
     <div class="col-lg-12 item">
         <div class="card">
@@ -122,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
-                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
             </div>
         </div>
     </div>
@@ -132,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-225.htm">Spring的3级缓存和循环引用的理解_在线工具</a></h4>
-                <p>此处是我自己的一个理解，防止以后忘记，如若那个地方理解不对，欢迎指出。  一、背景 在我们写代码的过程中一般会使用 @Autowired 来注入另外的一个对象，但有些时候发生了 循环依赖，但是我们的代</p>
+                <h4><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></h4>
+                <p>Git 代码管理（代码提交和代码回退） Git的主要功能是代码管理，版本管理，分支管理。 在远程代码管理平台上，项目的代码被管理在一个远程代码仓库中，在本地，代码保存在一个本地代码仓库中。通过Git，</p>
             </div>
         </div>
     </div>
@@ -142,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></h4>
-                <p>C# 正则表达式判断是否是有效的文件、文件夹路径 省流 /// &lt;summary&gt; /// 是否有效的文件，文件夹路径 /// &lt;/summary&gt; /// &lt;param</p>
+                <h4><a href="/html/category/article-230.htm">Vuex的各个模块封装</a></h4>
+                <p>一、各个模块的作用：   state 用来数据共享数据存储  mutation 用来注册改变数据状态（同步）  getters 用来对共享数据进行过滤并计数操作  action 解决异步改变共享数据（</p>
             </div>
         </div>
     </div>
@@ -152,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
-                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
+                <h4><a href="/html/category/article-237.htm">Java空指针异常和解决办法</a></h4>
+                <p>目录  问题描述：   尝试1： 尝试2：   使用Optional防止出现空指针异常 引用    问题描述： public class Main20220419 {     public stati</p>
             </div>
         </div>
     </div>
@@ -162,28 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
-                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-214.htm">Spring Boot 分层构建 Docker 镜像实战</a></h4>
-                <p>系统环境：   Docker 版本：19.03.13   Open JDK 基础镜像版本：openjdk:8u275   私有的 Harbor 镜像仓库：自建 Harbor 私库   项目 Githu</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></h4>
-                <p>《注册监听终结点（Endpoint）》已经详细讲述了如何使用KestrelServer，现在我们来简单聊聊这种处理器的总体设计和实现原理。当KestrelServer启动的时候，注册的每个终结点将转换</p>
+                <h4><a href="/html/category/article-243.htm">SpringMVC访问静态资源的三种方式</a></h4>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果你的DispatcherServlet拦截 *.do这样的URL，就不存在访问不到静态资源的问题。如果你的Dispatch</p>
             </div>
         </div>
     </div>
@@ -198,13 +169,43 @@ var _hmt = _hmt || [];
         </div>
     </div>
 </div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></h4>
+                <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：  【夯实Spring Cloud】</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-241.htm">如何保证redis和数据库的一致性</a></h4>
+                <p>在项目中难免会使用到redis作为缓存，去减轻数据库的访问压力，但是涉及到数据更新时，如果redis和数据库的操作设计出现问题，就会导致redis缓存中和数据库中的数据不一致的情况。那么我们如何去保证</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <h3 class="title-big mb-sm-3 mb-3">归纳</h3>
 <div class="row w3l-achievements">
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">26</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
