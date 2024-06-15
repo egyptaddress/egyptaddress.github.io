@@ -2,10 +2,10 @@
 <html lang="zh-CN">
 
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-243.htm" />
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-1332.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>SpringMVC访问静态资源的三种方式 - EgyptAddress</title>
+    <title>Centos7离线安装Nginx亲测版 - EgyptAddress</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
@@ -75,7 +75,7 @@ var _hmt = _hmt || [];
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">SpringMVC访问静态资源的三种方式</h1>
+                <h1 class="title" style="word-break: break-all;">Centos7离线安装Nginx亲测版</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -90,10 +90,9 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p><span style="font-size:14px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果你的DispatcherServlet拦截 *.do这样的URL，就不存在访问不到静态资源的问题。如果你的DispatcherServlet拦截“/”，拦截了所有的请求，同时对*.js,*.jpg的访问也就被拦截了。</span></p> <p><span style="font-size:14px">问题原因：罪魁祸首是web.xml下对spring的DispatcherServlet请求url映射的配置，原配置如下：</span></p> <pre><code class="language-html">&lt;servlet&gt;     &lt;servlet-name&gt;spring&lt;/servlet-name&gt;     &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;     &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;  &lt;/servlet&gt;  &lt;servlet-mapping&gt;         &lt;servlet-name&gt;spring&lt;/servlet-name&gt;         &lt;span style="BACKGROUND-COLOR: #ffff33"&gt;&lt;url-pattern&gt;/&lt;/url-pattern&gt; &lt;/span&gt; &lt;/servlet-mapping&gt;</code></pre> <p><span style="font-size:14px">分析原因：&lt;servlet-mapping&gt;的&lt;url-pattern&gt;/&lt;/url-pattern&gt;把所有的请求都交给spring去处理了，而所有available的请求url都是在Constroller里使用类似@RequestMapping(value = "/login/{user}", method = RequestMethod.GET)这样的注解配置的，这样的话对js/css/jpg/gif等静态资源的访问就会得不到。</span></p> <p><span style="font-size:14px">目的：可以正常访问静态文件，不要找不到静态文件报404。<br /><strong>方案一：激活Tomcat的defaultServlet来处理静态文件</strong></span></p> <p><span style="font-size:14px">在web.xml里添加如下配置</span></p> <pre><code class="language-html">&lt;servlet-mapping&gt;     &lt;servlet-name&gt;default&lt;/servlet-name&gt;     &lt;url-pattern&gt;*.jpg&lt;/url-pattern&gt; &lt;/servlet-mapping&gt; &lt;servlet-mapping&gt;     &lt;servlet-name&gt;default&lt;/servlet-name&gt;     &lt;url-pattern&gt;*.js&lt;/url-pattern&gt; &lt;/servlet-mapping&gt; &lt;servlet-mapping&gt;     &lt;servlet-name&gt;default&lt;/servlet-name&gt;     &lt;url-pattern&gt;*.css&lt;/url-pattern&gt; &lt;/servlet-mapping&gt;</code></pre> <p><span style="font-size:14px">要配置多个，每种文件配置一个。<br /><span style="background-color:#ffff33">要写在DispatcherServlet的前面， 让defaultServlet先拦截，这个就不会进入Spring了，我想性能是最好的吧。</span></span></p> <p><span style="font-size:14px">Tomcat, Jetty, JBoss, and GlassFish&nbsp; 默认 Servlet的名字 -- "default"<br /> Google App Engine 默认 Servlet的名字 -- "_ah_default"<br /> Resin 默认 Servlet的名字 -- "resin-file"<br /> WebLogic 默认 Servlet的名字&nbsp; -- "FileServlet"<br /> WebSphere&nbsp; 默认 Servlet的名字 -- "SimpleFileServlet"</span></p> <p><span style="font-size:14px"><strong>方案二： 在spring3.0.4以后版本提供了mvc:resources </strong> </span></p> <p><span style="font-size:14px">&lt;mvc:resources&gt; 的使用方法：</span></p> <pre><code class="language-html">&lt;!--对静态资源文件的访问--&gt; &lt;mvc:resources mapping="/images/**" location="/images/" /&gt;  </code></pre> <p><span style="font-size:14px">/images /**映射到 ResourceHttpRequestHandler 进行处理，location指定静态资源的位置.可以是web application根目录下、jar包里面，这样可以把静态资源压缩到jar包中。cache-period可以使得静态资源进行web cache。</span></p> <p><span style="font-size:14px"><span style="background-color:#ffff33">如果出现下面的错误，可能是没有配置 &lt;mvc:annotation-driven /&gt; 的原因。 <br /></span>报错WARNING: No mapping found for HTTP request with URI [/mvc/user/findUser/lisi/770] in DispatcherServlet with name 'springMVC'</span></p> <p><span style="font-size:14px">使用 &lt;mvc:resources/&gt; 元素,把 mapping 的 URI 注册到 SimpleUrlHandlerMapping的urlMap 中,key 为 mapping 的 URI pattern值,而value为 ResourceHttpRequestHandler,这样就巧妙的把对静态资源的访问由 HandlerMapping 转到ResourceHttpRequestHandler 处理并返回,所以就支持 classpath 目录, jar 包内静态资源的访问.另外需要注意的一点是,不要对 SimpleUrlHandlerMapping 设置 defaultHandler. 因为对 static uri 的 defaultHandler 就是ResourceHttpRequestHandler,否则无法处理static resources request.</span></p> <p><span style="font-size:14px">mapping：映射<br /> location：本地资源路径，<span style="background-color:#ffff33">注意必须是webapp根目录下的路径。<br /></span>两个*，它表示映射resources/下所有的URL，包括子路径（即接多个/）<br /><strong>陷阱：<br /></strong>配置的location一定要是webapp根目录下才行，如果你将资源目录，放置到webapp/WEB-INF下面的话，则就会访问失败。这个问题常常会犯。<br /> 错误方式：</span></p> <p><span style="font-size:14px"></span> </p> <p><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230211/486b5a07bd196654aa64e330f7c347f3.jpg"></p> <p>WEB-INF目录作用<br /> WEB-INF是Java的WEB应用的安全目录。所谓安全就是客户端无法访问，只有服务端可以访问的目录。<br /> 如果想在页面中直接访问其中的文件，必须通过web.xml文件对要访问的文件进行相应映射才能访问。<br /> &nbsp;当然，你非要放在WEB-INF中，则必须修改resources映射，如：</p> <pre><code class="language-html">&lt;span style="BACKGROUND-COLOR: #ffff33"&gt;&lt;mvc:resources mapping="/js/**" location="/WEB-INF/js/" /&gt;&lt;/span&gt;</code></pre> <p><strong>推荐方式：</strong>maven项目的目录结构为如下图所示。</p> <p><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230211/a0e77b1f007699bae8857d5d708bb57e.jpg"></p> <p><strong>方案三 ，使用&lt;mvc:default-servlet-handler/&gt;</strong></p> <p>&lt;mvc:default-servlet-handler/&gt;会把 "/**" url,注册到 SimpleUrlHandlerMapping 的 urlMap 中,把对静态资源的访问由 HandlerMapping 转到 org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler 处理并返回.DefaultServletHttpRequestHandler 使用就是各个 Servlet 容器自己的默认 Servlet.</p> <p>补充说明：多个HandlerMapping的执行顺序问题：<br /> DefaultAnnotationHandlerMapping 的 order 属性值是：0<br /> &lt;mvc:resources/ &gt;自动注册的 SimpleUrlHandlerMapping 的 order 属性值是： 2147483646<br /> &lt;mvc:default-servlet-handler/&gt;自动注册的 SimpleUrlHandlerMapping 的 order 属性值是：2147483647<br /> spring 会先执行 order 值比较小的。当访问一个 a.jpg 图片文件时，先通过 DefaultAnnotationHandlerMapping 来找处理器，一定是找不到的，我们没有叫 a.jpg 的 Action。再按 order 值升序找，由于最后一个 SimpleUrlHandlerMapping 是匹配 "/**" 的，所以一定会匹配上，再响应图片。</p> <p><span style="font-size:14px; background-color:#ffff33">最后再说明一下，如何你的 DispatcherServlet 拦截 *.do 这样的 URL，就不存上述问题了。</span>                 </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1><a id="Centos7_Nginx_0" rel="nofollow"></a>Centos7 Nginx编译包制作</h1> <p>找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下</p> <h2><a id="1_4" rel="nofollow"></a>1、准备一台虚拟机（可访问互联网）</h2> <h2><a id="2_6" rel="nofollow"></a>2、安装所需插件</h2> <pre><code class="prism language-sh">$ yum -y install gcc pcre pcre-devel zlib zlib-devel openssl openssl-devel gcc-c++ libtool</code></pre> <h2><a id="3nginx_12" rel="nofollow"></a>3、准备nginx包</h2> <h3><a id="31_14" rel="nofollow"></a>3.1、下载</h3> <p>通过网页下载，然后上传到Centos7系统的/opt目录下</p> <p>或者，直接在Centos7系统下接命令下载到/opt目录下</p> <pre><code class="prism language-sh">$ cd /opt $ wget http://nginx.org/download/nginx-1.14.0.tar.gz</code></pre> <h3><a id="32__25" rel="nofollow"></a>3.2 解压</h3> <p>解压 nginx-1.14.0.tar.gz，并重命名为 nginx</p> <pre><code class="prism language-sh">$ cd /opt $ tar zxf nginx-1.14.0.tar.gz</code></pre> <h3><a id="33__34" rel="nofollow"></a>3.3 重命名</h3> <pre><code class="prism language-sh">$ cd /opt $ mv nginx-1.14.0 nginx</code></pre> <h2><a id="4nginx_41" rel="nofollow"></a>4、配置nginx</h2> <pre><code class="prism language-sh">$ cd /opt/nginx $ ./configure --prefix=/usr/local/nginx  --conf-path=/usr/local/nginx/conf/nginx.conf  --error-log-path=/usr/local/nginx/log/error.log --http-log-path=/usr/local/nginx/log/access.log</code></pre> <p>注：此处配置Nginx安装目录为 /usr/local/nginx，将来安装时，会在/usr/local/下生成nginx目录。</p> <h2><a id="5Nginx_50" rel="nofollow"></a>5、编译Nginx</h2> <pre><code class="prism language-sh">$ cd /opt/nginx $ make</code></pre> <h2><a id="6Nginx_57" rel="nofollow"></a>6、打包Nginx</h2> <pre><code class="prism language-sh">$ cd /opt $ tar cvzf nginx.hasmake.1.14.0.tar.gz nginx</code></pre> <p>打包后，会在/opt 目录下生成一个 nginx.hasmake.1.14.0.tar.gz 包</p> <h1><a id="Centos7_Nginx_66" rel="nofollow"></a>Centos7 Nginx离线安装</h1> <ul> <li>上传包</li> </ul> <p>应用 nginx.hasmake.1.14.0.tar.gz 已编译好的包，上传到对应的Centos7系统上，比如此处放到 /opt 目录下，则安装很简单</p> <pre><code class="prism language-sh">$ cd /opt $ tar zxf nginx.hasmake.1.14.0.tar.gz	#解压后得到 nginx 目录 $ cd nginx								#进入 nginx 目录 $ make install							#安装</code></pre> <ul> <li>解压</li> </ul> <p>安装完成后，将会在 /usr/local 目录下，生成一个 nginx 目录。如下</p> <pre><code class="prism language-sh">$ ll /usr/local/nginx drwxr-xr-x. 2 root root 4096 11月 10 14:22 conf drwxr-xr-x. 2 root root   38 11月 10 14:22 html drwxr-xr-x. 2 root root    6 11月 10 14:22 log drwxr-xr-x. 2 root root    6 11月 10 14:22 logs drwxr-xr-x. 2 root root   18 11月 10 14:22 sbin</code></pre> <ul> <li>nginx 配置文件测试</li> </ul> <pre><code class="prism language-sh">$ /usr/local/nginx/sbin/nginx -t</code></pre> <ul> <li>nginx 启动</li> </ul> <pre><code class="prism language-sh">$ /usr/local/nginx/sbin/nginx</code></pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-242.htm">KestrelServer网络连接的创建详解</a></p>
-                                        <p>下一个：<a href="/html/category/article-244.htm">Redis事务详解</a></p>
+                                        <p>上一个：<a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></p>
                                     </div>
 
                             </div>
@@ -103,8 +102,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">SpringMVC访问静态资源的三种方式</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果你的DispatcherServlet拦截 *.do这样的URL，就不存在访问不到静态资源的问题。如果你的Dispatch</p>
+                <h4><a href="/html/category/article-1322.htm">@RequestBody接收json对象报415的解决办法</a></h4>
+                <p>前端请求： $.ajax({             url: basePath() + "/index/login.do",             type : "post",          </p>
             </div>
         </div>
     </div>
@@ -113,8 +112,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
-                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
+                <h4><a href="/html/category/article-216.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(SQL支持和变通方案)</a></h4>
+                <p>由于Citus 通过扩展PostgreSQL 提供分布式功能，因此它与PostgreSQL 结构兼容。这意味着用户可以使用丰富且可扩展的PostgreSQL 生态系统附带的工具和功能来处理使用Citu</p>
             </div>
         </div>
     </div>
@@ -133,8 +132,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-246.htm">Vue内置组件的component标签</a></h4>
-                <p>component标签：它的用途是可以动态绑定我们的组件,根据数据不同更换不同的组件. 有一个is属性，is的作用就是显示指定的组件 官方说明：渲染一个“元组件”为动态组件。依 is 的值，来决定哪个</p>
+                <h4><a href="/html/category/article-525.htm">Firefox中的HTML5输入类型“数字”</a></h4>
+                <p>Firefox不支持输入类型编号的min属性，但在Google Chrome中可以正常使用。 示例 让我们看一个例子- &lt;!DOCTYPE&nbsp;html&gt; &lt;html&gt; </p>
             </div>
         </div>
     </div>
@@ -143,8 +142,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
-                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
+                <h4><a href="/html/category/article-247.htm">EFI系统分区必须挂载到/boot/efi其中之一</a></h4>
+                <p>最近在windows 8.1系统上使用U盘安装centos8双系统，硬盘分区格式是ntfs，mbr引导；选择自动分区时出现如下错误  （Failed to find a suitable stage1</p>
             </div>
         </div>
     </div>
@@ -153,8 +152,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-258.htm">你确定你会用Enum枚举了？</a></h4>
-                <p>一般在我们开发时如果能使用枚举罗列的，一般都会定义一个枚举类型。将枚举类型作为方法的参数，可以方便的进行调用，给我们带来不少的遍历，当然有时候它还不如直接用一个int类型带来，带来一定灵活性。但只要能</p>
+                <h4><a href="/html/category/article-231.htm">RestTemplate微服务调用捕捉服务端异常</a></h4>
+                <p>1. restTemplate执行调用前，设置异常处理类 //1.执行调用前，设置异常处理类 restTemplate.setErrorHandler(newCustomResponseErrorHa</p>
             </div>
         </div>
     </div>
@@ -163,8 +162,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
-                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
+                <h4><a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></h4>
+                <p>目录  知识不足的地方赶快点击学习呦~~~  Vuex入门(一)—— state,mapState,…mapState对象展开符详解Vuex入门(二)—— mutations详解Vuex入门(三)——</p>
             </div>
         </div>
     </div>
@@ -173,8 +172,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-244.htm">Redis事务详解</a></h4>
-                <p>大家好，我是七淅。 如果你了解过关系型数据库事务的话，相信这篇文章对你来说是很容易理解的了。具体什么是事务我就不说不多了，直接讲 Redis 事务相关的部分。 首先，我们先来看下，Redis 是怎么执</p>
+                <h4><a href="/html/category/article-259.htm">游戏开发设计模式：单例模式</a></h4>
+                <p>一、单例模式  文章目录  一、单例模式     1.1 单例模式总结介绍   1.1.1什么是单例模式 1.1.2单例模式分类 1.1.3单例类特点 1.1.4如何保证线程安全？   1.2 单例模</p>
             </div>
         </div>
     </div>
@@ -183,8 +182,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-240.htm">SpringBoot配置跨域Cors</a></h4>
-                <p>01、同源策略 同源策略[same origin policy]是浏览器的一个安全功能，不同源的客户端脚本在没有明确授权的情况下，不能读写对方资源。 同源策略是浏览器安全的基石。  什么是源 源[or</p>
+                <h4><a href="/html/category/article-227.htm">Spring Boot四大神器之CLI</a></h4>
+                <p>目录             1. Spring Boot CLI简介： 2. 安装CLI:   手动安装：   3. 运行Groovy脚本 4. CLI运行原理说明：（CLI帮我们做了什么？）   </p>
             </div>
         </div>
     </div>
@@ -193,8 +192,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
-                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
+                <h4><a href="/html/category/article-221.htm">vue中的axios简单封装</a></h4>
+                <p>提示：文章写完后，目录可以自动生成，如何生成可参考右边的帮助文档   文章目录  前言   vue中的axios简单封装   步骤   1.安装axios 2.在根目录下新建utils文件夹，在uti</p>
             </div>
         </div>
     </div>
