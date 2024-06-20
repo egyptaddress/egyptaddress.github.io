@@ -93,6 +93,7 @@ var _hmt = _hmt || [];
                       				  				  				<h1 id="服务器远程连接">服务器远程连接</h1> <p><code>天下大事 必作于细</code></p> <h2 id="rsa密钥配置">rsa密钥配置</h2> <h3 id="本地设备">本地设备</h3> <p>利用git生成一对rsa公私密钥 keygen<br /> windows的话，默认生成目录在<strong>C:\Users\用户名.ssh</strong><br /><strong>id_rsa</strong>为私钥文件<br /><strong>id_rsa.pub</strong>为公钥文件<br /> 私钥文件为你的登录的身份证，登录时选择这个文件即可，具体见下文。<br /> 公钥文件需要放到服务器authorized_keys当中</p> <h3 id="远程服务器">远程服务器</h3> <ol> <li>进入相应用户的.ssh文件夹, cd ~/.ssh即可<br /> 里面应该有authorized_keys、id_rsa、id_rsa.pub、know_hosts等四个文件<br /> 我们只需要关心authorized_keys这个文件即可。</li> <li>打开authorized_keys文件，把刚刚本地生成的公钥文件的内容贴进来即可。</li> <li>确保服务器上允许RSA密钥登录，这里需要root权限</li> </ol> <pre><code class="language-bash">sudo vim /etc/ssh/sshd_config //查看文件中的这两项是否都是yes，第一项是允许RSA密钥登录，第二项是允许公钥认证 RSAAuthentication yes PubkeyAuthentication yes</code></pre> <p>这样，密钥配置就完成了。</p> <p>当然，有一个问题，就是你的服务器下面并不存在authorized_keys这个文件，甚至连.ssh文件夹都没有<br /> 那么，你自己建.ssh文件夹和authorized_keys文件然后再做一样操作即可，不过需要注意，文件夹和文件的权限是有要求的：</p> <pre><code class="language-bash">chmod 700 .ssh chmod 644 authorized_keys</code></pre> <hr/> <p>下面，根据平台不同分成mobaxterm和vscode对本地设置私钥以及跳板机进行说明</p> <h2 id="mobaxterm">mobaxterm</h2> <h3 id="远程连接">远程连接</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/9c6afe9aca405f600acbdb3fd663093f.jpg" alt="远程服务器连接（密钥验证，跳板机）"></p> <h3 id="跳板机">跳板机</h3> <p>为什么需要跳板机，这是为了实现从外网网址跳到内网服务器的需求。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d1d5c64a6a558cf55f9c343261deeaa4.jpg" alt="远程服务器连接（密钥验证，跳板机）"></p> <h2 id="vscode">vscode</h2> <h3 id="远程连接-1">远程连接</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/58c423fe90670631c9e47bfc80baf6d5.jpg" alt="远程服务器连接（密钥验证，跳板机）"></p> <pre><code class="language-json">Host xxxxx     HostName xx.xx.xx.xx     User xxx     Port xx     IdentityFile 私钥路径</code></pre> <p>Host为服务器名称，可以随便起<br /> HostName是服务器ip地址<br /> User 用户名<br /> Port 端口号<br /> IdentityFile 指明私钥文件路径</p> <h3 id="跳板机-1">跳板机</h3> <p>为什么需要跳板机，这是为了实现从外网网址跳到内网服务器的需求。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/7917567bddcdea4c490f7f1e4a5a875e.jpg" alt="远程服务器连接（密钥验证，跳板机）"></p> <pre><code class="language-json">Host public_net     HostName xx.xx.xx.xx     User xxx     Port xx     IdentityFile 私钥路径  Host inter_net     HostName xx.xx.xx.xx     User xxx     Port xx     IdentityFile 私钥路径     ProxyCommand ssh -W %h:%p public_net</code></pre> <p>ProxyCommand  能够指明通过另一个ip做跳板，其中ssh需要绝对运行路径，如<strong>C:\Windows\System32\OpenSSH\ssh.exe</strong></p> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></p>
+                                        <p>下一个：<a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></p>
                                     </div>
 
                                 <div class="panel panel-default mt-5">
@@ -121,8 +122,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-222.htm">由浅入深，带你用JavaScript实现响应式原理（Vue2、Vue3响应式原理）</a></h4>
-                <p>由浅入深，带你用JavaScript实现响应式原理 前言 为什么前端框架Vue能够做到响应式？当依赖数据发生变化时，会对页面进行自动更新，其原理还是在于对响应式数据的获取和设置进行了监听，一旦监听到数</p>
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
             </div>
         </div>
     </div>
@@ -131,8 +132,38 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-253.htm">win11系统怎么设置软件安装来源</a></h4>
-                <p>&nbsp; &nbsp;我们为了保证电脑安装软件的安全性，以及不会下载到一些有流氓软件之类的问题出现，可以在电脑中设置应用下载来源，那么win11系统怎么设置软件安装来源呢?今天为大家分享win11</p>
+                <h4><a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></h4>
+                <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：  【夯实Spring Cloud】</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
+                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
+                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-233.htm">echarts根据数据动态生成不同条数的折线图</a></h4>
+                <p>一、功能需求背景 1、后台可自定义折线图的折线名称、数据、数量（几条） 2、满足不同折线图之间随意切换 3、折线图可鼠标拖动缩放和滚动条收缩查看 4、同一页面涉及多个echarts 二、功能涉及ech</p>
             </div>
         </div>
     </div>
@@ -151,8 +182,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-232.htm">Android中EditText光标的显示与隐藏方法</a></h4>
-                <p>目录  Android EditText的光标的显示和隐藏 Android之第一次不显示EditText光标 总结   Android EditText的光标的显示和隐藏 一、java代码 1.编辑框</p>
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
             </div>
         </div>
     </div>
@@ -161,18 +192,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-243.htm">SpringMVC访问静态资源的三种方式</a></h4>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果你的DispatcherServlet拦截 *.do这样的URL，就不存在访问不到静态资源的问题。如果你的Dispatch</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
-                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
+                <h4><a href="/html/category/article-229.htm">Docker提交镜像-数据卷-可视化</a></h4>
+                <p>在熟悉完Docker的安装及基本命令使用之后，我们开始学习下Docker的进阶操作：包括但不限于新建Docker镜像，数据卷的挂载，以及Docker的可视化等。 Docker提交镜像 启动镜像 我们先</p>
             </div>
         </div>
     </div>
@@ -191,28 +212,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-526.htm">SpringBoot生成docx文件并返回其Base64编码</a></h4>
-                <p>直接上源码，      @ResponseBody     @RequestMapping(value = "/getDocx", method = RequestMethod.GET)     pu</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
-                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-224.htm">jackson   json对象、实体类相互转换</a></h4>
-                <p>json对象转换为实体类，使用jackson 进行jsonObject、实体类对象转换。 首先导入依赖 &lt;dependency&gt;     &lt;groupId&gt;com.faster</p>
+                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
+                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
             </div>
         </div>
     </div>
@@ -223,7 +224,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">38</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">40</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
