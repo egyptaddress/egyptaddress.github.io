@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-1954.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>FreeRTOS进阶之任务创建完全解析_操作系统 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
+     crossorigin="anonymous"></script>
+</head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/html/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">FreeRTOS进阶之任务创建完全解析_操作系统</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">前言</a></li> <li><a href="#_label1" rel="nofollow">1.创建任务堆栈和任务TCB</a></li> <li><a href="#_label2" rel="nofollow">2.初始化任务TCB必要的字段</a></li> <li><a href="#_label3" rel="nofollow">3.初始化任务堆栈</a></li> <li><a href="#_label4" rel="nofollow">4.进入临界区</a></li> <li><a href="#_label5" rel="nofollow">5.当前任务数量增加1</a></li> <li><a href="#_label6" rel="nofollow">6.为第一次运行做必要的初始化</a></li> <li><a href="#_label7" rel="nofollow">7.更新当前正在运行的任务TCB指针</a></li> <li><a href="#_label8" rel="nofollow">8.将新创建的任务加入就绪列表数组</a></li> <li><a href="#_label9" rel="nofollow">9.退出临界区</a></li> <li><a href="#_label10" rel="nofollow">10.执行上下文切换</a></li> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>前言</h2> <p>在FreeRTOS基础系列 <a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.jb51.net/article/243521.htm"   target="_blank" rel="nofollow">FreeRTOS任务创建和删除</a>中介绍了任务创建API函数xTaskCreate()，我们这里先回顾一下这个函数的声明：</p> <div class="ay1code"> <pre class="brush:cpp;">        BaseType_t xTaskCreate(                              TaskFunction_tp vTaskCode,                              const char * constpcName,                              unsigned short usStackDepth,                              void *pvParameters,                              UBaseType_t uxPriority,                              TaskHandle_t *pvCreatedTask                            );</pre> </div> <p>这个API函数的作用是创建新的任务并将它加入到任务就绪列表，函数参数含义为：</p> <p><code>pvTaskCode</code>：函数指针，指向任务函数的入口。任务永远不会返回（位于死循环内）。该参数类型TaskFunction_t定义在文件projdefs.h中，定义为：typedef void(*TaskFunction_t)( void * )，即参数为空指针类型并返回空类型。</p> <p><code>pcName</code>：任务描述。主要用于调试。字符串的最大长度（包括字符串结束字符）由宏configMAX_TASK_NAME_LEN指定，该宏位于FreeRTOSConfig.h文件中。</p> <p><code>usStackDepth</code>：指定任务堆栈大小，能够支持的堆栈变量数量（堆栈深度），而不是字节数。</p> <p>比如，在16位宽度的堆栈下，usStackDepth定义为100，则实际使用200字节堆栈存储空间。堆栈的宽度乘以深度必须不超过size_t类型所能表示的最大值。</p> <p>比如，size_t为16位，则可以表示堆栈的最大值是65535字节。这是因为堆栈在申请时是以字节为单位的，申请的字节数就是堆栈宽度乘以深度，如果这个乘积超出size_t所表示的范围，就会溢出，分配的堆栈空间也不是我们想要的。</p> <p><code>pvParameters</code>：指针，当任务创建时，作为一个参数传递给任务。</p> <p><code>uxPriority</code>：任务的优先级。具有MPU支持的系统，可以通过置位优先级参数的portPRIVILEGE_BIT位，随意的在特权（系统）模式下创建任务。</p> <p>比如，创建一个优先级为2的特权任务，参数uxPriority可以设置为 ( 2 | portPRIVILEGE_BIT )。</p> <p><code>pvCreatedTask</code>：用于回传一个句柄（ID），创建任务后可以使用这个句柄引用任务。</p> <p>虽然xTaskCreate()看上去很像函数，但其实是一个宏，真正被调用的函数是xTaskGenericCreate()，xTaskCreate()宏定义如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">#define xTaskCreate( pvTaskCode, pcName, usStackDepth,pvParameters, uxPriority, pxCreatedTask )    \        xTaskGenericCreate( ( pvTaskCode ),( pcName ), ( usStackDepth ), ( pvParameters ), ( uxPriority ), ( pxCreatedTask), ( NULL ), ( NULL ), ( NULL ) )</pre> </div> <p>可以看到,xTaskCreate比xTaskGenericCreate少了三个参数，在宏定义中，这三个参数被设置为NULL。这三个参数用于使用静态变量的方法分配堆栈、任务TCB空间以及设置MPU相关的参数。</p> <p>一般情况下，这三个参数是不使用的，所以任务创建宏xTaskCreate定义的时候，将这三个参数对用户隐藏了。接下来的章节中，为了方便，我们还是称xTaskCreate()为函数，虽然它是一个宏定义。</p> <p>上面我们提到了任务TCB（任务控制块），这是一个需要重点介绍的关键点。它用于存储任务的状态信息，包括任务运行时的环境。每个任务都有自己的任务TCB。</p> <p>任务TCB是一个相对比较大的数据结构，这也是情理之中的，因为与任务相关的代码占到整个FreeRTOS代码量的一半左右，这些代码大都与任务TCB相关，我们先来介绍一下任务TCB数据结构的定义：</p> <div class="ay1code"> <pre class="brush:cpp;">typedef struct tskTaskControlBlock  {      volatile StackType_t    *pxTopOfStack; /*当前堆栈的栈顶,必须位于结构体的第一项*/      #if ( portUSING_MPU_WRAPPERS == 1 )          xMPU_SETTINGS   xMPUSettings;      /*MPU设置,必须位于结构体的第二项*/      #endif      ListItem_t          xStateListItem; /*任务的状态列表项，以引用的方式表示任务的状态*/      ListItem_t          xEventListItem;    /*事件列表项，用于将任务以引用的方式挂接到事件列表*/      UBaseType_t         uxPriority;        /*保存任务优先级，0表示最低优先级*/      StackType_t         *pxStack;           /*指向堆栈的起始位置*/      char               pcTaskName[ configMAX_TASK_NAME_LEN ];/*任务名字*/      #if ( portSTACK_GROWTH &gt; 0 )          StackType_t     *pxEndOfStack;     /*指向堆栈的尾部*/      #endif      #if ( portCRITICAL_NESTING_IN_TCB == 1 )          UBaseType_t     uxCriticalNesting; /*保存临界区嵌套深度*/      #endif      #if ( configUSE_TRACE_FACILITY == 1 )          UBaseType_t     uxTCBNumber;       /*保存一个数值，每个任务都有唯一的值*/          UBaseType_t     uxTaskNumber;      /*存储一个特定数值*/      #endif      #if ( configUSE_MUTEXES == 1 )          UBaseType_t     uxBasePriority;    /*保存任务的基础优先级*/          UBaseType_t     uxMutexesHeld;      #endif      #if ( configUSE_APPLICATION_TASK_TAG == 1 )          TaskHookFunction_t pxTaskTag;      #endif      #if( configNUM_THREAD_LOCAL_STORAGE_POINTERS &gt; 0 )          void *pvThreadLocalStoragePointers[configNUM_THREAD_LOCAL_STORAGE_POINTERS ];      #endif      #if( configGENERATE_RUN_TIME_STATS == 1 )          uint32_t        ulRunTimeCounter;  /*记录任务在运行状态下执行的总时间*/      #endif      #if ( configUSE_NEWLIB_REENTRANT == 1 )          /* 为任务分配一个Newlibreent结构体变量。Newlib是一个C库函数，并非FreeRTOS维护，FreeRTOS也不对使用结果负责。如果用户使用Newlib，必须熟知Newlib的细节*/          struct _reent xNewLib_reent;      #endif      #if( configUSE_TASK_NOTIFICATIONS == 1 )          volatile uint32_t ulNotifiedValue; /*与任务通知相关*/          volatile uint8_t ucNotifyState;      #endif      #if( configSUPPORT_STATIC_ALLOCATION == 1 )          uint8_t ucStaticAllocationFlags; /* 如果堆栈由静态数组分配，则设置为pdTRUE，如果堆栈是动态分配的，则设置为pdFALSE*/      #endif      #if( INCLUDE_xTaskAbortDelay == 1 )          uint8_t ucDelayAborted;      #endif  } tskTCB;  typedef tskTCB TCB_t;</pre> </div> <p>下面我们详细的介绍这个数据结构的主要成员：</p> <p>指针pxTopOfStack必须位于结构体的第一项，指向当前堆栈的栈顶，对于向下增长的堆栈，pxTopOfStack总是指向最后一个入栈的项目。</p> <p>如果使用MPU，xMPUSettings必须位于结构体的第二项，用于MPU设置。</p> <p>接下来是状态列表项xStateListItem和事件列表项xEventListItem，我们在上一章介绍列表和列表项的文章中提到过：列表被FreeRTOS调度器使用，用于跟踪任务，处于就绪、挂起、延时的任务，都会被挂接到各自的列表中。</p> <p>调度器就是通过把任务TCB中的状态列表项xStateListItem和事件列表项xEventListItem挂接到不同的列表中来实现上述过程的。</p> <p>在task.c中，定义了一些静态列表变量，其中有就绪、阻塞、挂起列表，例如当某个任务处于就绪态时，调度器就将这个任务TCB的xStateListItem列表项挂接到就绪列表。</p> <p>事件列表项也与之类似，当队列满的情况下，任务因入队操作而阻塞时，就会将事件列表项挂接到队列的等待入队列表上。</p> <p>uxPriority用于保存任务的优先级，0为最低优先级。任务创建时，指定的任务优先级就被保存到该变量中。</p> <p>指针pxStack指向堆栈的起始位置，任务创建时会分配指定数目的任务堆栈，申请堆栈内存函数返回的指针就被赋给该变量。</p> <p>很多刚接触FreeRTOS的人会分不清指针pxTopOfStack和pxStack的区别，这里简单说一下：</p> <p>pxTopOfStack指向当前堆栈栈顶，随着进栈出栈，pxTopOfStack指向的位置是会变化的；pxStack指向当前堆栈的起始位置，一经分配后，堆栈起始位置就固定了，不会被改变了。</p> <p>那么为什么需要pxStack变量呢，这是因为随着任务的运行，堆栈可能会溢出，在堆栈向下增长的系统中，这个变量可用于检查堆栈是否溢出；</p> <p>如果在堆栈向上增长的系统中，要想确定堆栈是否溢出，还需要另外一个变量pxEndOfStack来辅助诊断是否堆栈溢出，后面会讲到这个变量。</p> <p>字符数组pcTaskName用于保存任务的描述或名字，在任务创建时，由参数指定。</p> <p>名字的长度由宏configMAX_TASK_NAME_LEN（位于FreeRTOSConfig.h中）指定，包含字符串结束标志。</p> <p>如果堆栈向上生长（portSTACK_GROWTH &gt; 0），指针pxEndOfStack指向堆栈尾部，用于检验堆栈是否溢出。</p> <p>变量uxCriticalNesting用于保存临界区嵌套深度，初始值为0。</p> <p>接下来两个变量用于可视化追踪，仅当宏configUSE_TRACE_FACILITY（位于FreeRTOSConfig.h中）为1时有效。变量uxTCBNumber存储一个数值，在创建任务时由内核自动分配数值（通常每创建一个任务，值增加1），每个任务的uxTCBNumber值都不同，主要用于调试。</p> <p>变量uxTaskNumber用于存储一个特定值，与变量uxTCBNumber不同，uxTaskNumber的数值不是由内核分配的，而是通过API函数vTaskSetTaskNumber()来设置的，数值由函数参数指定。</p> <p>如果使用互斥量（configUSE_MUTEXES == 1），任务优先级被临时提高时，变量uxBasePriority用来保存任务原来的优先级。</p> <p>变量ucStaticAllocationFlags也需要说明一下，我们前面说过任务创建API函数xTaskCreate()只能使用动态内存分配的方式创建任务堆栈和任务TCB，如果要使用静态变量实现任务堆栈和任务TCB就需要使用函数xTaskGenericCreate()来实现。</p> <p>如果任务堆栈或任务TCB由静态数组和静态变量实现，则将该变量设置为pdTRUE（任务堆栈空间由静态数组变量实现时为0x01，任务TCB由静态变量实现时为0x02，任务堆栈和任务TCB都由静态变量实现时为0x03），如果堆栈是动态分配的，则将该变量设置为pdFALSE。</p> <p>到这里任务TCB的数据结构就讲完了，下面我们用一个例子来讲述任务创建的过程，为方便起见，假设被创建的任务叫“任务A”，任务函数为vTask_A()：</p> <div class="ay1code"> <pre class="brush:cpp;">    TaskHandle_t xHandle；      xTaskCreate(vTask_A,”Task A”,120,NULL,1,&amp;xHandle);</pre> </div> <p>这里创建了一个任务，任务优先级为1，由于硬件平台是32为架构，所以指定了120*4=480字节的任务堆栈，向任务函数vTask_A()传递的参数为空（NULL），任务句柄由变量xHandle保存。</p> <p>当这个语句执行后，任务A被创建并加入就绪任务列表，我们这章的主要目的，就是看看这个语句在执行过程中，发生了什么事情。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>1.创建任务堆栈和任务TCB</h2> <p>调用函数prvAllocateTCBAndStack()创建任务堆栈和任务TCB。有两种方式创建任务堆栈和任务TCB，一种是使用动态内存分配方法，这样当任务删除时，任务堆栈和任务控制块空间会被释放，可用于其它任务；</p> <p>另一种是使用静态变量来实现，在创建任务前定义好全局或者静态堆栈数组和任务控制块变量，在调用创建任务API函数时，将这两个变量以参数的形式传递给任务创建函数xTaskGenericCreate()。</p> <p>如果使用默认的xTaskCreate()创建任务函数，则使用动态内存分配，因为与静态内存分配有关的参数不可见（在本文一开始我们说过xTaskCreate()其实是一个带参数的宏定义，真正被执行的函数是xTaskGenericCreate()，参考宏xTaskCreate()的定义可以知道，xTaskCreate()对外隐藏了使用静态内存分配的参数，在调用xTaskGenericCreate()时，这些参数被设置为NULL）。</p> <p>任务堆栈成功分配后，经过对齐的堆栈起始地址被保存到任务TCB的pxStack字段。</p> <p>如果使能堆栈溢出检查或者使用可视化追踪功能，则使用固定值tskSTACK_FILL_BYTE（0xa5）填充堆栈。</p> <p>函数prvAllocateTCBAndStack()的源码去除断言和不常用的条件编译后如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">static TCB_t *prvAllocateTCBAndStack( const uint16_t usStackDepth, StackType_t * const puxStackBuffer, TCB_t * const pxTaskBuffer )  {  TCB_t *pxNewTCB;  StackType_t *pxStack;         /* 分配堆栈空间*/      pxStack = ( StackType_t * ) pvPortMallocAligned( ( ( ( size_t ) usStackDepth ) * sizeof( StackType_t ) ), puxStackBuffer );      if( pxStack != NULL )      {          /* 分配TCB空间 */          pxNewTCB = ( TCB_t * ) pvPortMallocAligned( sizeof( TCB_t ), pxTaskBuffer );          if( pxNewTCB != NULL )          {              /* 将堆栈起始位置存入TCB*/              pxNewTCB-&gt;pxStack = pxStack;          }          else          {              /* 如果TCB分配失败，释放之前申请的堆栈空间 */              if( puxStackBuffer == NULL )              {                  vPortFree( pxStack );              }          }      }      else      {          pxNewTCB = NULL;      }      if( pxNewTCB != NULL )      {          /* 如果需要，使用固定值填充堆栈 */          #if( ( configCHECK_FOR_STACK_OVERFLOW&gt; 1 ) || ( configUSE_TRACE_FACILITY == 1 ) || ( INCLUDE_uxTaskGetStackHighWaterMark== 1 ) )          {              /* 仅用于调试 */              ( void ) memset( pxNewTCB-&gt;pxStack, ( int ) tskSTACK_FILL_BYTE, ( size_t ) usStackDepth * sizeof( StackType_t ) );          }          #endif      }      return pxNewTCB;  }</pre> </div> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>2.初始化任务TCB必要的字段</h2> <p>调用函数prvInitialiseTCBVariables()初始化任务TCB必要的字段。在调用创建任务API函数xTaskCreate()时，参数pcName（任务描述）、uxPriority（任务优先级）都会被写入任务TCB相应的字段，TCB字段中的xStateListItem和xEventListItem列表项也会被初始化，初始化后的列表项如图2-1所示。</p> <p>在图2-1中，列表项xEventListItem的成员列表项值xItemValue被初始为4，这是因为我在应用中设置的最大优先级数目（configMAX_PRIORITIES）为5，而xEventListItem. xItemValue等于configMAX_PRIORITIES减去任务A的优先级（为1），即5-1=4。这一点很重要，在这里xItemValue不是直接保存任务优先级，而是保存优先级的补数，这意味着xItemValue的值越大，对应的任务优先级越小。</p> <p>FreeRTOS内核使用vListInsert函数（详细见<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.jb51.net/article/243769.htm"   target="_blank" rel="nofollow">FreeRTOS进阶列表和列表项示例分析</a>）将事件列表项插入到一个列表，这个函数根据xItemValue的值的大小顺序来进行插入操作。</p> <p>使用宏listGET_OWNER_OF_HEAD_ENTRY获得列表中的第一个列表项的xItemValue值总是最小，也就是优先级最高的任务！</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/92b911b51d4cbd26cacca6255bf4e5a1.jpg"></p> <p>图2-1：初始化状态和事件列表项</p> <p>此外，TCB其它的一些字段也被初始化，比如临界区嵌套次数、运行时间计数器、任务通知值、任务通知状态等，函数prvInitialiseTCBVariables()的源码如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">static void prvInitialiseTCBVariables( TCB_t * const pxTCB, const char * const pcName, UBaseType_t uxPriority,   \                                const MemoryRegion_t * const xRegions, const uint16_t usStackDepth )  {  UBaseType_t x;      /* 将任务描述存入TCB */      for( x = ( UBaseType_t ) 0; x &lt; ( UBaseType_t ) configMAX_TASK_NAME_LEN; x++ )      {          pxTCB-&gt;pcTaskName[ x ] = pcName[ x ];          if( pcName[ x ] == 0x00 )          {              break;          }      }      /* 确保字符串有结束 */      pxTCB-&gt;pcTaskName[ configMAX_TASK_NAME_LEN - 1 ] = '\0';         /* 调整优先级，宏configMAX_PRIORITIES的值在FreeRTOSConfig.h中设置 */      if( uxPriority &gt;= ( UBaseType_t ) configMAX_PRIORITIES )      {          uxPriority = ( UBaseType_t ) configMAX_PRIORITIES - ( UBaseType_t ) 1U;      }      pxTCB-&gt;uxPriority = uxPriority;      #if ( configUSE_MUTEXES == 1 )              /*使用互斥量*/      {            pxTCB-&gt;uxBasePriority = uxPriority;          pxTCB-&gt;uxMutexesHeld = 0;      }      #endif /* configUSE_MUTEXES */      /*初始化列表项*/      vListInitialiseItem( &amp;( pxTCB-&gt;xStateListItem ) );      vListInitialiseItem( &amp;( pxTCB-&gt;xEventListItem ) );      /* 设置列表项xStateListItem的成员pvOwner指向当前任务控制块 */      listSET_LIST_ITEM_OWNER( &amp;( pxTCB-&gt;xStateListItem ), pxTCB );      /* 设置列表项xEventListItem的成员xItemValue*/      listSET_LIST_ITEM_VALUE( &amp;( pxTCB-&gt;xEventListItem ), ( TickType_t ) configMAX_PRIORITIES - ( TickType_t ) uxPriority );      /* 设置列表项xEventListItem的成员pvOwner指向当前任务控制块 */      listSET_LIST_ITEM_OWNER( &amp;( pxTCB-&gt;xEventListItem ), pxTCB );      #if ( portCRITICAL_NESTING_IN_TCB ==1 )    /*使能临界区嵌套功能*/      {            pxTCB-&gt;uxCriticalNesting = ( UBaseType_t ) 0U;      }      #endif /* portCRITICAL_NESTING_IN_TCB */      #if ( configUSE_APPLICATION_TASK_TAG == 1 ) /*使能任务标签功能*/      {            pxTCB-&gt;pxTaskTag = NULL;      }      #endif /* configUSE_APPLICATION_TASK_TAG */      #if ( configGENERATE_RUN_TIME_STATS == 1 )  /*使能事件统计功能*/      {          pxTCB-&gt;ulRunTimeCounter = 0UL;      }      #endif /* configGENERATE_RUN_TIME_STATS */      #if ( portUSING_MPU_WRAPPERS == 1 )         /*使用MPU功能*/      {          vPortStoreTaskMPUSettings( &amp;( pxTCB-&gt;xMPUSettings ), xRegions, pxTCB-&gt;pxStack, usStackDepth );      }      #else /* portUSING_MPU_WRAPPERS */      {          ( void ) xRegions;          ( void ) usStackDepth;      }      #endif /* portUSING_MPU_WRAPPERS */      #if( configNUM_THREAD_LOCAL_STORAGE_POINTERS != 0 )/*使能线程本地存储指针*/      {          for( x = 0; x &lt; ( UBaseType_t )configNUM_THREAD_LOCAL_STORAGE_POINTERS; x++ )          {              pxTCB-&gt;pvThreadLocalStoragePointers[ x ] = NULL;          }      }      #endif      #if ( configUSE_TASK_NOTIFICATIONS == 1 )   /*使能任务通知功能*/      {          pxTCB-&gt;ulNotifiedValue = 0;          pxTCB-&gt;ucNotifyState = taskNOT_WAITING_NOTIFICATION;      }      #endif      #if ( configUSE_NEWLIB_REENTRANT == 1 )     /*使用Newlib*/      {          _REENT_INIT_PTR( ( &amp;( pxTCB-&gt;xNewLib_reent ) ) );      }      #endif      #if( INCLUDE_xTaskAbortDelay == 1 )      {          pxTCB-&gt;ucDelayAborted = pdFALSE;      }      #endif  }</pre> </div> <p class="maodian"><a name="_label3" rel="nofollow"></a></p> <h2>3.初始化任务堆栈</h2> <p>调用函数pxPortInitialiseStack()初始化任务堆栈，并将最新的栈顶指针赋值给任务TCB的pxTopOfStack字段。</p> <p>调用函数pxPortInitialiseStack()后，相当于执行了一次系统节拍时钟中断:将一些重要寄存器入栈。虽然任务还没开始执行,也并没有中断发生,但看上去就像寄存器已经被入栈了，并且部分堆栈值被修改成了我们需要的已知值。</p> <p>对于不同的硬件架构，入栈的寄存器也不相同，所以我们看到这个函数是由移植层提供的。对于Cortex-M3架构，需要依次入栈xPSR、PC、LR、R12、R3~R0、R11~R4，假设堆栈是向下生长的，初始化后的堆栈如图3-1所示。</p> <p>在图3-1中我们看到寄存器xPSR被初始为0x01000000，其中bit24被置1，表示使用Thumb指令；</p> <p>寄存器PC被初始化为任务函数指针vTask_A，这样当某次任务切换后，任务A获得CPU控制权，任务函数vTask_A被出栈到PC寄存器，之后会执行任务A的代码；</p> <p>LR寄存器初始化为函数指针prvTaskExitError,这是由移植层提供的一个出错处理函数。</p> <p>当中断发生时，LR被设置成中断要返回的地址，但是每个任务都是一个死循环，正常情况下不应该退出任务函数，所以一旦从任务函数退出，说明那里出错了，这个时候会调用寄存器LR指向的函数来处理这个错误，即prvTaskExitError；</p> <p>根据ATPCS（ARM-Thumb过程调用标准），我们知道子函数调用通过寄存器R0~R3传递参数，在文章的最开始讲xTaskCreate()函数时，提到这个函数有一个空指针类型的参数pvParameters，当任务创建时，它作为一个参数传递给任务，所以这个参数被保存到R0中，用来向任务传递参数。</p> <p>任务TCB结构体成员pxTopOfStack表示当前堆栈的栈顶，它指向最后一个入栈的项目，所以在图中它指向R4，TCB结构体另外一个成员pxStack表示堆栈的起始位置，所以在图中它指向堆栈的最开始处。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/4a1e6288382a1d6b4de7165b1d5851c8.jpg"></p> <p>图3-1：初始化任务堆栈</p> <p class="maodian"><a name="_label4" rel="nofollow"></a></p> <h2>4.进入临界区</h2> <p>调用taskENTER_CRITICAL()进入临界区，这是一个宏定义，最终进入临界区的代码由移植层提供。</p> <p class="maodian"><a name="_label5" rel="nofollow"></a></p> <h2>5.当前任务数量增加1</h2> <p>在tasks.c中 ，定义了一些静态私有变量，用来跟踪任务的数量或者状态等等，其中变量uxCurrentNumberOfTasks表示当前任务的总数量，每创建一个任务，这个变量都会增加1。</p> <p class="maodian"><a name="_label6" rel="nofollow"></a></p> <h2>6.为第一次运行做必要的初始化</h2> <p>如果这是第一个任务（uxCurrentNumberOfTasks等于1），则调用函数prvInitialiseTaskLists()初始化任务列表。FreeRTOS使用列表来跟踪任务，在tasks.c中，定义了静态类型的列表变量：</p> <div class="ay1code"> <pre class="brush:cpp;">PRIVILEGED_DATAstatic List_t pxReadyTasksLists[ configMAX_PRIORITIES ];/*按照优先级排序的就绪态任务*/  PRIVILEGED_DATAstatic List_t xDelayedTaskList1;                        /*延时的任务 */  PRIVILEGED_DATAstatic List_t xDelayedTaskList2;                        /*延时的任务 */  PRIVILEGED_DATAstatic List_t xPendingReadyList;                        /*任务已就绪,但调度器被挂起 */  #if (INCLUDE_vTaskDelete == 1 )      PRIVILEGED_DATA static List_t xTasksWaitingTermination;             /*任务已经被删除,但内存尚未释放*/  #endif  #if (INCLUDE_vTaskSuspend == 1 )      PRIVILEGED_DATA static List_t xSuspendedTaskList;                   /*当前挂起的任务*/  #endif</pre> </div> <p>现在这些列表都要进行初始化，会调用API函数vListInitialise()初始化列表，这个函数在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.jb51.net/article/243769.htm"  target="_blank" rel="nofollow">FreeRTOS列表和列表项</a>中讲过，每个列表的初始化方式都是相同的，以就绪态列表pxReadyTasksLists[0]为例，初始化后如图6-1所示：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/8bb250234085dc6902f50cf6bfc19d59.jpg"></p> <p>图6-1：初始化后的列表</p> <p>函数prvInitialiseTaskLists()的源代码如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">static void prvInitialiseTaskLists( void )  {  UBaseType_tuxPriority;      for( uxPriority = ( UBaseType_t ) 0U; uxPriority &lt; ( UBaseType_t ) configMAX_PRIORITIES; uxPriority++ )      {          vListInitialise( &amp;( pxReadyTasksLists[ uxPriority ] ) );      }      vListInitialise( &amp;xDelayedTaskList1 );      vListInitialise( &amp;xDelayedTaskList2 );      vListInitialise( &amp;xPendingReadyList );      #if ( INCLUDE_vTaskDelete == 1 )      {          vListInitialise( &amp;xTasksWaitingTermination );      }      #endif /* INCLUDE_vTaskDelete */         #if ( INCLUDE_vTaskSuspend == 1 )      {          vListInitialise( &amp;xSuspendedTaskList );      }      #endif /* INCLUDE_vTaskSuspend */      /* Start with pxDelayedTaskList using list1 and the pxOverflowDelayedTaskListusing list2. */      pxDelayedTaskList = &amp;xDelayedTaskList1;      pxOverflowDelayedTaskList = &amp;xDelayedTaskList2;  }</pre> </div> <p class="maodian"><a name="_label7" rel="nofollow"></a></p> <h2>7.更新当前正在运行的任务TCB指针</h2> <p>tasks.c中定义了一个任务TCB指针型变量：</p> <blockquote> <p>PRIVILEGED_DATA TCB_t * volatile pxCurrentTCB= NULL;</p> </blockquote> <p>这是一个全局变量，在tasks.c中只定义了这一个全局变量。这个变量用来指向当前正在运行的任务TCB，我们需要多了解一下这个变量。</p> <p>FreeRTOS的核心是确保处于优先级最高的就绪任务获得CPU运行权。在下一章讲述任务切换时会知道，任务切换就是找到优先级最高的就绪任务，而找出的这个最高优先级任务的TCB，就被赋给变量pxCurrentTCB。</p> <p>如果调度器还没有准备好（程序刚开始运行时，可能会先创建几个任务，之后才会启动调度器），并且新创建的任务优先级大于变量pxCurrentTCB指向的任务优先级，则设置pxCurrentTCB指向当前新创建的任务TCB（确保pxCurrentTCB指向优先级最高的就绪任务）。</p> <div class="ay1code"> <pre class="brush:cpp;">if( xSchedulerRunning == pdFALSE )  {      if( pxCurrentTCB-&gt;uxPriority &lt;= uxPriority )      {          pxCurrentTCB = pxNewTCB;      }      else      {          mtCOVERAGE_TEST_MARKER();      }  }</pre> </div> <p class="maodian"><a name="_label8" rel="nofollow"></a></p> <h2>8.将新创建的任务加入就绪列表数组</h2> <p>调用prvAddTaskToReadyList(pxNewTCB)将创建的任务TCB加入到就绪列表数组中，任务的优先级确定了加入到就绪列表数组的哪个下标。比如我们新创建的任务优先级为1，则这个任务被加入到列表pxReadyTasksLists[1]中。</p> <p>prvAddTaskToReadyList()其实是一个宏，由一系列语句组成，去除其中的跟踪宏外，这个宏定义如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">#defineprvAddTaskToReadyList( pxTCB )                        \      taskRECORD_READY_PRIORITY( ( pxTCB)-&gt;uxPriority );       \      vListInsertEnd( &amp;( pxReadyTasksLists[ (pxTCB )-&gt;uxPriority ] ), &amp;( ( pxTCB )-&gt;xStateListItem ) );</pre> </div> <p>宏taskRECORD_READY_PRIORITY()用来更新变量uxTopReadyPriority，这个变量在tasks.c中定义为静态变量，记录处于就绪态的最高任务优先级。这个变量参与了FreeRTOS的最核心代码：确保处于优先级最高的就绪任务获得CPU运行权。它在这里参与如何最快的找到优先级最高的就绪任务。为了最快，不同的架构会各显神通，一些架构还有特殊指令可用，所以这个宏由移植层提供。我们会在下一章介绍任务切换时，以Cortex-M3架构为例，详细介绍如何最快的找到优先级最高的就绪任务。</p> <p>函数vListInsertEnd()将列表项插入到列表末端，在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.jb51.net/article/243769.htm"   target="_blank" rel="nofollow">FreeRTOS进阶列表和列表项示例分析</a>中已经提到过，这里会结合着例子再看一下这个函数。</p> <p>从前面我们直到，在调用函数vListInsertEnd()之前，就绪列表pxReadyTasksLists[1]和任务TCB的状态列表项xStateListItem都已经初始化好了，见图6-1和图2-1，为了方便查看，我们将这两幅图合成一副，见图8-1。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/14e7bf98b2137b5582955470d8c2cb00.jpg"></p> <p>图8-1：初始化后的列表和列表项</p> <p>调用vListInsertEnd(a，b)会将列表项b，插入到列表a的后面，函数执行完毕后，列表和列表项的关系如图8-2所示。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/356295aef9725ae15e2c3fb4146c5b56.jpg"></p> <p>图8-2：插入一个列表项后的列表</p> <p>在此基础上，假设又创建了任务B，任务A和任务B优先级相同，都为1。和任务A一样，任务B也有它自己的任务TCB，其中的状态列表项字段xStateListItem也要插入到列表pxReadyTasksLists[1]中，新的列表和列表项如图8-3所示。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/74ed3930a37a281a1fbf09e39814921a.jpg"></p> <p>图8-3：相同优先级就绪列表挂接两个列表项</p> <p class="maodian"><a name="_label9" rel="nofollow"></a></p> <h2>9.退出临界区</h2> <p>调用taskEXIT_CRITICAL()退出临界区，这是一个宏定义，最终退出临界区的代码由移植层提供。</p> <p class="maodian"><a name="_label10" rel="nofollow"></a></p> <h2>10.执行上下文切换</h2> <p>如果上面的步骤都正确执行，并且调度器也开始工作，则判断当前任务的优先级是否大于新创建的任务优先级。如果新创建的任务优先级更高，则调用taskYIELD_IF_USING_PREEMPTION()强制进行一次上下文切换，切换后，新创建的任务将获得CPU控制权，精简后的代码如下所示。</p> <div class="ay1code"> <pre class="brush:cpp;"> if( xReturn == pdPASS )      {          if( xSchedulerRunning != pdFALSE )          {              /* 如果新创建的任务优先级大于当前任务优先级，则新创建的任务应该被立即执行。*/              if(pxCurrentTCB-&gt;uxPriority &lt; uxPriority )              {                  taskYIELD_IF_USING_PREEMPTION();              }          }      }</pre> </div> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></p>
+                                    </div>
+
+                                <div class="panel panel-default mt-5">
+                    <div class="panel-heading">
+                        <h3 class="m-0">推荐文章</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="p-0 x-0">
+                                                        <li class="py-2"><a href="/html/category/article-1351.htm">Rabbit MQ 怎么保证可靠性、幂等性、消费顺序</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-237.htm">Java空指针异常和解决办法</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-198.htm">js的二级菜单</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-176.htm">PHP魔术方法</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-159.htm">SpringBoot教程SpringBoot统一结果封装</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-153.htm">零宽断言正则表达式替换方案</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-141.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(查询处理)</a></li>
+                                                    </ul>
+                    </div>
+                </div>
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-238.htm">PyQt5之MenuBar菜单控件的使用（三）</a></h4>
+                <p>文章目录  MenuBar 详解 一、定义   1.QMenuBar类 2.QMenu类 2.QAction类   二、创建一个菜单栏     MenuBar 详解 在PyQt5中，菜单栏、主菜单和菜</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1629.htm">原生js实现楼层滚动（界面滑动）效果</a></h4>
+                <p>截取自自己写的代码 思路很简单，就是改编自回到顶部效果，控制滚动条位移到指定位置  先有个布局，四个触发li和四张图片 &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;h</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-236.htm">tensorflow（三） 模型保存</a></h4>
+                <p>tensorflow最简单的保存与加载模型的方法是Saver对象（存放在tensorflow.train）。构造器给graph所有的变量，或者定义在列表中的变量，添加save和restore的操作，分</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-248.htm">SpringBoot中处理的转发与重定向</a></h4>
+                <p>转发：一次请求，服务器内部调用另外的组件处理，request和response可以共用，有限制性，只能转发到本应用中的某些资源，页面或者controller请求 课可以访问WEB-INF目录下面的页面</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
+                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-228.htm"># kubernetes调度之nodeName与NodeSelector</a></h4>
+                <p>系列目录  Kubernetes的调度有简单，有复杂，指定NodeName和使用NodeSelector调度是最简单的，可以将Pod调度到期望的节点上。 本文主要介绍kubernetes调度框架中的N</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
+                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
+                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-234.htm">从 jQuery 到 Vue3 的快捷通道_在线工具</a></h4>
+                <p>当初使用 jQuery 做了几个简单的项目，算是有一点点了解，现在学习Vue3，发现了一个可以快速转换思维的通道 —— 使用CDN的方式模拟 Vite 建立的项目！  CDN方式 jQuery的使用非</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">44</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>
