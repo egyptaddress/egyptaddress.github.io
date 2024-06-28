@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-3729.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Git基础之协作模式详解 - EgyptAddress</title>
+    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
+     crossorigin="anonymous"></script>
+</head>
+
+<body>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/html/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+    
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title" style="word-break: break-all;">Git基础之协作模式详解</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
+                    <li><a href="/html/category/">文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="post-content-content">
+                      				  				  				<div class="toc"> <div class="toc-container-header">目录</div> <ul> <li><a href="#1%E5%88%86%E5%B8%83%E5%BC%8F%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B" rel="nofollow">1、分布式工作流程</a></li> <li><a href="#2%E9%9B%86%E4%B8%AD%E5%BC%8F%E5%B7%A5%E4%BD%9C%E6%B5%81" rel="nofollow">2、集中式工作流</a></li> <li><a href="#3%E5%88%86%E6%94%AF%E5%B7%A5%E4%BD%9C%E6%B5%81" rel="nofollow">3、分支工作流</a></li> <li><a href="#4gitflow-%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%9C%80%E6%B5%81%E8%A1%8C" rel="nofollow">4、GitFlow 工作流(最流行)</a></li> <li><a href="#5forking-%E5%B7%A5%E4%BD%9C%E6%B5%81%E5%81%B6%E5%B0%94%E4%BD%BF%E7%94%A8" rel="nofollow">5、Forking 工作流(偶尔使用)</a></li> <li><a href="#6%E6%80%BB%E7%BB%93" rel="nofollow">6、总结</a></li> </ul> </div> <h2 id="1分布式工作流程">1、分布式工作流程</h2> <p>与传统的集中式版本控制系统（CVCS）相反，Git 的分布式特性，使开发者间的协作变得更加灵活多样。</p> <p>在集中式版本控制系统中，每个开发者就像是连接在集线器上的节点，彼此的工作方式大体相像。 而在 Git 中，每个开发者同时扮演着节点和集线器的角色。也就是说， 每个开发者既可以将自己的代码贡献到其他的仓库中，同时也能维护自己的公开仓库， 让其他人可以在其基础上工作并贡献代码。</p> <p>由此，Git 的分布式协作可以为你的项目和团队，衍生出种种不同的工作流程， 接下来会介绍几种常见Git工作流程。</p> <p>你可以选择使用其中的某一种，或者将它们的特性混合搭配使用。</p> <h2 id="2集中式工作流">2、集中式工作流</h2> <p>Git为了便于客户机之间的协同工作，Git版本控制系统一般会设置一个中央版本库服务器，目的是让所有客户机都从该主机更新版本，提交最新版本，该工作模式下的客户机地位都平等。</p> <p>集中式工作流像SVN一样，以中央仓库作为项目所有修改的单点实体，所有修改都提交到<code>Master</code>分支上。这种方式与 SVN 的主要区别就是开发人员有本地库，但是Git 很多特性并没有用到。</p> <p>如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/14d852b39670524d5989c2421a7e24c9.jpg" alt="Git基础之协作模式详解"></p> <p>上图说明：</p> <ul> <li>一个远程仓库。</li> <li>一个主分支<code>master</code>。</li> <li>团队每个成员都有一个本地仓库，在本地仓库中进行代码的编辑、暂存和提交工作。</li> </ul> <p><strong>集中式工作流总结：</strong></p> <ul> <li>适用人群：小型开发小团队，习惯使用SVN工具的小团队。</li> <li>工作方式： <ul> <li>团队组长创建远程仓库，创建一个<code>master</code>分支，组员可读可写。</li> <li>每个开发人员都<code>git clone</code>远程仓库到本地仓库，在<code>master</code>分支上开发。</li> <li>每次开发都要<code>git pull</code>更新远程仓库的<code>master</code>分支版本到本地。</li> <li>每次开发完成就<code>git commit</code>到本地仓库， 接着<code>git push</code>到远程仓库。</li> </ul> </li> <li>缺点： <ul> <li>忘了<code>git push</code>，一直会提交到本地仓库，没有推送到远程仓库。</li> <li>忘了<code>git pull</code>，导致本地仓库与中央仓库不一致，发生文件冲突。</li> <li>大量操作<code>git pull</code>，导致增加Git分支合并次数，增加了Git变基次数，降低了Git的性能。</li> </ul> </li> </ul> <h2 id="3分支工作流">3、分支工作流</h2> <p>功能分支工作流在集中式工作流的基础上，为各个新功能分配一个专门的分支来开发，即在<code>master</code>主分支外在创建一个分支，程序员开发的新功能全部<code>push</code>到此分支上，等到功能成熟的时候，再把此分支合并到主分支<code>master</code>上。</p> <p>如下图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/d155620202148844d2f8f55884807563.jpg" alt="Git基础之协作模式详解"></p> <p><strong>分支工作流总结：</strong></p> <ul> <li>适用人群：小型开发团队，熟悉Git分支的团队。</li> <li>工作方式： <ul> <li>团队组长创建远程仓库，创建一个<code>master</code>分支，组员可读不可写。</li> <li>每个开发人员都<code>git clone</code>远程仓库到本地仓库。</li> <li>每个开发人员创建自己的<code>feature</code>分支，在<code>feature</code>分支上开发。（记住，<code>feature</code>分支是基于<code>master</code>分支）</li> <li>每个开发人员每次开发完成就<code>git commit</code>到本地仓库中自己的<code>feature</code>分支， 接着<code>git push</code>到远程仓库。</li> <li>通过<code>pull request</code>提醒团队组长，浏览组员提交<code>feature</code>分支。</li> <li>组长把<code>feature</code>分支拉下来，然后合并到自己本地仓库的<code>master</code>分支上测试。</li> <li>组长测试<code>feature</code>分支通过之后，由组长负责把<code>feature</code>分支合并到远程仓库的<code>master</code>分支上。</li> <li>组长在远程仓库把合并过的<code>feature</code>分支删除。</li> <li>组员在本地仓库把合并过的<code>feature</code>分支删除。</li> <li>组员将本地仓库分支切换为<code>master</code>分支，然后<code>git pull</code>将本地仓库的<code>master</code>分支更新到远程仓库的<code>master</code>分支版本。</li> </ul> </li> <li>缺点： <ul> <li>增加团队组长的工作量。</li> <li>增加团队组员提交步骤。</li> </ul> </li> </ul> <blockquote> <p>说明：<code>Pull Request</code>作用是可以让其他组员或组长可以查看你的代码，并可以提出代码修改意见或者讨论。</p> </blockquote> <h2 id="4gitflow-工作流最流行">4、GitFlow 工作流(最流行)</h2> <p><strong>Gitflow工作流</strong>没有用超出上面<strong>功能分支工作流</strong>的概念和命令，而是为不同的分支，分配一个很明确的角色，并定义分支之间如何交互，和什么时候进行交互。</p> <ul> <li>除了有<code>master</code>主分支（用于存储正式发布的历史版本）外，还有一个作为功能集成分支的<code>develop</code>分支。<br /> 当初始化完成后，某个程序员想要开发一个功能，并不是直接从<code>master</code>分支上拉出新分支，而是使用<code>develop</code>分支作为父分支来拉出新分支。<br /> 当新功能完成后，再合并回父分支，<strong>新功能的提交并不与<code>master</code>分支直接交互</strong>。</li> <li>一旦<code>develop</code>分支上有了做一次发布（或者说快到了既定的发布日）的足够功能，就从<code>develop</code>分支上<code>checkout</code>一个发布分支。<br /> 新建的发布分支用于开始发布循环，所以从这个时间点开始之后新的功能，不能再加到这个分支上，该分支只应该做Bug修复、文档生成和其它面向发布任务。<br /> 一旦对外发布的工作都完成了，发布分支合并到<code>master</code>分支，并分配一个版本号打好<code>Tag</code>。<br /> 另外，这些从新建发布分支以来的做的修改，要合并回<code>develop</code>分支上。</li> <li>维护分支或说是热修复（<code>hotfix</code>）分支用于，快速给产品发布版本（<code>production releases</code>）打补丁，这是唯一可以直接从<code>master</code>分支<code>fork</code>出来的分支。<br /> 修复完成，修改应该马上合并回<code>master</code>分支和<code>develop</code>分支（当前的发布分支），<code>master</code>分支应该用新的版本号打好<code>Tag</code>。<br /> 为Bug修复使用专门分支，让团队可以快速处理掉问题，而不用打断其它工作或是等待下一个发布循环。<br /> 你可以把维护分支想成是一个直接在<code>master</code>分支上处理的临时发布。</li> </ul> <p><strong>总结就是</strong>：<code>Gitflow</code> 工作流通过为<strong>功能开发</strong>、<strong>发布准备</strong>和<strong>维护</strong>设立了独立的分支，让发布迭代过程更流畅，充分的利用了分支的特点。严格的分支模型也为大型项目提供了一些非常必要的结构。</p> <p>下图是完整的<code>Gitflow</code> 工作流开发方式图，但实际开发工作环境可能会精简：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/128079da63c4d3c8fe3d658b95391160.jpg" alt="Git基础之协作模式详解"></p> <p><strong>Gitflow工作流总结：</strong></p> <ul> <li>适用人群：任何开发团队，熟悉Git分支的团队。</li> <li>工作方式： <ul> <li>项目维护者创建项目维护者的远程仓库，创建<code>master</code>分支与<code>develop</code>分支，贡献者可读不可写。</li> <li>每个贡献者<code>git clone</code>远程仓库中的<code>develop</code>分支到本地仓库。（记住，<code>develop</code>分支相当于<code>master</code>的分支，包括功能开发，修改，测试。<code>master</code>分支相当于最终分支）</li> <li>每个贡献者在本地仓库创建自己的<code>feature</code>分支，在<code>feature</code>分支上开发。</li> <li>在<code>feature</code>分支又可以创建多个<code>feature</code>分支，继续开发项目。</li> <li>每个贡献者每次开发完成就<code>git commit</code>到本地仓库中自己的<code>feature</code>分支， 接着<code>git push</code>到远程仓库。</li> <li>通过<code>pull request</code>提醒项目维护者，浏览贡献者提交<code>feature</code>分支。</li> <li>项目维护者把<code>feature</code>分支拉下来，然后合并到自己本地仓库的<code>develop</code>分支上测试。</li> <li>组长测试<code>feature</code>分支通过之后，由组长负责把<code>feature</code>分支合并到远程仓库的<code>develop</code>分支上。</li> <li>项目维护者会<code>release</code>分支上<code>git tag</code>打上版本号。</li> <li>项目维护者可以从<code>develop</code>分支创建<code>release</code>分支，接着把<code>release</code>分支合并到<code>master</code>分支上，同时<code>master</code>分支同步到<code>develop</code>分支。</li> <li>项目维护者在远程仓库把合并过的<code>feature</code>分支删除。</li> <li>每个贡献者在本地仓库把合并过的<code>feature</code>分支删除。</li> <li>每个贡献者将本地仓库分支切换为<code>develop</code>分支，然后<code>git pull</code>将本地仓库的<code>master</code>分支更新到远程仓库的<code>develop</code>分支版本。</li> </ul> </li> </ul> <blockquote> <p>说明：Gitflow工作流是<code>Vincent Driessen</code>工程师提出的多分支工作流。</p> </blockquote> <h2 id="5forking-工作流偶尔使用">5、Forking 工作流(偶尔使用)</h2> <p>分叉(<code>Forking</code>)工作流也可以叫做分布式工作流，是在 GitFlow工作流的基础上的衍生，充分利用了Git在分支和克隆上的优势，再加上<code>pull request</code> 的功能，以达到代码审核的目的。既可以管理大团队的开发者（<code>developer</code>）的提交，也可以接受不信任贡献者（<code>contributor</code>）的提交。</p> <p><strong>这种工作流使得每个开发者都有一个服务端仓库（此仓库只有自己可以<code>push</code>推送，但是所有人都可以<code>pull</code>拉取修改）</strong>，每个程序员都<code>push</code>代码到自己的服务端仓库，但不能<code>push</code>到正式仓库，只有项目维护者才能<code>push</code>到正式仓库，这样项目维护者可以接受任何开发者的提交，但无需给他正式代码库的写权限。</p> <p>这种工作流适合开源社区的开源项目，大家统一对项目做贡献，但是有一个人或一个团队作为开发者来管理项目，所有的贡献者的代码由开发者审核，其功能完善之后再由开发者<code>push</code>到正式仓库中。</p> <p><strong>总结：</strong></p> <ul> <li>分叉(<code>Forking</code>)工作流更适合安全可靠地管理大团队的开发者，而且能接受不信任贡献者的提交。</li> <li>在实际工作中，如果偶尔有需要团队外的成员帮我们解决问题时，可能会用到。</li> <li>这种工作流程并不常用，只有当项目极为庞杂，或者需要多级别管理时，才会体现出优势。 利用这种方式，项目总负责人（即主管）可以把大量分散的集成工作，委托给不同的小组负责人分别处理，然后在不同时刻将大块的代码子集统筹起来，用于之后的整合。</li> </ul> <p>图示如下：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1164f0fa7eda7f6ee4a1e60d4f7cf0a2.jpg" alt="Git基础之协作模式详解"></p> <blockquote> <p>提示：</p> <ul> <li>每个成员都可以从中央版本库中拉取代码。</li> <li>每级成员都只能向上一级提交代码。</li> <li>上一级合并代码之后继续向上级提交代码。</li> <li>最后只有独裁者才能向中央版本库提交代码。</li> </ul> </blockquote> <p><strong>分叉工作流（分布式仓库工作流）总结：</strong></p> <ul> <li>适用人群：大型开发团队，熟悉Git分支的团队。</li> <li>工作方式： <ul> <li>主项目维护者创建远程仓库，创建一个<code>master</code>分支，从项目维护者可读不可写。</li> <li>从项目维护者通过<code>fork</code>主项目维护者的远程仓库的副本，到自己的远程仓库，包括<code>master</code>分支。（记住，从项目维护者的远程仓库独立于主项目维护者的远程仓库）</li> <li>从项目维护者<code>git clone</code>主项目维护者的远程仓库的副本到本地仓库。</li> <li>从项目维护者创建自己的<code>feature</code>分支，在<code>feature</code>分支上开发。</li> <li>从项目维护者每次开发完成就<code>git commit</code>到本地仓库中自己的<code>feature</code>分支， 接着<code>git push</code>到远程仓库。</li> <li>通过<code>pull request</code>命令，从项目维护者合并自己<code>feature</code>分支，到从项目维护者的远程仓库的<code>master</code>分支上。</li> <li>从项目维护者在远程仓库把合并过的<code>feature</code>分支删除。</li> <li>从项目维护者在本地仓库把合并过的<code>feature</code>分支删除。</li> <li>从项目维护者在远程仓库通过<code>pull request</code>向主项目维护者的远程仓库的推送。</li> <li>主项目维护者通过<code>pull request</code>获取从项目维护者的远程仓库的推送。</li> <li>主项目维护者进行从项目维护者的远程仓库代码审查，测试。</li> <li>主项目维护者确认无误后，可以直接合并到主项目维护者的远程仓库。</li> </ul> </li> </ul> <h2 id="6总结">6、总结</h2> <p>上面介绍了在Git分布式系统中经常使用的工作流程，但是在实际的开发中，你会遇到许多可能适合你的特定工作流程的变种，你可以按照实际的情况，灵活的进行组合和拓展。</p> <blockquote> <p>参考：</p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/shengzhu1/article/details/77990582"  target="_blank" rel="nofollow">https://blog.csdn.net/shengzhu1/article/details/77990582</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/weixin_43691058/article/details/106427915"  target="_blank" rel="nofollow">https://blog.csdn.net/weixin_43691058/article/details/106427915</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/weixin_30344795/article/details/96683694"  target="_blank" rel="nofollow">https://blog.csdn.net/weixin_30344795/article/details/96683694</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://git-scm.com/book/zh/v2/"  target="_blank" rel="nofollow">https://git-scm.com/book/zh/v2/</a></li> </ul> </blockquote> 			                </div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></p>
+                                        <p>下一个：<a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></p>
+                                    </div>
+
+                                <div class="panel panel-default mt-5">
+                    <div class="panel-heading">
+                        <h3 class="m-0">推荐文章</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="p-0 x-0">
+                                                        <li class="py-2"><a href="/html/category/article-244.htm">Redis事务详解</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-226.htm">Carson带你学设计模式：单例模式（Singleton）</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-221.htm">vue中的axios简单封装</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-209.htm">pandas高阶应用</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-171.htm">性能优化之html、css、js三者的加载顺序</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-152.htm">什么叫做阻塞队列的有界和无界</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-107.htm">react事件类型</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-90.htm">浅谈Redis缓存和数据库一致性问题</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-41.htm">ModelSerializer序列化器实战</a></li>
+                                                        <li class="py-2"><a href="/html/category/article-24.htm">设计模式学习笔记状态模式及其实现</a></li>
+                                                    </ul>
+                    </div>
+                </div>
+                            </div>
+            <div class="col-md-4 w3l-services">
+                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
+                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
+                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-249.htm">element树形数据与懒加载失效</a></h4>
+                <p>这个bug 卡了我好久 我以为是我的代码有问题 但是 发现我的版本没有这个功能 table树形数据设置，不显示下拉箭头 将官网相关demo复制到本地仍不能正常工作，没有报错 后面百度了好久才发现 版本</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
+                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-526.htm">SpringBoot生成docx文件并返回其Base64编码</a></h4>
+                <p>直接上源码，      @ResponseBody     @RequestMapping(value = "/getDocx", method = RequestMethod.GET)     pu</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2823.htm">jQuery实现呼吸灯轮播图</a></h4>
+                <p>jQuery实现呼吸灯轮播图  jQuery实现呼吸灯轮播图    jQuery实现呼吸灯轮播图 &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;he</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
+                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-259.htm">游戏开发设计模式：单例模式</a></h4>
+                <p>一、单例模式  文章目录  一、单例模式     1.1 单例模式总结介绍   1.1.1什么是单例模式 1.1.2单例模式分类 1.1.3单例类特点 1.1.4如何保证线程安全？   1.2 单例模</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-262.htm">Python 认识列表和元组</a></h4>
+                <p>列表和元组，都是一个可以放置任何数据类型的有序集合。   列表的特性 动态的（mutable）：长度大小不固定，可以随意地增加、删减或者改变元素。 会修改原来列表中的元素，而不会创建新的列表。 # 新</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">56</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
+        <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+
+    <!-- all js scripts and files here -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
+
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
+
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
+            }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
+    </script>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+
+        $('.post-content-content .js_to').click(function(){
+            var url = $(this).data('url');
+            var code = $(this).data('code');
+            url += code;
+
+            window.open(url);
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
+</html>
