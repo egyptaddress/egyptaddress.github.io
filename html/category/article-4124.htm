@@ -93,6 +93,7 @@ var _hmt = _hmt || [];
                       				  				  				<p data-pid="ifMOLd6T">本文结合项目经验，整理一份大纲，供参考。</p> <h2><strong>常用指标</strong></h2> <ul class="list-paddingleft-1"> <li> <p>RT（Response Time）：响应时间。可能会衍生出 TP999、TP99、TP95、TP90等指标。一般在几毫秒到几百毫秒之间。</p> </li> <li> <p>QPS（Query Per Second）：每秒查询量。这是我们最常说的一个指标了。视业务复杂度不同而不同，轻量级的可能单机上万，重量级的可能就几百，这是主要依靠水平扩容来解决。</p> </li> <li> <p>TPS（Transaction per second）：每秒事务量。主要衡量数据库性能，一般比 QPS 低 1~3 个数量级。</p> </li> <li> <p>吞吐量（Throughput）：单位时间内处理的请求数量。该指标概念比较宽泛：</p> </li> <ul class="list-paddingleft-1"> <li> <p>从业务角度看，吞吐量可以用QPS、TPS等单位来衡量。</p> </li> <li> <p>从网络角度看，吞吐量可以用bps来衡量。一般用于排查网络抖动等问题，尤其是弱网环境下的RPC请求会更加关注。</p> </li> </ul> <li> <p>PV（Page View）：页面浏览量。一般用于统计页面访问频次，每次刷新页面即被计算一次。高并发系统的单日 PV 基本上会超过千万。</p> </li> <li> <p>UV（Unique Visitor）：独立访客量。用于统计单位时间内页面访问的用户数，同一个用户多次刷新页面只会被算做一次。高并发系统的单日 UV 基本上会过万。</p> </li> </ul> <h2><strong>提升系统性能的两个维度</strong></h2> <ul class="list-paddingleft-1"> <li> <p>垂直扩展：提升单机性能。包括硬件配置和软件编写方式两种维度。</p> </li> <li> <p>水平扩展：集群整体性能。无状态服务加机器可解决；有状态服务还要额外考虑状态存储及迁移。实践中尽量做成无状态服务。</p> </li> </ul> <h2><strong>灾备管理</strong></h2> <p>多区域部署机房，通常存在冷备、热备、双活等几种形式。主要用于流量分摊和故障转移。</p> <h2><strong>故障处理</strong></h2> <ul class="list-paddingleft-1"> <li> <p>Failover 失败自动切换：当出现失败，重试其它服务器，通常用于读操作。一般核心服务会使用该策略。</p> </li> <li> <p>Failfast 快速失败：只发起一次调用，失败立即报错，通常用于非幂等性的读写操作。多数场景均有重试机制。</p> </li> <li> <p>Failsafe 失败安全：出现异常时，直接忽略。通常用于写入日志等操作。</p> </li> <li> <p>Failback 失败自动恢复：后台记录失败请求，定时重发。通常用于消息通知等操作。</p> </li> <li> <p>Forking 并行调用多个服务方：其中一个成功即可返回，通常用于实时性要求较高的读操作。</p> </li> <li> <p>Broadcast广播调用：所有提供方逐个调用，任意一台报错则报错。主要用于RPC框架注册节点使用（更新提供方本地状态），应用型服务基本不会使用。</p> </li> </ul> <h2><strong>负载均衡</strong></h2> <ul class="list-paddingleft-1"> <li> <p>监控机器性能，并配置机器的权重（静态或动态）。</p> </li> <ul class="list-paddingleft-1"> <li> <p>处理能力越强，分到的流量越多。</p> </li> <li> <p>某台机器故障时自动摘除流量。</p> </li> <li> <p>服务刚启动时的小流量预热，防止瞬间高流量把机器打崩。主要是各类中间件资源初始化可能会很耗时，导致请求响应慢，此时如果大量流量涌入会导致 Cpu Load急剧升高，甚至可能打崩。</p> </li> </ul> <li> <p>自动扩缩容。业务高峰时段自动扩容，低峰时段自动缩容，节约成本。</p> </li> </ul> <h2><strong>区分服务等级</strong></h2> <ul class="list-paddingleft-1"> <li> <p>核心服务：一般都存在Backup，出错时自动切换，同时触发中高级别告警。</p> </li> <li> <p>非核心服务：出错时可执行（手动或自动）降级甚至熔断，同时触发中低级别告警。</p> </li> </ul> <h2><strong>使用缓存</strong></h2> <p>主要针对不易变化的数据，可能是多级缓存，可能横跨客户端和多个服务端。</p> <ul class="list-paddingleft-1"> <li> <p>本地缓存。如 ConcurrentMap、Guava Cache、Caffeine。</p> </li> <li> <p>分布式缓存。如 Redis、GemFire/Geode。</p> </li> </ul> <h2><strong>异步操作</strong></h2> <ul class="list-paddingleft-1"> <li> <p>架构层面：</p> </li> <ul class="list-paddingleft-1"> <li> <p>如使用MQ消息队列进行削峰、解耦处理，日志处理也用得比较多。</p> </li> <li> <p>若追求 Cpu 的稳定性，可使用 Spring WebFlux 等全链路异步化技术，需要上下游服务都改造，才能有显著效果。</p> </li> </ul> <li> <p>代码层面：如 Java 中的 Future 机制（常用 CompletableFuture），同时发起多个微服务的调用，隔一段时间后统一 get 结果。</p> </li> </ul> <h2><strong>批量执行</strong></h2> <ul class="list-paddingleft-1"> <li> <p>框架层面：可参考 Hystrix 的请求合并机制 HystrixCollapser。</p> </li> <li> <p>代码层面：服务接口批量调用数据，拿到批量结果后再分派结果。</p> </li> </ul> <h2><strong>池化技术</strong></h2> <ul class="list-paddingleft-1"> <li> <p>线程池：常用如 ThreadPoolExecutor。</p> </li> <li> <p>连接池：常用如 HikariCP、Druid、c3p0、DBCP。</p> </li> <li> <p>对象池：常用如 Apache Commons Pool2。另外，如 Integer 等包装类针对（-127~128）的对象缓存，其实也是一种对象池的体现。</p> </li> </ul> <h2><strong>限流处理</strong></h2> <ul class="list-paddingleft-1"> <li> <p>服务入口：监控近实时统计QPS，达到阈值时拒绝请求。</p> </li> <li> <p>常见的几种限流框架：</p> </li> <ul class="list-paddingleft-1"> <li> <p>单机版（JDK自带的锁、信号量、Guava Limiter）</p> </li> <li> <p>分布式（基于 Redis 的 redis-cell 模块和 Redisson、重量级的 Sentinel，以及老牌框架Hystrix）</p> </li> </ul> <li> <p>常见的几种限流算法：</p> </li> <ul class="list-paddingleft-1"> <li> <p>计数器法。存在临界流量问题，基本不会使用。</p> </li> <li> <p>滑动窗口。时间片划分精度不好控制，基本不会使用。</p> </li> <li> <p>漏桶算法。难以应对突发流量，使用较少。</p> </li> <li> <p>令牌桶算法。常用。</p> </li> </ul> <li> <p>常见的线程池拒绝策略：</p> </li> <ul class="list-paddingleft-1"> <li> <p>CallerRunsPolicy 由调用者运行。</p> </li> <li> <p>AbortPolicy 抛弃并抛异常。这是默认策略，也是最常用的策略，可以让应用层快速发现失败，进而介入处理。</p> </li> <li> <p>DiscardPolicy 静静地抛弃，应用层无法感知到。</p> </li> <li> <p>DiscardOldestPolicy 抛弃最老的请求。</p> </li> </ul> </ul> <h2><strong>防刷分流</strong></h2> <p>搭建两套服务集群，将存在爬虫标记（依赖于专业的爬虫识别算法）的流量分流到另一套集群，甚至可以返回假数据，做蜜罐处理。</p> <h2><strong>静态资源分发</strong></h2> <p>主要依赖 CDN 技术进行资源的就近部署，可提前预热。常见如html、js、css、image等资源。</p> <h2><strong>数据库并发</strong></h2> <ul class="list-paddingleft-1"> <li> <p>单机：MVCC、事务隔离、做好索引优化。</p> </li> <li> <p>集群：分库分表、读写分离。</p> </li> <li> <p>结合其他中间件：如简单的查询、统计，或者文本搜索等场景，可使用 ElasticSearch，必要时进行二级检索（ ElasticSearch 检索出 id，再到 SQL 中查询）。</p> </li> </ul> <h2><strong>压力测试 /性能测试</strong></h2> <ul class="list-paddingleft-1"> <li> <p>Apache JMeter。</p> </li> <li> <p>搭建压测集群，平时抓取服务真实流量，节日或大促前进行必要的压测，以暴露性能瓶颈。</p> </li> </ul> <h2><strong>日常巡检/故障演练</strong></h2> <p>用于提前发现问题，如接口扫描、混沌工程就是做这些事情的。</p> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-4123.htm">Vue +Vant 实现顶部搜索栏</a></p>
+                                        <p>下一个：<a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></p>
                                     </div>
 
                                 <div class="panel panel-default mt-5">
@@ -121,8 +122,38 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-259.htm">游戏开发设计模式：单例模式</a></h4>
-                <p>一、单例模式  文章目录  一、单例模式     1.1 单例模式总结介绍   1.1.1什么是单例模式 1.1.2单例模式分类 1.1.3单例类特点 1.1.4如何保证线程安全？   1.2 单例模</p>
+                <h4><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></h4>
+                <p>在Idea中对项目访问路径的配置题  &nbsp;当将wai包直接部署到tomcat中时，如何修改对项目的访问路径？ 两种方案： 1、首先将tomcat的目录下的webapps/ROOT目录下的所有内</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4095.htm">Docker基础 — 36、CMD指令和ENTRYPOINT指令的区别</a></h4>
+                <p>目录  1、CMD指令和ENTRYPOINT指令说明 2、CMD指令只有最后一条生效的原因 3、CMD指令演示 4、ENTRYPOINT指令演示 5、总结   CMD指令和ENTRYPOINT指令作用</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1940.htm">vue2 自定义指令 实现全屏 、对话框拖拽</a></h4>
+                <p>模块下载 用于全屏 npm i screenfull@5.1.0 -S   新建文件 新建directives.js文件，复制下面代码 import Vue from "vue";  // 全屏 im</p>
             </div>
         </div>
     </div>
@@ -141,46 +172,6 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-254.htm">图像处理学习笔记——BMP图片详解</a></h4>
-                <p>一、位图和调色板的概念  1.位图（Bitmap）： 例如我们常说的屏幕分辨率为 640*480，刷新频率为70Hz，意思是说每行要扫描 640 个象素，一共有 480 行，每秒重复扫描屏幕 70 次</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
-                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-255.htm">python 查看包的版本</a></h4>
-                <p>python查看包的版本  方法1：pip 使用cmd命令打开命令行，在命令行输入pip list,即可查看所有已安装的包及包的版本。  方法2：导入查看 导入包，输入包名.__version__即可</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
                 <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
                 <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
             </div>
@@ -191,8 +182,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
+                <h4><a href="/html/category/article-1351.htm">Rabbit MQ 怎么保证可靠性、幂等性、消费顺序</a></h4>
+                <p>RabbitMQ如何保证消息的可靠性 RabbitMQ消息丢失的三种情况 生产者弄丢消息时的解决方法  方法一：生产者在发送数据之前开启RabbitMQ的事务(采用该种方法由于事务机制，会导致吞吐量下</p>
             </div>
         </div>
     </div>
@@ -201,8 +192,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></h4>
-                <p>假设我们有一种特殊的字符串，其中包含成对的字符，像这样- const&nbsp;str&nbsp;=&nbsp;"AABBCCDDEE"; 我们需要基于此字符串构造一个对象，该字符串应如下所示： co</p>
+                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
+                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
             </div>
         </div>
     </div>
@@ -211,8 +202,18 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
-                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
+                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></h4>
+                <p>&lt;div id="app"&gt;     &lt;h1&gt;懒加载lazy&lt;/h1&gt;     &lt;h3&gt;不让输入框实时同步&lt;/h3&gt;     &lt;inp</p>
             </div>
         </div>
     </div>
@@ -223,7 +224,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">4</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">6</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
