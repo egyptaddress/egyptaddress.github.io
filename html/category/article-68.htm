@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <p>本文转载于http://c.biancheng.net/view/7918.html<br />   在C++98/03的基础上，C++11新标准引入了<code>shared_ptr</code>、<code>unique_ptr</code>以及<code>weak_ptr</code>这3个智能指针。本文介绍<code>weak_ptr</code>智能指针的特性和用法。<br />   和<code>shared_ptr</code>以及<code>unique_ptr</code>类型指针一样，<code>weak_ptr</code>智能指针也是以模板类的方式实现的。<code>weak_ptr&lt;T&gt;</code>（T为指针所指数据的类型）定义在<code>&lt;memory&gt;</code>头文件，并位于<code>std</code>命名空间中。因此，要想使用<code>weak_ptr</code>类型指针，程序中应首先包含以下2条语句：</p> <pre><code class="prism language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;iostream&gt;</span></span> <span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span> </code></pre> <p>第2句不是必须的，可以不添加，则后续在使用<code>unique_ptr</code>指针时，必须标注<code>std::</code>。<br />   需要注意的是，C++11标准虽然将<code>weak_ptr</code>定位为智能指针的一种，但该类型指针通常不单独使用（实际没有用处），只能和<code>shared_ptr</code>类型指针搭配使用。甚至于，我们可以将<code>weak_ptr</code>类型指针视为<code>shared_ptr</code>指针的一种辅助工具，借助<code>weak_ptr</code>类型指针，我们可以获取<code>shared_ptr</code>指针的一些状态信息，比如有多少指向相同的<code>shared_ptr</code>指针，<code>shared_ptr</code>指针指向的堆内存是否已经被释放等等。<br />   需要注意的是，当<code>weak_ptr</code>类型指针的指向和某一<code>shared_ptr</code>指针相同时，<code>weak_ptr</code>指针并不会使所指堆内存的引用计数加1；同样，当<code>weak_ptr</code>指针被释放时，之前所指堆内存的引用计数也不会因此而减1。也就是说，<code>weak_ptr</code>类型指针并不会影响所指堆内存空间的引用计数。<br />   除此之外，<code>weak_ptr&lt;T&gt;</code>模板类中没有重载<code>*</code>和<code>-&gt;</code>运算符，这也就意味着，<code>weak_ptr</code>类型指针只能访问所指的堆内存，而无法修改它。</p> <h2> <a id="1_weak_ptr_12" rel="nofollow"></a>1 <code>weak_ptr</code>指针的创建</h2> <p>  创建一个<code>weak_ptr</code>指针，有以下3种方式：<br /> （1）可以创建一个空的<code>weak_ptr</code>指针，例如：</p> <pre><code class="prism language-cpp">std<span class="token operator">::</span>weak_ptr<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> wp1<span class="token punctuation">;</span> </code></pre> <p>（2）凭借已有的<code>weak_ptr</code>指针，可以创建一个新的<code>weak_ptr</code>指针，例如：</p> <pre><code class="prism language-cpp">std<span class="token operator">::</span>weak_ptr<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">wp2</span><span class="token punctuation">(</span>wp1<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <p>若<code>wp1</code>为空指针，则<code>wp2</code>也为空指针；反之，如果<code>wp1</code>指向某一<code>shared_ptr</code>指针拥有的堆内存，则<code>wp2</code>也指向该块存储空间（可以访问，但无所有权）。<br /> （3）<code>weak_ptr</code>指针更常用于指向某一<code>shared_ptr</code>指针拥有的堆内存，因为在构建<code>weak_ptr</code>指针对象时，可以利用已有的<code>shared_ptr</code>指针为其初始化。例如：</p> <pre><code class="prism language-cpp">std<span class="token operator">::</span>shared_ptr<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">sp</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">;</span> std<span class="token operator">::</span>weak_ptr<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">wp3</span><span class="token punctuation">(</span>sp<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <p>由此，<code>wp3</code>指针和<code>sp</code>指针有相同的指针。再次强调，<code>weak_ptr</code>类型指针不会导致堆内存空间的引用计数增加或减少。</p> <h2> <a id="2_weak_ptr_30" rel="nofollow"></a>2 <code>weak_ptr</code>模板类提供的成员方法</h2> <p>  和<code>shared_ptr&lt;T&gt;</code>以及<code>unique_ptr&lt;T&gt;</code>相比，<code>weak_ptr&lt;T&gt;</code>模板类提供的成员方法不多，下表罗列了常用的成员方法及各自的功能。</p> <table> <thead> <tr> <th>成员方法</th> <th>功能</th> </tr> </thead> <tbody> <tr> <td><code>operator=()</code></td> <td>重载<code>=</code>赋值运算符，<code>weak_ptr</code>指针可以直接被<code>weak_ptr</code>或者<code>shared_ptr</code>类型指针赋值。</td> </tr> <tr> <td><code>swap(x)</code></td> <td>其中<code>x</code>表示一个同类型的<code>weak_ptr</code>类型指针，该函数可以互换2个共同类型<code>weak_ptr</code>指针的内容。</td> </tr> <tr> <td><code>reset()</code></td> <td>将当前<code>weak_ptr</code>指针置为空指针。</td> </tr> <tr> <td><code>use_count()</code></td> <td>查看指向和当前<code>weak_ptr</code>指针相同的<code>shared_ptr</code>指针的数量。</td> </tr> <tr> <td><code>expired()</code></td> <td>判断当前<code>weak_ptr</code>指针是否过期（指针为空，或者指向的堆内存已经被释放）。</td> </tr> <tr> <td><code>lock()</code></td> <td>如果当前<code>weak_ptr</code>已经过期，则该函数会返回一个空的<code>shared_ptr</code>指针；反之，该函数返回一个和当前<code>weak_ptr</code>指针指向相同的<code>shared_ptr</code>指针。</td> </tr> </tbody> </table> <p>再次强调，<code>weak_ptr&lt;T&gt;</code>模板类没有重载<code>*</code>和<code>-&gt;</code>运算符，因此<code>weak_ptr</code>类型指针只能访问某一<code>shared_ptr</code>指针指向的堆内存空间，无法对其进行修改。<br />   下面的样例演示了<code>weak_ptr</code>指针以及上表中部分成员方法的基本用法：</p> <pre><code class="prism language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;iostream&gt;</span></span> <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;memory&gt;</span></span>  <span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>  <span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> 	shared_ptr<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">sp1</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 	shared_ptr<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">sp2</span><span class="token punctuation">(</span>sp1<span class="token punctuation">)</span><span class="token punctuation">;</span> 	weak_ptr<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">wp</span><span class="token punctuation">(</span>sp2<span class="token punctuation">)</span><span class="token punctuation">;</span> 	cout <span class="token operator">&lt;&lt;</span> wp<span class="token punctuation">.</span><span class="token function">use_count</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>   <span class="token comment">//输出和wp同指向的shared_ptr类型指针的数量</span> 	sp2<span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                      <span class="token comment">//释放sp2</span> 	cout <span class="token operator">&lt;&lt;</span> wp<span class="token punctuation">.</span><span class="token function">use_count</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>    	cout <span class="token operator">&lt;&lt;</span> <span class="token operator">*</span><span class="token punctuation">(</span>wp<span class="token punctuation">.</span><span class="token function">lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>     <span class="token comment">//借助lock()函数，返回一个和wp同指向的shared_ptr类型指针，获取其存储的数据</span> 	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>程序执行结果为：</p> <pre><code class="prism language-cpp"><span class="token number">2</span> <span class="token number">1</span> <span class="token number">10</span> </code></pre> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <p>本文转载于http://c.biancheng.net/view/7918.html<br />   在C++98/03的基础上，C++11新标准引入了<code>shared_ptr</code>、<code>unique_ptr</code>以及<code>weak_ptr</code>这3个智能指针。本文介绍<code>weak_ptr</code>智能指针的特性和用法。<br />   和<code>shared_ptr</code>以及<code>unique_ptr</code>类型指针一样，<code>weak_ptr</code>智能指针也是以模板类的方式实现的。<code>weak_ptr<T></code>（T为指针所指数据的类型）定义在<code><memory></code>头文件，并位于<code>std</code>命名空间中。因此，要想使用<code>weak_ptr</code>类型指针，程序中应首先包含以下2条语句：</p> <pre><code class="prism language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string"><iostream></span></span> <span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span> </code></pre> <p>第2句不是必须的，可以不添加，则后续在使用<code>unique_ptr</code>指针时，必须标注<code>std::</code>。<br />   需要注意的是，C++11标准虽然将<code>weak_ptr</code>定位为智能指针的一种，但该类型指针通常不单独使用（实际没有用处），只能和<code>shared_ptr</code>类型指针搭配使用。甚至于，我们可以将<code>weak_ptr</code>类型指针视为<code>shared_ptr</code>指针的一种辅助工具，借助<code>weak_ptr</code>类型指针，我们可以获取<code>shared_ptr</code>指针的一些状态信息，比如有多少指向相同的<code>shared_ptr</code>指针，<code>shared_ptr</code>指针指向的堆内存是否已经被释放等等。<br />   需要注意的是，当<code>weak_ptr</code>类型指针的指向和某一<code>shared_ptr</code>指针相同时，<code>weak_ptr</code>指针并不会使所指堆内存的引用计数加1；同样，当<code>weak_ptr</code>指针被释放时，之前所指堆内存的引用计数也不会因此而减1。也就是说，<code>weak_ptr</code>类型指针并不会影响所指堆内存空间的引用计数。<br />   除此之外，<code>weak_ptr<T></code>模板类中没有重载<code>*</code>和<code>-></code>运算符，这也就意味着，<code>weak_ptr</code>类型指针只能访问所指的堆内存，而无法修改它。</p> <h2> 1 <code>weak_ptr</code>指针的创建</h2> <p>  创建一个<code>weak_ptr</code>指针，有以下3种方式：<br /> （1）可以创建一个空的<code>weak_ptr</code>指针，例如：</p> <pre><code class="prism language-cpp">std<span class="token operator">::</span>weak_ptr<span class="token operator"><</span><span class="token keyword">int</span><span class="token operator">></span> wp1<span class="token punctuation">;</span> </code></pre> <p>（2）凭借已有的<code>weak_ptr</code>指针，可以创建一个新的<code>weak_ptr</code>指针，例如：</p> <pre><code class="prism language-cpp">std<span class="token operator">::</span>weak_ptr<span class="token operator"><</span><span class="token keyword">int</span><span class="token operator">></span> <span class="token function">wp2</span><span class="token punctuation">(</span>wp1<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <p>若<code>wp1</code>为空指针，则<code>wp2</code>也为空指针；反之，如果<code>wp1</code>指向某一<code>shared_ptr</code>指针拥有的堆内存，则<code>wp2</code>也指向该块存储空间（可以访问，但无所有权）。<br /> （3）<code>weak_ptr</code>指针更常用于指向某一<code>shared_ptr</code>指针拥有的堆内存，因为在构建<code>weak_ptr</code>指针对象时，可以利用已有的<code>shared_ptr</code>指针为其初始化。例如：</p> <pre><code class="prism language-cpp">std<span class="token operator">::</span>shared_ptr<span class="token operator"><</span><span class="token keyword">int</span><span class="token operator">></span> <span class="token function">sp</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">;</span> std<span class="token operator">::</span>weak_ptr<span class="token operator"><</span><span class="token keyword">int</span><span class="token operator">></span> <span class="token function">wp3</span><span class="token punctuation">(</span>sp<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <p>由此，<code>wp3</code>指针和<code>sp</code>指针有相同的指针。再次强调，<code>weak_ptr</code>类型指针不会导致堆内存空间的引用计数增加或减少。</p> <h2> 2 <code>weak_ptr</code>模板类提供的成员方法</h2> <p>  和<code>shared_ptr<T></code>以及<code>unique_ptr<T></code>相比，<code>weak_ptr<T></code>模板类提供的成员方法不多，下表罗列了常用的成员方法及各自的功能。</p> <table> <thead> <tr> <th>成员方法</th> <th>功能</th> </tr> </thead> <tbody> <tr> <td><code>operator=()</code></td> <td>重载<code>=</code>赋值运算符，<code>weak_ptr</code>指针可以直接被<code>weak_ptr</code>或者<code>shared_ptr</code>类型指针赋值。</td> </tr> <tr> <td><code>swap(x)</code></td> <td>其中<code>x</code>表示一个同类型的<code>weak_ptr</code>类型指针，该函数可以互换2个共同类型<code>weak_ptr</code>指针的内容。</td> </tr> <tr> <td><code>reset()</code></td> <td>将当前<code>weak_ptr</code>指针置为空指针。</td> </tr> <tr> <td><code>use_count()</code></td> <td>查看指向和当前<code>weak_ptr</code>指针相同的<code>shared_ptr</code>指针的数量。</td> </tr> <tr> <td><code>expired()</code></td> <td>判断当前<code>weak_ptr</code>指针是否过期（指针为空，或者指向的堆内存已经被释放）。</td> </tr> <tr> <td><code>lock()</code></td> <td>如果当前<code>weak_ptr</code>已经过期，则该函数会返回一个空的<code>shared_ptr</code>指针；反之，该函数返回一个和当前<code>weak_ptr</code>指针指向相同的<code>shared_ptr</code>指针。</td> </tr> </tbody> </table> <p>再次强调，<code>weak_ptr<T></code>模板类没有重载<code>*</code>和<code>-></code>运算符，因此<code>weak_ptr</code>类型指针只能访问某一<code>shared_ptr</code>指针指向的堆内存空间，无法对其进行修改。<br />   下面的样例演示了<code>weak_ptr</code>指针以及上表中部分成员方法的基本用法：</p> <pre><code class="prism language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string"><iostream></span></span> <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string"><memory></span></span>  <span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>  <span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{<!-- --></span> 	shared_ptr<span class="token operator"><</span><span class="token keyword">int</span><span class="token operator">></span> <span class="token function">sp1</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 	shared_ptr<span class="token operator"><</span><span class="token keyword">int</span><span class="token operator">></span> <span class="token function">sp2</span><span class="token punctuation">(</span>sp1<span class="token punctuation">)</span><span class="token punctuation">;</span> 	weak_ptr<span class="token operator"><</span><span class="token keyword">int</span><span class="token operator">></span> <span class="token function">wp</span><span class="token punctuation">(</span>sp2<span class="token punctuation">)</span><span class="token punctuation">;</span> 	cout <span class="token operator"><<</span> wp<span class="token punctuation">.</span><span class="token function">use_count</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator"><<</span> endl<span class="token punctuation">;</span>   <span class="token comment">//输出和wp同指向的shared_ptr类型指针的数量</span> 	sp2<span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                      <span class="token comment">//释放sp2</span> 	cout <span class="token operator"><<</span> wp<span class="token punctuation">.</span><span class="token function">use_count</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator"><<</span> endl<span class="token punctuation">;</span>    	cout <span class="token operator"><<</span> <span class="token operator">*</span><span class="token punctuation">(</span>wp<span class="token punctuation">.</span><span class="token function">lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator"><<</span> endl<span class="token punctuation">;</span>     <span class="token comment">//借助lock()函数，返回一个和wp同指向的shared_ptr类型指针，获取其存储的数据</span> 	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>程序执行结果为：</p> <pre><code class="prism language-cpp"><span class="token number">2</span> <span class="token number">1</span> <span class="token number">10</span> </code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-67.htm">Vue项目中 端口号、项目自动运行和`eslint`关闭 配置</a></p>
                                         <p>下一个：<a href="/html/category/article-69.htm">SpringBoot三种方式实现定时任务</a></p>
@@ -103,8 +103,48 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
-                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
+                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
+                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4402.htm">狗粮品牌有哪些品牌 狗粮品牌有哪些品牌好</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于狗粮品牌有哪些品牌的问题，于是小编就整理了2个相关介绍狗粮品牌有哪些品牌的解答，让我们一起看看吧。狗粮哪几个品牌比较好？狗粮哪个</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-5569.htm">襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于襄阳免费领养宠物猫信息的问题，于是小编就整理了4个相关介绍襄阳免费领养宠物猫信息的解答，让我们一起看看吧。襄樊有孤儿院吗？正常收</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
+                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
             </div>
         </div>
     </div>
@@ -123,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
-                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
+                <h4><a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></h4>
+                <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：  【夯实Spring Cloud】</p>
             </div>
         </div>
     </div>
@@ -133,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
+                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
+                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
             </div>
         </div>
     </div>
@@ -143,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
-                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
+                <h4><a href="/html/category/article-1939.htm">Springboot整合Spring Retry实现重试机制</a></h4>
+                <p>在项目开发过程中，经常会有这样的情况：第一次执行一个操作不成功，考虑到可能是网络原因造成，就多执行几次操作，直到得到想要的结果为止，这就是重试机制。 Springboot可以通过整合Spring Re</p>
             </div>
         </div>
     </div>
@@ -153,48 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
-                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
-                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1351.htm">Rabbit MQ 怎么保证可靠性、幂等性、消费顺序</a></h4>
-                <p>RabbitMQ如何保证消息的可靠性 RabbitMQ消息丢失的三种情况 生产者弄丢消息时的解决方法  方法一：生产者在发送数据之前开启RabbitMQ的事务(采用该种方法由于事务机制，会导致吞吐量下</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
-                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
-                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
+                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
+                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/WangJunZzz/MassTransit"  target="_blank" rel="nofollow">本文地址源码</a></p> <ul> <li>MassTransit是一个面向.net的免费开源分布式应用程序框架。</li> <li>MassTransit使得创建应用程序和服务变得很容易，这些应用程序和服务利用基于消息的、松散耦合的异步通信来获得更高的可用性、可靠性和可伸缩性。</li> <li>MassTransit 8.x版本。</li> </ul> <h1 id="实现简单发布订阅">实现简单发布订阅</h1> <ul> <li>添加Nuget包引用: <ul> <li>MassTransit</li> <li>MassTransit.RabbitMQ(演示也可基于内存)</li> </ul> </li> </ul> <h1 id="生产端">生产端</h1> <ul> <li>配置MassTransit</li> </ul> <pre><code class="language-charp">builder.Services.AddMassTransit(x =&gt; {         // 使用内存     //x.UsingInMemory();     // 使用RabbitMq     x.UsingRabbitMq((context, config) =&gt;     {         config.Host("rabbitmq://localhost:5672", host =&gt;         {             host.Username("admin");             host.Password("admin");         });     }); });</code></pre> <ul> <li>定义消息体</li> </ul> <pre><code class="language-charp">public class OrderEto {     public Guid Id { get; init; }      public string Name { get; set; }          public DateTime CreationTime { get; set; } }</code></pre> <ul> <li>发布消息</li> </ul> <pre><code class="language-csharp">[ApiController] [Route("[controller]")] public class PublishController : ControllerBase {     private readonly ILogger&lt;PublishController&gt; _logger;     private readonly IPublishEndpoint _publishEndpoint;      public PublishController(ILogger&lt;PublishController&gt; logger, IPublishEndpoint publishEndpoint)     {         _logger = logger;         _publishEndpoint = publishEndpoint;     }      [HttpGet]     public async Task Get()     {         await _publishEndpoint.Publish&lt;OrderEto&gt;(new OrderEto()         {             Id = Guid.NewGuid(),             Name = "Phone",             CreationTime = DateTime.Now         });     } }</code></pre> <h1 id="消费者端">消费者端</h1> <pre><code class="language-csharp">builder.Services.AddMassTransit(x =&gt; {          // 通过扫描程序集注册消费者     x.AddConsumers(typeof(Program).Assembly);         // 通过类型单个注册消费者     // x.AddConsumer&lt;OrderEtoConsumer&gt;(typeof(OrderEtoConsumerDefinition));          // x.SetKebabCaseEndpointNameFormatter();          // 通过泛型单个注册消费者     //x.AddConsumer&lt;OrderEtoConsumer, OrderEtoConsumerDefinition&gt;();          // 通过指定命名空间注册消费者     // x.AddConsumersFromNamespaceContaining&lt;OrderEtoConsumer&gt;();          // 使用内存队列     // x.UsingInMemory();     x.UsingRabbitMq((context, config) =&gt;     {                config.Host("rabbitmq://localhost:5672", hostconfig =&gt;         {             hostconfig.Username("admin");             hostconfig.Password("admin");         });                  config.ConfigureEndpoints(context);             }); });</code></pre> <ul> <li>消费者定义</li> </ul> <pre><code class="language-csharp">public class OrderEtoConsumer : IConsumer&lt;OrderEto&gt; {     private readonly ILogger&lt;OrderEtoConsumer&gt; _logger;      public OrderEtoConsumer(ILogger&lt;OrderEtoConsumer&gt; logger)     {         _logger = logger;     }      public Task Consume(ConsumeContext&lt;OrderEto&gt; context)     {         _logger.LogInformation($"MassTransit.Consumer.One 收到消息:{JsonSerializer.Serialize(context.Message)}");         return Task.CompletedTask;     } }  public class OrderEtoConsumerDefinition : ConsumerDefinition&lt;OrderEtoConsumer&gt; {     protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator&lt;OrderEtoConsumer&gt; consumerConfigurator)     {         endpointConfigurator.UseMessageRetry(r =&gt; r.Intervals(500, 1000));     } }</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/4fdf4f6d0971d4dfa5d5af3b2cd495b4.jpg" alt="MassTransit 入门详解"></p> <h1 id="abp-vnext-vue实现">Abp Vnext Vue实现</h1> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/WangJunZzz/abp-vnext-pro"  target="_blank" rel="nofollow">Github地址</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://doc.cncore.club/"  target="_blank" rel="nofollow">文档地址</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://120.24.194.14:8012/"  target="_blank" rel="nofollow">演示地址</a></li> </ul> 			                </div>
+                      				  				  				<p>本文地址源码</p> <ul> <li>MassTransit是一个面向.net的免费开源分布式应用程序框架。</li> <li>MassTransit使得创建应用程序和服务变得很容易，这些应用程序和服务利用基于消息的、松散耦合的异步通信来获得更高的可用性、可靠性和可伸缩性。</li> <li>MassTransit 8.x版本。</li> </ul> <h1 id="实现简单发布订阅">实现简单发布订阅</h1> <ul> <li>添加Nuget包引用: <ul> <li>MassTransit</li> <li>MassTransit.RabbitMQ(演示也可基于内存)</li> </ul> </li> </ul> <h1 id="生产端">生产端</h1> <ul> <li>配置MassTransit</li> </ul> <pre><code class="language-charp">builder.Services.AddMassTransit(x => {         // 使用内存     //x.UsingInMemory();     // 使用RabbitMq     x.UsingRabbitMq((context, config) =>     {         config.Host("rabbitmq://localhost:5672", host =>         {             host.Username("admin");             host.Password("admin");         });     }); });</code></pre> <ul> <li>定义消息体</li> </ul> <pre><code class="language-charp">public class OrderEto {     public Guid Id { get; init; }      public string Name { get; set; }          public DateTime CreationTime { get; set; } }</code></pre> <ul> <li>发布消息</li> </ul> <pre><code class="language-csharp">[ApiController] [Route("[controller]")] public class PublishController : ControllerBase {     private readonly ILogger<PublishController> _logger;     private readonly IPublishEndpoint _publishEndpoint;      public PublishController(ILogger<PublishController> logger, IPublishEndpoint publishEndpoint)     {         _logger = logger;         _publishEndpoint = publishEndpoint;     }      [HttpGet]     public async Task Get()     {         await _publishEndpoint.Publish<OrderEto>(new OrderEto()         {             Id = Guid.NewGuid(),             Name = "Phone",             CreationTime = DateTime.Now         });     } }</code></pre> <h1 id="消费者端">消费者端</h1> <pre><code class="language-csharp">builder.Services.AddMassTransit(x => {          // 通过扫描程序集注册消费者     x.AddConsumers(typeof(Program).Assembly);         // 通过类型单个注册消费者     // x.AddConsumer<OrderEtoConsumer>(typeof(OrderEtoConsumerDefinition));          // x.SetKebabCaseEndpointNameFormatter();          // 通过泛型单个注册消费者     //x.AddConsumer<OrderEtoConsumer, OrderEtoConsumerDefinition>();          // 通过指定命名空间注册消费者     // x.AddConsumersFromNamespaceContaining<OrderEtoConsumer>();          // 使用内存队列     // x.UsingInMemory();     x.UsingRabbitMq((context, config) =>     {                config.Host("rabbitmq://localhost:5672", hostconfig =>         {             hostconfig.Username("admin");             hostconfig.Password("admin");         });                  config.ConfigureEndpoints(context);             }); });</code></pre> <ul> <li>消费者定义</li> </ul> <pre><code class="language-csharp">public class OrderEtoConsumer : IConsumer<OrderEto> {     private readonly ILogger<OrderEtoConsumer> _logger;      public OrderEtoConsumer(ILogger<OrderEtoConsumer> logger)     {         _logger = logger;     }      public Task Consume(ConsumeContext<OrderEto> context)     {         _logger.LogInformation($"MassTransit.Consumer.One 收到消息:{JsonSerializer.Serialize(context.Message)}");         return Task.CompletedTask;     } }  public class OrderEtoConsumerDefinition : ConsumerDefinition<OrderEtoConsumer> {     protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator, IConsumerConfigurator<OrderEtoConsumer> consumerConfigurator)     {         endpointConfigurator.UseMessageRetry(r => r.Intervals(500, 1000));     } }</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/4fdf4f6d0971d4dfa5d5af3b2cd495b4.jpg" alt="MassTransit 入门详解"></p> <h1 id="abp-vnext-vue实现">Abp Vnext Vue实现</h1> <ul> <li>Github地址</li> <li>文档地址</li> <li>演示地址</li> </ul> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-117.htm">面试题-kafka如何保证消息不丢失</a></p>
                                         <p>下一个：<a href="/html/category/article-119.htm">Error response from daemon: Get https://registry-1.docker.io/v2/: net/http: TLS handshake timeout</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
+                <h4><a href="/html/category/article-4442.htm">动物疫苗价格表图片高清大全集（动物疫苗价格查询）</a></h4>
+                <p>摘要：       今天给各位分享动物疫苗价格表图片高清大全集的知识，其中也会对动物疫苗价格查询进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗打疫苗一般.</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
+                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
+                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
             </div>
         </div>
     </div>
@@ -123,58 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4479.htm">宠物狗粮上市公司 宠物狗粮上市公司有哪些</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物狗粮上市公司的问题，于是小编就整理了3个相关介绍宠物狗粮上市公司的解答，让我们一起看看吧。我去店里买狗粮，老板推荐”爱贝“给</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
-                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
-                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+                <h4><a href="/html/category/article-4515.htm">真正的宠物狗免费领养网站有哪些地方（真正的宠物狗免费领养网站有哪些地方呢）</a></h4>
+                <p>摘要：       今天给各位分享真正的宠物狗免费领养网站有哪些地方的知识，其中也会对真正的宠物狗免费领养网站有哪些地方呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录</p>
             </div>
         </div>
     </div>
@@ -193,8 +143,58 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4549.htm">深圳宠物领养中心官网（深圳宠物领养机构）</a></h4>
-                <p>摘要：       今天给各位分享深圳宠物领养中心官网的知识，其中也会对深圳宠物领养机构进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、那个,我想问下深圳的狗.</p>
+                <h4><a href="/html/category/article-5570.htm">动物疫苗空瓶无害化处理措施（动物疫苗空瓶无害化处理措施有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗空瓶无害化处理措施，以及动物疫苗空瓶无害化处理措施有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、无害化处理方式有哪些...</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-5569.htm">襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于襄阳免费领养宠物猫信息的问题，于是小编就整理了4个相关介绍襄阳免费领养宠物猫信息的解答，让我们一起看看吧。襄樊有孤儿院吗？正常收</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
+                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
+                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3729.htm">Git基础之协作模式详解</a></h4>
+                <p>目录  1、分布式工作流程 2、集中式工作流 3、分支工作流 4、GitFlow 工作流(最流行) 5、Forking 工作流(偶尔使用) 6、总结   1、分布式工作流程 与传统的集中式版本控制系统</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

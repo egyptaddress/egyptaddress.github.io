@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p><img decoding="async" alt="" class="has" height="53" src="http://img.555519.xyz/uploads3/20220602/6415c63d75af5653e1eaceae9f656676.jpg"></p> <p></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/cebc1e8fa39f64d4ae8568994b214829.jpg"></p> <p>一、在common项目里建一个service（实际项目肯定是多个service）作为Feign客户端，用Feign客户端来调用服务器提供者，当然可以配置负载均衡；Feign客户端定义的目的，就是为了方便给其他项目调用；</p> <p>二，修改 springcloud-common<br /> pom.xml引入Feign依赖：</p> <pre class="has"><code class="language-java">&lt;dependency&gt;         &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;         &lt;artifactId&gt;spring-cloud-starter-feign&lt;/artifactId&gt; &lt;/dependency&gt;</code></pre> <p>三.创建FeignClientService服务接口：<br /> FeignClient，同时指定了调用的服务名称PROVIDER</p> <pre class="has"><code class="language-java">package com.li.springcloud.common.feign; import java.util.List; import java.util.Map; import org.springframework.cloud.netflix.feign.FeignClient; import org.springframework.web.bind.annotation.GetMapping; import com.li.springcloud.common.model.Student; /**  * Feign接口客户端  *   * @author Administrator  *  */  //value对应生产者提的服务名称 @FeignClient(value = "PROVIDER") public interface FeignClientService {     /**      * 查询用户信息      *       * @return      */     @GetMapping(value = "/provider/list")     public List&lt;Student&gt; list(); }</code></pre> <p>四、新建一个Feign消费者项目springcloud-consumer-feign-1<br /> 1.代码都复制springcloud-consumer-1项目一份，包括pom.xml，pom.xml里加下 feign依赖；<br /> 2.修改启动类名称，加注解启动类名称改下，改成ConsumerFeignApplication同时加个注解<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/EnableFeignClients"  rel="nofollow">@EnableFeignClients</a>支持下Feign（因为feign客户端是写到common项目中所以扫描的时候要指定扫描包目录：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/EnableFeignClients"  rel="nofollow">@EnableFeignClients</a>({“com.li.springcloud.common.feign”})）；<br /> 3.修改springcloud-consumer-feign-1项目中的Contrller类：</p> <pre class="has"><code class="language-java">package com.li.spingcloud.consumerfeign.controller; import java.util.List; import java.util.Map; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.web.bind.annotation.RequestMapping; import org.springframework.web.bind.annotation.RequestMethod; import org.springframework.web.bind.annotation.RestController; import org.springframework.web.client.RestTemplate; import com.li.springcloud.common.feign.FeignClientService; import com.li.springcloud.common.model.Student; @RestController public class ConsumerController {     @Autowired     private FeignClientService feignClientService;     /**      * 查询数据库      *       * @return      */     @RequestMapping(value = "/consumer/list", produces = "application/json; charset=utf-8", method = {             RequestMethod.POST, RequestMethod.GET })     public List&lt;Student&gt; list() {         System.out.println("调用消费者。。。。。");         return feignClientService.list();     } }</code></pre> <p>4.用Fiegn，所以把restTemplate去掉，改成注入service，调用service方法来实现服务的调用；<br /> 五、测试：<br /> 1.先启动Eureka集群或者单机；<br /> 2.在启动服务生产者集群或者单机；<br /> 3.然后启动springcloud-consumer-feign-1服务消费者；</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/c5460e5ec9073a2acc5f7bbe355cba67.jpg"></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/227e6ef769900346f67a5eed8a52ff94.jpg"></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/0a99d58737a00a93afe38123ab48c697.jpg"></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/a8f84bb198cdeec696702a7f0da979f9.jpg"></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p><img decoding="async" alt="" class="has" height="53" src="http://img.555519.xyz/uploads3/20220602/6415c63d75af5653e1eaceae9f656676.jpg"></p> <p></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/cebc1e8fa39f64d4ae8568994b214829.jpg"></p> <p>一、在common项目里建一个service（实际项目肯定是多个service）作为Feign客户端，用Feign客户端来调用服务器提供者，当然可以配置负载均衡；Feign客户端定义的目的，就是为了方便给其他项目调用；</p> <p>二，修改 springcloud-common<br /> pom.xml引入Feign依赖：</p> <pre class="has"><code class="language-java"><dependency>         <groupId>org.springframework.cloud</groupId>         spring-cloud-starter-feign</artifactId> </dependency></code></pre> <p>三.创建FeignClientService服务接口：<br /> FeignClient，同时指定了调用的服务名称PROVIDER</p> <pre class="has"><code class="language-java">package com.li.springcloud.common.feign; import java.util.List; import java.util.Map; import org.springframework.cloud.netflix.feign.FeignClient; import org.springframework.web.bind.annotation.GetMapping; import com.li.springcloud.common.model.Student; /**  * Feign接口客户端  *   * @author Administrator  *  */  //value对应生产者提的服务名称 @FeignClient(value = "PROVIDER") public interface FeignClientService {     /**      * 查询用户信息      *       * @return      */     @GetMapping(value = "/provider/list")     public List<Student> list(); }</code></pre> <p>四、新建一个Feign消费者项目springcloud-consumer-feign-1<br /> 1.代码都复制springcloud-consumer-1项目一份，包括pom.xml，pom.xml里加下 feign依赖；<br /> 2.修改启动类名称，加注解启动类名称改下，改成ConsumerFeignApplication同时加个注解<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/EnableFeignClients"  rel="nofollow">@EnableFeignClients支持下Feign（因为feign客户端是写到common项目中所以扫描的时候要指定扫描包目录：@EnableFeignClients({“com.li.springcloud.common.feign”})）；<br /> 3.修改springcloud-consumer-feign-1项目中的Contrller类：</p> <pre class="has"><code class="language-java">package com.li.spingcloud.consumerfeign.controller; import java.util.List; import java.util.Map; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.web.bind.annotation.RequestMapping; import org.springframework.web.bind.annotation.RequestMethod; import org.springframework.web.bind.annotation.RestController; import org.springframework.web.client.RestTemplate; import com.li.springcloud.common.feign.FeignClientService; import com.li.springcloud.common.model.Student; @RestController public class ConsumerController {     @Autowired     private FeignClientService feignClientService;     /**      * 查询数据库      *       * @return      */     @RequestMapping(value = "/consumer/list", produces = "application/json; charset=utf-8", method = {             RequestMethod.POST, RequestMethod.GET })     public List<Student> list() {         System.out.println("调用消费者。。。。。");         return feignClientService.list();     } }</code></pre> <p>4.用Fiegn，所以把restTemplate去掉，改成注入service，调用service方法来实现服务的调用；<br /> 五、测试：<br /> 1.先启动Eureka集群或者单机；<br /> 2.在启动服务生产者集群或者单机；<br /> 3.然后启动springcloud-consumer-feign-1服务消费者；</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/c5460e5ec9073a2acc5f7bbe355cba67.jpg"></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/227e6ef769900346f67a5eed8a52ff94.jpg"></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/0a99d58737a00a93afe38123ab48c697.jpg"></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/a8f84bb198cdeec696702a7f0da979f9.jpg"></p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-75.htm">解决Error response from daemon: Get “https://registry-1.docker.io/v2/“: read: connection refused问题</a></p>
                                         <p>下一个：<a href="/html/category/article-77.htm">排查线上问题的9种方式</a></p>
@@ -103,58 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4549.htm">深圳宠物领养中心官网（深圳宠物领养机构）</a></h4>
-                <p>摘要：       今天给各位分享深圳宠物领养中心官网的知识，其中也会对深圳宠物领养机构进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、那个,我想问下深圳的狗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2824.htm">如何使用线程池执行定时任务？</a></h4>
-                <p>在 Java 语言中，有两个线程池可以执行定时任务：ScheduledThreadPool 和 SingleThreadScheduledExecutor，其中 SingleThreadSchedul</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1629.htm">原生js实现楼层滚动（界面滑动）效果</a></h4>
-                <p>截取自自己写的代码 思路很简单，就是改编自回到顶部效果，控制滚动条位移到指定位置  先有个布局，四个触发li和四张图片 &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;h</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1351.htm">Rabbit MQ 怎么保证可靠性、幂等性、消费顺序</a></h4>
-                <p>RabbitMQ如何保证消息的可靠性 RabbitMQ消息丢失的三种情况 生产者弄丢消息时的解决方法  方法一：生产者在发送数据之前开启RabbitMQ的事务(采用该种方法由于事务机制，会导致吞吐量下</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></h4>
-                <p>&lt;div id="app"&gt;     &lt;h1&gt;懒加载lazy&lt;/h1&gt;     &lt;h3&gt;不让输入框实时同步&lt;/h3&gt;     &lt;inp</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4124.htm">谈谈高并发系统的一些解决方案</a></h4>
-                <p>本文结合项目经验，整理一份大纲，供参考。 常用指标   RT（Response Time）：响应时间。可能会衍生出 TP999、TP99、TP95、TP90等指标。一般在几毫秒到几百毫秒之间。   Q</p>
+                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
+                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
             </div>
         </div>
     </div>
@@ -173,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4402.htm">狗粮品牌有哪些品牌 狗粮品牌有哪些品牌好</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于狗粮品牌有哪些品牌的问题，于是小编就整理了2个相关介绍狗粮品牌有哪些品牌的解答，让我们一起看看吧。狗粮哪几个品牌比较好？狗粮哪个</p>
+                <h4><a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></h4>
+                <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：  【夯实Spring Cloud】</p>
             </div>
         </div>
     </div>
@@ -193,8 +143,58 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
-                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
+                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
+                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
+                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4402.htm">狗粮品牌有哪些品牌 狗粮品牌有哪些品牌好</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于狗粮品牌有哪些品牌的问题，于是小编就整理了2个相关介绍狗粮品牌有哪些品牌的解答，让我们一起看看吧。狗粮哪几个品牌比较好？狗粮哪个</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3755.htm">Kotlin中的扩展函数（静态分派）</a></h4>
+                <p>扩展函数  扩展函数可以在已有类中添加新的方法，不会对原类做修改   举例1  对Context进行扩展showToast方法，可以在Fragment、Activity、Application中弹出T</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

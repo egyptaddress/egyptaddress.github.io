@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>说到防抖和节流相信大家都不陌生，这两个东西大家可能多多少少都有用到过，最少也有听过</p> <p>古人云，温故而知新。虽然可能已经很熟悉防抖和节流了，但不妨再看一看巩固一下知识</p> <p>什么？你说你不仅不会手写防抖和节流，也没有听过。那也没事，下文会详细介绍的</p> <h1 id="防抖和节流有什么用">防抖和节流有什么用？</h1> <p>简单来说，防抖和节流都是用来减少函数执行的频率，以达到优化项目性能或者实现特定功能的效果</p> <h1 id="防抖">防抖</h1> <p>定义：事件被触发一定时间后再执行回调。如果在这段时间内又被触发了，则重新开始计算时间</p> <h2 id="常用场景">常用场景</h2> <ul> <li>输入框远程查询事件</li> <li>在线文档自动保存</li> <li>浏览器视口大小改变</li> </ul> <h2 id="例子">例子</h2> <p>张三在某平台搜索一本书籍，发现搜索建议并不是瞬间就出现的，而是自己输入词组结束后出现的。那么该平台在此搜索框可能做了什么操作？</p> <h3 id="代码实现">代码实现</h3> <pre><code>&lt;body&gt;   &lt;input type="text" id="searchElement" /&gt; &lt;/body&gt; &lt;script&gt;   const searchElement = document.getElementById('searchElement');   const debounce = (fn, initial) =&gt; {     let timer = null;     return () =&gt; {       clearTimeout(timer);       timer = setTimeout(fn, initial);     };   };    searchElement.oninput = debounce(function (event) {     const value = searchElement.value;     if (value) console.log(value, '请求值');   }, 1000); &lt;/script&gt;</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/3ae0068f09c67389a613503cc1cced46.jpg" alt="前端都应该要掌握的防抖和节流"></p> <h1 id="节流">节流</h1> <p>定义：在单位时间内只触发一次函数，若单位时间内多次触发只有一次生效</p> <h2 id="常用场景-1">常用场景</h2> <ul> <li>按钮提交事件（当然也可做成点击后就loading）</li> <li>页面滚动事件的触发</li> <li>累计计算鼠标移动距离</li> </ul> <h2 id="例子-1">例子</h2> <p>张三参加某平台周年庆活动，他选购了某热门饮品并一直点击抢购按钮，却发现并不是每次点击都会有响应的。那么该平台前端可能做了什么限制？</p> <h3 id="代码实现-1">代码实现</h3> <pre><code>&lt;body&gt;   &lt;button type="submit" id="buttonElement"&gt;抢购&lt;/button&gt; &lt;/body&gt; &lt;script&gt;   function throttle(fn, interval) {     let timer;     return (event) =&gt; {       if (timer) return false;       timer = setTimeout(() =&gt; {         clearTimeout(timer);         timer = null;         fn(event);       }, interval);     };   }    var btnClick = document.getElementById('buttonElement');   btnClick.addEventListener('click', throttle(function (event) {     console.log(event, '点击了')   }, 1000)); &lt;/script&gt;</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/e94cc5caabd86a3ecca5c0821ee9abf0.jpg" alt="前端都应该要掌握的防抖和节流"></p> <p>可以看到，张三疯狂点击抢购，但还是每秒只响应1次</p> <h2 id="节流立即执行">节流(立即执行)</h2> <p>细心的同学可能发现了，上面这个代码有个弊端，那就是在张三第一次点击的时候也隔了1秒才响应，这不免也太坑了。正常来说第一次应该直接响应的，并且在连续点击结束后的第一次也应该立即触发，其实想实现这样的效果也不难</p> <pre><code>&lt;body&gt;   &lt;button type="submit" id="buttonElement"&gt;抢购&lt;/button&gt; &lt;/body&gt; &lt;script&gt;   function throttle2(fn, interval) {       let init = false; // 引入一个参数记录状态       let timer;       return (event) =&gt; {           if (init) return;           init = true;           clearTimeout(timer);           timer = setTimeout(() =&gt; {               init = false;           }, interval);           fn(event);       }   }    var btnClick = document.getElementById('buttonElement');   btnClick.addEventListener('click', throttle2(function (event) {       console.log(event, '点击了')   }, 2000)); &lt;/script&gt;</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/1082044ccaf02d3d1aa62a59e9ab4cea.jpg" alt="前端都应该要掌握的防抖和节流"></p> <p>可以看到第一次点击直接打印，第二次疯狂点击只打印一次，最后一次点击也是直接打印</p> <h1 id="引入lodash实现">引入Lodash实现</h1> <p>GitHub地址：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/lodash/lodash"  target="_blank" rel="nofollow">https://github.com/lodash/lodash</a><br /> 官方文档：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.lodashjs.com/"  target="_blank" rel="nofollow">https://www.lodashjs.com/</a></p> <h2 id="防抖-1"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.lodashjs.com/docs/lodash.debounce#_debouncefunc-wait0-options"  target="_blank" rel="nofollow">防抖</a></h2> <pre><code>import _ from 'lodash'; debounceHandle: _.debounce(function() {   console.log('业务代码'); }, 2000, {       // 在n毫秒内触发   leading: true, // 第一次点击立刻执行，默认为true   trailing: true // 节流结束后立刻执行，默认为true });</code></pre> <h2 id="节流-1"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.lodashjs.com/docs/lodash.throttle#_throttlefunc-wait0-options"  target="_blank" rel="nofollow">节流</a></h2> <pre><code>import _ from 'lodash'; throttleHandle: _.throttle(function() {   console.log("业务代码"); }, 2000);</code></pre> 			                </div>
+                      				  				  				<p>说到防抖和节流相信大家都不陌生，这两个东西大家可能多多少少都有用到过，最少也有听过</p> <p>古人云，温故而知新。虽然可能已经很熟悉防抖和节流了，但不妨再看一看巩固一下知识</p> <p>什么？你说你不仅不会手写防抖和节流，也没有听过。那也没事，下文会详细介绍的</p> <h1 id="防抖和节流有什么用">防抖和节流有什么用？</h1> <p>简单来说，防抖和节流都是用来减少函数执行的频率，以达到优化项目性能或者实现特定功能的效果</p> <h1 id="防抖">防抖</h1> <p>定义：事件被触发一定时间后再执行回调。如果在这段时间内又被触发了，则重新开始计算时间</p> <h2 id="常用场景">常用场景</h2> <ul> <li>输入框远程查询事件</li> <li>在线文档自动保存</li> <li>浏览器视口大小改变</li> </ul> <h2 id="例子">例子</h2> <p>张三在某平台搜索一本书籍，发现搜索建议并不是瞬间就出现的，而是自己输入词组结束后出现的。那么该平台在此搜索框可能做了什么操作？</p> <h3 id="代码实现">代码实现</h3> <pre><code><body>   <input type="text" id="searchElement" /> </body> <script>   const searchElement = document.getElementById('searchElement');   const debounce = (fn, initial) => {     let timer = null;     return () => {       clearTimeout(timer);       timer = setTimeout(fn, initial);     };   };    searchElement.oninput = debounce(function (event) {     const value = searchElement.value;     if (value) console.log(value, '请求值');   }, 1000); </script></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/3ae0068f09c67389a613503cc1cced46.jpg" alt="前端都应该要掌握的防抖和节流"></p> <h1 id="节流">节流</h1> <p>定义：在单位时间内只触发一次函数，若单位时间内多次触发只有一次生效</p> <h2 id="常用场景-1">常用场景</h2> <ul> <li>按钮提交事件（当然也可做成点击后就loading）</li> <li>页面滚动事件的触发</li> <li>累计计算鼠标移动距离</li> </ul> <h2 id="例子-1">例子</h2> <p>张三参加某平台周年庆活动，他选购了某热门饮品并一直点击抢购按钮，却发现并不是每次点击都会有响应的。那么该平台前端可能做了什么限制？</p> <h3 id="代码实现-1">代码实现</h3> <pre><code><body>   <button type="submit" id="buttonElement">抢购</button> </body> <script>   function throttle(fn, interval) {     let timer;     return (event) => {       if (timer) return false;       timer = setTimeout(() => {         clearTimeout(timer);         timer = null;         fn(event);       }, interval);     };   }    var btnClick = document.getElementById('buttonElement');   btnClick.addEventListener('click', throttle(function (event) {     console.log(event, '点击了')   }, 1000)); </script></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/e94cc5caabd86a3ecca5c0821ee9abf0.jpg" alt="前端都应该要掌握的防抖和节流"></p> <p>可以看到，张三疯狂点击抢购，但还是每秒只响应1次</p> <h2 id="节流立即执行">节流(立即执行)</h2> <p>细心的同学可能发现了，上面这个代码有个弊端，那就是在张三第一次点击的时候也隔了1秒才响应，这不免也太坑了。正常来说第一次应该直接响应的，并且在连续点击结束后的第一次也应该立即触发，其实想实现这样的效果也不难</p> <pre><code><body>   <button type="submit" id="buttonElement">抢购</button> </body> <script>   function throttle2(fn, interval) {       let init = false; // 引入一个参数记录状态       let timer;       return (event) => {           if (init) return;           init = true;           clearTimeout(timer);           timer = setTimeout(() => {               init = false;           }, interval);           fn(event);       }   }    var btnClick = document.getElementById('buttonElement');   btnClick.addEventListener('click', throttle2(function (event) {       console.log(event, '点击了')   }, 2000)); </script></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/1082044ccaf02d3d1aa62a59e9ab4cea.jpg" alt="前端都应该要掌握的防抖和节流"></p> <p>可以看到第一次点击直接打印，第二次疯狂点击只打印一次，最后一次点击也是直接打印</p> <h1 id="引入lodash实现">引入Lodash实现</h1> <p>GitHub地址：https://github.com/lodash/lodash<br /> 官方文档：https://www.lodashjs.com/</p> <h2 id="防抖-1">防抖</h2> <pre><code>import _ from 'lodash'; debounceHandle: _.debounce(function() {   console.log('业务代码'); }, 2000, {       // 在n毫秒内触发   leading: true, // 第一次点击立刻执行，默认为true   trailing: true // 节流结束后立刻执行，默认为true });</code></pre> <h2 id="节流-1">节流</h2> <pre><code>import _ from 'lodash'; throttleHandle: _.throttle(function() {   console.log("业务代码"); }, 2000);</code></pre> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-155.htm">Java中的多态</a></p>
                                         <p>下一个：<a href="/html/category/article-157.htm">pymysql 插入数据 转义处理</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
-                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
+                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
+                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
+                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
+                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
             </div>
         </div>
     </div>
@@ -123,8 +123,18 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1940.htm">vue2 自定义指令 实现全屏 、对话框拖拽</a></h4>
-                <p>模块下载 用于全屏 npm i screenfull@5.1.0 -S   新建文件 新建directives.js文件，复制下面代码 import Vue from "vue";  // 全屏 im</p>
+                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
+                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
+                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
             </div>
         </div>
     </div>
@@ -143,38 +153,28 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
-                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1054.htm">mysql 中插入百万条数据</a></h4>
-                <p>文章目录  mysql 中插入百万条数据     1. 创建测试表 2. 开启二进制日志 3. 创建一个生成随机字符串的函数: 4. 调用上边的两个插入函数        mysql 中插入百万条数据</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
                 <h4><a href="/html/category/article-4443.htm">中国农大动物医院哪个医生好 中国农大动物医院哪个医生好一点</a></h4>
                 <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于中国农大动物医院哪个医生好的问题，于是小编就整理了4个相关介绍中国农大动物医院哪个医生好的解答，让我们一起看看吧。北京农大动物医</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
+                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
+                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
             </div>
         </div>
     </div>
@@ -193,8 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
+                <h4><a href="/html/category/article-1054.htm">mysql 中插入百万条数据</a></h4>
+                <p>文章目录  mysql 中插入百万条数据     1. 创建测试表 2. 开启二进制日志 3. 创建一个生成随机字符串的函数: 4. 调用上边的两个插入函数        mysql 中插入百万条数据</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

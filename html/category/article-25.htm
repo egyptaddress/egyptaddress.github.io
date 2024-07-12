@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<blockquote class="pgc-blockquote-abstract"> <p data-track="1">项目地址，走过路过可以点个star ：）<br class="sysbr"/><br />https://github.com/saigu/LogLevelSwitch</p> </blockquote> <h1 class="pgc-h-arrow-right">1.为什么需要LogLevelSwitch</h1> <p data-track="3">随着业务规模不断扩大，每一次线上故障的快速定位都是对开发同学的巨大挑战。</p> <p data-track="4">通过日志进行业务关键逻辑的输出，是定位问题的有效手段之一。但是，过多的日志记录又会对系统造成额外的开销，极端情况下，甚至可能导致系统宕机。</p> <p data-track="5">因此，为了兼顾性能和故障场景下的快速定位，我们需要能够实时调整日志等级，以便输出更多的日志信息排查线上问题，或是减少日志打印带来的性能消耗。</p> <div class="pgc-img"></p> <p class="pgc-img-caption"> </div> <p data-track="6">基于以上背景，我们的LogLevelSwitch诞生了。</p> <blockquote> <p data-track="7">LogLevleSwitch以中间件的形式嵌入应用，基于配置中心的热更新能力，实现了应用运行时动态调整日志等级的能力。</p> </blockquote> <h1 class="pgc-h-arrow-right" data-track="8">2.功能特性</h1> <ul> <li data-track="9">兼容性：支持Log4j、Log4j2、Logback等。</li> <li data-track="10">扩展性：可以使用默认的基于本地配置文件的配置修改方式（仅供本地测试学习使用）。生产上，「强烈推荐」&nbsp;通过SPI接入你自己的配置中心，实现热更新。</li> <li data-track="11">易用性：接入简单，效果拔群，只要5分钟你就能用上。</li> </ul> <h1 class="pgc-h-arrow-right" data-track="12">3.基本架构</h1> <div class="pgc-img"><img decoding="async" src="https://p3.toutiaoimg.com/origin/tos-cn-i-qvj2lq49k0/d28defcc670840bd9654e326e258e46e?from=pc" alt="写了个开源小中间件——运行时动态日志等级开关" class="syl-page-img"/></p> <p class="pgc-img-caption"> </div> <p data-track="66">在应用Application中引入我们的LogLevelSwitch。</p> <p data-track="14">LogLevelSwitch包含两个核心组件，LogContext和SwitchContext。</p> <ul> <li data-track="15">SwitchContext: 保存从配置中心获取的switch开关状态与具体Logger配置信息。通过监听配置中心消息，实时更新switch内容，并实现对Logger等级的修改通知。</li> <li data-track="16">LogContext：保存应用原始的Logger与日志级别信息，并能够根据switch配置 更新 或 复原 Logger的等级。</li> </ul> <h1 class="pgc-h-arrow-right" data-track="17">4.Quick Start</h1> <p data-track="18">话不多说了，快来尝尝鲜吧。</p> <h1 class="pgc-h-arrow-right" data-track="19">4.1 普通spring项目</h1> <p data-track="20">只用三步即可完成。</p> <ul> <li data-track="21">STEP 1: 应用中pom引入依赖</li> </ul> <pre class="syl-page-code hljs xml"><code><span class="hljs-tag">&lt;<span class="hljs-name">dependency&gt;<span class="hljs-tag">&lt;<span class="hljs-name">groupId&gt;io.github.saigu<span class="hljs-tag">&lt;/<span class="hljs-name">groupId&gt;<span class="hljs-tag">&lt;<span class="hljs-name">artifactId&gt;log-switch-core<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId&gt;<span class="hljs-tag">&lt;<span class="hljs-name">version&gt;1.0.0-beta<span class="hljs-tag">&lt;/<span class="hljs-name">version&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">dependency&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="23">STEP 2: 构建config Bean</li> </ul> <pre class="syl-page-code hljs java"><code><span class="hljs-meta">@Configuration<span class="hljs-keyword">public<span class="hljs-class"><span class="hljs-keyword">class<span class="hljs-title">LogLevelSwitchConfig {<span class="hljs-meta">@Bean<span class="hljs-function">LogLevelSwitch<span class="hljs-title">logLevelSwitch<span class="hljs-params">() {<span class="hljs-keyword">return<span class="hljs-keyword">new LogLevelSwitch();     } }</span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="25">STEP 3: 接入配置中心</li> </ul> <p data-track="26">声明配置中心的SPI实现。</p> <blockquote class="pgc-blockquote-abstract"> <p data-track="27">在resource路径下新建 META-INF/services，创建文件名为<br />io.github.saigu.log.level.sw.listener.ConfigListener的文件，并写入需要的「实现类名」。</p> </blockquote> <p data-track="28">实现一：项目自带的LocalFile配置中心</p> <p data-track="29">如果你还没有自己的配置中心，那就使用我们自带的基于本地配置文件进行本地测试学习。</p> <p data-track="30">「实现类名」为<br />io.github.saigu.log.level.sw.listener.LocalFileListener</p> <blockquote class="pgc-blockquote-abstract"> <p data-track="31">注意，生产上 强烈推荐 通过「实现二」接入你自己的配置中心，实现热更新。</p> </blockquote> <p data-track="32">在resource目录下新建LocalSwitch.json文件：</p> <div class="pgc-img"><img decoding="async" src="https://p3.toutiaoimg.com/origin/tos-cn-i-qvj2lq49k0/622c60a6ac16442ea3fbb1c0b059145e?from=pc" alt="写了个开源小中间件——运行时动态日志等级开关" class="syl-page-img"/></p> <p class="pgc-img-caption"> </div> <p data-track="33">然后填写开关配置：</p> <pre class="syl-page-code hljs json"><code>{<span class="hljs-attr">"status":<span class="hljs-string">"on",<span class="hljs-attr">"loggerBeans": [     {<span class="hljs-attr">"name":<span class="hljs-string">"all",<span class="hljs-attr">"level":<span class="hljs-string">"error"     }   ] }</span></span></span></span></span></span></span></code></pre> <p data-track="35">实现二：自定义SPI扩展配置,接入自己的配置中心</p> <p data-track="36">如果你已经有了自己的配置中心，那就可以通过SPI扩展配置,接入自己的配置中心。</p> <p data-track="37">「实现类名」为你自己的实现类名。</p> <p class="syl-page-br" data-track="38"> <h1 class="pgc-h-arrow-right" data-track="40">4.2 springboot项目</h1> <p data-track="41">两步接入。</p> <ul> <li data-track="42">STEP 1: 应用中pom引入依赖</li> </ul> <pre class="syl-page-code hljs xml"><code><span class="hljs-tag">&lt;<span class="hljs-name">dependency&gt;<span class="hljs-tag">&lt;<span class="hljs-name">groupId&gt;io.github.saigu<span class="hljs-tag">&lt;/<span class="hljs-name">groupId&gt;<span class="hljs-tag">&lt;<span class="hljs-name">artifactId&gt;log-switch-starter<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId&gt;<span class="hljs-tag">&lt;<span class="hljs-name">version&gt;1.0.0-beta<span class="hljs-tag">&lt;/<span class="hljs-name">version&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">dependency&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="44">STEP 2: 接入配置中心<br />同「方式一」</li> </ul> <h1 class="pgc-h-arrow-right" data-track="45">5.关键配置</h1> <p data-track="46">SwitchContext是我们的关键配置：</p> <div class="tableWrapper"> <div class="syl-shadow-provider"> <div class="syl-table-wrap"> <table> <colgroup> <col> <col> <col></colgroup> <tbody> <tr> <td> <p data-track="47">参数名</p> </td> <td> <p data-track="48">含义</p> </td> <td> <p data-track="49">可选值</p> </td> </tr> <tr> <td> <p class="syl-line-pure-english" data-track="50">status</p> </td> <td> <p data-track="51">开关状态</p> </td> <td> <p data-track="52">「off」: 关闭，使用应用 「on」:开启，使用配置中心的配置等级。</p> </td> </tr> <tr> <td> <p class="syl-line-pure-english" data-track="53">List&lt;LoggerBean&gt;</p> </td> <td> <p data-track="54">日志等级list</p> </td> <td> <p data-track="55">如果列表的第一个LoggerBean的name为all，则影响全局logger等级</p> </td> </tr> </tbody> </table> </div> </div> </div> <p data-track="56">参考范例：</p> <pre class="syl-page-code hljs json"><code>{<span class="hljs-attr">"status":<span class="hljs-string">"on",<span class="hljs-attr">"loggerBeans": [     {<span class="hljs-attr">"name":<span class="hljs-string">"all",<span class="hljs-attr">"level":<span class="hljs-string">"error"     }   ] }</span></span></span></span></span></span></span></code></pre> <h1 class="pgc-h-arrow-right" data-track="58">6.注意事项</h1> <p data-track="59">为了规范日志使用，同时避免影响降级开关效果，初始化的时候会去检测项目中依赖的日志框架实现。</p> <p data-track="60">请注意，如果日志提示</p> <blockquote> <p data-track="61">“存在多个日志框架实现，建议只保留一个，否则会影响日志降级开关效果”</p> </blockquote> <p data-track="62">说明检测到了应用中引入了多个日志框架实现。</p> <p data-track="63">建议从pom中进行移除多余日志框架，确保采用唯一日志框架实现。</p> <h1 class="pgc-h-arrow-right" data-track="64">7.详细设计 TL;DR</h1> <p data-track="65">本文还是专注于介绍吧，后面再讲讲实现吧，敬请期待。</p> <p data-track="65"> <blockquote><p>都看到最后了，原创不易，点个关注，点个赞吧～</p></blockquote> <blockquote><p>文章持续更新，可以微信搜索「阿丸笔记 」第一时间阅读，回复【笔记】获取Canal、MySQL、HBase、JAVA实战笔记，回复【资料】获取一线大厂面试资料。</p></blockquote> <blockquote><p>知识碎片重新梳理，构建Java知识图谱：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/saigu/JavaKnowledgeGraph"  rel="nofollow">github.com/saigu/JavaK…</a>（历史文章查阅非常方便）</p></blockquote> <p data-track="65"> 			                </div>
+                      				  				  				<blockquote class="pgc-blockquote-abstract"> <p data-track="1">项目地址，走过路过可以点个star ：）<br class="sysbr"/><br />https://github.com/saigu/LogLevelSwitch</p> </blockquote> <h1 class="pgc-h-arrow-right">1.为什么需要LogLevelSwitch</h1> <p data-track="3">随着业务规模不断扩大，每一次线上故障的快速定位都是对开发同学的巨大挑战。</p> <p data-track="4">通过日志进行业务关键逻辑的输出，是定位问题的有效手段之一。但是，过多的日志记录又会对系统造成额外的开销，极端情况下，甚至可能导致系统宕机。</p> <p data-track="5">因此，为了兼顾性能和故障场景下的快速定位，我们需要能够实时调整日志等级，以便输出更多的日志信息排查线上问题，或是减少日志打印带来的性能消耗。</p> <div class="pgc-img"></p> <p class="pgc-img-caption"> </div> <p data-track="6">基于以上背景，我们的LogLevelSwitch诞生了。</p> <blockquote> <p data-track="7">LogLevleSwitch以中间件的形式嵌入应用，基于配置中心的热更新能力，实现了应用运行时动态调整日志等级的能力。</p> </blockquote> <h1 class="pgc-h-arrow-right" data-track="8">2.功能特性</h1> <ul> <li data-track="9">兼容性：支持Log4j、Log4j2、Logback等。</li> <li data-track="10">扩展性：可以使用默认的基于本地配置文件的配置修改方式（仅供本地测试学习使用）。生产上，「强烈推荐」&nbsp;通过SPI接入你自己的配置中心，实现热更新。</li> <li data-track="11">易用性：接入简单，效果拔群，只要5分钟你就能用上。</li> </ul> <h1 class="pgc-h-arrow-right" data-track="12">3.基本架构</h1> <div class="pgc-img"><img decoding="async" src="https://p3.toutiaoimg.com/origin/tos-cn-i-qvj2lq49k0/d28defcc670840bd9654e326e258e46e?from=pc" alt="写了个开源小中间件——运行时动态日志等级开关" class="syl-page-img"/></p> <p class="pgc-img-caption"> </div> <p data-track="66">在应用Application中引入我们的LogLevelSwitch。</p> <p data-track="14">LogLevelSwitch包含两个核心组件，LogContext和SwitchContext。</p> <ul> <li data-track="15">SwitchContext: 保存从配置中心获取的switch开关状态与具体Logger配置信息。通过监听配置中心消息，实时更新switch内容，并实现对Logger等级的修改通知。</li> <li data-track="16">LogContext：保存应用原始的Logger与日志级别信息，并能够根据switch配置 更新 或 复原 Logger的等级。</li> </ul> <h1 class="pgc-h-arrow-right" data-track="17">4.Quick Start</h1> <p data-track="18">话不多说了，快来尝尝鲜吧。</p> <h1 class="pgc-h-arrow-right" data-track="19">4.1 普通spring项目</h1> <p data-track="20">只用三步即可完成。</p> <ul> <li data-track="21">STEP 1: 应用中pom引入依赖</li> </ul> <pre class="syl-page-code hljs xml"><code><span class="hljs-tag"><<span class="hljs-name">dependency><span class="hljs-tag"><<span class="hljs-name">groupId>io.github.saigu<span class="hljs-tag"></<span class="hljs-name">groupId><span class="hljs-tag"><<span class="hljs-name">artifactId>log-switch-core<span class="hljs-tag"></<span class="hljs-name">artifactId><span class="hljs-tag"><<span class="hljs-name">version>1.0.0-beta<span class="hljs-tag"></<span class="hljs-name">version><span class="hljs-tag"></<span class="hljs-name">dependency></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="23">STEP 2: 构建config Bean</li> </ul> <pre class="syl-page-code hljs java"><code><span class="hljs-meta">@Configuration<span class="hljs-keyword">public<span class="hljs-class"><span class="hljs-keyword">class<span class="hljs-title">LogLevelSwitchConfig {<span class="hljs-meta">@Bean<span class="hljs-function">LogLevelSwitch<span class="hljs-title">logLevelSwitch<span class="hljs-params">() {<span class="hljs-keyword">return<span class="hljs-keyword">new LogLevelSwitch();     } }</span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="25">STEP 3: 接入配置中心</li> </ul> <p data-track="26">声明配置中心的SPI实现。</p> <blockquote class="pgc-blockquote-abstract"> <p data-track="27">在resource路径下新建 META-INF/services，创建文件名为<br />io.github.saigu.log.level.sw.listener.ConfigListener的文件，并写入需要的「实现类名」。</p> </blockquote> <p data-track="28">实现一：项目自带的LocalFile配置中心</p> <p data-track="29">如果你还没有自己的配置中心，那就使用我们自带的基于本地配置文件进行本地测试学习。</p> <p data-track="30">「实现类名」为<br />io.github.saigu.log.level.sw.listener.LocalFileListener</p> <blockquote class="pgc-blockquote-abstract"> <p data-track="31">注意，生产上 强烈推荐 通过「实现二」接入你自己的配置中心，实现热更新。</p> </blockquote> <p data-track="32">在resource目录下新建LocalSwitch.json文件：</p> <div class="pgc-img"><img decoding="async" src="https://p3.toutiaoimg.com/origin/tos-cn-i-qvj2lq49k0/622c60a6ac16442ea3fbb1c0b059145e?from=pc" alt="写了个开源小中间件——运行时动态日志等级开关" class="syl-page-img"/></p> <p class="pgc-img-caption"> </div> <p data-track="33">然后填写开关配置：</p> <pre class="syl-page-code hljs json"><code>{<span class="hljs-attr">"status":<span class="hljs-string">"on",<span class="hljs-attr">"loggerBeans": [     {<span class="hljs-attr">"name":<span class="hljs-string">"all",<span class="hljs-attr">"level":<span class="hljs-string">"error"     }   ] }</span></span></span></span></span></span></span></code></pre> <p data-track="35">实现二：自定义SPI扩展配置,接入自己的配置中心</p> <p data-track="36">如果你已经有了自己的配置中心，那就可以通过SPI扩展配置,接入自己的配置中心。</p> <p data-track="37">「实现类名」为你自己的实现类名。</p> <p class="syl-page-br" data-track="38"> <h1 class="pgc-h-arrow-right" data-track="40">4.2 springboot项目</h1> <p data-track="41">两步接入。</p> <ul> <li data-track="42">STEP 1: 应用中pom引入依赖</li> </ul> <pre class="syl-page-code hljs xml"><code><span class="hljs-tag"><<span class="hljs-name">dependency><span class="hljs-tag"><<span class="hljs-name">groupId>io.github.saigu<span class="hljs-tag"></<span class="hljs-name">groupId><span class="hljs-tag"><<span class="hljs-name">artifactId>log-switch-starter<span class="hljs-tag"></<span class="hljs-name">artifactId><span class="hljs-tag"><<span class="hljs-name">version>1.0.0-beta<span class="hljs-tag"></<span class="hljs-name">version><span class="hljs-tag"></<span class="hljs-name">dependency></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></code></pre> <ul> <li data-track="44">STEP 2: 接入配置中心<br />同「方式一」</li> </ul> <h1 class="pgc-h-arrow-right" data-track="45">5.关键配置</h1> <p data-track="46">SwitchContext是我们的关键配置：</p> <div class="tableWrapper"> <div class="syl-shadow-provider"> <div class="syl-table-wrap"> <table> <colgroup> <col> <col> <col></colgroup> <tbody> <tr> <td> <p data-track="47">参数名</p> </td> <td> <p data-track="48">含义</p> </td> <td> <p data-track="49">可选值</p> </td> </tr> <tr> <td> <p class="syl-line-pure-english" data-track="50">status</p> </td> <td> <p data-track="51">开关状态</p> </td> <td> <p data-track="52">「off」: 关闭，使用应用 「on」:开启，使用配置中心的配置等级。</p> </td> </tr> <tr> <td> <p class="syl-line-pure-english" data-track="53">List<LoggerBean></p> </td> <td> <p data-track="54">日志等级list</p> </td> <td> <p data-track="55">如果列表的第一个LoggerBean的name为all，则影响全局logger等级</p> </td> </tr> </tbody> </table> </div> </div> </div> <p data-track="56">参考范例：</p> <pre class="syl-page-code hljs json"><code>{<span class="hljs-attr">"status":<span class="hljs-string">"on",<span class="hljs-attr">"loggerBeans": [     {<span class="hljs-attr">"name":<span class="hljs-string">"all",<span class="hljs-attr">"level":<span class="hljs-string">"error"     }   ] }</span></span></span></span></span></span></span></code></pre> <h1 class="pgc-h-arrow-right" data-track="58">6.注意事项</h1> <p data-track="59">为了规范日志使用，同时避免影响降级开关效果，初始化的时候会去检测项目中依赖的日志框架实现。</p> <p data-track="60">请注意，如果日志提示</p> <blockquote> <p data-track="61">“存在多个日志框架实现，建议只保留一个，否则会影响日志降级开关效果”</p> </blockquote> <p data-track="62">说明检测到了应用中引入了多个日志框架实现。</p> <p data-track="63">建议从pom中进行移除多余日志框架，确保采用唯一日志框架实现。</p> <h1 class="pgc-h-arrow-right" data-track="64">7.详细设计 TL;DR</h1> <p data-track="65">本文还是专注于介绍吧，后面再讲讲实现吧，敬请期待。</p> <p data-track="65"> <blockquote><p>都看到最后了，原创不易，点个关注，点个赞吧～</p></blockquote> <blockquote><p>文章持续更新，可以微信搜索「阿丸笔记 」第一时间阅读，回复【笔记】获取Canal、MySQL、HBase、JAVA实战笔记，回复【资料】获取一线大厂面试资料。</p></blockquote> <blockquote><p>知识碎片重新梳理，构建Java知识图谱：github.com/saigu/JavaK…（历史文章查阅非常方便）</p></blockquote> <p data-track="65"> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-24.htm">设计模式学习笔记状态模式及其实现</a></p>
                                         <p>下一个：<a href="/html/category/article-26.htm">python神经网络Keras构建CNN网络训练_python</a></p>
@@ -103,38 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1629.htm">原生js实现楼层滚动（界面滑动）效果</a></h4>
-                <p>截取自自己写的代码 思路很简单，就是改编自回到顶部效果，控制滚动条位移到指定位置  先有个布局，四个触发li和四张图片 &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;h</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-790.htm">详细分析虚拟DOM与diff算法</a></h4>
-                <p>????虚拟DOM与diff算法 在vue、react等技术出现之前，每次修改DOM都需要通过遍历查询DOM树的方式，找到需要更新的DOM，然后修改样式或结构，资源损耗十分严重。而对于虚拟DOM来说，</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
-                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
-                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
+                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
+                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
             </div>
         </div>
     </div>
@@ -153,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
+                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
+                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
             </div>
         </div>
     </div>
@@ -163,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4443.htm">中国农大动物医院哪个医生好 中国农大动物医院哪个医生好一点</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于中国农大动物医院哪个医生好的问题，于是小编就整理了4个相关介绍中国农大动物医院哪个医生好的解答，让我们一起看看吧。北京农大动物医</p>
+                <h4><a href="/html/category/article-4479.htm">宠物狗粮上市公司 宠物狗粮上市公司有哪些</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物狗粮上市公司的问题，于是小编就整理了3个相关介绍宠物狗粮上市公司的解答，让我们一起看看吧。我去店里买狗粮，老板推荐”爱贝“给</p>
             </div>
         </div>
     </div>
@@ -173,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></h4>
-                <p>&lt;div id="app"&gt;     &lt;h1&gt;懒加载lazy&lt;/h1&gt;     &lt;h3&gt;不让输入框实时同步&lt;/h3&gt;     &lt;inp</p>
+                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
+                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
             </div>
         </div>
     </div>
@@ -183,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1054.htm">mysql 中插入百万条数据</a></h4>
-                <p>文章目录  mysql 中插入百万条数据     1. 创建测试表 2. 开启二进制日志 3. 创建一个生成随机字符串的函数: 4. 调用上边的两个插入函数        mysql 中插入百万条数据</p>
+                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
             </div>
         </div>
     </div>
@@ -193,8 +163,38 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
-                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
+                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
+                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
+                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
+                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

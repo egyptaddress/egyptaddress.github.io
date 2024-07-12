@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1><a id="Centos7_Nginx_0" rel="nofollow"></a>Centos7 Nginx编译包制作</h1> <p>找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下</p> <h2><a id="1_4" rel="nofollow"></a>1、准备一台虚拟机（可访问互联网）</h2> <h2><a id="2_6" rel="nofollow"></a>2、安装所需插件</h2> <pre><code class="prism language-sh">$ yum -y install gcc pcre pcre-devel zlib zlib-devel openssl openssl-devel gcc-c++ libtool</code></pre> <h2><a id="3nginx_12" rel="nofollow"></a>3、准备nginx包</h2> <h3><a id="31_14" rel="nofollow"></a>3.1、下载</h3> <p>通过网页下载，然后上传到Centos7系统的/opt目录下</p> <p>或者，直接在Centos7系统下接命令下载到/opt目录下</p> <pre><code class="prism language-sh">$ cd /opt $ wget http://nginx.org/download/nginx-1.14.0.tar.gz</code></pre> <h3><a id="32__25" rel="nofollow"></a>3.2 解压</h3> <p>解压 nginx-1.14.0.tar.gz，并重命名为 nginx</p> <pre><code class="prism language-sh">$ cd /opt $ tar zxf nginx-1.14.0.tar.gz</code></pre> <h3><a id="33__34" rel="nofollow"></a>3.3 重命名</h3> <pre><code class="prism language-sh">$ cd /opt $ mv nginx-1.14.0 nginx</code></pre> <h2><a id="4nginx_41" rel="nofollow"></a>4、配置nginx</h2> <pre><code class="prism language-sh">$ cd /opt/nginx $ ./configure --prefix=/usr/local/nginx  --conf-path=/usr/local/nginx/conf/nginx.conf  --error-log-path=/usr/local/nginx/log/error.log --http-log-path=/usr/local/nginx/log/access.log</code></pre> <p>注：此处配置Nginx安装目录为 /usr/local/nginx，将来安装时，会在/usr/local/下生成nginx目录。</p> <h2><a id="5Nginx_50" rel="nofollow"></a>5、编译Nginx</h2> <pre><code class="prism language-sh">$ cd /opt/nginx $ make</code></pre> <h2><a id="6Nginx_57" rel="nofollow"></a>6、打包Nginx</h2> <pre><code class="prism language-sh">$ cd /opt $ tar cvzf nginx.hasmake.1.14.0.tar.gz nginx</code></pre> <p>打包后，会在/opt 目录下生成一个 nginx.hasmake.1.14.0.tar.gz 包</p> <h1><a id="Centos7_Nginx_66" rel="nofollow"></a>Centos7 Nginx离线安装</h1> <ul> <li>上传包</li> </ul> <p>应用 nginx.hasmake.1.14.0.tar.gz 已编译好的包，上传到对应的Centos7系统上，比如此处放到 /opt 目录下，则安装很简单</p> <pre><code class="prism language-sh">$ cd /opt $ tar zxf nginx.hasmake.1.14.0.tar.gz	#解压后得到 nginx 目录 $ cd nginx								#进入 nginx 目录 $ make install							#安装</code></pre> <ul> <li>解压</li> </ul> <p>安装完成后，将会在 /usr/local 目录下，生成一个 nginx 目录。如下</p> <pre><code class="prism language-sh">$ ll /usr/local/nginx drwxr-xr-x. 2 root root 4096 11月 10 14:22 conf drwxr-xr-x. 2 root root   38 11月 10 14:22 html drwxr-xr-x. 2 root root    6 11月 10 14:22 log drwxr-xr-x. 2 root root    6 11月 10 14:22 logs drwxr-xr-x. 2 root root   18 11月 10 14:22 sbin</code></pre> <ul> <li>nginx 配置文件测试</li> </ul> <pre><code class="prism language-sh">$ /usr/local/nginx/sbin/nginx -t</code></pre> <ul> <li>nginx 启动</li> </ul> <pre><code class="prism language-sh">$ /usr/local/nginx/sbin/nginx</code></pre> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h1>Centos7 Nginx编译包制作</h1> <p>找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下</p> <h2>1、准备一台虚拟机（可访问互联网）</h2> <h2>2、安装所需插件</h2> <pre><code class="prism language-sh">$ yum -y install gcc pcre pcre-devel zlib zlib-devel openssl openssl-devel gcc-c++ libtool</code></pre> <h2>3、准备nginx包</h2> <h3>3.1、下载</h3> <p>通过网页下载，然后上传到Centos7系统的/opt目录下</p> <p>或者，直接在Centos7系统下接命令下载到/opt目录下</p> <pre><code class="prism language-sh">$ cd /opt $ wget http://nginx.org/download/nginx-1.14.0.tar.gz</code></pre> <h3>3.2 解压</h3> <p>解压 nginx-1.14.0.tar.gz，并重命名为 nginx</p> <pre><code class="prism language-sh">$ cd /opt $ tar zxf nginx-1.14.0.tar.gz</code></pre> <h3>3.3 重命名</h3> <pre><code class="prism language-sh">$ cd /opt $ mv nginx-1.14.0 nginx</code></pre> <h2>4、配置nginx</h2> <pre><code class="prism language-sh">$ cd /opt/nginx $ ./configure --prefix=/usr/local/nginx  --conf-path=/usr/local/nginx/conf/nginx.conf  --error-log-path=/usr/local/nginx/log/error.log --http-log-path=/usr/local/nginx/log/access.log</code></pre> <p>注：此处配置Nginx安装目录为 /usr/local/nginx，将来安装时，会在/usr/local/下生成nginx目录。</p> <h2>5、编译Nginx</h2> <pre><code class="prism language-sh">$ cd /opt/nginx $ make</code></pre> <h2>6、打包Nginx</h2> <pre><code class="prism language-sh">$ cd /opt $ tar cvzf nginx.hasmake.1.14.0.tar.gz nginx</code></pre> <p>打包后，会在/opt 目录下生成一个 nginx.hasmake.1.14.0.tar.gz 包</p> <h1>Centos7 Nginx离线安装</h1> <ul> <li>上传包</li> </ul> <p>应用 nginx.hasmake.1.14.0.tar.gz 已编译好的包，上传到对应的Centos7系统上，比如此处放到 /opt 目录下，则安装很简单</p> <pre><code class="prism language-sh">$ cd /opt $ tar zxf nginx.hasmake.1.14.0.tar.gz	#解压后得到 nginx 目录 $ cd nginx								#进入 nginx 目录 $ make install							#安装</code></pre> <ul> <li>解压</li> </ul> <p>安装完成后，将会在 /usr/local 目录下，生成一个 nginx 目录。如下</p> <pre><code class="prism language-sh">$ ll /usr/local/nginx drwxr-xr-x. 2 root root 4096 11月 10 14:22 conf drwxr-xr-x. 2 root root   38 11月 10 14:22 html drwxr-xr-x. 2 root root    6 11月 10 14:22 log drwxr-xr-x. 2 root root    6 11月 10 14:22 logs drwxr-xr-x. 2 root root   18 11月 10 14:22 sbin</code></pre> <ul> <li>nginx 配置文件测试</li> </ul> <pre><code class="prism language-sh">$ /usr/local/nginx/sbin/nginx -t</code></pre> <ul> <li>nginx 启动</li> </ul> <pre><code class="prism language-sh">$ /usr/local/nginx/sbin/nginx</code></pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></p>
                                         <p>下一个：<a href="/html/category/article-1341.htm">FreeRTOS进阶之队列示例完全解析_操作系统</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2823.htm">jQuery实现呼吸灯轮播图</a></h4>
-                <p>jQuery实现呼吸灯轮播图  jQuery实现呼吸灯轮播图    jQuery实现呼吸灯轮播图 &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;he</p>
+                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
-                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
+                <h4><a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></h4>
+                <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：  【夯实Spring Cloud】</p>
             </div>
         </div>
     </div>
@@ -123,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2824.htm">如何使用线程池执行定时任务？</a></h4>
-                <p>在 Java 语言中，有两个线程池可以执行定时任务：ScheduledThreadPool 和 SingleThreadScheduledExecutor，其中 SingleThreadSchedul</p>
+                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
+                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
             </div>
         </div>
     </div>
@@ -133,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4479.htm">宠物狗粮上市公司 宠物狗粮上市公司有哪些</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物狗粮上市公司的问题，于是小编就整理了3个相关介绍宠物狗粮上市公司的解答，让我们一起看看吧。我去店里买狗粮，老板推荐”爱贝“给</p>
+                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
+                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
             </div>
         </div>
     </div>
@@ -143,38 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
-                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
-                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4585.htm">宠物疫苗猫咪可以打吗（猫咪打疫苗宠物店可以打吗?）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物疫苗猫咪可以打吗，以及猫咪打疫苗宠物店可以打吗?对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、两个月的小猫能打狂犬疫苗吗?...  </p>
+                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
+                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
             </div>
         </div>
     </div>
@@ -193,8 +163,38 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4515.htm">真正的宠物狗免费领养网站有哪些地方（真正的宠物狗免费领养网站有哪些地方呢）</a></h4>
-                <p>摘要：       今天给各位分享真正的宠物狗免费领养网站有哪些地方的知识，其中也会对真正的宠物狗免费领养网站有哪些地方呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录</p>
+                <h4><a href="/html/category/article-4585.htm">宠物疫苗猫咪可以打吗（猫咪打疫苗宠物店可以打吗?）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物疫苗猫咪可以打吗，以及猫咪打疫苗宠物店可以打吗?对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、两个月的小猫能打狂犬疫苗吗?...  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
+                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
+                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4478.htm">开宠物店大概需要多少投资（开宠物店投资多少钱一月能得多少利）</a></h4>
+                <p>摘要：       今天给各位分享开宠物店大概需要多少投资的知识，其中也会对开宠物店投资多少钱一月能得多少利进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、开.</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

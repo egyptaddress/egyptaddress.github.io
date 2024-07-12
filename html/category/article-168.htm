@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">vue浏览器跨域问题和vue proxyTable跨域中pathRewrite配置</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_0_0" rel="nofollow">vue浏览器跨域问题</a></li> <li><a href="#_lab2_0_1" rel="nofollow">为什么会跨域</a></li> <li><a href="#_lab2_0_2" rel="nofollow">什么是同源策略</a></li> <li><a href="#_lab2_0_3" rel="nofollow">解决办法</a></li> <li><a href="#_lab2_0_4" rel="nofollow">pathRewrite</a></li> </ul> <li><a href="#_label1" rel="nofollow">代理配置proxy下pathrewrite失效踩坑</a></li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>vue浏览器跨域问题和vue proxyTable跨域中pathRewrite配置</h2> <p class="maodian"><a name="_lab2_0_0" rel="nofollow"></a></p> <h3>vue浏览器跨域问题</h3> <p>当浏览器报如下错误时，则说明请求跨域了。</p> <blockquote> <p>localhost/:1 Failed to load http://www.thenewstep.cn/test/testToken.php: Response to preflight request doesn’t pass access control check: No ‘Access-Control-Allow-Origin’ header is present on the requested resource. Origin ‘http://localhost:8080’ is therefore not allowed access. If an opaque response serves your needs, set the request’s mode to ‘no-cors’ to fetch the resource with CORS disabled.</p> </blockquote> <p class="maodian"><a name="_lab2_0_1" rel="nofollow"></a></p> <h3>为什么会跨域</h3> <p>因为浏览器同源策略的限制，不是同源的脚本不能操作其他源下面的对象。</p> <p class="maodian"><a name="_lab2_0_2" rel="nofollow"></a></p> <h3>什么是同源策略</h3> <p>同源策略（Same origin policy）是一种约定，它是浏览器最核心也最基本的安全功能，如果缺少了同源策略，则浏览器的正常功能可能都会受到影响。</p> <p>可以说Web是构建在同源策略基础之上的，浏览器只是针对同源策略的一种实现。</p> <p>简单的来说:协议、IP、端口三者都相同，则为同源</p> <p class="maodian"><a name="_lab2_0_3" rel="nofollow"></a></p> <h3>解决办法</h3> <p>跨域的解决办法有很多，比如script标签 、jsonp、后端设置cros等等…,但是我这里讲的是webpack配置vue 的 proxyTable解决跨域。</p> <p class="maodian"><a name="_lab2_0_4" rel="nofollow"></a></p> <h3>pathRewrite</h3> <p>简单来说，pathRewrite是使用proxy进行代理时，对请求路径进行重定向以匹配到正确的请求地址，</p> <div class="ay1code"> <pre class="brush:js;">dev: {      // Paths      assetsSubDirectory: 'static',      assetsPublicPath: '/',      proxyTable: {        '/api': {          target: 'http://XX.XX.XX.XX:8083',          changeOrigin: true,          pathRewrite: {            '^/api': '/api'   // 这种接口配置出来     http://XX.XX.XX.XX:8083/api/login            //'^/api': '/' 这种接口配置出来     http://XX.XX.XX.XX:8083/login          }        }      }    },</pre> </div> <p>如何不配置pathRewrite 请求就被转发到 http://XX.XX.XX.XX:8083 并把相应uri带上。</p> <p>比如：localhost:8080/api/xxx 会被转发到http://XX.XX.XX.XX:8083/api/xxx</p> <p>配置完成后需要重新编译一遍 , 调用接口的时候</p> <div class="ay1code"> <pre class="brush:js;">        // 获取菜单权限        getPermission(){          this.$ajaxget({            url: '/api/getPermission',            data: {},            isLayer: true,            successFc: data =&gt; {              console.log(data.data)            }          })</pre> </div> <p>2种数据请求方式： fecth和axios</p> <p><strong>1、fetch方式</strong></p> <p>在需要请求的页面，只需要这样写(/apis+具体请求参数)，如下：</p> <div class="ay1code"> <pre class="brush:js;">fetch("/apis/test/testToken.php", {        method: "POST",        headers: {          "Content-type": "application/json",          token: "f4c902c9ae5a2a9d8f84868ad064e706"        },        body: JSON.stringify(data)      })        .then(res =&gt; res.json())        .then(data =&gt; {          console.log(data);        });</pre> </div> <p><strong>2、axios方式</strong></p> <p>main.js代码</p> <div class="ay1code"> <pre class="brush:js;">import Vue from 'vue'  import App from './App'  import axios from 'axios'  Vue.config.productionTip = false  Vue.prototype.$axios = axios //将axios挂载在Vue实例原型上  // 设置axios请求的token  axios.defaults.headers.common['token'] = 'f4c902c9ae5a2a9d8f84868ad064e706'  //设置请求头  axios.defaults.headers.post["Content-type"] = "application/json"</pre> </div> <p>axios请求页面代码</p> <div class="ay1code"> <pre class="brush:js;">this.$axios.post('/apis/test/testToken.php',data).then(res=&gt;{          console.log(res)  })</pre> </div> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>代理配置proxy下pathrewrite失效踩坑</h2> <p>从网上直接找到的代码复制过来报错，最后找了一下午为什么失效，最后发现问题直接破防了</p> <p><strong>错误：</strong></p> <div class="ay1code"> <pre class="brush:js;">pathRewrite: {     "  ^/api  "  : "" //若请求的路径在目标url下但不在/api 下，则将其转换成空    },</pre> </div> <p><strong>正确：</strong></p> <div class="ay1code"> <pre class="brush:js;">pathRewrite: {     "^/api": "" //若请求的路径在目标url下但不在/api 下，则将其转换成空     },</pre> </div> <p><strong>原因：</strong></p> <p>直接复制过来的 "  ^/api  "  : ""里面多了两个空格，判断url的时候就获取不到/api，删除空格就解决问题了</p> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li>vue浏览器跨域问题和vue proxyTable跨域中pathRewrite配置</li> <ul class="second_class_ul"> <li>vue浏览器跨域问题</li> <li>为什么会跨域</li> <li>什么是同源策略</li> <li>解决办法</li> <li>pathRewrite</li> </ul> <li>代理配置proxy下pathrewrite失效踩坑</li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"></p> <h2>vue浏览器跨域问题和vue proxyTable跨域中pathRewrite配置</h2> <p class="maodian"></p> <h3>vue浏览器跨域问题</h3> <p>当浏览器报如下错误时，则说明请求跨域了。</p> <blockquote> <p>localhost/:1 Failed to load http://www.thenewstep.cn/test/testToken.php: Response to preflight request doesn’t pass access control check: No ‘Access-Control-Allow-Origin’ header is present on the requested resource. Origin ‘http://localhost:8080’ is therefore not allowed access. If an opaque response serves your needs, set the request’s mode to ‘no-cors’ to fetch the resource with CORS disabled.</p> </blockquote> <p class="maodian"></p> <h3>为什么会跨域</h3> <p>因为浏览器同源策略的限制，不是同源的脚本不能操作其他源下面的对象。</p> <p class="maodian"></p> <h3>什么是同源策略</h3> <p>同源策略（Same origin policy）是一种约定，它是浏览器最核心也最基本的安全功能，如果缺少了同源策略，则浏览器的正常功能可能都会受到影响。</p> <p>可以说Web是构建在同源策略基础之上的，浏览器只是针对同源策略的一种实现。</p> <p>简单的来说:协议、IP、端口三者都相同，则为同源</p> <p class="maodian"></p> <h3>解决办法</h3> <p>跨域的解决办法有很多，比如script标签 、jsonp、后端设置cros等等…,但是我这里讲的是webpack配置vue 的 proxyTable解决跨域。</p> <p class="maodian"></p> <h3>pathRewrite</h3> <p>简单来说，pathRewrite是使用proxy进行代理时，对请求路径进行重定向以匹配到正确的请求地址，</p> <div class="ay1code"> <pre class="brush:js;">dev: {      // Paths      assetsSubDirectory: 'static',      assetsPublicPath: '/',      proxyTable: {        '/api': {          target: 'http://XX.XX.XX.XX:8083',          changeOrigin: true,          pathRewrite: {            '^/api': '/api'   // 这种接口配置出来     http://XX.XX.XX.XX:8083/api/login            //'^/api': '/' 这种接口配置出来     http://XX.XX.XX.XX:8083/login          }        }      }    },</pre> </div> <p>如何不配置pathRewrite 请求就被转发到 http://XX.XX.XX.XX:8083 并把相应uri带上。</p> <p>比如：localhost:8080/api/xxx 会被转发到http://XX.XX.XX.XX:8083/api/xxx</p> <p>配置完成后需要重新编译一遍 , 调用接口的时候</p> <div class="ay1code"> <pre class="brush:js;">        // 获取菜单权限        getPermission(){          this.$ajaxget({            url: '/api/getPermission',            data: {},            isLayer: true,            successFc: data => {              console.log(data.data)            }          })</pre> </div> <p>2种数据请求方式： fecth和axios</p> <p><strong>1、fetch方式</strong></p> <p>在需要请求的页面，只需要这样写(/apis+具体请求参数)，如下：</p> <div class="ay1code"> <pre class="brush:js;">fetch("/apis/test/testToken.php", {        method: "POST",        headers: {          "Content-type": "application/json",          token: "f4c902c9ae5a2a9d8f84868ad064e706"        },        body: JSON.stringify(data)      })        .then(res => res.json())        .then(data => {          console.log(data);        });</pre> </div> <p><strong>2、axios方式</strong></p> <p>main.js代码</p> <div class="ay1code"> <pre class="brush:js;">import Vue from 'vue'  import App from './App'  import axios from 'axios'  Vue.config.productionTip = false  Vue.prototype.$axios = axios //将axios挂载在Vue实例原型上  // 设置axios请求的token  axios.defaults.headers.common['token'] = 'f4c902c9ae5a2a9d8f84868ad064e706'  //设置请求头  axios.defaults.headers.post["Content-type"] = "application/json"</pre> </div> <p>axios请求页面代码</p> <div class="ay1code"> <pre class="brush:js;">this.$axios.post('/apis/test/testToken.php',data).then(res=>{          console.log(res)  })</pre> </div> <p class="maodian"></p> <h2>代理配置proxy下pathrewrite失效踩坑</h2> <p>从网上直接找到的代码复制过来报错，最后找了一下午为什么失效，最后发现问题直接破防了</p> <p><strong>错误：</strong></p> <div class="ay1code"> <pre class="brush:js;">pathRewrite: {     "  ^/api  "  : "" //若请求的路径在目标url下但不在/api 下，则将其转换成空    },</pre> </div> <p><strong>正确：</strong></p> <div class="ay1code"> <pre class="brush:js;">pathRewrite: {     "^/api": "" //若请求的路径在目标url下但不在/api 下，则将其转换成空     },</pre> </div> <p><strong>原因：</strong></p> <p>直接复制过来的 "  ^/api  "  : ""里面多了两个空格，判断url的时候就获取不到/api，删除空格就解决问题了</p> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-167.htm">Python——import、time、os、random模块</a></p>
                                         <p>下一个：<a href="/html/category/article-169.htm">mybatis-spring-boot-starter 原理分析</a></p>
@@ -99,76 +99,6 @@ var _hmt = _hmt || [];
                             </div>
             <div class="col-md-4 w3l-services">
                 <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
-                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
-                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
-                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
-                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4123.htm">Vue +Vant 实现顶部搜索栏</a></h4>
-                <p>搜索栏组件源码(SearchBar.vue) &lt;template&gt;   &lt;section class="city-search"&gt;     &lt;van-icon class</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3729.htm">Git基础之协作模式详解</a></h4>
-                <p>目录  1、分布式工作流程 2、集中式工作流 3、分支工作流 4、GitFlow 工作流(最流行) 5、Forking 工作流(偶尔使用) 6、总结   1、分布式工作流程 与传统的集中式版本控制系统</p>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="row w3l-achievements">
     <div class="col-lg-12 item">
         <div class="card">
@@ -183,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
-                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
+                <h4><a href="/html/category/article-4443.htm">中国农大动物医院哪个医生好 中国农大动物医院哪个医生好一点</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于中国农大动物医院哪个医生好的问题，于是小编就整理了4个相关介绍中国农大动物医院哪个医生好的解答，让我们一起看看吧。北京农大动物医</p>
             </div>
         </div>
     </div>
@@ -193,8 +123,78 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
+                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
+                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></h4>
+                <p>Centos7 Nginx编译包制作 找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下 1、准备一台虚拟机（可访问互联网） 2、安装所需插件 $ yum -y install gcc</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
+                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1940.htm">vue2 自定义指令 实现全屏 、对话框拖拽</a></h4>
+                <p>模块下载 用于全屏 npm i screenfull@5.1.0 -S   新建文件 新建directives.js文件，复制下面代码 import Vue from "vue";  // 全屏 im</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
+                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4402.htm">狗粮品牌有哪些品牌 狗粮品牌有哪些品牌好</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于狗粮品牌有哪些品牌的问题，于是小编就整理了2个相关介绍狗粮品牌有哪些品牌的解答，让我们一起看看吧。狗粮哪几个品牌比较好？狗粮哪个</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
+                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">devServer.proxy相关配置项的说明</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_0_0" rel="nofollow">devServer.proxy中的 changeOrigin 参数</a></li> <li><a href="#_lab2_0_1" rel="nofollow">devServer.proxy中的 pathRewrite 参数</a></li> </ul> <li><a href="#_label1" rel="nofollow">devServer.proxy代理配置详解</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_2" rel="nofollow">.config.js文件中引入依赖项</a></li> <li><a href="#_lab2_1_3" rel="nofollow">更多的代理控制行为</a></li> </ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>devServer.proxy相关配置项的说明</h2> <p>如图：</p> <p style="text-align:center"><img fetchpriority="high" decoding="async" alt="" height="468" src="http://img.555519.xyz/uploads3/20220419/c654dd8247e19c678eadded88b38f3d4.jpg"></p> <p class="maodian"><a name="_lab2_0_0" rel="nofollow"></a></p> <h3>devServer.proxy中的 changeOrigin 参数</h3> <p>changeOrigin 为false时，请求头中host仍然是浏览器发送过来的host;如果设置成true：发送请求头中host会设置成target的值。</p> <p class="maodian"><a name="_lab2_0_1" rel="nofollow"></a></p> <h3>devServer.proxy中的 pathRewrite 参数</h3> <p>本示例中，pathRewrite设置了<strong> '^/lr': ''</strong> ，作用如下:</p> <p>使用代理，首先需要有一个标识，告诉程序这个连接要使用代理，不然的话，可能你的html、css、js、矢量图等静态资源都跑去代理。所以我们要通过一个唯一标识，让接口使用代理，静态资源文件使用本地。</p> <p>proxy中的 <strong>'/lr':{······}</strong>，就是告诉node，我的接口是要以 <strong>/lr</strong> 开头的才使用代理。所有的接口都要写成 <strong>/lr/xx/xx</strong> ，以 <strong>/lr</strong> 开头，最后代理的接口路径路径就是 http://localhost:8080/lirong/lr/xx/xx</p> <p>但是例子中真实的后台数据接口里没有<strong> /lr</strong>，直接就是 http://localhost:8080/lirong/xx/xx ，所以就需要配置 pathRewrite，用<strong>'^/lr': ''</strong> 将<strong> /lr</strong> 去掉，这样既有正确的标识，又能在真实请求接口的时候去掉 <strong>/lr</strong> 。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>devServer.proxy代理配置详解</h2> <p>如果你的前端应用和后端 API 服务器没有运行在同一个主机上，你需要在开发环境下将 API 请求代理到 API 服务器。可以通过 *.config.js 中的 devServer.proxy 选项来配置。</p> <p class="maodian"><a name="_lab2_1_2" rel="nofollow"></a></p> <h3>.config.js文件中引入依赖项</h3> <div class="ay1code"> <pre class="brush:js;">const proxy = require('http-proxy-middleware');</pre> </div> <p>devServer.proxy 可以是一个指向开发环境 API 服务器的字符串</p> <p>//服务器会将任何未知请求 (没有匹配到静态文件的请求) 代理到http://localhost:4000上</p> <div class="ay1code"> <pre class="brush:js;">module.exports = {    devServer: {      proxy: 'http://localhost:4000'    }  }</pre> </div> <p class="maodian"><a name="_lab2_1_3" rel="nofollow"></a></p> <h3>更多的代理控制行为</h3> <div class="ay1code"> <pre class="brush:js;">const proxy = require('http-proxy-middleware');  module.exports = {     devServer:{      host: 'localhost',//target host      port: 8080,      //proxy:{'/api':{}},代理器中设置/api,项目中请求路径为/api的替换为target      proxy:{          '/api':{              target: 'http://192.168.1.30:8085',//代理地址，这里设置的地址会代替axios中设置的baseURL              changeOrigin: true,// 如果接口跨域，需要进行这个参数配置              //ws: true, // proxy websockets              //pathRewrite方法重写url              pathRewrite: {                  '^/api': '/'                   //pathRewrite: {'^/api': '/'} 重写之后url为 http://192.168.1.16:8085/xxxx                  //pathRewrite: {'^/api': '/api'} 重写之后url为 http://192.168.1.16:8085/api/xxxx             }      }}  },  //...  }</pre> </div> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li>devServer.proxy相关配置项的说明</li> <ul class="second_class_ul"> <li>devServer.proxy中的 changeOrigin 参数</li> <li>devServer.proxy中的 pathRewrite 参数</li> </ul> <li>devServer.proxy代理配置详解</li> <ul class="second_class_ul"> <li>.config.js文件中引入依赖项</li> <li>更多的代理控制行为</li> </ul> </ul> </div> <p class="maodian"></p> <h2>devServer.proxy相关配置项的说明</h2> <p>如图：</p> <p style="text-align:center"><img fetchpriority="high" decoding="async" alt="" height="468" src="http://img.555519.xyz/uploads3/20220419/c654dd8247e19c678eadded88b38f3d4.jpg"></p> <p class="maodian"></p> <h3>devServer.proxy中的 changeOrigin 参数</h3> <p>changeOrigin 为false时，请求头中host仍然是浏览器发送过来的host;如果设置成true：发送请求头中host会设置成target的值。</p> <p class="maodian"></p> <h3>devServer.proxy中的 pathRewrite 参数</h3> <p>本示例中，pathRewrite设置了<strong> '^/lr': ''</strong> ，作用如下:</p> <p>使用代理，首先需要有一个标识，告诉程序这个连接要使用代理，不然的话，可能你的html、css、js、矢量图等静态资源都跑去代理。所以我们要通过一个唯一标识，让接口使用代理，静态资源文件使用本地。</p> <p>proxy中的 <strong>'/lr':{······}</strong>，就是告诉node，我的接口是要以 <strong>/lr</strong> 开头的才使用代理。所有的接口都要写成 <strong>/lr/xx/xx</strong> ，以 <strong>/lr</strong> 开头，最后代理的接口路径路径就是 http://localhost:8080/lirong/lr/xx/xx</p> <p>但是例子中真实的后台数据接口里没有<strong> /lr</strong>，直接就是 http://localhost:8080/lirong/xx/xx ，所以就需要配置 pathRewrite，用<strong>'^/lr': ''</strong> 将<strong> /lr</strong> 去掉，这样既有正确的标识，又能在真实请求接口的时候去掉 <strong>/lr</strong> 。</p> <p class="maodian"></p> <h2>devServer.proxy代理配置详解</h2> <p>如果你的前端应用和后端 API 服务器没有运行在同一个主机上，你需要在开发环境下将 API 请求代理到 API 服务器。可以通过 *.config.js 中的 devServer.proxy 选项来配置。</p> <p class="maodian"></p> <h3>.config.js文件中引入依赖项</h3> <div class="ay1code"> <pre class="brush:js;">const proxy = require('http-proxy-middleware');</pre> </div> <p>devServer.proxy 可以是一个指向开发环境 API 服务器的字符串</p> <p>//服务器会将任何未知请求 (没有匹配到静态文件的请求) 代理到http://localhost:4000上</p> <div class="ay1code"> <pre class="brush:js;">module.exports = {    devServer: {      proxy: 'http://localhost:4000'    }  }</pre> </div> <p class="maodian"></p> <h3>更多的代理控制行为</h3> <div class="ay1code"> <pre class="brush:js;">const proxy = require('http-proxy-middleware');  module.exports = {     devServer:{      host: 'localhost',//target host      port: 8080,      //proxy:{'/api':{}},代理器中设置/api,项目中请求路径为/api的替换为target      proxy:{          '/api':{              target: 'http://192.168.1.30:8085',//代理地址，这里设置的地址会代替axios中设置的baseURL              changeOrigin: true,// 如果接口跨域，需要进行这个参数配置              //ws: true, // proxy websockets              //pathRewrite方法重写url              pathRewrite: {                  '^/api': '/'                   //pathRewrite: {'^/api': '/'} 重写之后url为 http://192.168.1.16:8085/xxxx                  //pathRewrite: {'^/api': '/api'} 重写之后url为 http://192.168.1.16:8085/api/xxxx             }      }}  },  //...  }</pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-3.htm">关于Hadoop在java客户端进行下载时的异常java.io.FileNotFoundException: Hadoop home directory is no existed的解决办法</a></p>
                                         <p>下一个：<a href="/html/category/article-5.htm">docker设置代理服务器，解决pull命令：Error response from daemon: Get https://registry-1.docker.io/v2&#8230;</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
-                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
+                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></h4>
-                <p>&lt;div id="app"&gt;     &lt;h1&gt;懒加载lazy&lt;/h1&gt;     &lt;h3&gt;不让输入框实时同步&lt;/h3&gt;     &lt;inp</p>
+                <h4><a href="/html/category/article-4549.htm">深圳宠物领养中心官网（深圳宠物领养机构）</a></h4>
+                <p>摘要：       今天给各位分享深圳宠物领养中心官网的知识，其中也会对深圳宠物领养机构进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、那个,我想问下深圳的狗.</p>
             </div>
         </div>
     </div>
@@ -123,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
+                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
+                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
             </div>
         </div>
     </div>
@@ -133,8 +133,18 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
-                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
+                <h4><a href="/html/category/article-4124.htm">谈谈高并发系统的一些解决方案</a></h4>
+                <p>本文结合项目经验，整理一份大纲，供参考。 常用指标   RT（Response Time）：响应时间。可能会衍生出 TP999、TP99、TP95、TP90等指标。一般在几毫秒到几百毫秒之间。   Q</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
+                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
             </div>
         </div>
     </div>
@@ -153,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
+                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
             </div>
         </div>
     </div>
@@ -163,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
-                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
+                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
+                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
             </div>
         </div>
     </div>
@@ -173,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4095.htm">Docker基础 — 36、CMD指令和ENTRYPOINT指令的区别</a></h4>
-                <p>目录  1、CMD指令和ENTRYPOINT指令说明 2、CMD指令只有最后一条生效的原因 3、CMD指令演示 4、ENTRYPOINT指令演示 5、总结   CMD指令和ENTRYPOINT指令作用</p>
+                <h4><a href="/html/category/article-2823.htm">jQuery实现呼吸灯轮播图</a></h4>
+                <p>jQuery实现呼吸灯轮播图  jQuery实现呼吸灯轮播图    jQuery实现呼吸灯轮播图 &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;he</p>
             </div>
         </div>
     </div>
@@ -183,18 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
-                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
+                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
+                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

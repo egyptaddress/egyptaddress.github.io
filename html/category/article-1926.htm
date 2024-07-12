@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">1.new操作符</a></li> <li><a href="#_label1" rel="nofollow">2.::operator new</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_1_0" rel="nofollow">2.1原始调用</a></li> <li><a href="#_lab2_1_1" rel="nofollow">2.2重载1</a></li> <li><a href="#_lab2_1_2" rel="nofollow">2.3重载2</a></li> </ul> <li><a href="#_label2" rel="nofollow">3.place new</a></li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>1.new操作符</h2> <p>new operator，平时用的最多的new操作符，其对应delete operator，不能被重载，其包含两个操作（既申请空间，又调用构造函数）</p> <ul> <li>（1）使用::operator new申请内存</li> <li>（2）调用类的构造函数</li> </ul> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse  {  public:      CTestUse() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      virtual ~CTestUse() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }     private:  };     void test()  {      string *pStr = new string("new operator");      cout &lt;&lt; *pStr &lt;&lt; endl;      delete pStr;         CTestUse *pCase = new CTestUse;      delete pCase;  }        int main(int argc, char *argv[])  {      test();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/713dc4f5ca9dfa5bc88bcb6c5af616eb.jpg"></p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>2.::operator new</h2> <p>::operator new，只会申请空间，不会调用构造函数，可以被重载，其对应 ::operator delete （只申请空间）</p> <p class="maodian"><a name="_lab2_1_0" rel="nofollow"></a></p> <h3>2.1原始调用</h3> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse1  {  public:      CTestUse1() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      virtual ~CTestUse1() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      void show() { cout &lt;&lt; __FILE__ &lt;&lt; " " &lt;&lt; __FUNCTION__ &lt;&lt; endl; }     private:  };        void test1()  {      CTestUse1 *pCase = (CTestUse1 *)::operator new (sizeof(CTestUse1));      pCase-&gt;show();      ::operator delete(pCase);     }     int main(int argc, char *argv[])  {      test1();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/5f43ea2abb7dd2f415fd4229cca2d518.jpg"></p> <p class="maodian"><a name="_lab2_1_1" rel="nofollow"></a></p> <h3>2.2重载1</h3> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse2  {  public:      CTestUse2() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      virtual ~CTestUse2() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      void show() { cout &lt;&lt; __FILE__ &lt;&lt; " " &lt;&lt; __FUNCTION__ &lt;&lt; endl; }         void* operator new(size_t size) {          cout &lt;&lt; __FUNCTION__ &lt;&lt; endl;          return ::operator new(size);      }         void operator delete(void* ptr) {          cout &lt;&lt; __FUNCTION__ &lt;&lt; endl;          ::operator delete(ptr);      }     private:  };     void test2()  {      CTestUse2 *pCase = new CTestUse2;      pCase-&gt;show();      delete pCase;     }     int main(int argc, char *argv[])  {      test2();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/ae23fdc189750486d00de468591f25f8.jpg"></p> <p class="maodian"><a name="_lab2_1_2" rel="nofollow"></a></p> <h3>2.3重载2</h3> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse3  {  public:      CTestUse3() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      virtual ~CTestUse3() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      void show() { cout &lt;&lt; __FILE__ &lt;&lt; " " &lt;&lt; __FUNCTION__ &lt;&lt; endl; }         void* operator new(size_t size, string str) {          cout &lt;&lt; __FUNCTION__ &lt;&lt; str &lt;&lt; endl;          return ::operator new(size);      }         void operator delete(void* ptr) {          cout &lt;&lt; __FUNCTION__ &lt;&lt; endl;          ::operator delete(ptr);      }     private:  };     void test3()  {      CTestUse3 *pCase = new ("heshiyang") CTestUse3;      pCase-&gt;show();      delete pCase;     }     int main(int argc, char *argv[])  {      test3();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/f876184aeef5bbcb088a5bda0f5d261c.jpg"></p> <p class="maodian"><a name="_label2" rel="nofollow"></a></p> <h2>3.place new</h2> <p>place new在已经构建好的内存中创建对象，其只会返回已经申请好的内存指针，多用在高性能场景下，提前申请好内存，可以节省申请内存开消 （只调用构造函数）</p> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse4  {  public:      CTestUse4() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      virtual ~CTestUse4() { cout &lt;&lt; __FUNCTION__ &lt;&lt; endl; }      void show() { cout &lt;&lt; __FILE__ &lt;&lt; " " &lt;&lt; __FUNCTION__ &lt;&lt; endl; }         void* operator new(size_t size, void* p) {          cout &lt;&lt; __FUNCTION__ &lt;&lt; endl;          return p;      }         void operator delete(void* ptr) {          cout &lt;&lt; __FUNCTION__ &lt;&lt; endl;          ::operator delete(ptr);      }     private:  };     void test4()  {      char* pChar = new char[sizeof(CTestUse4)];      CTestUse4* pCase = new (pChar) CTestUse4; //调用全局::new (pChar) CTestUse4，new (pChar) CTestUse4调用重载new      //delete pCase;      pCase-&gt;~CTestUse4();  }     int main(int argc, char *argv[])  {      test4();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/71a3c3f9c197c40116514acc35d935d2.jpg"></p> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li>1.new操作符</li> <li>2.::operator new</li> <ul class="second_class_ul"> <li>2.1原始调用</li> <li>2.2重载1</li> <li>2.3重载2</li> </ul> <li>3.place new</li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"></p> <h2>1.new操作符</h2> <p>new operator，平时用的最多的new操作符，其对应delete operator，不能被重载，其包含两个操作（既申请空间，又调用构造函数）</p> <ul> <li>（1）使用::operator new申请内存</li> <li>（2）调用类的构造函数</li> </ul> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse  {  public:      CTestUse() { cout << __FUNCTION__ << endl; }      virtual ~CTestUse() { cout << __FUNCTION__ << endl; }     private:  };     void test()  {      string *pStr = new string("new operator");      cout << *pStr << endl;      delete pStr;         CTestUse *pCase = new CTestUse;      delete pCase;  }        int main(int argc, char *argv[])  {      test();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/713dc4f5ca9dfa5bc88bcb6c5af616eb.jpg"></p> <p class="maodian"></p> <h2>2.::operator new</h2> <p>::operator new，只会申请空间，不会调用构造函数，可以被重载，其对应 ::operator delete （只申请空间）</p> <p class="maodian"></p> <h3>2.1原始调用</h3> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse1  {  public:      CTestUse1() { cout << __FUNCTION__ << endl; }      virtual ~CTestUse1() { cout << __FUNCTION__ << endl; }      void show() { cout << __FILE__ << " " << __FUNCTION__ << endl; }     private:  };        void test1()  {      CTestUse1 *pCase = (CTestUse1 *)::operator new (sizeof(CTestUse1));      pCase->show();      ::operator delete(pCase);     }     int main(int argc, char *argv[])  {      test1();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/5f43ea2abb7dd2f415fd4229cca2d518.jpg"></p> <p class="maodian"></p> <h3>2.2重载1</h3> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse2  {  public:      CTestUse2() { cout << __FUNCTION__ << endl; }      virtual ~CTestUse2() { cout << __FUNCTION__ << endl; }      void show() { cout << __FILE__ << " " << __FUNCTION__ << endl; }         void* operator new(size_t size) {          cout << __FUNCTION__ << endl;          return ::operator new(size);      }         void operator delete(void* ptr) {          cout << __FUNCTION__ << endl;          ::operator delete(ptr);      }     private:  };     void test2()  {      CTestUse2 *pCase = new CTestUse2;      pCase->show();      delete pCase;     }     int main(int argc, char *argv[])  {      test2();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/ae23fdc189750486d00de468591f25f8.jpg"></p> <p class="maodian"></p> <h3>2.3重载2</h3> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse3  {  public:      CTestUse3() { cout << __FUNCTION__ << endl; }      virtual ~CTestUse3() { cout << __FUNCTION__ << endl; }      void show() { cout << __FILE__ << " " << __FUNCTION__ << endl; }         void* operator new(size_t size, string str) {          cout << __FUNCTION__ << str << endl;          return ::operator new(size);      }         void operator delete(void* ptr) {          cout << __FUNCTION__ << endl;          ::operator delete(ptr);      }     private:  };     void test3()  {      CTestUse3 *pCase = new ("heshiyang") CTestUse3;      pCase->show();      delete pCase;     }     int main(int argc, char *argv[])  {      test3();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/f876184aeef5bbcb088a5bda0f5d261c.jpg"></p> <p class="maodian"></p> <h2>3.place new</h2> <p>place new在已经构建好的内存中创建对象，其只会返回已经申请好的内存指针，多用在高性能场景下，提前申请好内存，可以节省申请内存开消 （只调用构造函数）</p> <div class="ay1code"> <pre class="brush:cpp;">class CTestUse4  {  public:      CTestUse4() { cout << __FUNCTION__ << endl; }      virtual ~CTestUse4() { cout << __FUNCTION__ << endl; }      void show() { cout << __FILE__ << " " << __FUNCTION__ << endl; }         void* operator new(size_t size, void* p) {          cout << __FUNCTION__ << endl;          return p;      }         void operator delete(void* ptr) {          cout << __FUNCTION__ << endl;          ::operator delete(ptr);      }     private:  };     void test4()  {      char* pChar = new char[sizeof(CTestUse4)];      CTestUse4* pCase = new (pChar) CTestUse4; //调用全局::new (pChar) CTestUse4，new (pChar) CTestUse4调用重载new      //delete pCase;      pCase->~CTestUse4();  }     int main(int argc, char *argv[])  {      test4();         return 0;  }</pre> </div> <p><strong>运行结果如下：</strong></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220414/71a3c3f9c197c40116514acc35d935d2.jpg"></p> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></p>
                                         <p>下一个：<a href="/html/category/article-1939.htm">Springboot整合Spring Retry实现重试机制</a></p>
@@ -122,8 +122,48 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
-                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
+                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
+                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1341.htm">FreeRTOS进阶之队列示例完全解析_操作系统</a></h4>
+                <p>目录  前言 1.队列创建函数 2.入队  2.1 xQueueGenericSend() 2.2 xQueueGenericSendFromISR ()  3.出队     前言 FreeRTOS提</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
+                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
             </div>
         </div>
     </div>
@@ -142,8 +182,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
             </div>
         </div>
     </div>
@@ -152,18 +192,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
-                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1322.htm">@RequestBody接收json对象报415的解决办法</a></h4>
-                <p>前端请求： $.ajax({             url: basePath() + "/index/login.do",             type : "post",          </p>
+                <h4><a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></h4>
+                <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：  【夯实Spring Cloud】</p>
             </div>
         </div>
     </div>
@@ -182,38 +212,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
-                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4549.htm">深圳宠物领养中心官网（深圳宠物领养机构）</a></h4>
-                <p>摘要：       今天给各位分享深圳宠物领养中心官网的知识，其中也会对深圳宠物领养机构进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、那个,我想问下深圳的狗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
+                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
+                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
             </div>
         </div>
     </div>
@@ -224,7 +224,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

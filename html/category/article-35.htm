@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<blockquote> <p>本文记录，JavaScript 中 querySelector 的使用方法。小白贡献，语失莫怪。</p> </blockquote> <pre><code class="language-js">// 两种 query 的 method (方法) document.querySelector(selectors); document.querySelectorAll(selectors);</code></pre> <p></p> <h2 id="为什么要学习-queryselector">为什么要学习 querySelector：</h2> <p>因为 front end 中，JavaScript 的基本逻辑就是：<span style="color: rgba(255, 192, 203, 1)"><strong>选取一个 element，然后 do somethong with it</strong></span>；所以，一切的开始，就是要先想办法，抓到那个 element；而 querySelector 就是众多选择器中，特别好用的一个；所以，非常有必要学习；熟练的使用它，就等于迈开了前端 JS 编程，的第一大步！</p> <p></p> <h2 id="那么-queryselector-是什么">那么 querySelector 是什么：</h2> <p><code>document.querySelector()</code> 用于选取 html 中的节点（node | element）；相较于传统的 DOM 选择器 (DOM selectors)，其特点是，可以使用 CSS 风格的 Selectors；并且几乎支持所有CSS选择器的 syntax 风格；</p> <p></p> <h2 id="常用方法语法对比">常用方法，语法对比：</h2> <p>常用的 get 某个节点的方法，无外乎三种，通过 class，tag，id；传统的 DOM 选取，与<code>querySelector()</code> 的<strong>syntax</strong> 对比如下：</p> <pre><code class="language-js">// select element by class name document.getElementsByClassName("class_x"); document.querySelectorAll(".class_x");  // select element by tag name document.getElementsByTagName("img"); document.querySelectorAll("img");  // select element by id name document.getElementById("id_x"); document.querySelector("#id_x");</code></pre> <p></p> <h2 id="使用-多个-选取条件或-递进式-的选取条件-descendant-selector">使用 "多个" 选取条件，或 "递进式" 的选取条件 (descendant selector)：</h2> <p>选取条件，可以是一个或者多个；多个的情况，并不限制个数，可以是2个，3个 ... N个；</p> <pre><code class="language-js">// "递进式" 的选取条件 (descendant selector) (可以夸级) (使用"空格"符号) document.getElementsByClassName("class_x").getElementsByTagName("img"); document.querySelectorAll(".class_x img");  // "父子递进式" 选取条件 (不可以夸级, 必须是严格的直系父子) document.querySelectorAll(".parent_class &gt; .child_class &gt; .grandChild_class")  // "父子递进 + 混合式" 选取条件 (使用 "&gt;" 符号) // 选取 parent_class 中的 child_class 中的 grandChild_class，中的 img tag document.querySelectorAll(".parent_class &gt; .child_class &gt; .grandChild_class tag_img")  // "递进式" 的选取条件，属性选取 (attribute) // 选取所有，id属性='large'的，并且class='bg'的，img标签 document.querySelectorAll("img[id='large'][class='bg']"); document.querySelector("img[id='large'][class='bg']");  // "多个" 选取条件, 用逗号隔开 (相当于 A 或 B) document.querySelectorAll(".class_x， .class_y"); document.querySelectorAll(".class_x， img"); document.querySelectorAll(".class_x， #id_x");  // "单个" 选取条件，返回第一个 match document.getElementsByClassName("class_x")[0]; document.querySelector(".class_x");  // "多个" 选取条件，返回第一个 match document.getElementsByClassName("class_x").getElementsByTagName("img")[0]; document.querySelector(".class_x， img");  // 选取类 class_x 中，类名为 big_pic 的 li 标签，下面的，全部兄弟们！ document.querySelectorAll(".class_x li.big_pic ~ li ");  // 选取类 class_x 中，类名为 big_pic 的 li 标签，紧挨着的，下一个兄弟！ document.querySelectorAll(".class_x li.big_pic + li ");</code></pre> <p></p> <h2 id="对比-queryselector-和-jquery">对比 querySelector 和 jQuery：</h2> <ol> <li>首先 querySelector 比 jQuery 要快！因为 querySelector 是内置方法！</li> <li>使用 querySelector，无需要挂在 jQuery 的文件，减少 overhead！</li> <li>jQuery 有各种 filter (例如：":input")！ 而 querySelector，没有 jQuery 这种 filter！</li> <li>所以 querySelector 无法使用任何 (":input" 类的) filter！</li> <li>最终 querySelector 还是首选！</li> </ol> <p></p> <h2 id="其他-queryselector-可使用的-css-选择器">其他 querySelector 可使用的 CSS 选择器：</h2> <p>还有很多没介绍的，querySelector 可使用的 CSS 选择器；例如：伪选择器（Pseudo）；通用选择器（Universal selector）；一般兄弟组合器 "~" (General sibling combinator)；紧邻兄弟组合器 "+" (Adjacent sibling combinator)。详情可参见 reference 中的，第4个，和第5个，link，里面有详细的 CSS 选择器的介绍</p> <p></p> <h2 id="个人评价">个人评价：</h2> <p><code>document.querySelectorAll()</code> 的 "递进式" 选取，很好用；</p> <ol> <li>去掉了 "传统 DOM选择器" 中，nest selector 的麻烦</li> <li>代码更简洁了</li> <li>返回的是 nodeList</li> <li>可进一步使用 nodeList.forEach()</li> </ol> <p>而且，可以看出，当 css selectors 组合起来的时候，那种灵巧多变，是多么的强大啊！<br /> 任何一个 element 都逃不过，组合的选择中。除非这个 element 不在 html 中！</p> <p></p> <h2 id="reference">Reference：</h2> <ol> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector"  target="_blank" rel="nofollow">Document.querySelector() - Web APIs | MDN</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll"  target="_blank" rel="nofollow">Element.querySelectorAll() - Web APIs | MDN</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://developer.mozilla.org/en-US/docs/web/css/descendant_combinator"  target="_blank" rel="nofollow">Descendant combinator - CSS: Cascading Style Sheets | MDN</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors?msclkid=4da4c359c15f11ec8049fc5a2bb2c36e"  target="_blank" rel="nofollow">CSS selectors - CSS: Cascading Style Sheets | MDN</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Selectors"  target="_blank" rel="nofollow">CSS 选择器 - CSS（层叠样式表） | MDN</a></li> </ol> 			                </div>
+                      				  				  				<blockquote> <p>本文记录，JavaScript 中 querySelector 的使用方法。小白贡献，语失莫怪。</p> </blockquote> <pre><code class="language-js">// 两种 query 的 method (方法) document.querySelector(selectors); document.querySelectorAll(selectors);</code></pre> <p></p> <h2 id="为什么要学习-queryselector">为什么要学习 querySelector：</h2> <p>因为 front end 中，JavaScript 的基本逻辑就是：<span style="color: rgba(255, 192, 203, 1)"><strong>选取一个 element，然后 do somethong with it</strong></span>；所以，一切的开始，就是要先想办法，抓到那个 element；而 querySelector 就是众多选择器中，特别好用的一个；所以，非常有必要学习；熟练的使用它，就等于迈开了前端 JS 编程，的第一大步！</p> <p></p> <h2 id="那么-queryselector-是什么">那么 querySelector 是什么：</h2> <p><code>document.querySelector()</code> 用于选取 html 中的节点（node | element）；相较于传统的 DOM 选择器 (DOM selectors)，其特点是，可以使用 CSS 风格的 Selectors；并且几乎支持所有CSS选择器的 syntax 风格；</p> <p></p> <h2 id="常用方法语法对比">常用方法，语法对比：</h2> <p>常用的 get 某个节点的方法，无外乎三种，通过 class，tag，id；传统的 DOM 选取，与<code>querySelector()</code> 的<strong>syntax</strong> 对比如下：</p> <pre><code class="language-js">// select element by class name document.getElementsByClassName("class_x"); document.querySelectorAll(".class_x");  // select element by tag name document.getElementsByTagName("img"); document.querySelectorAll("img");  // select element by id name document.getElementById("id_x"); document.querySelector("#id_x");</code></pre> <p></p> <h2 id="使用-多个-选取条件或-递进式-的选取条件-descendant-selector">使用 "多个" 选取条件，或 "递进式" 的选取条件 (descendant selector)：</h2> <p>选取条件，可以是一个或者多个；多个的情况，并不限制个数，可以是2个，3个 ... N个；</p> <pre><code class="language-js">// "递进式" 的选取条件 (descendant selector) (可以夸级) (使用"空格"符号) document.getElementsByClassName("class_x").getElementsByTagName("img"); document.querySelectorAll(".class_x img");  // "父子递进式" 选取条件 (不可以夸级, 必须是严格的直系父子) document.querySelectorAll(".parent_class > .child_class > .grandChild_class")  // "父子递进 + 混合式" 选取条件 (使用 ">" 符号) // 选取 parent_class 中的 child_class 中的 grandChild_class，中的 img tag document.querySelectorAll(".parent_class > .child_class > .grandChild_class tag_img")  // "递进式" 的选取条件，属性选取 (attribute) // 选取所有，id属性='large'的，并且class='bg'的，img标签 document.querySelectorAll("img[id='large'][class='bg']"); document.querySelector("img[id='large'][class='bg']");  // "多个" 选取条件, 用逗号隔开 (相当于 A 或 B) document.querySelectorAll(".class_x， .class_y"); document.querySelectorAll(".class_x， img"); document.querySelectorAll(".class_x， #id_x");  // "单个" 选取条件，返回第一个 match document.getElementsByClassName("class_x")[0]; document.querySelector(".class_x");  // "多个" 选取条件，返回第一个 match document.getElementsByClassName("class_x").getElementsByTagName("img")[0]; document.querySelector(".class_x， img");  // 选取类 class_x 中，类名为 big_pic 的 li 标签，下面的，全部兄弟们！ document.querySelectorAll(".class_x li.big_pic ~ li ");  // 选取类 class_x 中，类名为 big_pic 的 li 标签，紧挨着的，下一个兄弟！ document.querySelectorAll(".class_x li.big_pic + li ");</code></pre> <p></p> <h2 id="对比-queryselector-和-jquery">对比 querySelector 和 jQuery：</h2> <ol> <li>首先 querySelector 比 jQuery 要快！因为 querySelector 是内置方法！</li> <li>使用 querySelector，无需要挂在 jQuery 的文件，减少 overhead！</li> <li>jQuery 有各种 filter (例如：":input")！ 而 querySelector，没有 jQuery 这种 filter！</li> <li>所以 querySelector 无法使用任何 (":input" 类的) filter！</li> <li>最终 querySelector 还是首选！</li> </ol> <p></p> <h2 id="其他-queryselector-可使用的-css-选择器">其他 querySelector 可使用的 CSS 选择器：</h2> <p>还有很多没介绍的，querySelector 可使用的 CSS 选择器；例如：伪选择器（Pseudo）；通用选择器（Universal selector）；一般兄弟组合器 "~" (General sibling combinator)；紧邻兄弟组合器 "+" (Adjacent sibling combinator)。详情可参见 reference 中的，第4个，和第5个，link，里面有详细的 CSS 选择器的介绍</p> <p></p> <h2 id="个人评价">个人评价：</h2> <p><code>document.querySelectorAll()</code> 的 "递进式" 选取，很好用；</p> <ol> <li>去掉了 "传统 DOM选择器" 中，nest selector 的麻烦</li> <li>代码更简洁了</li> <li>返回的是 nodeList</li> <li>可进一步使用 nodeList.forEach()</li> </ol> <p>而且，可以看出，当 css selectors 组合起来的时候，那种灵巧多变，是多么的强大啊！<br /> 任何一个 element 都逃不过，组合的选择中。除非这个 element 不在 html 中！</p> <p></p> <h2 id="reference">Reference：</h2> <ol> <li>Document.querySelector() - Web APIs | MDN</li> <li>Element.querySelectorAll() - Web APIs | MDN</li> <li>Descendant combinator - CSS: Cascading Style Sheets | MDN</li> <li>CSS selectors - CSS: Cascading Style Sheets | MDN</li> <li>CSS 选择器 - CSS（层叠样式表） | MDN</li> </ol> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-34.htm">stm32F103RCT6使用FFT运算分析波形详解</a></p>
                                         <p>下一个：<a href="/html/category/article-36.htm">从零开始，开发一个 Web Office 套件（16）：拖动控制点，调整编辑器大小_在线工具</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1322.htm">@RequestBody接收json对象报415的解决办法</a></h4>
-                <p>前端请求： $.ajax({             url: basePath() + "/index/login.do",             type : "post",          </p>
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
             </div>
         </div>
     </div>
@@ -123,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></h4>
-                <p>&lt;div id="app"&gt;     &lt;h1&gt;懒加载lazy&lt;/h1&gt;     &lt;h3&gt;不让输入框实时同步&lt;/h3&gt;     &lt;inp</p>
+                <h4><a href="/html/category/article-4124.htm">谈谈高并发系统的一些解决方案</a></h4>
+                <p>本文结合项目经验，整理一份大纲，供参考。 常用指标   RT（Response Time）：响应时间。可能会衍生出 TP999、TP99、TP95、TP90等指标。一般在几毫秒到几百毫秒之间。   Q</p>
             </div>
         </div>
     </div>
@@ -133,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
             </div>
         </div>
     </div>
@@ -143,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
-                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
             </div>
         </div>
     </div>
@@ -153,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
-                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
+                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
+                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
             </div>
         </div>
     </div>
@@ -163,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
-                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
+                <h4><a href="/html/category/article-2824.htm">如何使用线程池执行定时任务？</a></h4>
+                <p>在 Java 语言中，有两个线程池可以执行定时任务：ScheduledThreadPool 和 SingleThreadScheduledExecutor，其中 SingleThreadSchedul</p>
             </div>
         </div>
     </div>
@@ -173,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
+                <h4><a href="/html/category/article-1939.htm">Springboot整合Spring Retry实现重试机制</a></h4>
+                <p>在项目开发过程中，经常会有这样的情况：第一次执行一个操作不成功，考虑到可能是网络原因造成，就多执行几次操作，直到得到想要的结果为止，这就是重试机制。 Springboot可以通过整合Spring Re</p>
             </div>
         </div>
     </div>
@@ -183,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
-                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
+                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
+                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
             </div>
         </div>
     </div>
@@ -193,8 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4478.htm">开宠物店大概需要多少投资（开宠物店投资多少钱一月能得多少利）</a></h4>
-                <p>摘要：       今天给各位分享开宠物店大概需要多少投资的知识，其中也会对开宠物店投资多少钱一月能得多少利进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、开.</p>
+                <h4><a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></h4>
+                <p>Centos7 Nginx编译包制作 找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下 1、准备一台虚拟机（可访问互联网） 2、安装所需插件 $ yum -y install gcc</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

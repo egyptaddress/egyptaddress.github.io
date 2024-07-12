@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h3>1、使用pyttsx</h3> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 包的使用参考：&nbsp; &nbsp;在&nbsp;<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://pypi.org/"  rel="nofollow">https://pypi.org/</a>&nbsp; &nbsp;搜索pyttsx3</p> <pre><code class="language-python">import pyttsx3 as pyttsx  engine = pyttsx.init() engine.setProperty('rate', 115)  # 设置语音播报速度，一般115比较合适。 engine.setProperty('volume', 1.0)  # 设置音量，level  between 0 and 1，默认是1。  # getting details of current voice voices = engine.getProperty('voices') # changing index, changes voices. o for male。中度的女音，播报中、英文。 engine.setProperty('voice', voices[0].id) # changing index, changes voices. 1 for female。高亮的女音，只播报英文，中文未播报。 # engine.setProperty('voice', voices[1].id)  engine.say('测试结束') engine.say('End of Test')  # Saving Voice to a file，On linux make sure that 'espeak' and 'ffmpeg' are installed engine.save_to_file('测试结束', 'test.mp3')  engine.runAndWait()</code></pre> <p>&nbsp; &nbsp;以上执行结果：电脑输出语音(测试结束、End of Test）、电脑端保存test.mp3文件。</p> <p>&nbsp;</p> <h3>2、使用SAPI</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SAPI是微软Speech API , 是微软公司推出的语音接口，而细心的人会发现从WINXP开始，系统上就已经有语音识别的功能了，可是用武之地相当之少，他并没有给出一些人性化的自定义方案，仅有的语音操控命令显得相当鸡胁。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 包的使用参考：&nbsp; &nbsp;在&nbsp;<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://pypi.org/"  rel="nofollow">https://pypi.org/</a>&nbsp; &nbsp;搜索&nbsp;Speech</p> <pre><code class="language-python">from win32com.client import Dispatch  spearker = Dispatch('SAPI.SpVoice') spearker.Speak('测试结束') spearker.Speak('End of Test')</code></pre> <p>以上执行结果：电脑输出语音(测试结束、End of Test）</p> <h2>3、使用SpeechLib</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 先安装：pip3 install comtypes&nbsp; &nbsp;&nbsp;</p> <p>&nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#fe2c24;"> comtypes依赖pyttsx3包。( comtypes&nbsp; Required-by: pyttsx3&nbsp; )</span></p> <p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;包的使用参考：&nbsp; &nbsp;在&nbsp;<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://pypi.org/"  rel="nofollow">https://pypi.org/</a>&nbsp; &nbsp;搜索&nbsp;comtypes</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;可以从文本文件中获取输入，再将其转换为语音 。</p> <pre><code class="language-python">from comtypes.client import CreateObject  engine = CreateObject('SAPI.SpVoice') stream = CreateObject('SAPI.SpFileStream')  from comtypes.gen import SpeechLib  # 导这个包必须放在 上面3行代码 后面，否则运行时会报错。  infile = 'demo.txt' outfile = 'demo_audio.wav'  stream.Open(outfile, SpeechLib.SSFMCreateForWrite) engine.AudioOutputStream = stream # 读取文本内容 f = open(infile, 'r', encoding='utf-8') theText = f.read() f.close() engine.speak(theText) stream.close()</code></pre> <p>运行中可能出现的坑：</p> <p>1、comtypes下无gen&nbsp; &nbsp;和&nbsp; &nbsp;找不到 SpeechLib，如下图：</p> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230205/0753d34ade3fde662617cbccff053ba3.jpg"></p> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230205/9bce6e813d32dc91cf0f55a695037c05.jpg"></p> <p>解决方法：</p> <pre><code class="language-html">from comtypes.client import CreateObject  engine = CreateObject('SAPI.SpVoice') stream = CreateObject('SAPI.SpFileStream')  from comtypes.gen import SpeechLib  # 导这个包必须放在 上面3行代码 后面，否则运行时会报错。</code></pre> <p>&nbsp;</p> <p>&nbsp;</p> <p>&nbsp;</p> <p>&nbsp;</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <h3>1、使用pyttsx</h3> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;先安装pyttsx3 ： pip3 install pyttsx3</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 包的使用参考：&nbsp; &nbsp;在&nbsp;https://pypi.org/&nbsp; &nbsp;搜索pyttsx3</p> <pre><code class="language-python">import pyttsx3 as pyttsx  engine = pyttsx.init() engine.setProperty('rate', 115)  # 设置语音播报速度，一般115比较合适。 engine.setProperty('volume', 1.0)  # 设置音量，level  between 0 and 1，默认是1。  # getting details of current voice voices = engine.getProperty('voices') # changing index, changes voices. o for male。中度的女音，播报中、英文。 engine.setProperty('voice', voices[0].id) # changing index, changes voices. 1 for female。高亮的女音，只播报英文，中文未播报。 # engine.setProperty('voice', voices[1].id)  engine.say('测试结束') engine.say('End of Test')  # Saving Voice to a file，On linux make sure that 'espeak' and 'ffmpeg' are installed engine.save_to_file('测试结束', 'test.mp3')  engine.runAndWait()</code></pre> <p>&nbsp; &nbsp;以上执行结果：电脑输出语音(测试结束、End of Test）、电脑端保存test.mp3文件。</p> <p>&nbsp;</p> <h3>2、使用SAPI</h3> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SAPI是微软Speech API , 是微软公司推出的语音接口，而细心的人会发现从WINXP开始，系统上就已经有语音识别的功能了，可是用武之地相当之少，他并没有给出一些人性化的自定义方案，仅有的语音操控命令显得相当鸡胁。</p> <p>&nbsp; &nbsp; &nbsp; &nbsp; 包的使用参考：&nbsp; &nbsp;在&nbsp;https://pypi.org/&nbsp; &nbsp;搜索&nbsp;Speech</p> <pre><code class="language-python">from win32com.client import Dispatch  spearker = Dispatch('SAPI.SpVoice') spearker.Speak('测试结束') spearker.Speak('End of Test')</code></pre> <p>以上执行结果：电脑输出语音(测试结束、End of Test）</p> <h2>3、使用SpeechLib</h2> <p>&nbsp; &nbsp; &nbsp; &nbsp; 先安装：pip3 install comtypes&nbsp; &nbsp;&nbsp;</p> <p>&nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#fe2c24;"> comtypes依赖pyttsx3包。( comtypes&nbsp; Required-by: pyttsx3&nbsp; )</span></p> <p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;包的使用参考：&nbsp; &nbsp;在&nbsp;https://pypi.org/&nbsp; &nbsp;搜索&nbsp;comtypes</p> <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;可以从文本文件中获取输入，再将其转换为语音 。</p> <pre><code class="language-python">from comtypes.client import CreateObject  engine = CreateObject('SAPI.SpVoice') stream = CreateObject('SAPI.SpFileStream')  from comtypes.gen import SpeechLib  # 导这个包必须放在 上面3行代码 后面，否则运行时会报错。  infile = 'demo.txt' outfile = 'demo_audio.wav'  stream.Open(outfile, SpeechLib.SSFMCreateForWrite) engine.AudioOutputStream = stream # 读取文本内容 f = open(infile, 'r', encoding='utf-8') theText = f.read() f.close() engine.speak(theText) stream.close()</code></pre> <p>运行中可能出现的坑：</p> <p>1、comtypes下无gen&nbsp; &nbsp;和&nbsp; &nbsp;找不到 SpeechLib，如下图：</p> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230205/0753d34ade3fde662617cbccff053ba3.jpg"></p> <p style="text-align:center;"><img decoding="async" alt="" src="http://img.555519.xyz/uploads/20230205/9bce6e813d32dc91cf0f55a695037c05.jpg"></p> <p>解决方法：</p> <pre><code class="language-html">from comtypes.client import CreateObject  engine = CreateObject('SAPI.SpVoice') stream = CreateObject('SAPI.SpFileStream')  from comtypes.gen import SpeechLib  # 导这个包必须放在 上面3行代码 后面，否则运行时会报错。</code></pre> <p>&nbsp;</p> <p>&nbsp;</p> <p>&nbsp;</p> <p>&nbsp;</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-204.htm">JavaWeb项目基于SpringBoot框架实现统一的数据返回格式 + 统一异常处理 + 统一日志处理</a></p>
                                         <p>下一个：<a href="/html/category/article-206.htm">读取spring的配置来定义常量</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4402.htm">狗粮品牌有哪些品牌 狗粮品牌有哪些品牌好</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于狗粮品牌有哪些品牌的问题，于是小编就整理了2个相关介绍狗粮品牌有哪些品牌的解答，让我们一起看看吧。狗粮哪几个品牌比较好？狗粮哪个</p>
+                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
+                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
+                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
+                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
             </div>
         </div>
     </div>
@@ -123,68 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
-                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
-                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
-                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
+                <h4><a href="/html/category/article-4442.htm">动物疫苗价格表图片高清大全集（动物疫苗价格查询）</a></h4>
+                <p>摘要：       今天给各位分享动物疫苗价格表图片高清大全集的知识，其中也会对动物疫苗价格查询进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗打疫苗一般.</p>
             </div>
         </div>
     </div>
@@ -199,13 +139,73 @@ var _hmt = _hmt || [];
         </div>
     </div>
 </div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-5570.htm">动物疫苗空瓶无害化处理措施（动物疫苗空瓶无害化处理措施有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗空瓶无害化处理措施，以及动物疫苗空瓶无害化处理措施有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、无害化处理方式有哪些...</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4124.htm">谈谈高并发系统的一些解决方案</a></h4>
+                <p>本文结合项目经验，整理一份大纲，供参考。 常用指标   RT（Response Time）：响应时间。可能会衍生出 TP999、TP99、TP95、TP90等指标。一般在几毫秒到几百毫秒之间。   Q</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1341.htm">FreeRTOS进阶之队列示例完全解析_操作系统</a></h4>
+                <p>目录  前言 1.队列创建函数 2.入队  2.1 xQueueGenericSend() 2.2 xQueueGenericSendFromISR ()  3.出队     前言 FreeRTOS提</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
+                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <h3 class="title-big mb-sm-3 mb-3">归纳</h3>
 <div class="row w3l-achievements">
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

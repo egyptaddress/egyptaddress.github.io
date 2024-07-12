@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>Vuex的介绍和使用建议看<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://vuex.vuejs.org/zh/"  rel="nofollow">官方文档</a>，本文更多的是我对Vuex的一个总结。</p> <ul> <li>Vuex介绍及使用</li> <li>Vuex使用中可能遇到的问题</li> </ul> <h3>一.Vuex介绍及使用</h3> <p><strong>1.Vuex是什么</strong></p> <p>官方的介绍是“Vuex 是<strong>状态管理模式</strong>”</p> <p>我们在做组件间数据传递的时候，其方式有多种，比如：</p> <ul> <li>组件间通过属性和事件触发的形式进行数据的交互</li> <li>使用缓存localStorage，sessionStorage等</li> <li>router 路由跳转时传值</li> <li>bus总线机制</li> <li>vuex</li> </ul> <p>而vuex最大的特点就是能<strong>实时同步更新数据</strong></p> <p><strong>2.Vuex能解决什么问题</strong></p> <p>在很多场景下，我们可能会有下面的问题：</p> <ul> <li>多个视图依赖于同一状态。</li> <li>来自不同视图的行为需要变更同一状态。</li> </ul> <p><strong>3.什么情况下使用 Vuex</strong></p> <p>官方建议在开发中大型项目的情况下考虑使用Vuex。就我个人而言，当页面的非父子组件间需要<strong>实时同步更新数据</strong>时，才使用vuex，其他情况都不使用。</p> <p><strong>4.Vuex如何使用</strong></p> <p>首先，必须牢记下面这张图</p> <p style="text-align:center;"><img decoding="async" alt="" class="has" height="400" src="http://img.555519.xyz/uploads/20221230/e27c4292ea0538259256f4e3c5b4b7a3.jpg"></p> <p>图中，整个虚线部分就是Vuex，我们可以把它看成一个公共仓库store。store中有Actions（行为）、Mutations（变动）和State（状态）。整个的逻辑是组件通过Dispatch调用Actions中的方法，Actions通过Commit调用Mutations中的方法，Mutatisons改变State中的值。</p> <p>我们看下如何简单使用。首先，在store目录下的index.js文件中写入如下代码：</p> <pre class="has"><code class="language-javascript">import Vue from 'vue' import Vuex from 'vuex'  Vue.use(Vuex)  export default new Vuex.Store({   state: {     city: '重庆'   },   actions: {     changeCity(ctx, city) {       ctx.commit('changeCity2', city) // 调用mutations中的方法改变city     }   },   mutations: {     changeCity2(state, city) {       state.city = city     }   },   getters: { // 类似计算属性，计算state中的数据提供新的数据     doubleCity (state) {       return state.city + ' ' + state.city     }   } })</code></pre> <p>然后，我们在main.js中引入store</p> <pre class="has"><code class="language-javascript">import Vue from 'vue' import App from './App' import store from './store/index'  new Vue({   el: '#app',   store,   components: { App },   template: '&lt;App/&gt;' }) </code></pre> <p>接着，我们就能在组件中使用</p> <pre class="has"><code class="language-html">&lt;div&gt;{<!-- -->{this.$store.state.city}}&lt;/div&gt;</code></pre> <p>我们也可以使用Vuex提供的语法糖，将city映射到组件数据中</p> <p>先引入</p> <pre class="has"><code class="language-javascript">import {mapState} from 'vuex'</code></pre> <p>再映射，这里我们映射到computed中</p> <pre class="has"><code class="language-javascript">  computed: {     // ...为展开运算符 将vuex中的公用属性city映射到计算属性city中     ...mapState(['city'])   }</code></pre> <p>上面，我们只是调用了city数据，那如何改变city呢？</p> <pre class="has"><code class="language-javascript">this.$store.dispatch('changeCity', '北京')</code></pre> <p>我们也可以使用Vuex中的语法糖，将方法映射到组件中</p> <pre class="has"><code class="language-javascript">import {mapActions} from 'vuex'</code></pre> <pre class="has"><code class="language-javascript">    methods: {       ...mapActions([         'changeCity'       ])     }</code></pre> <p>通过上面的操作，我们发现要改变city，需要先调用actions，再调用mutations来改变city，我们能不能直接调用mutations来改变city呢？这是可以的</p> <pre class="has"><code class="language-javascript">this.$store.commit('changeCity2', '北京')</code></pre> <p>当然，我们也可以使用Vuex的语法糖mapMutations来映射，这里不再介绍。</p> <p>注：本着能少写就少写的原则，我们在一般的开发中，可能会省略actions步骤。</p> <p><strong>5.Vuex的简单封装</strong></p> <p>随着项目越来越复杂，若将所有代码写在一起会显得越来越臃肿，所以我们一般都要进行封装分离。这里，我们将state和mutations进行封装，其他的类似。</p> <p>新建state.js</p> <pre class="has"><code class="language-javascript">let state = {   city: '重庆' }  export default state</code></pre> <p>新建mutations.js</p> <pre class="has"><code class="language-javascript">let mutations = {   changeCity (state, city) {     state.city = city   } }  export default mutations </code></pre> <p>然后，我们的代码就可以改成如下这般</p> <pre class="has"><code class="language-javascript">import Vue from 'vue' import Vuex from 'vuex' import state from './state' import mutations from './mutations'  Vue.use(Vuex)  export default new Vuex.Store({   state,   mutations })</code></pre> <h3>二.Vuex使用中可能遇到的问题</h3> <p><strong>1.刷新页面数据被重置为初始状态</strong></p> <p>对于这个问题，我们一般通过 Vuex 与缓存结合使用来解决。</p> <p>读取数据时</p> <pre class="has"><code class="language-javascript">let defaultCity = '' if (localStorage.getItem('city')) {   defaultCity= localStorage.getItem('city') }  const state = {   city: defaultCity }  export default state</code></pre> <p>改变数据时</p> <pre class="has"><code class="language-javascript">const mutations = {   changeCity (state, val) {     localStorage.setItem('city', val)     state.city= val   } }  export default mutations</code></pre> <p>&nbsp;</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>Vuex的介绍和使用建议看官方文档，本文更多的是我对Vuex的一个总结。</p> <ul> <li>Vuex介绍及使用</li> <li>Vuex使用中可能遇到的问题</li> </ul> <h3>一.Vuex介绍及使用</h3> <p><strong>1.Vuex是什么</strong></p> <p>官方的介绍是“Vuex 是<strong>状态管理模式</strong>”</p> <p>我们在做组件间数据传递的时候，其方式有多种，比如：</p> <ul> <li>组件间通过属性和事件触发的形式进行数据的交互</li> <li>使用缓存localStorage，sessionStorage等</li> <li>router 路由跳转时传值</li> <li>bus总线机制</li> <li>vuex</li> </ul> <p>而vuex最大的特点就是能<strong>实时同步更新数据</strong></p> <p><strong>2.Vuex能解决什么问题</strong></p> <p>在很多场景下，我们可能会有下面的问题：</p> <ul> <li>多个视图依赖于同一状态。</li> <li>来自不同视图的行为需要变更同一状态。</li> </ul> <p><strong>3.什么情况下使用 Vuex</strong></p> <p>官方建议在开发中大型项目的情况下考虑使用Vuex。就我个人而言，当页面的非父子组件间需要<strong>实时同步更新数据</strong>时，才使用vuex，其他情况都不使用。</p> <p><strong>4.Vuex如何使用</strong></p> <p>首先，必须牢记下面这张图</p> <p style="text-align:center;"><img decoding="async" alt="" class="has" height="400" src="http://img.555519.xyz/uploads/20221230/e27c4292ea0538259256f4e3c5b4b7a3.jpg"></p> <p>图中，整个虚线部分就是Vuex，我们可以把它看成一个公共仓库store。store中有Actions（行为）、Mutations（变动）和State（状态）。整个的逻辑是组件通过Dispatch调用Actions中的方法，Actions通过Commit调用Mutations中的方法，Mutatisons改变State中的值。</p> <p>我们看下如何简单使用。首先，在store目录下的index.js文件中写入如下代码：</p> <pre class="has"><code class="language-javascript">import Vue from 'vue' import Vuex from 'vuex'  Vue.use(Vuex)  export default new Vuex.Store({   state: {     city: '重庆'   },   actions: {     changeCity(ctx, city) {       ctx.commit('changeCity2', city) // 调用mutations中的方法改变city     }   },   mutations: {     changeCity2(state, city) {       state.city = city     }   },   getters: { // 类似计算属性，计算state中的数据提供新的数据     doubleCity (state) {       return state.city + ' ' + state.city     }   } })</code></pre> <p>然后，我们在main.js中引入store</p> <pre class="has"><code class="language-javascript">import Vue from 'vue' import App from './App' import store from './store/index'  new Vue({   el: '#app',   store,   components: { App },   template: '<App/>' }) </code></pre> <p>接着，我们就能在组件中使用</p> <pre class="has"><code class="language-html"><div>{<!-- -->{this.$store.state.city}}</div></code></pre> <p>我们也可以使用Vuex提供的语法糖，将city映射到组件数据中</p> <p>先引入</p> <pre class="has"><code class="language-javascript">import {mapState} from 'vuex'</code></pre> <p>再映射，这里我们映射到computed中</p> <pre class="has"><code class="language-javascript">  computed: {     // ...为展开运算符 将vuex中的公用属性city映射到计算属性city中     ...mapState(['city'])   }</code></pre> <p>上面，我们只是调用了city数据，那如何改变city呢？</p> <pre class="has"><code class="language-javascript">this.$store.dispatch('changeCity', '北京')</code></pre> <p>我们也可以使用Vuex中的语法糖，将方法映射到组件中</p> <pre class="has"><code class="language-javascript">import {mapActions} from 'vuex'</code></pre> <pre class="has"><code class="language-javascript">    methods: {       ...mapActions([         'changeCity'       ])     }</code></pre> <p>通过上面的操作，我们发现要改变city，需要先调用actions，再调用mutations来改变city，我们能不能直接调用mutations来改变city呢？这是可以的</p> <pre class="has"><code class="language-javascript">this.$store.commit('changeCity2', '北京')</code></pre> <p>当然，我们也可以使用Vuex的语法糖mapMutations来映射，这里不再介绍。</p> <p>注：本着能少写就少写的原则，我们在一般的开发中，可能会省略actions步骤。</p> <p><strong>5.Vuex的简单封装</strong></p> <p>随着项目越来越复杂，若将所有代码写在一起会显得越来越臃肿，所以我们一般都要进行封装分离。这里，我们将state和mutations进行封装，其他的类似。</p> <p>新建state.js</p> <pre class="has"><code class="language-javascript">let state = {   city: '重庆' }  export default state</code></pre> <p>新建mutations.js</p> <pre class="has"><code class="language-javascript">let mutations = {   changeCity (state, city) {     state.city = city   } }  export default mutations </code></pre> <p>然后，我们的代码就可以改成如下这般</p> <pre class="has"><code class="language-javascript">import Vue from 'vue' import Vuex from 'vuex' import state from './state' import mutations from './mutations'  Vue.use(Vuex)  export default new Vuex.Store({   state,   mutations })</code></pre> <h3>二.Vuex使用中可能遇到的问题</h3> <p><strong>1.刷新页面数据被重置为初始状态</strong></p> <p>对于这个问题，我们一般通过 Vuex 与缓存结合使用来解决。</p> <p>读取数据时</p> <pre class="has"><code class="language-javascript">let defaultCity = '' if (localStorage.getItem('city')) {   defaultCity= localStorage.getItem('city') }  const state = {   city: defaultCity }  export default state</code></pre> <p>改变数据时</p> <pre class="has"><code class="language-javascript">const mutations = {   changeCity (state, val) {     localStorage.setItem('city', val)     state.city= val   } }  export default mutations</code></pre> <p>&nbsp;</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-104.htm">ASP.NET登出系统并清除Cookie_实用技巧_</a></p>
                                         <p>下一个：<a href="/html/category/article-106.htm">vue &#8211; vue基础/vue核心内容_在线工具</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
+                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
+                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
-                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
+                <h4><a href="/html/category/article-5570.htm">动物疫苗空瓶无害化处理措施（动物疫苗空瓶无害化处理措施有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗空瓶无害化处理措施，以及动物疫苗空瓶无害化处理措施有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、无害化处理方式有哪些...</p>
             </div>
         </div>
     </div>
@@ -123,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
-                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
+                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
+                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
             </div>
         </div>
     </div>
@@ -133,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
-                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
+                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
+                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
             </div>
         </div>
     </div>
@@ -143,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3755.htm">Kotlin中的扩展函数（静态分派）</a></h4>
-                <p>扩展函数  扩展函数可以在已有类中添加新的方法，不会对原类做修改   举例1  对Context进行扩展showToast方法，可以在Fragment、Activity、Application中弹出T</p>
+                <h4><a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></h4>
+                <p>&lt;div id="app"&gt;     &lt;h1&gt;懒加载lazy&lt;/h1&gt;     &lt;h3&gt;不让输入框实时同步&lt;/h3&gt;     &lt;inp</p>
             </div>
         </div>
     </div>
@@ -153,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
-                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
+                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
             </div>
         </div>
     </div>
@@ -163,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
-                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
+                <h4><a href="/html/category/article-1341.htm">FreeRTOS进阶之队列示例完全解析_操作系统</a></h4>
+                <p>目录  前言 1.队列创建函数 2.入队  2.1 xQueueGenericSend() 2.2 xQueueGenericSendFromISR ()  3.出队     前言 FreeRTOS提</p>
             </div>
         </div>
     </div>
@@ -173,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
-                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
+                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
+                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
             </div>
         </div>
     </div>
@@ -183,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
+                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
+                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
             </div>
         </div>
     </div>
@@ -193,8 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
-                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
+                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
+                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

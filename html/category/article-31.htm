@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <h1></h1> <h1>SpringBoot Jar包部署在Nginx上</h1> <p></p> <h1>引言</h1> <hr/> <p>本文包含以下内容：</p> <ul> <li>Linux服务器上安装JDK</li> <li>Springboot项目打成Jar包</li> <li>Nginx部署项目分发</li> </ul> <h1>一、Linux服务器上安装JDK</h1> <hr/> <p>1、Java JDK是区分32位和64位的，所以在安装<code>JDK</code>之前需要首先判断一下我们<code>Linux</code>是哪一个版本的，在<code>Xshell 6</code>中通过执行以下命令：</p> <pre class="has"><code>uname –a</code></pre> <p>显示结果中如果有<code>x86_64</code>就是<code>64</code>位的，没有就是<code>32</code>位的，可以看出我这里的版本是64位的。</p> <p>2、从<code>Oracle</code>官网上下载<code>Linux x64</code>版本的<code>jdk-8u45-linux-x64.rpm</code>文件，如下图所示：</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://links.jianshu.com/go?to=https%3A%2F%2Fwww.oracle.com%2Ftechnetwork%2Fjava%2Fjavase%2Fdownloads%2Findex.html"  rel="nofollow">进入Oracle下载首页</a></p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/aa4f833466a5203875873f7f877a437d.jpg"></p> <p>首页</p> <p>拉到最下面</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/936d0c1bab12061369ce87f292389d61.jpg"></p> <p>历史版本</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/0c4ba2e8d97dc3f21b728fbd857c0cd0.jpg"></p> <p>进入下载</p> <p>3、使用 xftp 将JDK上传到Linux服务器</p> <p>切换到<code>/usr/local</code>目录下，在此目录下新建文件夹<code>jdk_8u45</code>，用于存放<code>jdk</code>的安装包，命令如下</p> <pre class="has"><code>cd /usr/local mkdir jdk_8u45</code></pre> <p>使用远程连接工具<code>Xftp</code>&nbsp;连接服务器，然后使用如下命令，上传到<code>/usr/local/jdk_8u45</code>目录下</p> <p>上传完后的文件如下，文件只有<code>读写</code>权限，没有<code>执行</code>权限</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/c6b773512a2516cd775a03ec6350e0f8.jpg"></p> <p>使用如下命令授权，如果文件已经有了执行权限，此步骤可省略</p> <pre class="has"><code>chmod 755 jdk-8U45-linux-x64.rpm</code></pre> <p>再次<code>ll</code>查看</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/5df87b7d932f068e2f9b762f4a2b2b04.jpg"></p> <p>4、安装JDK</p> <p>执行如下命令安装jdk</p> <pre class="has"><code># rpm -ivh jdk-8u45-linux-x64.rpm</code></pre> <p>JDK安装成功后，默认存放在<code>/usr/java</code>文件目录中</p> <p>5、配置环境变量</p> <p>使用<code>vim</code>或<code>vi</code>编辑器打开文件<code>/etc/profile</code></p> <pre class="has"><code># vim /etc/profile  # vi /etc/profile</code></pre> <p>在文件尾部添加如下内容，保存退出</p> <pre class="has"><code>export JAVA_HOME=/usr/java/jdk1.7.0_71 export PATH=$JAVA_HOME/bin:$PATH export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tool.jar</code></pre> <p>此时，我们刚刚配置的环境变量并没有起效，输入如下命令，使用环境变量立即生效</p> <pre class="has"><code># source /etc/profile</code></pre> <p>输入如下命令验证环境变量是否生效</p> <pre class="has"><code># echo $PATH</code></pre> <p>输入如下命令查看jdk版本</p> <pre class="has"><code># java -version</code></pre> <h1>二、Springboot项目打成Jar包</h1> <hr/> <p>1、在<code>pom.xml</code>文件中添加</p> <pre class="has"><code>&lt;packaging&gt;jar&lt;/packaging&gt;</code></pre> <p>2、在<code>pom.xml</code>中添加新的插件</p> <pre class="has"><code>    &lt;build&gt;         &lt;finalName&gt;sell&lt;/finalName&gt;         &lt;plugins&gt;             &lt;plugin&gt;                 &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;                 &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;             &lt;/plugin&gt;               &lt;plugin&gt;                 &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;                 &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;                 &lt;version&gt;2.22.1&lt;/version&gt;                 &lt;configuration&gt;                     &lt;!-- 不指定单元测试 --&gt;                     &lt;skipTests&gt;true&lt;/skipTests&gt;                 &lt;/configuration&gt;             &lt;/plugin&gt;         &lt;/plugins&gt;     &lt;/build&gt;</code></pre> <p>3、使用<code>IDEA编辑器</code>的<code>Maven</code>插件进行打包</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/98817c1a2ce9afff866bccbfbc745876.jpg"></p> <p>出现<code>build success</code>即为打包完成</p> <p>4、在项目中的<code>target</code>目录下出现一个可执行的<code>jar</code>文件</p> <p>5、使用<code>FTP</code>工具将jar包上传至<code>root</code>目录下</p> <p>此时<code>Jar</code>包已打包完成并上传至Linux服务器上。</p> <h1>三、Nginx部署项目分发</h1> <p>1、在Linux服务器上进入Nginx配置目录：</p> <pre class="has"><code> cd /usr/local/nginx/conf/</code></pre> <p>这里给出<code>nginx.conf</code>的配置</p> <pre class="has"><code>    server {         listen       80;         server_name  localhost;         #charset koi8-r;          #access_log  logs/host.access.log  main;          location / {             root   html;             index  index.html index.htm index.php;         }                  #将/wvv请求转发给http://127.0.0.1:1992/wvv处理         location /wvv {         proxy_set_header Host $host;         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;         proxy_pass http://127.0.0.1:1992/wvv;     }   }</code></pre> <p>同理可应用在<code>HTTPS</code>上的分发策略</p> <p>注意上面的端口号一定要跟程序中<code>application.properties</code>保持一致。</p> <p>如果是部署多个<code>SpringBoot</code>项目，则可以多次添加如下配置，只要修改成不一样的路径即可</p> <pre class="has"><code>#将/wvv请求转发给http://127.0.0.1:1991/project处理     location /project{       proxy_set_header Host $host;       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;       proxy_pass http://127.0.0.1:1991/project;     }</code></pre> <p>配置完成后，重启<code>nginx</code>。</p> <pre class="has"><code>nginx -s reload</code></pre> <p>接下来直接使用<code>nohup</code>命令进行后台启动应用<code>jar</code>包，但是要在jar包所在当前目录进行nohup启动。（注意）</p> <pre class="has"><code>nohup java -jar sell.jar  &amp;</code></pre> <p>其实到这里本文教程算是告一段落了，但是重新启动项目还是比较繁琐的。</p> <h1>四、编辑脚本以实现自动化</h1> <p>先来说一下，正常的重启方式吧。</p> <p>两种方式进行进程号的查询</p> <pre class="has"><code>ps -ef|grep jar包名  或者 netstat -nap|grep jar包启动端口号，如8080</code></pre> <p>然后去<code>kill</code>进程</p> <pre class="has"><code>kill -9 刚刚查询到的进程号</code></pre> <p>然后重新上传新的要覆盖的Jar包，进行<code>nohup</code>命令后台启动。</p> <p>整合了一个启动脚本，顿时项目部署变得无比简单。</p> <p>下面是具体步骤：</p> <p>1、项目重启的脚本，写个<code>start.sh</code>&nbsp;的脚本，注意脚本和<code>jar</code>包同级目录</p> <pre class="has"><code>vi start.sh</code></pre> <pre class="has"><code>#!/bin/sh RESOURCE_NAME=resource-0.0.1-SNAPSHOT.jar   tpid=`ps -ef|grep $RESOURCE_NAME|grep -v grep|grep -v kill|awk '{print $2}'` if [ ${tpid} ]; then echo 'Stop Process...' kill -15 $tpid fi sleep 5 tpid=`ps -ef|grep $RESOURCE_NAME|grep -v grep|grep -v kill|awk '{print $2}'` if [ ${tpid} ]; then echo 'Kill Process!' kill -9 $tpid else echo 'Stop Success!' fi   tpid=`ps -ef|grep $RESOURCE_NAME|grep -v grep|grep -v kill|awk '{print $2}'` if [ ${tpid} ]; then     echo 'App is running.' else     echo 'App is NOT running.' fi   rm -f tpid nohup java -jar ./$RESOURCE_NAME --spring.profiles.active=test &amp; echo $! &gt; tpid echo Start Success!</code></pre> <p>2、<code>chmod +x start.sh</code>&nbsp;(第一次运行的时候获取一下超级管理员权限)</p> <p>然后以后每次运行直接</p> <p><code>./start.sh</code>&nbsp;即可</p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <h1></h1> <h1>SpringBoot Jar包部署在Nginx上</h1> <p></p> <h1>引言</h1> <hr/> <p>本文包含以下内容：</p> <ul> <li>Linux服务器上安装JDK</li> <li>Springboot项目打成Jar包</li> <li>Nginx部署项目分发</li> </ul> <h1>一、Linux服务器上安装JDK</h1> <hr/> <p>1、Java JDK是区分32位和64位的，所以在安装<code>JDK</code>之前需要首先判断一下我们<code>Linux</code>是哪一个版本的，在<code>Xshell 6</code>中通过执行以下命令：</p> <pre class="has"><code>uname –a</code></pre> <p>显示结果中如果有<code>x86_64</code>就是<code>64</code>位的，没有就是<code>32</code>位的，可以看出我这里的版本是64位的。</p> <p>2、从<code>Oracle</code>官网上下载<code>Linux x64</code>版本的<code>jdk-8u45-linux-x64.rpm</code>文件，如下图所示：</p> <p>进入Oracle下载首页</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/aa4f833466a5203875873f7f877a437d.jpg"></p> <p>首页</p> <p>拉到最下面</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/936d0c1bab12061369ce87f292389d61.jpg"></p> <p>历史版本</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/0c4ba2e8d97dc3f21b728fbd857c0cd0.jpg"></p> <p>进入下载</p> <p>3、使用 xftp 将JDK上传到Linux服务器</p> <p>切换到<code>/usr/local</code>目录下，在此目录下新建文件夹<code>jdk_8u45</code>，用于存放<code>jdk</code>的安装包，命令如下</p> <pre class="has"><code>cd /usr/local mkdir jdk_8u45</code></pre> <p>使用远程连接工具<code>Xftp</code>&nbsp;连接服务器，然后使用如下命令，上传到<code>/usr/local/jdk_8u45</code>目录下</p> <p>上传完后的文件如下，文件只有<code>读写</code>权限，没有<code>执行</code>权限</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/c6b773512a2516cd775a03ec6350e0f8.jpg"></p> <p>使用如下命令授权，如果文件已经有了执行权限，此步骤可省略</p> <pre class="has"><code>chmod 755 jdk-8U45-linux-x64.rpm</code></pre> <p>再次<code>ll</code>查看</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/5df87b7d932f068e2f9b762f4a2b2b04.jpg"></p> <p>4、安装JDK</p> <p>执行如下命令安装jdk</p> <pre class="has"><code># rpm -ivh jdk-8u45-linux-x64.rpm</code></pre> <p>JDK安装成功后，默认存放在<code>/usr/java</code>文件目录中</p> <p>5、配置环境变量</p> <p>使用<code>vim</code>或<code>vi</code>编辑器打开文件<code>/etc/profile</code></p> <pre class="has"><code># vim /etc/profile  # vi /etc/profile</code></pre> <p>在文件尾部添加如下内容，保存退出</p> <pre class="has"><code>export JAVA_HOME=/usr/java/jdk1.7.0_71 export PATH=$JAVA_HOME/bin:$PATH export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tool.jar</code></pre> <p>此时，我们刚刚配置的环境变量并没有起效，输入如下命令，使用环境变量立即生效</p> <pre class="has"><code># source /etc/profile</code></pre> <p>输入如下命令验证环境变量是否生效</p> <pre class="has"><code># echo $PATH</code></pre> <p>输入如下命令查看jdk版本</p> <pre class="has"><code># java -version</code></pre> <h1>二、Springboot项目打成Jar包</h1> <hr/> <p>1、在<code>pom.xml</code>文件中添加</p> <pre class="has"><code><packaging>jar</packaging></code></pre> <p>2、在<code>pom.xml</code>中添加新的插件</p> <pre class="has"><code>    <build>         <finalName>sell</finalName>         <plugins>             <plugin>                 <groupId>org.springframework.boot</groupId>                 <artifactId>spring-boot-maven-plugin</artifactId>             </plugin>               <plugin>                 <groupId>org.apache.maven.plugins</groupId>                 <artifactId>maven-surefire-plugin</artifactId>                 <version>2.22.1</version>                 <configuration>                     <!-- 不指定单元测试 -->                     <skipTests>true</skipTests>                 </configuration>             </plugin>         </plugins>     </build></code></pre> <p>3、使用<code>IDEA编辑器</code>的<code>Maven</code>插件进行打包</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220603/98817c1a2ce9afff866bccbfbc745876.jpg"></p> <p>出现<code>build success</code>即为打包完成</p> <p>4、在项目中的<code>target</code>目录下出现一个可执行的<code>jar</code>文件</p> <p>5、使用<code>FTP</code>工具将jar包上传至<code>root</code>目录下</p> <p>此时<code>Jar</code>包已打包完成并上传至Linux服务器上。</p> <h1>三、Nginx部署项目分发</h1> <p>1、在Linux服务器上进入Nginx配置目录：</p> <pre class="has"><code> cd /usr/local/nginx/conf/</code></pre> <p>这里给出<code>nginx.conf</code>的配置</p> <pre class="has"><code>    server {         listen       80;         server_name  localhost;         #charset koi8-r;          #access_log  logs/host.access.log  main;          location / {             root   html;             index  index.html index.htm index.php;         }                  #将/wvv请求转发给http://127.0.0.1:1992/wvv处理         location /wvv {         proxy_set_header Host $host;         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;         proxy_pass http://127.0.0.1:1992/wvv;     }   }</code></pre> <p>同理可应用在<code>HTTPS</code>上的分发策略</p> <p>注意上面的端口号一定要跟程序中<code>application.properties</code>保持一致。</p> <p>如果是部署多个<code>SpringBoot</code>项目，则可以多次添加如下配置，只要修改成不一样的路径即可</p> <pre class="has"><code>#将/wvv请求转发给http://127.0.0.1:1991/project处理     location /project{       proxy_set_header Host $host;       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;       proxy_pass http://127.0.0.1:1991/project;     }</code></pre> <p>配置完成后，重启<code>nginx</code>。</p> <pre class="has"><code>nginx -s reload</code></pre> <p>接下来直接使用<code>nohup</code>命令进行后台启动应用<code>jar</code>包，但是要在jar包所在当前目录进行nohup启动。（注意）</p> <pre class="has"><code>nohup java -jar sell.jar  &</code></pre> <p>其实到这里本文教程算是告一段落了，但是重新启动项目还是比较繁琐的。</p> <h1>四、编辑脚本以实现自动化</h1> <p>先来说一下，正常的重启方式吧。</p> <p>两种方式进行进程号的查询</p> <pre class="has"><code>ps -ef|grep jar包名  或者 netstat -nap|grep jar包启动端口号，如8080</code></pre> <p>然后去<code>kill</code>进程</p> <pre class="has"><code>kill -9 刚刚查询到的进程号</code></pre> <p>然后重新上传新的要覆盖的Jar包，进行<code>nohup</code>命令后台启动。</p> <p>整合了一个启动脚本，顿时项目部署变得无比简单。</p> <p>下面是具体步骤：</p> <p>1、项目重启的脚本，写个<code>start.sh</code>&nbsp;的脚本，注意脚本和<code>jar</code>包同级目录</p> <pre class="has"><code>vi start.sh</code></pre> <pre class="has"><code>#!/bin/sh RESOURCE_NAME=resource-0.0.1-SNAPSHOT.jar   tpid=`ps -ef|grep $RESOURCE_NAME|grep -v grep|grep -v kill|awk '{print $2}'` if [ ${tpid} ]; then echo 'Stop Process...' kill -15 $tpid fi sleep 5 tpid=`ps -ef|grep $RESOURCE_NAME|grep -v grep|grep -v kill|awk '{print $2}'` if [ ${tpid} ]; then echo 'Kill Process!' kill -9 $tpid else echo 'Stop Success!' fi   tpid=`ps -ef|grep $RESOURCE_NAME|grep -v grep|grep -v kill|awk '{print $2}'` if [ ${tpid} ]; then     echo 'App is running.' else     echo 'App is NOT running.' fi   rm -f tpid nohup java -jar ./$RESOURCE_NAME --spring.profiles.active=test & echo $! > tpid echo Start Success!</code></pre> <p>2、<code>chmod +x start.sh</code>&nbsp;(第一次运行的时候获取一下超级管理员权限)</p> <p>然后以后每次运行直接</p> <p><code>./start.sh</code>&nbsp;即可</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-30.htm">Redis Cluster 集群搭建与扩容、缩容</a></p>
                                         <p>下一个：<a href="/html/category/article-32.htm">@RequestBody接收实体类时，部分字段丢失的问题</a></p>
@@ -103,48 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></h4>
-                <p>Centos7 Nginx编译包制作 找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下 1、准备一台虚拟机（可访问互联网） 2、安装所需插件 $ yum -y install gcc</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
-                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4478.htm">开宠物店大概需要多少投资（开宠物店投资多少钱一月能得多少利）</a></h4>
-                <p>摘要：       今天给各位分享开宠物店大概需要多少投资的知识，其中也会对开宠物店投资多少钱一月能得多少利进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、开.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1322.htm">@RequestBody接收json对象报415的解决办法</a></h4>
-                <p>前端请求： $.ajax({             url: basePath() + "/index/login.do",             type : "post",          </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1341.htm">FreeRTOS进阶之队列示例完全解析_操作系统</a></h4>
-                <p>目录  前言 1.队列创建函数 2.入队  2.1 xQueueGenericSend() 2.2 xQueueGenericSendFromISR ()  3.出队     前言 FreeRTOS提</p>
+                <h4><a href="/html/category/article-5569.htm">襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于襄阳免费领养宠物猫信息的问题，于是小编就整理了4个相关介绍襄阳免费领养宠物猫信息的解答，让我们一起看看吧。襄樊有孤儿院吗？正常收</p>
             </div>
         </div>
     </div>
@@ -163,18 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
-                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3755.htm">Kotlin中的扩展函数（静态分派）</a></h4>
-                <p>扩展函数  扩展函数可以在已有类中添加新的方法，不会对原类做修改   举例1  对Context进行扩展showToast方法，可以在Fragment、Activity、Application中弹出T</p>
+                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
             </div>
         </div>
     </div>
@@ -193,8 +143,58 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
+                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
+                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
+                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-790.htm">详细分析虚拟DOM与diff算法</a></h4>
+                <p>????虚拟DOM与diff算法 在vue、react等技术出现之前，每次修改DOM都需要通过遍历查询DOM树的方式，找到需要更新的DOM，然后修改样式或结构，资源损耗十分严重。而对于虚拟DOM来说，</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
+                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3755.htm">Kotlin中的扩展函数（静态分派）</a></h4>
+                <p>扩展函数  扩展函数可以在已有类中添加新的方法，不会对原类做修改   举例1  对Context进行扩展showToast方法，可以在Fragment、Activity、Application中弹出T</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

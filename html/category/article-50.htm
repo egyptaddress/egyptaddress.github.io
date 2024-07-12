@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3> </h3> <ul> <li><a href="#1_Python3pymysql_2" rel="nofollow">1 Python3安装pymysql第三方模块</a></li> <li><a href="#2_Mysql_10" rel="nofollow">2 操作Mysql数据库</a></li> <li><a href="#3__20" rel="nofollow">3 封装成函数调用</a></li> </ul> </div> <h1> <a id="1_Python3pymysql_2" rel="nofollow"></a>1 Python3安装pymysql第三方模块</h1> <ul> <li>Python2中是MySQLdb模块。</li> <li>Python3中没有MySQLdb模块了，所以使用<strong>pymysql</strong> </li> </ul> <pre><code class="prism language-powershell">conda install pymysql </code></pre> <h1> <a id="2_Mysql_10" rel="nofollow"></a>2 操作Mysql数据库</h1> <ol> <li>创建连接，指定数据库的ip地址，账号、密码、端口号、要操作的数据库、字符集</li> <li>创建游标</li> <li>执行sql</li> <li>获取结果</li> <li>关闭游标</li> <li>连接关闭</li> </ol> <p>详细可参考：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/hwtfamily/p/8982836.html"  rel="nofollow">https://www.cnblogs.com/hwtfamily/p/8982836.html</a></p> <h1> <a id="3__20" rel="nofollow"></a>3 封装成函数调用</h1> <p>以下代码亲测可用，配有详细注释：</p> <pre><code class="prism language-python"><span class="token comment"># -*- coding:utf-8 -*-</span> <span class="token comment"># 从MySQL数据库的数据表中读取每一行数据放入列表中，最后返回一个完整的列表</span>  <span class="token keyword">import</span> pymysql  <span class="token keyword">def</span> <span class="token function">get_mysql_list</span><span class="token punctuation">(</span>database<span class="token punctuation">,</span>table_name<span class="token punctuation">)</span><span class="token punctuation">:</span>     <span class="token comment">#  创建连接，指定数据库的ip地址，账号、密码、端口号、要操作的数据库、字符集</span>     host<span class="token punctuation">,</span>user<span class="token punctuation">,</span>pwd <span class="token operator">=</span> <span class="token string">'ip'</span><span class="token punctuation">,</span><span class="token string">'root'</span><span class="token punctuation">,</span><span class="token string">''</span>     conn <span class="token operator">=</span> pymysql<span class="token punctuation">.</span>connect<span class="token punctuation">(</span>host<span class="token operator">=</span>host<span class="token punctuation">,</span> user<span class="token operator">=</span>user<span class="token punctuation">,</span> passwd<span class="token operator">=</span>pwd<span class="token punctuation">,</span> db<span class="token operator">=</span>database<span class="token punctuation">,</span> port<span class="token operator">=</span><span class="token number">3306</span><span class="token punctuation">,</span> charset<span class="token operator">=</span><span class="token string">'utf8'</span><span class="token punctuation">)</span>    <span class="token comment"># port必须写int类型,MySQL的默认端口为3306. charset必须写utf8</span>     <span class="token comment"># 创建游标</span>     cursor <span class="token operator">=</span> conn<span class="token punctuation">.</span>cursor<span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment"># 执行sql语句</span>     sql <span class="token operator">=</span> <span class="token string">'select * from %s ;'</span> <span class="token operator">%</span> table_name     cursor<span class="token punctuation">.</span>execute<span class="token punctuation">(</span>sql<span class="token punctuation">)</span>      <span class="token comment"># 获取到sql执行的全部结果</span>     results <span class="token operator">=</span> cursor<span class="token punctuation">.</span>fetchall<span class="token punctuation">(</span><span class="token punctuation">)</span>     table_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>     <span class="token keyword">for</span> r <span class="token keyword">in</span> results<span class="token punctuation">:</span>         table_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">list</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment"># 由于fetchall方法返回的一个元组，需要每一行为列表形式的数据，将其转换为list类型。</span>      cursor<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>  <span class="token comment">#关闭游标</span>     conn<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>    <span class="token comment">#关闭连接</span>          <span class="token keyword">return</span> <span class="token builtin">list</span><span class="token punctuation">(</span>table_list<span class="token punctuation">)</span> <span class="token comment"># 返回一个完整的列表数据</span>   <span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>     x<span class="token operator">=</span>get_mysql_list<span class="token punctuation">(</span><span class="token string">'spidersData'</span><span class="token punctuation">,</span> <span class="token string">'词典'</span><span class="token punctuation">)</span>     <span class="token keyword">print</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> </code></pre> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3> </h3> <ul> <li>1 Python3安装pymysql第三方模块</li> <li>2 操作Mysql数据库</li> <li>3 封装成函数调用</li> </ul> </div> <h1> 1 Python3安装pymysql第三方模块</h1> <ul> <li>Python2中是MySQLdb模块。</li> <li>Python3中没有MySQLdb模块了，所以使用<strong>pymysql</strong> </li> </ul> <pre><code class="prism language-powershell">conda install pymysql </code></pre> <h1> 2 操作Mysql数据库</h1> <ol> <li>创建连接，指定数据库的ip地址，账号、密码、端口号、要操作的数据库、字符集</li> <li>创建游标</li> <li>执行sql</li> <li>获取结果</li> <li>关闭游标</li> <li>连接关闭</li> </ol> <p>详细可参考：https://www.cnblogs.com/hwtfamily/p/8982836.html</p> <h1> 3 封装成函数调用</h1> <p>以下代码亲测可用，配有详细注释：</p> <pre><code class="prism language-python"><span class="token comment"># -*- coding:utf-8 -*-</span> <span class="token comment"># 从MySQL数据库的数据表中读取每一行数据放入列表中，最后返回一个完整的列表</span>  <span class="token keyword">import</span> pymysql  <span class="token keyword">def</span> <span class="token function">get_mysql_list</span><span class="token punctuation">(</span>database<span class="token punctuation">,</span>table_name<span class="token punctuation">)</span><span class="token punctuation">:</span>     <span class="token comment">#  创建连接，指定数据库的ip地址，账号、密码、端口号、要操作的数据库、字符集</span>     host<span class="token punctuation">,</span>user<span class="token punctuation">,</span>pwd <span class="token operator">=</span> <span class="token string">'ip'</span><span class="token punctuation">,</span><span class="token string">'root'</span><span class="token punctuation">,</span><span class="token string">''</span>     conn <span class="token operator">=</span> pymysql<span class="token punctuation">.</span>connect<span class="token punctuation">(</span>host<span class="token operator">=</span>host<span class="token punctuation">,</span> user<span class="token operator">=</span>user<span class="token punctuation">,</span> passwd<span class="token operator">=</span>pwd<span class="token punctuation">,</span> db<span class="token operator">=</span>database<span class="token punctuation">,</span> port<span class="token operator">=</span><span class="token number">3306</span><span class="token punctuation">,</span> charset<span class="token operator">=</span><span class="token string">'utf8'</span><span class="token punctuation">)</span>    <span class="token comment"># port必须写int类型,MySQL的默认端口为3306. charset必须写utf8</span>     <span class="token comment"># 创建游标</span>     cursor <span class="token operator">=</span> conn<span class="token punctuation">.</span>cursor<span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment"># 执行sql语句</span>     sql <span class="token operator">=</span> <span class="token string">'select * from %s ;'</span> <span class="token operator">%</span> table_name     cursor<span class="token punctuation">.</span>execute<span class="token punctuation">(</span>sql<span class="token punctuation">)</span>      <span class="token comment"># 获取到sql执行的全部结果</span>     results <span class="token operator">=</span> cursor<span class="token punctuation">.</span>fetchall<span class="token punctuation">(</span><span class="token punctuation">)</span>     table_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>     <span class="token keyword">for</span> r <span class="token keyword">in</span> results<span class="token punctuation">:</span>         table_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">list</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment"># 由于fetchall方法返回的一个元组，需要每一行为列表形式的数据，将其转换为list类型。</span>      cursor<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>  <span class="token comment">#关闭游标</span>     conn<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>    <span class="token comment">#关闭连接</span>          <span class="token keyword">return</span> <span class="token builtin">list</span><span class="token punctuation">(</span>table_list<span class="token punctuation">)</span> <span class="token comment"># 返回一个完整的列表数据</span>   <span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>     x<span class="token operator">=</span>get_mysql_list<span class="token punctuation">(</span><span class="token string">'spidersData'</span><span class="token punctuation">,</span> <span class="token string">'词典'</span><span class="token punctuation">)</span>     <span class="token keyword">print</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> </code></pre> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-49.htm">mysql timestamp_MySQL中的时间字段的几种数据类型比较</a></p>
                                         <p>下一个：<a href="/html/category/article-51.htm">LevelDB 学习笔记2：合并</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
+                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+                <h4><a href="/html/category/article-4585.htm">宠物疫苗猫咪可以打吗（猫咪打疫苗宠物店可以打吗?）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物疫苗猫咪可以打吗，以及猫咪打疫苗宠物店可以打吗?对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、两个月的小猫能打狂犬疫苗吗?...  </p>
             </div>
         </div>
     </div>
@@ -123,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
-                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
+                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
+                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
             </div>
         </div>
     </div>
@@ -133,28 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4442.htm">动物疫苗价格表图片高清大全集（动物疫苗价格查询）</a></h4>
-                <p>摘要：       今天给各位分享动物疫苗价格表图片高清大全集的知识，其中也会对动物疫苗价格查询进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗打疫苗一般.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1322.htm">@RequestBody接收json对象报415的解决办法</a></h4>
-                <p>前端请求： $.ajax({             url: basePath() + "/index/login.do",             type : "post",          </p>
+                <h4><a href="/html/category/article-2824.htm">如何使用线程池执行定时任务？</a></h4>
+                <p>在 Java 语言中，有两个线程池可以执行定时任务：ScheduledThreadPool 和 SingleThreadScheduledExecutor，其中 SingleThreadSchedul</p>
             </div>
         </div>
     </div>
@@ -173,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
-                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
+                <h4><a href="/html/category/article-4369.htm">符合动物医院法定条件有哪些内容和要求呢（动物医院资质级别有哪些）</a></h4>
+                <p>摘要：       今天给各位分享符合动物医院法定条件有哪些内容和要求呢的知识，其中也会对动物医院资质级别有哪些进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1.</p>
             </div>
         </div>
     </div>
@@ -183,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
+                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
             </div>
         </div>
     </div>
@@ -193,8 +173,28 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4478.htm">开宠物店大概需要多少投资（开宠物店投资多少钱一月能得多少利）</a></h4>
-                <p>摘要：       今天给各位分享开宠物店大概需要多少投资的知识，其中也会对开宠物店投资多少钱一月能得多少利进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、开.</p>
+                <h4><a href="/html/category/article-3755.htm">Kotlin中的扩展函数（静态分派）</a></h4>
+                <p>扩展函数  扩展函数可以在已有类中添加新的方法，不会对原类做修改   举例1  对Context进行扩展showToast方法，可以在Fragment、Activity、Application中弹出T</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
+                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

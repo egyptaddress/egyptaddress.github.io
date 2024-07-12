@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<h1 class="md-end-block md-heading"><span class="md-plain md-expand">背景</span></h1> <p class="md-end-block md-p"><span class="md-plain">线上Hadoop集群资源严重不足，可能存在添加磁盘，添加CPU，添加节点的操作，那么在添加这些硬件资源之后，我们的集群是不能立马就利用上这些资源的，需要修改集群Yarn资源配置，然后使其生效。</span></p> <h1 class="md-end-block md-heading"><span class="md-plain">现有环境</span></h1> <p class="md-end-block md-p"><span class="md-plain">服务器：12台，内存64Gx12=768G，物理cpu16x12=192，磁盘12Tx12=144T</span></p> <p class="md-end-block md-p"><span class="md-plain">组件：Hadoop-2.7.7，Hive-2.3.4，Presto-220，Dolphinscheduler-1.3.6，Sqoop-1.4.7</span></p> <p class="md-end-block md-p"><span class="md-pair-s"><strong><span class="md-plain">分配策略</span></strong></span></p> <p class="md-end-block md-p"><span class="md-plain">由于我们的版本是Hadoop-2.7.7，有些默认配置是固定一个值，好比可用内存8G，可用CPU核数8核，如果调优就需要我们配置的东西比较多。</span></p> <p class="md-end-block md-p"><span class="md-plain">官方Yarn参数配置：</span><span class="md-link md-pair-s" spellcheck="false"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://hadoop.apache.org/docs/r2.7.7/hadoop-yarn/hadoop-yarn-common/yarn-default.xml"  rel="nofollow">https://hadoop.apache.org/docs/r2.7.7/hadoop-yarn/hadoop-yarn-common/yarn-default.xml</a></span></p> <p class="md-end-block md-p md-focus"><span class="md-plain md-expand">未来的版本(Hadoop-3.0+)其实是有自动检测硬件资源的机制，需要开启配置：</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.detect-hardware-capabilities</code></span><span class="md-plain">，然后会自动计算资源配置，不过这个是默认关闭的，每个节点的NodeManager可用内存配置</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.memory-mb</code></span><span class="md-plain"> 和CPU核数</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.cpu-vcores</code></span><span class="md-plain"> 也是受此配置影响， 默认配置都是-1，则可用内存为8G，CPU核数为8核。如果开启了自动监测硬件资源，其他配置则可以忽略不用配置，简化了配置。</span></p> <p class="md-end-block md-p"><span class="md-plain">官方Yarn参数配置：</span><span class="md-link md-pair-s" spellcheck="false"><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-common/yarn-default.xml"  rel="nofollow">https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-common/yarn-default.xml</a></span></p> <p class="md-end-block md-p"><span class="md-plain">还有一个重要的配置</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.vmem-pmem-ratio</code></span><span class="md-plain"> ，表示NodeManager上的Container物理内存不足时，可用使用虚拟内存，默认为物理内存的2.1倍。</span></p> <h1 class="md-end-block md-heading"><span class="md-plain">修改配置</span></h1> <h2 class="md-end-block md-heading"><span class="md-plain">yarn-site.xml</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改yarn-site.xml，有则修改，没有则添加，这里我们设置单个节点可用内存30G，可用CPU核数为16</span></p> <pre class="md-fences md-end-block ty-contain-cm modeLoaded" lang="xml" spellcheck="false"><code>&lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.nodemanager.resource.memory-mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;30720&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;每个节点可用内存,默认8192M(8G),这里设置30G&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.scheduler.minimum-allocation-mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;1024&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;单个任务可申请最少内存，默认1024MB&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.scheduler.maximum-allocation-mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;20480&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;单个任务可申请最大内存，默认8192M(8G),这里设置20G&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.app.mapreduce.am.resource.mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;2048&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;默认为1536。MR运行于YARN上时，为AM分配多少内存。默认值通常来说过小，建议设置为2048或4096等较大的值。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.nodemanager.resource.cpu-vcores&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;16&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;默认为8。每个节点可分配多少虚拟核给YARN使用，通常设为该节点定义的总虚拟核数即可。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.scheduler.maximum-allocation-vcores&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;32&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;分别为1/32，指定RM可以为每个container分配的最小/最大虚拟核数，低 于或高于该限制的核申请，会按最小或最大核数来进行分配。默认值适合 一般集群使用。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;yarn.scheduler.minimum-allocation-vcores&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;1&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;分别为1/32，指定RM可以为每个container分配的最小/最大虚拟核数，低 于或高于该限制的核申请，会按最小或最大核数来进行分配。默认值适合 一般集&gt;群使用。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp;&lt;name&gt;yarn.nodemanager.vcores-pcores-ratio&lt;/name&gt;  &nbsp;&lt;value&gt;2&lt;/value&gt;  &nbsp;&lt;discription&gt;每使用一个物理cpu，可以使用的虚拟cpu的比例，默认为2&lt;/discription&gt; &lt;/property&gt;  &lt;property&gt;  &nbsp;&lt;name&gt;yarn.nodemanager.vmem-pmem-ratio&lt;/name&gt;  &nbsp;&lt;value&gt;5.2&lt;/value&gt;  &nbsp;&lt;discription&gt;物理内存不足时,使用的虚拟内存，默认是2.1，表示每使用1MB的物理内存，最多可以使用2.1MB的虚拟内存总量。&lt;/discription&gt; &lt;/property&gt;</code></pre> <h2 class="md-end-block md-heading"><span class="md-plain">mapred-site.xml</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改mapred-site.xml，有则修改，没有则添加</span></p> <p class="md-end-block md-p"><span class="md-plain">给单个任务设置内存资源，注意这里的值不能大于上面对应的内存</span><span class="md-pair-s" spellcheck="false"><code>yarn.scheduler.maximum-allocation-mb</code></span></p> <pre class="md-fences md-end-block ty-contain-cm modeLoaded" lang="xml" spellcheck="false"><code>&lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;mapreduce.map.memory.mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;2048&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;默认均为1024，调度器为每个map/reduce task申请的内存数。各Job也可以单独指定。&lt;/discription&gt; &lt;/property&gt; &lt;property&gt;  &nbsp; &nbsp;&lt;name&gt;mapreduce.reduce.memory.mb&lt;/name&gt;  &nbsp; &nbsp;&lt;value&gt;2048&lt;/value&gt;  &nbsp; &nbsp;&lt;discription&gt;默认均为1024，调度器为每个map/reduce task申请的内存数。各Job也可以单独指定。&lt;/discription&gt; &lt;/property&gt;</code></pre> <h1 class="md-end-block md-heading"><span class="md-plain">集群生效</span></h1> <h2 class="md-end-block md-heading"><span class="md-plain">分发</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改完配置后，一定要将配置分发到其他集群节点，使用 scp 或者 xsync 工具分发到其他节点，这里举例分发到一个节点</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>cd /data/soft/hadoop/hadoop-2.7.7/etc/hadoop</code></span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>scp -r yarn-site.xml mapred-site.xml data002:`pwd`</code></span></p> <h2 class="md-end-block md-heading"><span class="md-plain">动态重启</span></h2> <p class="md-end-block md-p"><span class="md-plain">为了不影响集群使用，我们单独启停Yarn，Yarn的服务主要有两个NodeManager和ResourceManager，单独启停命令</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh stop nodemanager</code></span><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh start nademanager</code></span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh stop resourcemanager</code></span><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh start resourcemanager</code></span></p> <p class="md-end-block md-p"><span class="md-plain">根据集群节点逐个执行以上命令，ResourceManager对应的节点执行对应的命令。这样我们就保证了集群资源的动态调优。</span></p> <p class="md-end-block md-p"><span class="md-plain">当然，如果单个重启麻烦，也可以执行Yarn的重启命令</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>stop-yarn.sh</code></span><span class="md-pair-s" spellcheck="false"><code>start-yarn.sh</code></span></p> <p class="md-end-block md-p"><span class="md-plain">ResourceManager对应的从节点单独启停即可。</span></p> <blockquote> <p class="md-end-block md-p"><span class="md-plain md-expand">更多请在公号平台搜索：选手一号位，本文编号：2004，回复即可获取。</span></p> </blockquote> 			                </div>
+                      				  				  				<h1 class="md-end-block md-heading"><span class="md-plain md-expand">背景</span></h1> <p class="md-end-block md-p"><span class="md-plain">线上Hadoop集群资源严重不足，可能存在添加磁盘，添加CPU，添加节点的操作，那么在添加这些硬件资源之后，我们的集群是不能立马就利用上这些资源的，需要修改集群Yarn资源配置，然后使其生效。</span></p> <h1 class="md-end-block md-heading"><span class="md-plain">现有环境</span></h1> <p class="md-end-block md-p"><span class="md-plain">服务器：12台，内存64Gx12=768G，物理cpu16x12=192，磁盘12Tx12=144T</span></p> <p class="md-end-block md-p"><span class="md-plain">组件：Hadoop-2.7.7，Hive-2.3.4，Presto-220，Dolphinscheduler-1.3.6，Sqoop-1.4.7</span></p> <p class="md-end-block md-p"><span class="md-pair-s"><strong><span class="md-plain">分配策略</span></strong></span></p> <p class="md-end-block md-p"><span class="md-plain">由于我们的版本是Hadoop-2.7.7，有些默认配置是固定一个值，好比可用内存8G，可用CPU核数8核，如果调优就需要我们配置的东西比较多。</span></p> <p class="md-end-block md-p"><span class="md-plain">官方Yarn参数配置：</span><span class="md-link md-pair-s" spellcheck="false">https://hadoop.apache.org/docs/r2.7.7/hadoop-yarn/hadoop-yarn-common/yarn-default.xml</span></p> <p class="md-end-block md-p md-focus"><span class="md-plain md-expand">未来的版本(Hadoop-3.0+)其实是有自动检测硬件资源的机制，需要开启配置：</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.detect-hardware-capabilities</code></span><span class="md-plain">，然后会自动计算资源配置，不过这个是默认关闭的，每个节点的NodeManager可用内存配置</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.memory-mb</code></span><span class="md-plain"> 和CPU核数</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.resource.cpu-vcores</code></span><span class="md-plain"> 也是受此配置影响， 默认配置都是-1，则可用内存为8G，CPU核数为8核。如果开启了自动监测硬件资源，其他配置则可以忽略不用配置，简化了配置。</span></p> <p class="md-end-block md-p"><span class="md-plain">官方Yarn参数配置：</span><span class="md-link md-pair-s" spellcheck="false">https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-common/yarn-default.xml</span></p> <p class="md-end-block md-p"><span class="md-plain">还有一个重要的配置</span><span class="md-pair-s" spellcheck="false"><code>yarn.nodemanager.vmem-pmem-ratio</code></span><span class="md-plain"> ，表示NodeManager上的Container物理内存不足时，可用使用虚拟内存，默认为物理内存的2.1倍。</span></p> <h1 class="md-end-block md-heading"><span class="md-plain">修改配置</span></h1> <h2 class="md-end-block md-heading"><span class="md-plain">yarn-site.xml</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改yarn-site.xml，有则修改，没有则添加，这里我们设置单个节点可用内存30G，可用CPU核数为16</span></p> <pre class="md-fences md-end-block ty-contain-cm modeLoaded" lang="xml" spellcheck="false"><code><property>  &nbsp; &nbsp;<name>yarn.nodemanager.resource.memory-mb</name>  &nbsp; &nbsp;<value>30720</value>  &nbsp; &nbsp;<discription>每个节点可用内存,默认8192M(8G),这里设置30G</discription> </property> <property>  &nbsp; &nbsp;<name>yarn.scheduler.minimum-allocation-mb</name>  &nbsp; &nbsp;<value>1024</value>  &nbsp; &nbsp;<discription>单个任务可申请最少内存，默认1024MB</discription> </property> <property>  &nbsp; &nbsp;<name>yarn.scheduler.maximum-allocation-mb</name>  &nbsp; &nbsp;<value>20480</value>  &nbsp; &nbsp;<discription>单个任务可申请最大内存，默认8192M(8G),这里设置20G</discription> </property> <property>  &nbsp; &nbsp;<name>yarn.app.mapreduce.am.resource.mb</name>  &nbsp; &nbsp;<value>2048</value>  &nbsp; &nbsp;<discription>默认为1536。MR运行于YARN上时，为AM分配多少内存。默认值通常来说过小，建议设置为2048或4096等较大的值。</discription> </property> <property>  &nbsp; &nbsp;<name>yarn.nodemanager.resource.cpu-vcores</name>  &nbsp; &nbsp;<value>16</value>  &nbsp; &nbsp;<discription>默认为8。每个节点可分配多少虚拟核给YARN使用，通常设为该节点定义的总虚拟核数即可。</discription> </property> <property>  &nbsp; &nbsp;<name>yarn.scheduler.maximum-allocation-vcores</name>  &nbsp; &nbsp;<value>32</value>  &nbsp; &nbsp;<discription>分别为1/32，指定RM可以为每个container分配的最小/最大虚拟核数，低 于或高于该限制的核申请，会按最小或最大核数来进行分配。默认值适合 一般集群使用。</discription> </property> <property>  &nbsp; &nbsp;<name>yarn.scheduler.minimum-allocation-vcores</name>  &nbsp; &nbsp;<value>1</value>  &nbsp; &nbsp;<discription>分别为1/32，指定RM可以为每个container分配的最小/最大虚拟核数，低 于或高于该限制的核申请，会按最小或最大核数来进行分配。默认值适合 一般集>群使用。</discription> </property> <property>  &nbsp;<name>yarn.nodemanager.vcores-pcores-ratio</name>  &nbsp;<value>2</value>  &nbsp;<discription>每使用一个物理cpu，可以使用的虚拟cpu的比例，默认为2</discription> </property>  <property>  &nbsp;<name>yarn.nodemanager.vmem-pmem-ratio</name>  &nbsp;<value>5.2</value>  &nbsp;<discription>物理内存不足时,使用的虚拟内存，默认是2.1，表示每使用1MB的物理内存，最多可以使用2.1MB的虚拟内存总量。</discription> </property></code></pre> <h2 class="md-end-block md-heading"><span class="md-plain">mapred-site.xml</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改mapred-site.xml，有则修改，没有则添加</span></p> <p class="md-end-block md-p"><span class="md-plain">给单个任务设置内存资源，注意这里的值不能大于上面对应的内存</span><span class="md-pair-s" spellcheck="false"><code>yarn.scheduler.maximum-allocation-mb</code></span></p> <pre class="md-fences md-end-block ty-contain-cm modeLoaded" lang="xml" spellcheck="false"><code><property>  &nbsp; &nbsp;<name>mapreduce.map.memory.mb</name>  &nbsp; &nbsp;<value>2048</value>  &nbsp; &nbsp;<discription>默认均为1024，调度器为每个map/reduce task申请的内存数。各Job也可以单独指定。</discription> </property> <property>  &nbsp; &nbsp;<name>mapreduce.reduce.memory.mb</name>  &nbsp; &nbsp;<value>2048</value>  &nbsp; &nbsp;<discription>默认均为1024，调度器为每个map/reduce task申请的内存数。各Job也可以单独指定。</discription> </property></code></pre> <h1 class="md-end-block md-heading"><span class="md-plain">集群生效</span></h1> <h2 class="md-end-block md-heading"><span class="md-plain">分发</span></h2> <p class="md-end-block md-p"><span class="md-plain">修改完配置后，一定要将配置分发到其他集群节点，使用 scp 或者 xsync 工具分发到其他节点，这里举例分发到一个节点</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>cd /data/soft/hadoop/hadoop-2.7.7/etc/hadoop</code></span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>scp -r yarn-site.xml mapred-site.xml data002:`pwd`</code></span></p> <h2 class="md-end-block md-heading"><span class="md-plain">动态重启</span></h2> <p class="md-end-block md-p"><span class="md-plain">为了不影响集群使用，我们单独启停Yarn，Yarn的服务主要有两个NodeManager和ResourceManager，单独启停命令</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh stop nodemanager</code></span><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh start nademanager</code></span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh stop resourcemanager</code></span><span class="md-pair-s" spellcheck="false"><code>yarn-daemon.sh start resourcemanager</code></span></p> <p class="md-end-block md-p"><span class="md-plain">根据集群节点逐个执行以上命令，ResourceManager对应的节点执行对应的命令。这样我们就保证了集群资源的动态调优。</span></p> <p class="md-end-block md-p"><span class="md-plain">当然，如果单个重启麻烦，也可以执行Yarn的重启命令</span></p> <p class="md-end-block md-p"><span class="md-pair-s" spellcheck="false"><code>stop-yarn.sh</code></span><span class="md-pair-s" spellcheck="false"><code>start-yarn.sh</code></span></p> <p class="md-end-block md-p"><span class="md-plain">ResourceManager对应的从节点单独启停即可。</span></p> <blockquote> <p class="md-end-block md-p"><span class="md-plain md-expand">更多请在公号平台搜索：选手一号位，本文编号：2004，回复即可获取。</span></p> </blockquote> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-61.htm">快速学会SpringBoot的秘诀，看这篇就懂了</a></p>
                                         <p>下一个：<a href="/html/category/article-63.htm">【定义+用法+区别+使用场景】escape(),encodeURI(),encodeURIComponent()</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
+                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
+                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
-                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
+                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
+                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
             </div>
         </div>
     </div>
@@ -123,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4549.htm">深圳宠物领养中心官网（深圳宠物领养机构）</a></h4>
-                <p>摘要：       今天给各位分享深圳宠物领养中心官网的知识，其中也会对深圳宠物领养机构进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、那个,我想问下深圳的狗.</p>
+                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
             </div>
         </div>
     </div>
@@ -133,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
-                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
+                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
             </div>
         </div>
     </div>
@@ -143,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4095.htm">Docker基础 — 36、CMD指令和ENTRYPOINT指令的区别</a></h4>
-                <p>目录  1、CMD指令和ENTRYPOINT指令说明 2、CMD指令只有最后一条生效的原因 3、CMD指令演示 4、ENTRYPOINT指令演示 5、总结   CMD指令和ENTRYPOINT指令作用</p>
+                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
+                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
             </div>
         </div>
     </div>
@@ -153,28 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
-                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
             </div>
         </div>
     </div>
@@ -193,8 +173,28 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
-                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
+                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
+                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1629.htm">原生js实现楼层滚动（界面滑动）效果</a></h4>
+                <p>截取自自己写的代码 思路很简单，就是改编自回到顶部效果，控制滚动条位移到指定位置  先有个布局，四个触发li和四张图片 &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;h</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

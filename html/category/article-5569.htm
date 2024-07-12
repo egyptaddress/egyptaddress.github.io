@@ -2,11 +2,12 @@
 <html lang="zh-CN">
 
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-220.htm" />
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-5569.htm" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>SpringCloud&#8212;-Feign隔离和降级 - EgyptAddress</title>
+    <title>襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网</title>
     <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <meta name="description" content="摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于襄阳免费领养宠物猫信息的问题，于是小编就整理了4个相关介绍襄阳免费领养宠物猫信息的解答，让我们一起看看吧。襄樊有孤儿院吗？正常收" />
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
     <script>
@@ -75,7 +76,7 @@ var _hmt = _hmt || [];
     <section class="w3l-about-breadcrumb text-center">
         <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
             <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">SpringCloud&#8212;-Feign隔离和降级</h1>
+                <h1 class="title" style="word-break: break-all;">襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网</h1>
                 <ul class="breadcrumbs-custom-path mt-2">
                     <li><a href="/">首页</a></li>
                     <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
@@ -90,10 +91,10 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>限流是一种预防措施，虽然限流可以尽量避免因高并发而引起的服务故障，但服务还会因为其它原因而故障。</p> <p>而要将这些故障控制在一定范围，避免雪崩，就要靠<strong>线程隔离</strong>（舱壁模式）和<strong>熔断降级</strong>手段了。<br /><strong>线程隔离</strong>：调用者在调用服务提供者时，给每个调用的请求分配独立线程池，出现故障时，最多消耗这个线程池内资源，避免把调用者的所有资源耗尽。<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221120/c4a89564b5a27e16401a251abb684f99.jpg" alt="SpringCloud----Feign隔离和降级"><br /><strong>熔断降级</strong>：是在调用方这边加入断路器，统计对服务提供者的调用，如果调用的失败比例过高，则熔断该业务，不允许访问该服务的提供者了。<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221120/4e85a3f3438e2f2ed0cdfa951ee32a92.jpg" alt="SpringCloud----Feign隔离和降级">可以看到，不管是线程隔离还是熔断降级，都是对<strong>客户端</strong>（调用方）的保护。需要在<strong>调用方</strong> 发起远程调用时做线程隔离、或者服务熔断。</p> <p>而我们的微服务远程调用都是基于Feign来完成的，因此我们需要将Feign与Sentinel整合，在Feign里面实现线程隔离和服务熔断。</p> <h1>1.FeignClient整合Sentinel</h1> <p>SpringCloud中，微服务调用都是通过Feign来实现的，因此做客户端保护必须整合Feign和Sentinel。</p> <h2>1.1.修改配置，开启sentinel功能</h2> <p>修改OrderService的application.yml文件，开启Feign的Sentinel功能：</p> <pre><code class="prism language-yaml"><span class="token key atrule">feign</span><span class="token punctuation">:</span><span class="token key atrule">sentinel</span><span class="token punctuation">:</span><span class="token key atrule">enabled</span><span class="token punctuation">:</span><span class="token boolean important">true</span><span class="token comment"># 开启feign对sentinel的支持</span></code></pre> <h2>1.2.编写失败降级逻辑</h2> <p>业务失败后，不能直接报错，而应该返回用户一个友好提示或者默认结果，这个就是失败降级逻辑。</p> <p>给FeignClient编写失败后的降级逻辑<br /> ①方式一：FallbackClass，无法对远程调用的异常做处理</p> <p>②方式二：FallbackFactory，可以对远程调用的异常做处理，我们选择这种<br /> 这里我们演示方式二的失败降级处理。<br /><strong>步骤一</strong>：在feing-api项目中定义类，实现FallbackFactory：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221120/ec63951b2d2e00dfc4063bf12f11db1c.jpg" alt="SpringCloud----Feign隔离和降级">代码：</p> <pre><code class="prism language-java"><span class="token keyword">import</span><span class="token namespace">cn<span class="token punctuation">.</span>itcast<span class="token punctuation">.</span>feign<span class="token punctuation">.</span>clients<span class="token punctuation">.</span></span><span class="token class-name">UserClient</span><span class="token punctuation">;</span><span class="token keyword">import</span><span class="token namespace">cn<span class="token punctuation">.</span>itcast<span class="token punctuation">.</span>feign<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span></span><span class="token class-name">User</span><span class="token punctuation">;</span><span class="token keyword">import</span><span class="token namespace">feign<span class="token punctuation">.</span>hystrix<span class="token punctuation">.</span></span><span class="token class-name">FallbackFactory</span><span class="token punctuation">;</span><span class="token keyword">import</span><span class="token namespace">lombok<span class="token punctuation">.</span>extern<span class="token punctuation">.</span>slf4j<span class="token punctuation">.</span></span><span class="token class-name">Slf4j</span><span class="token punctuation">;</span><span class="token annotation punctuation">@Slf4j</span><span class="token keyword">public</span><span class="token keyword">class</span><span class="token class-name">UserClientFallbackFactory</span><span class="token keyword">implements</span><span class="token class-name">FallbackFactory</span><span class="token generics"><span class="token punctuation"><</span><span class="token class-name">UserClient</span><span class="token punctuation">></span></span><span class="token punctuation">{<!-- --></span><span class="token annotation punctuation">@Override</span><span class="token keyword">public</span><span class="token class-name">UserClient</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token class-name">Throwable</span> throwable<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span><span class="token keyword">new</span><span class="token class-name">UserClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token annotation punctuation">@Override</span><span class="token keyword">public</span><span class="token class-name">User</span><span class="token function">findById</span><span class="token punctuation">(</span><span class="token class-name">Long</span> id<span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span>                 log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">"查询用户异常"</span><span class="token punctuation">,</span> throwable<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">return</span><span class="token keyword">new</span><span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre> <p><strong>步骤二</strong>：在feing-api项目中的DefaultFeignConfiguration类中将UserClientFallbackFactory注册为一个Bean：</p> <pre><code class="prism language-java"><span class="token annotation punctuation">@Bean</span><span class="token keyword">public</span><span class="token class-name">UserClientFallbackFactory</span><span class="token function">userClientFallbackFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{<!-- --></span><span class="token keyword">return</span><span class="token keyword">new</span><span class="token class-name">UserClientFallbackFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p><strong>步骤三</strong>：在feing-api项目中的UserClient接口中使用UserClientFallbackFactory：</p> <pre><code class="prism language-java"><span class="token keyword">import</span><span class="token namespace">org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>cloud<span class="token punctuation">.</span>openfeign<span class="token punctuation">.</span></span><span class="token class-name">FeignClient</span><span class="token punctuation">;</span><span class="token keyword">import</span><span class="token namespace">org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>web<span class="token punctuation">.</span>bind<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span></span><span class="token class-name">GetMapping</span><span class="token punctuation">;</span><span class="token keyword">import</span><span class="token namespace">org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>web<span class="token punctuation">.</span>bind<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span></span><span class="token class-name">PathVariable</span><span class="token punctuation">;</span><span class="token annotation punctuation">@FeignClient</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"userservice"</span><span class="token punctuation">,</span> fallbackFactory<span class="token operator">=</span><span class="token class-name">UserClientFallbackFactory</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token keyword">public</span><span class="token keyword">interface</span><span class="token class-name">UserClient</span><span class="token punctuation">{<!-- --></span><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/user/{id}"</span><span class="token punctuation">)</span><span class="token class-name">User</span><span class="token function">findById</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span><span class="token class-name">Long</span> id<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">}</span></code></pre> <p>重启后，访问一次订单查询业务，然后查看sentinel控制台，可以看到新的簇点链路：<br /><img decoding="async" src="http://img.555519.xyz/uploads/20221120/f33d89a315332578f5bace0d600189a3.jpg" alt="SpringCloud----Feign隔离和降级"></p> <h2>1.3.总结</h2> <p>Sentinel支持的雪崩解决方案：</p> <ul> <li>线程隔离（仓壁模式）</li> <li>降级熔断</li> </ul> <p>Feign整合Sentinel的步骤：</p> <ul> <li>在application.yml中配置：feign.sentienl.enable=true</li> <li>给FeignClient编写FallbackFactory并注册为Bean</li> <li>将FallbackFactory配置到FeignClient</li> </ul> </div> 			                </div>
+                        <div class="article-zhaiyao">       <strong><img src="http://www.to3158.cn/zb_users/theme/koilee/style/images/favicon_example.ico" alt="襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网">摘要：</strong>       大家好，今天小编关注到一个比较有意思的话题，就是关于襄阳免费领养宠物猫信息的问题，于是小编就整理了4个相关介绍襄阳免费领养宠物猫信息的解答，让我们一起看看吧。襄樊有孤儿院吗？正常收...    </div>    <p>大家好，今天小编关注到一个比较有意思的话题，就是关于襄阳免费领养宠物猫信息的问题，于是小编就整理了4个相关介绍襄阳免费领养宠物猫信息的解答，让我们一起看看吧。</p><div style="text-align:center;"><img style="max-width: 100%;" alt="襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网" src="https://img2.baidu.com/it/u=1315635305,849069281&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667"></div><div><div style="color:#999;text-align:center;">（图片来源网络，侵删）</div></div><ol type="1"><li>襄樊有孤儿院吗？</li><li>正常收养需要哪些程序？</li><li>21年湖北免费景区？</li><li>湖北省优化营商环境30条全文？</li></ol><h3 id="id1">襄樊有孤儿院吗？</h3><p>襄樊市有孤儿院，就是我们常说的襄樊市福利院，在襄城区檀溪路名人城市酒店旁边的小巷子里。</p><p>只是那里的孩子多半是因为身体有残疾才被遗弃的，因此领养的时候一定要做全面的身体检查。</p><p>其实，如果你思想够开放的话可以考虑一下***，费用在5到10万不等。能有一个具有自己血脉的孩子总是好的……祝你幸福~~~</p><h3 id="id2">正常收养需要哪些程序？</h3><p>收养流程如下： (一)收养人应提交： 1、居民身份证、户口本及其复印件; 2、要求收养子女的申请书(主要内容包括：收养目的、有无子女、本人经济状况、有无抚养能力以及不虐待、不遗弃被收养人的保证等); 3、婚姻状况证明(已婚者提交结婚证，未婚者提交未婚证明，离婚者提交离婚证明，丧偶者提交配偶死亡证明)及其复印件; 4、收养人本人所在单位人事部门或所在街道办事处出具的婚姻、家庭、年龄状况和有抚养教育被收养人的能力的证明; 5、计划生育办公室出具的婚姻、子女状况证明; 6、县以上医院出具的不孕(不育)诊断证明; 7、事实收养公证应出具收养人与被收养人共同生活多年的证明材料，如是捡拾的弃婴应出具捡拾弃婴的证明材料。 8、收养三代以内同辈旁系血亲子女的，应提供三代以内同辈旁系血亲证明，华侨收养的提供华侨身份证明。 　　 (二)送养人应提交： 1、夫妻双方同意送养的书面意见、婚姻状况证明、户口本、居民身份证及其复印件;所在单位或街道办事处(乡镇人民政府)计划生育部门出具的子女情况和送养人有特殊困难无力抚养子女的证明; 2、社会福利机构为送养人的，需提交经该单位法定代表人签名同意送养的书面文件; 　　 3、孤儿的监护人有监护资格的证明和同意送养的书面意见及户口本、居民身份证及其复印件。 (三)被收养人的户口证明或出生证明及其复印件。 (四)特殊收养应提交： 1、三代以内旁系血亲证明; 2、达到法定婚龄的，提交婚姻状况证明、户口证明或居民身份证及其复印件; 3、被收养人有配偶的，提交配偶同意其被收养的书面意见。 (五)收养人、送养人双方订立的书面协议。</p><div style="text-align:center;"><img style="max-width: 100%;" alt="襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网" src="https://img2.baidu.com/it/u=1872497228,396448928&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666"></div><div><div style="color:#999;text-align:center;">（图片来源网络，侵删）</div></div><h3 id="id3">21年湖北免费景区？</h3><p>2021年湖北免费景区很多，有236家A级景区从6月7日至12月31日免费开放。如:武汉黄陂木兰文化旅游区、襄阳古隆中景区、宜昌长阳清江画廊旅游度假景区……等。</p><p>18家景区门票免费；</p><p>武汉黄陂木兰文化旅游区、襄阳古隆中景区、宜昌长阳清江画廊旅游度假区、恩施巴东神农溪纤夫文化旅游区、恩施利川腾龙洞景区等5A景区和18家热门4A景区每月提供免费门票1000张；</p><p>49家景区实行门票5折优惠；</p><div style="text-align:center;"><img style="max-width: 100%;" alt="襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网" src="https://img2.baidu.com/it/u=2732611743,1369521618&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666"></div><div><div style="color:#999;text-align:center;">（图片来源网络，侵删）</div></div><p>63家景区推出门票6折至9折等不同幅度的优惠；</p><p>111家景区同时推出景区内二次消费优惠或优惠套餐；</p><p>湖北省龙头旅游企业鄂旅投集团将定时定量在“游湖北”平台上供给旗下23家景区的免费门票和特价门票；</p><p>宜昌百里荒高山草原旅游区向武汉市民赠送100万张免费门票。</p><h3 id="id4">湖北省优化营商环境30条全文？</h3><p>《措施》分为总体要求、主要任务、保障措施三个部分共30条，紧扣全省营商环境评价反映的突出问题，围绕政务、市场、法治三大关键领域，靶向发力，实施一批突破性、引领性的改革举措，精准推动改革再突破、创新再深入、政策再完善，形成湖北营商环境特色品牌。</p><p>政务环境方面，推行“一网通办”推广“一事联办”；提高工程建设项目审批效能，武汉、襄阳、宜昌市区一般社会投资项目审批时间从目前的100个工作日，压缩至60个工作日以内等。</p><p>市场环境方面，实行企业开办“210”标准，即开办2个环节、1天内办结、零费用（免费赠送一套三枚公章）；所有涉市场准入行政审批事项实行“证照分离”；确保清单之外无政府定价收费；压缩水电气报装办理时间等。</p><p>法治环境方面，建立“政府承诺+社会监督+失信问责”机制；政策承诺和签订的各类合同100%兑现、履约；确保有财产可供执行案件法定期限内结案率达到90%以上等。</p><p>到此，以上就是小编对于襄阳免费领养宠物猫信息的问题就介绍到这了，希望介绍关于襄阳免费领养宠物猫信息的4点解答对大家有用。</p>                  </div>
                 <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-219.htm">Golang学习之网络参数请求-Query Params及Path Variables的区别及底层实现</a></p>
-                                        <p>下一个：<a href="/html/category/article-221.htm">vue中的axios简单封装</a></p>
+                                        <p>上一个：<a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></p>
+                                        <p>下一个：<a href="/html/category/article-5570.htm">动物疫苗空瓶无害化处理措施（动物疫苗空瓶无害化处理措施有哪些）</a></p>
                                     </div>
 
                             </div>
@@ -103,38 +104,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
-                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1341.htm">FreeRTOS进阶之队列示例完全解析_操作系统</a></h4>
-                <p>目录  前言 1.队列创建函数 2.入队  2.1 xQueueGenericSend() 2.2 xQueueGenericSendFromISR ()  3.出队     前言 FreeRTOS提</p>
+                <h4><a href="/html/category/article-3122.htm">什么是https和http（https和http的区别）_在线工具</a></h4>
+                <p>前言 因为工作需要，需要用到大量的关于 HTTP 协议的知识，目前掌握的关于 HTTP 请求以及协议的知识都是零散的，打算针对知识盲区系统的学习一些，理清概念。 为什么会出现 HTTPS 因为 HTT</p>
             </div>
         </div>
     </div>
@@ -153,8 +124,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-790.htm">详细分析虚拟DOM与diff算法</a></h4>
-                <p>????虚拟DOM与diff算法 在vue、react等技术出现之前，每次修改DOM都需要通过遍历查询DOM树的方式，找到需要更新的DOM，然后修改样式或结构，资源损耗十分严重。而对于虚拟DOM来说，</p>
+                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
+                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
             </div>
         </div>
     </div>
@@ -163,8 +134,28 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2824.htm">如何使用线程池执行定时任务？</a></h4>
-                <p>在 Java 语言中，有两个线程池可以执行定时任务：ScheduledThreadPool 和 SingleThreadScheduledExecutor，其中 SingleThreadSchedul</p>
+                <h4><a href="/html/category/article-1939.htm">Springboot整合Spring Retry实现重试机制</a></h4>
+                <p>在项目开发过程中，经常会有这样的情况：第一次执行一个操作不成功，考虑到可能是网络原因造成，就多执行几次操作，直到得到想要的结果为止，这就是重试机制。 Springboot可以通过整合Spring Re</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4479.htm">宠物狗粮上市公司 宠物狗粮上市公司有哪些</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物狗粮上市公司的问题，于是小编就整理了3个相关介绍宠物狗粮上市公司的解答，让我们一起看看吧。我去店里买狗粮，老板推荐”爱贝“给</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4095.htm">Docker基础 — 36、CMD指令和ENTRYPOINT指令的区别</a></h4>
+                <p>目录  1、CMD指令和ENTRYPOINT指令说明 2、CMD指令只有最后一条生效的原因 3、CMD指令演示 4、ENTRYPOINT指令演示 5、总结   CMD指令和ENTRYPOINT指令作用</p>
             </div>
         </div>
     </div>
@@ -183,8 +174,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></h4>
-                <p>Centos7 Nginx编译包制作 找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下 1、准备一台虚拟机（可访问互联网） 2、安装所需插件 $ yum -y install gcc</p>
+                <h4><a href="/html/category/article-4585.htm">宠物疫苗猫咪可以打吗（猫咪打疫苗宠物店可以打吗?）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物疫苗猫咪可以打吗，以及猫咪打疫苗宠物店可以打吗?对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、两个月的小猫能打狂犬疫苗吗?...  </p>
             </div>
         </div>
     </div>
@@ -193,8 +184,18 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+                <h4><a href="/html/category/article-4124.htm">谈谈高并发系统的一些解决方案</a></h4>
+                <p>本文结合项目经验，整理一份大纲，供参考。 常用指标   RT（Response Time）：响应时间。可能会衍生出 TP999、TP99、TP95、TP90等指标。一般在几毫秒到几百毫秒之间。   Q</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
             </div>
         </div>
     </div>

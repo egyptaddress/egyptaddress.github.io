@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h3> <a id="SpringMVC_0" rel="nofollow"></a>SpringMVC的异步</h3> <blockquote> <p>最近接触了springMVC的异步模式，总结下来有两个优点：</p> <p>第一，当然是节约tomcat容器的线程 </p> <p>第二，可以利用异步超时，起到一定的超时降级保护 </p> <p>注意：在Controller中使用时，一定要注意做好接口的线程池隔离，让慢的接口使用固定数量的线程池， 否则从tomcat减少的线程会转移到应用里，导致拥塞，在部分接口下游异常的情况的情况下，会出现影响正常接口的服务. </p> </blockquote> <p>关于Spring MVC的异步</p> <blockquote> <p>同步接口在请求处理过程中一直处于阻塞状态，而异步接口可以启用后台线程去处理耗时任务。基本的使用场景：</p> <ul> <li> <p>高并发场景</p> </li> <li> <p>高耗时场景</p> </li> </ul> <p>SpringMVC提供的几种异步实现方案：</p> <ul> <li> <p>Callable 提供的带有返回值的并发操作</p> </li> <li> <p>WebAsyncTask 对Callable的封装处理</p> </li> <li> <p>@Async </p> </li> <li> <p>DeferredResult</p> </li> </ul> </blockquote> <p>Callable</p> <p>就是最简单的线程运行，然后获取返回值的模式。优点是简单，缺点是不能中途取消，只有结合FutureTask才能够提供一定的控制。但是，也不能提供异步通知的方式。</p> <pre><code>/**  * @author qiyu  * @date 2020-07-30 20:03  */ @Slf4j @RestController public class AsyncController {      @GetMapping("/test")     public String test() throws InterruptedException {         log.info("主线程开始=====&gt;"+ Thread.currentThread().getName());         Thread.sleep(30000);         log.info("主线程结束=====&gt;"+ Thread.currentThread().getName());         return "success";     }       @GetMapping("/testAsync")     public Callable&lt;String&gt; testAsync() throws InterruptedException {         log.info("主线程开始=====&gt;"+ Thread.currentThread().getName());         Callable&lt;String&gt; callable = () -&gt; {             log.info("异步线程开始=====&gt;" + Thread.currentThread().getName());             Thread.sleep(30000);             log.info("异步线程结束=====&gt;" + Thread.currentThread().getName());             return "success";         };         log.info("主线程结束=====&gt;"+ Thread.currentThread().getName());         return callable;     } } </code></pre> <p>WebAsyncTask 实例</p> <blockquote> <p><code>WebAsyncTask</code> : 在构造时写入<code>Callable</code>主要业务逻辑<br /><code>WebAsyncTask.onCompletion(Runnable)</code> ：在当前任务执行结束以后，无论是执行成功还是异常中止，onCompletion的回调最终都会被调用<br /><code>WebAsyncTask.onError(Callable&gt;)</code> ：当异步任务抛出异常的时候，<code>onError()</code>方法即会被调用<br /><code>WebAsyncTask.onTimeout(Callable&gt;)</code> ：当异步任务发生超时的时候，<code>onTimeout()</code>方法即会被调用</p> <p><code>WebAsyncTask</code>类是<code>Spring</code>提供的一步任务处理类。</p> <p><code>WebAsyncTask</code>是<code>Callable</code>的升级版</p> </blockquote> <pre><code>@RequestMapping("/async")     @ResponseBody     public WebAsyncTask&lt;String&gt; asyncTask(){         // 1000 为超时设置         WebAsyncTask&lt;String&gt; webAsyncTask = new WebAsyncTask&lt;String&gt;(1000,new Callable&lt;String&gt;(){             @Override             public String call() throws Exception {                 //业务逻辑处理                 Thread.sleep(5000);                 String message = "username:wangbinghua";                 return message;             }         });         webAsyncTask.onCompletion(new Runnable() {             @Override             public void run() {                 System.out.println("调用完成");             }         });         webAsyncTask.onTimeout(new Callable&lt;String&gt;() {             @Override             public String call() throws Exception {                 System.out.println("业务处理超时");                 return "&lt;h1&gt;Time Out&lt;/h1&gt;";             }         });          return webAsyncTask;     } </code></pre> <p>@Async实例</p> <blockquote> <p>含义</p> <blockquote> <p>1，在方法上使用该@Async注解，申明该方法是一个异步任务；</p> <p>2，在类上面使用该@Async注解，申明该类中的所有方法都是异步任务；</p> <p>3，使用此注解的方法的类对象，必须是spring管理下的bean对象；</p> <p>4，要想使用异步任务，需要在主类上开启异步配置，即，配置上@EnableAsync注解；</p> </blockquote> <p>用法</p> <blockquote> <p>在Spring中启用@Async：</p> <pre><code>    1，@Async注解在使用时，如果不指定线程池的名称，则使用Spring默认的线程池，Spring默认的线程池为**SimpleAsyncTaskExecutor**。      2，方法上一旦标记了这个@Async注解，当其它线程调用这个方法时，就会开启一个新的子线程去异步处理该业务逻辑。 </code></pre> </blockquote> <p>例子</p> <blockquote> <p>3.1，启动类中增加@EnableAsync</p> <p>以Spring boot 为例，启动类中增加@EnableAsync：</p> <pre><code>@EnableAsync@SpringBootApplicationpublic class ManageApplication {    //...} </code></pre> <p>3.2，方法上加@Async注解：</p> <pre><code>@Componentpublic class MyAsyncTask {     @Async    public void asyncCpsItemImportTask(Long platformId, String jsonList){        //...具体业务逻辑    }} </code></pre> <p>3.3，默认线程池的缺陷：</p> <pre><code>    上面的配置会启用默认的线程池/执行器，异步执行指定的方法。      Spring默认的线程池的默认配置：      默认核心线程数：8，        最大线程数：Integet.MAX_VALUE，    队列使用LinkedBlockingQueue，    容量是：Integet.MAX_VALUE，    空闲线程保留时间：60s，    线程池拒绝策略：AbortPolicy。      从最大线程数的配置上，相信你也看到问题了：**并发情况下，会无限创建线程。。。** </code></pre> <p>3.4，默认线程池–自定义配置参数：</p> <pre><code>    默认线程池的上述缺陷如何解决：      答案是，自定义配置参数就可以了。  spring:   task:     execution:       pool:         max-size: 6         core-size: 3         keep-alive: 3s         queue-capacity: 1000         thread-name-prefix: name </code></pre> </blockquote> <p>实现原理</p> <blockquote> <p>@Async的原理概括：</p> <p>@Async 的原理是通过 Spring AOP 动态代理 的方式来实现的。</p> <pre><code>    Spring容器启动初始化bean时，判断类中是否使用了@[Async](https://so.csdn.net/so/search?q=Async\&amp;spm=1001.2101.3001.7020 "Async")注解，如果使用了则为其创建切入点和切入点处理器，根据切入点创建代理，      在线程调用@Async注解标注的方法时，会调用代理，执行切入点处理器invoke方法，将方法的执行提交给线程池中的另外一个线程来处理，从而实现了异步执行。      所以，需要注意的一个错误用法是，如果a方法调用它同类中的标注@Async的b方法，是不会异步执行的，因为从a方法进入调用的都是该类对象本身，不会进入代理类。 </code></pre> <p>因此，相同类中的方法调用带@Async的方法是无法异步的，这种情况仍然是同步。</p> </blockquote> </blockquote> <p>DeferredResult实例</p> <blockquote> <p><code>DeferredResult</code>和<code>Callable</code>实现功能类型，都是异步返回，只不过<code>Callable</code>不能直接设置超时时间，还需要和<code>FutureTask</code>配合使用</p> </blockquote> <pre><code>@Controller public class DeferedResultController {       private ConcurrentLinkedDeque&lt;DeferredResult&lt;String&gt;&gt; deferredResults =             new ConcurrentLinkedDeque&lt;DeferredResult&lt;String&gt;&gt;();       @RequestMapping("/getResult")     @ResponseBody     public DeferredResult&lt;String&gt; getDeferredResultController(){          //设置 5秒就会超时         final DeferredResult&lt;String&gt; stringDeferredResult = new DeferredResult&lt;String&gt;(1000);                  //将请求加入到队列中         deferredResults.add(stringDeferredResult);          final String message = "{username:wangbinghua}";          ExecutorService executorService = Executors.newFixedThreadPool(10);         executorService.submit(new Runnable() {             @Override             public void run() {                            try {                     Thread.sleep(1010);                 } catch (InterruptedException e) {                     e.printStackTrace();                 }                  //业务处理                 System.out.println("业务处理");                 stringDeferredResult.setResult(message);             }         });           //setResult完毕之后，调用该方法         stringDeferredResult.onCompletion(new Runnable() {             @Override             public void run() {                 System.out.println("异步调用完成");                 //响应完毕之后，将请求从队列中去除掉                 deferredResults.remove(stringDeferredResult);             }         });          stringDeferredResult.onTimeout(new Runnable() {             @Override             public void run() {                 System.out.println("业务处理超时");                 stringDeferredResult.setResult("error:timeOut");             }         });         return stringDeferredResult;     }      //开启线程定时扫描队列，响应客户端     @Scheduled(fixedRate = 1000)     public void scheduleResult(){         System.out.println(new Date());         for(int i = 0;i &lt; deferredResults.size();i++){             DeferredResult&lt;String&gt; deferredResult = deferredResults.getFirst();             deferredResult.setResult("result:" + i);         }     } } </code></pre> <p>说明</p> <blockquote> <p>在Spring Mvc的控制层（springmvc层框架中）中，只要有一个用户请求便会实例化一个DeferedResult对象，然后返回该对象，然后就会释放TOMCAT的线程，从而完成客户端响应。只要DeferedResult对象不设置result响应的内容，则控制层（springMVC层）的容器主线程在响应客户端上就会发生阻塞。</p> <p>因为SpringMVC只会实例化一个Controller对象，无论有多少个用户请求，在堆上只有一个Controller对象，因此可以添加一个成员变量List，将这些用户请求的DeferedResult对象存放到List中，然后启动一个定时线程扫描list，从而依次执行setResult方法，响应客户端。</p> </blockquote></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h3> SpringMVC的异步</h3> <blockquote> <p>最近接触了springMVC的异步模式，总结下来有两个优点：</p> <p>第一，当然是节约tomcat容器的线程 </p> <p>第二，可以利用异步超时，起到一定的超时降级保护 </p> <p>注意：在Controller中使用时，一定要注意做好接口的线程池隔离，让慢的接口使用固定数量的线程池， 否则从tomcat减少的线程会转移到应用里，导致拥塞，在部分接口下游异常的情况的情况下，会出现影响正常接口的服务. </p> </blockquote> <p>关于Spring MVC的异步</p> <blockquote> <p>同步接口在请求处理过程中一直处于阻塞状态，而异步接口可以启用后台线程去处理耗时任务。基本的使用场景：</p> <ul> <li> <p>高并发场景</p> </li> <li> <p>高耗时场景</p> </li> </ul> <p>SpringMVC提供的几种异步实现方案：</p> <ul> <li> <p>Callable 提供的带有返回值的并发操作</p> </li> <li> <p>WebAsyncTask 对Callable的封装处理</p> </li> <li> <p>@Async </p> </li> <li> <p>DeferredResult</p> </li> </ul> </blockquote> <p>Callable</p> <p>就是最简单的线程运行，然后获取返回值的模式。优点是简单，缺点是不能中途取消，只有结合FutureTask才能够提供一定的控制。但是，也不能提供异步通知的方式。</p> <pre><code>/**  * @author qiyu  * @date 2020-07-30 20:03  */ @Slf4j @RestController public class AsyncController {      @GetMapping("/test")     public String test() throws InterruptedException {         log.info("主线程开始=====>"+ Thread.currentThread().getName());         Thread.sleep(30000);         log.info("主线程结束=====>"+ Thread.currentThread().getName());         return "success";     }       @GetMapping("/testAsync")     public Callable<String> testAsync() throws InterruptedException {         log.info("主线程开始=====>"+ Thread.currentThread().getName());         Callable<String> callable = () -> {             log.info("异步线程开始=====>" + Thread.currentThread().getName());             Thread.sleep(30000);             log.info("异步线程结束=====>" + Thread.currentThread().getName());             return "success";         };         log.info("主线程结束=====>"+ Thread.currentThread().getName());         return callable;     } } </code></pre> <p>WebAsyncTask 实例</p> <blockquote> <p><code>WebAsyncTask</code> : 在构造时写入<code>Callable</code>主要业务逻辑<br /><code>WebAsyncTask.onCompletion(Runnable)</code> ：在当前任务执行结束以后，无论是执行成功还是异常中止，onCompletion的回调最终都会被调用<br /><code>WebAsyncTask.onError(Callable>)</code> ：当异步任务抛出异常的时候，<code>onError()</code>方法即会被调用<br /><code>WebAsyncTask.onTimeout(Callable>)</code> ：当异步任务发生超时的时候，<code>onTimeout()</code>方法即会被调用</p> <p><code>WebAsyncTask</code>类是<code>Spring</code>提供的一步任务处理类。</p> <p><code>WebAsyncTask</code>是<code>Callable</code>的升级版</p> </blockquote> <pre><code>@RequestMapping("/async")     @ResponseBody     public WebAsyncTask<String> asyncTask(){         // 1000 为超时设置         WebAsyncTask<String> webAsyncTask = new WebAsyncTask<String>(1000,new Callable<String>(){             @Override             public String call() throws Exception {                 //业务逻辑处理                 Thread.sleep(5000);                 String message = "username:wangbinghua";                 return message;             }         });         webAsyncTask.onCompletion(new Runnable() {             @Override             public void run() {                 System.out.println("调用完成");             }         });         webAsyncTask.onTimeout(new Callable<String>() {             @Override             public String call() throws Exception {                 System.out.println("业务处理超时");                 return "<h1>Time Out</h1>";             }         });          return webAsyncTask;     } </code></pre> <p>@Async实例</p> <blockquote> <p>含义</p> <blockquote> <p>1，在方法上使用该@Async注解，申明该方法是一个异步任务；</p> <p>2，在类上面使用该@Async注解，申明该类中的所有方法都是异步任务；</p> <p>3，使用此注解的方法的类对象，必须是spring管理下的bean对象；</p> <p>4，要想使用异步任务，需要在主类上开启异步配置，即，配置上@EnableAsync注解；</p> </blockquote> <p>用法</p> <blockquote> <p>在Spring中启用@Async：</p> <pre><code>    1，@Async注解在使用时，如果不指定线程池的名称，则使用Spring默认的线程池，Spring默认的线程池为**SimpleAsyncTaskExecutor**。      2，方法上一旦标记了这个@Async注解，当其它线程调用这个方法时，就会开启一个新的子线程去异步处理该业务逻辑。 </code></pre> </blockquote> <p>例子</p> <blockquote> <p>3.1，启动类中增加@EnableAsync</p> <p>以Spring boot 为例，启动类中增加@EnableAsync：</p> <pre><code>@EnableAsync@SpringBootApplicationpublic class ManageApplication {    //...} </code></pre> <p>3.2，方法上加@Async注解：</p> <pre><code>@Componentpublic class MyAsyncTask {     @Async    public void asyncCpsItemImportTask(Long platformId, String jsonList){        //...具体业务逻辑    }} </code></pre> <p>3.3，默认线程池的缺陷：</p> <pre><code>    上面的配置会启用默认的线程池/执行器，异步执行指定的方法。      Spring默认的线程池的默认配置：      默认核心线程数：8，        最大线程数：Integet.MAX_VALUE，    队列使用LinkedBlockingQueue，    容量是：Integet.MAX_VALUE，    空闲线程保留时间：60s，    线程池拒绝策略：AbortPolicy。      从最大线程数的配置上，相信你也看到问题了：**并发情况下，会无限创建线程。。。** </code></pre> <p>3.4，默认线程池–自定义配置参数：</p> <pre><code>    默认线程池的上述缺陷如何解决：      答案是，自定义配置参数就可以了。  spring:   task:     execution:       pool:         max-size: 6         core-size: 3         keep-alive: 3s         queue-capacity: 1000         thread-name-prefix: name </code></pre> </blockquote> <p>实现原理</p> <blockquote> <p>@Async的原理概括：</p> <p>@Async 的原理是通过 Spring AOP 动态代理 的方式来实现的。</p> <pre><code>    Spring容器启动初始化bean时，判断类中是否使用了@[Async](https://so.csdn.net/so/search?q=Async\&spm=1001.2101.3001.7020 "Async")注解，如果使用了则为其创建切入点和切入点处理器，根据切入点创建代理，      在线程调用@Async注解标注的方法时，会调用代理，执行切入点处理器invoke方法，将方法的执行提交给线程池中的另外一个线程来处理，从而实现了异步执行。      所以，需要注意的一个错误用法是，如果a方法调用它同类中的标注@Async的b方法，是不会异步执行的，因为从a方法进入调用的都是该类对象本身，不会进入代理类。 </code></pre> <p>因此，相同类中的方法调用带@Async的方法是无法异步的，这种情况仍然是同步。</p> </blockquote> </blockquote> <p>DeferredResult实例</p> <blockquote> <p><code>DeferredResult</code>和<code>Callable</code>实现功能类型，都是异步返回，只不过<code>Callable</code>不能直接设置超时时间，还需要和<code>FutureTask</code>配合使用</p> </blockquote> <pre><code>@Controller public class DeferedResultController {       private ConcurrentLinkedDeque<DeferredResult<String>> deferredResults =             new ConcurrentLinkedDeque<DeferredResult<String>>();       @RequestMapping("/getResult")     @ResponseBody     public DeferredResult<String> getDeferredResultController(){          //设置 5秒就会超时         final DeferredResult<String> stringDeferredResult = new DeferredResult<String>(1000);                  //将请求加入到队列中         deferredResults.add(stringDeferredResult);          final String message = "{username:wangbinghua}";          ExecutorService executorService = Executors.newFixedThreadPool(10);         executorService.submit(new Runnable() {             @Override             public void run() {                            try {                     Thread.sleep(1010);                 } catch (InterruptedException e) {                     e.printStackTrace();                 }                  //业务处理                 System.out.println("业务处理");                 stringDeferredResult.setResult(message);             }         });           //setResult完毕之后，调用该方法         stringDeferredResult.onCompletion(new Runnable() {             @Override             public void run() {                 System.out.println("异步调用完成");                 //响应完毕之后，将请求从队列中去除掉                 deferredResults.remove(stringDeferredResult);             }         });          stringDeferredResult.onTimeout(new Runnable() {             @Override             public void run() {                 System.out.println("业务处理超时");                 stringDeferredResult.setResult("error:timeOut");             }         });         return stringDeferredResult;     }      //开启线程定时扫描队列，响应客户端     @Scheduled(fixedRate = 1000)     public void scheduleResult(){         System.out.println(new Date());         for(int i = 0;i < deferredResults.size();i++){             DeferredResult<String> deferredResult = deferredResults.getFirst();             deferredResult.setResult("result:" + i);         }     } } </code></pre> <p>说明</p> <blockquote> <p>在Spring Mvc的控制层（springmvc层框架中）中，只要有一个用户请求便会实例化一个DeferedResult对象，然后返回该对象，然后就会释放TOMCAT的线程，从而完成客户端响应。只要DeferedResult对象不设置result响应的内容，则控制层（springMVC层）的容器主线程在响应客户端上就会发生阻塞。</p> <p>因为SpringMVC只会实例化一个Controller对象，无论有多少个用户请求，在堆上只有一个Controller对象，因此可以添加一个成员变量List，将这些用户请求的DeferedResult对象存放到List中，然后启动一个定时线程扫描list，从而依次执行setResult方法，响应客户端。</p> </blockquote></div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-10.htm">Python中将字典转为成员变量详解</a></p>
                                         <p>下一个：<a href="/html/category/article-12.htm">PHP匿名类</a></p>
@@ -103,18 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
-                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
+                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
+                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
             </div>
         </div>
     </div>
@@ -133,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4123.htm">Vue +Vant 实现顶部搜索栏</a></h4>
-                <p>搜索栏组件源码(SearchBar.vue) &lt;template&gt;   &lt;section class="city-search"&gt;     &lt;van-icon class</p>
+                <h4><a href="/html/category/article-2823.htm">jQuery实现呼吸灯轮播图</a></h4>
+                <p>jQuery实现呼吸灯轮播图  jQuery实现呼吸灯轮播图    jQuery实现呼吸灯轮播图 &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;he</p>
             </div>
         </div>
     </div>
@@ -143,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
-                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
+                <h4><a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></h4>
+                <p>Centos7 Nginx编译包制作 找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下 1、准备一台虚拟机（可访问互联网） 2、安装所需插件 $ yum -y install gcc</p>
             </div>
         </div>
     </div>
@@ -153,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
-                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
+                <h4><a href="/html/category/article-2824.htm">如何使用线程池执行定时任务？</a></h4>
+                <p>在 Java 语言中，有两个线程池可以执行定时任务：ScheduledThreadPool 和 SingleThreadScheduledExecutor，其中 SingleThreadSchedul</p>
             </div>
         </div>
     </div>
@@ -163,8 +153,28 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1940.htm">vue2 自定义指令 实现全屏 、对话框拖拽</a></h4>
-                <p>模块下载 用于全屏 npm i screenfull@5.1.0 -S   新建文件 新建directives.js文件，复制下面代码 import Vue from "vue";  // 全屏 im</p>
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4515.htm">真正的宠物狗免费领养网站有哪些地方（真正的宠物狗免费领养网站有哪些地方呢）</a></h4>
+                <p>摘要：       今天给各位分享真正的宠物狗免费领养网站有哪些地方的知识，其中也会对真正的宠物狗免费领养网站有哪些地方呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录</p>
             </div>
         </div>
     </div>
@@ -183,18 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4095.htm">Docker基础 — 36、CMD指令和ENTRYPOINT指令的区别</a></h4>
-                <p>目录  1、CMD指令和ENTRYPOINT指令说明 2、CMD指令只有最后一条生效的原因 3、CMD指令演示 4、ENTRYPOINT指令演示 5、总结   CMD指令和ENTRYPOINT指令作用</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
+                <h4><a href="/html/category/article-1629.htm">原生js实现楼层滚动（界面滑动）效果</a></h4>
+                <p>截取自自己写的代码 思路很简单，就是改编自回到顶部效果，控制滚动条位移到指定位置  先有个布局，四个触发li和四张图片 &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;h</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

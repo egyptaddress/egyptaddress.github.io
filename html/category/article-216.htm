@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/668f2b8b041cff97bea99d7939ef541a.jpg" alt="Citus 分布式 PostgreSQL 集群 - SQL Reference(SQL支持和变通方案)"></p> <p>由于<code>Citus</code> 通过扩展<code>PostgreSQL</code> 提供分布式功能，因此它与<code>PostgreSQL</code> 结构兼容。这意味着用户可以使用丰富且可扩展的<code>PostgreSQL</code> 生态系统附带的工具和功能来处理使用<code>Citus</code> 创建的分布式表。</p> <p><code>Citus</code> 对它能够在单个工作节点上执行的任何查询具有<code>100%</code> 的<code>SQL</code> 覆盖率。 在访问有关单个租户的信息时，此类查询在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.citusdata.com/en/v11.0-beta/use_cases/multi_tenant.html#mt-use-case"  target="_blank" rel="nofollow">多租户应用程序</a>中很常见。</p> <p>甚至跨节点查询（用于并行计算）也支持大多数<code>SQL</code> 功能。 但是，组合来自多个节点的信息的查询不支持某些<code>SQL</code> 功能。</p> <p><strong>跨节点 SQL 查询的限制：</strong></p> <ul> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.postgresql.org/docs/current/static/sql-select.html#SQL-FOR-UPDATE-SHARE"  target="_blank" rel="nofollow"><code>SELECT … FOR UPDATE</code></a> 仅适用于单分片查询</li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.postgresql.org/docs/current/static/sql-select.html#SQL-FROM"  target="_blank" rel="nofollow"><code>TABLESAMPLE</code></a> 仅适用于单分片查询</li> <li>关联子查询仅当关联在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.citusdata.com/en/v11.0-beta/get_started/concepts.html#dist-column"  target="_blank" rel="nofollow">分布列</a>上时才受支持。</li> <li>分布式表之间的外连接仅在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.citusdata.com/en/v11.0-beta/get_started/concepts.html#dist-column"  target="_blank" rel="nofollow">分布列</a>上受支持。</li> <li>仅当分布式表在外侧时，才支持分布式表和引用表或本地表之间的外连接</li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.postgresql.org/docs/current/static/queries-with.html#idm46428713247840"  target="_blank" rel="nofollow">递归 CTE</a> 仅适用于单分片查询</li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.postgresql.org/docs/current/static/queries-table-expressions.html#QUERIES-GROUPING-SETS"  target="_blank" rel="nofollow">分组集</a>仅适用于单分片查询</li> </ul> <p>要了解有关<code>PostgreSQL</code> 及其功能的更多信息，您可以访问<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://www.postgresql.org/docs/current/static/index.html"  target="_blank" rel="nofollow">PostgreSQL 文档</a>。有关<code>PostgreSQL</code> SQL 命令方言（可供<code>Citus</code> 用户按原样使用）的详细参考，您可以查看<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://www.postgresql.org/docs/current/static/sql-commands.html"  target="_blank" rel="nofollow">SQL 命令参考</a>。</p> <h2 id="变通方案">变通方案</h2> <p>在尝试变通方案之前，请考虑<code>Citus</code> 是否适合您的情况。<code>Citus</code> 当前版本适用于<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.citusdata.com/en/v11.0-beta/get_started/what_is_citus.html#when-to-use-citus"  target="_blank" rel="nofollow">实时分析和多租户用例</a>。</p> <p><code>Citus</code> 支持多租户用例中的所有<code>SQL</code> 语句。即使在跨节点查询的实时分析用例中，<code>Citus</code> 也支持大多数语句。<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.citusdata.com/en/v11.0-beta/faq/faq.html#unsupported"  target="_blank" rel="nofollow"><code>Citus</code> 不支持的<code>PostgreSQL</code> 特性中列出了几种不受支持的查询类型？</a> 许多不受支持的功能都有变通方案；以下是一些最有用的。</p> <h3 id="使用-cte-解决限制">使用 CTE 解决限制</h3> <p>当<code>SQL</code> 查询不受支持时，解决它的一种方法是使用<code>CTE</code>，它使用我们所谓的<code>pull-push</code> 执行。</p> <pre><code class="language-sql">SELECT * FROM ref LEFT JOIN dist USING (id) WHERE dist.value &gt; 10; /* ERROR:  cannot pushdown the subquery DETAIL:  There exist a reference table in the outer part of the outer join */</code></pre> <p>要解决此限制，您可以通过将分布式部分包装在<code>CTE</code> 中来将查询转换为路由器查询</p> <pre><code class="language-sql">WITH x AS (SELECT * FROM dist WHERE dist.value &gt; 10) SELECT * FROM ref LEFT JOIN x USING (id);</code></pre> <p>请记住，<code>coordinator</code> 会将<code>CTE</code> 的结果发送给所有需要它进行处理的<code>worker</code>。 因此，最好将最具体的过滤器和限制添加到内部查询中，或者聚合表。 这减少了此类查询可能导致的网络开销。在<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.citusdata.com/en/v11.0-beta/performance/performance_tuning.html#subquery-perf"  target="_blank" rel="nofollow">子查询/CTE 网络开销</a>中了解更多信息。</p> <h3 id="临时表不得已的解决方法">临时表：不得已的解决方法</h3> <p>即使通过子查询使用推拉执行，仍有一些查询<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.citusdata.com/en/v11.0-beta/faq/faq.html#unsupported"  target="_blank" rel="nofollow">不受支持</a>。其中之一是在分布式表上使用<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS"  target="_blank" rel="nofollow">分组集</a>。</p> <p>在我们的<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.citusdata.com/en/v11.0-beta/get_started/tutorial_realtime_analytics.html#real-time-analytics-tutorial"  target="_blank" rel="nofollow">实时分析教程</a>中，我们创建了一个名为<code>github_events</code> 的表，由<code>user_id</code> 列分布。让我们查询它并找到一组预选的<code>repos</code> 的最早事件，按事件类型和事件公开的组合分组。一种方便的方法是使用分组集。 但是，如前所述，分布式查询尚不支持此功能：</p> <pre><code class="language-sql">-- this won't work   SELECT repo_id, event_type, event_public,          grouping(event_type, event_public),          min(created_at)     FROM github_events    WHERE repo_id IN (8514, 15435, 19438, 21692) GROUP BY repo_id, ROLLUP(event_type, event_public);</code></pre> <pre><code class="language-sql">ERROR:  could not run distributed query with GROUPING HINT:  Consider using an equality filter on the distributed table's partition column.</code></pre> <p>不过，有一个窍门。我们可以将相关信息作为临时表拉取到<code>coordinator</code>：</p> <pre><code class="language-sql">-- grab the data, minus the aggregate, into a local table  CREATE TEMP TABLE results AS (   SELECT repo_id, event_type, event_public, created_at     FROM github_events        WHERE repo_id IN (8514, 15435, 19438, 21692)     );  -- now run the aggregate locally    SELECT repo_id, event_type, event_public,          grouping(event_type, event_public),          min(created_at)     FROM results GROUP BY repo_id, ROLLUP(event_type, event_public);</code></pre> <pre><code> repo_id |    event_type     | event_public | grouping |         min ---------+-------------------+--------------+----------+---------------------     8514 | PullRequestEvent  | t            |        0 | 2016-12-01 05:32:54     8514 | IssueCommentEvent | t            |        0 | 2016-12-01 05:32:57    19438 | IssueCommentEvent | t            |        0 | 2016-12-01 05:48:56    21692 | WatchEvent        | t            |        0 | 2016-12-01 06:01:23    15435 | WatchEvent        | t            |        0 | 2016-12-01 05:40:24    21692 | WatchEvent        |              |        1 | 2016-12-01 06:01:23    15435 | WatchEvent        |              |        1 | 2016-12-01 05:40:24     8514 | PullRequestEvent  |              |        1 | 2016-12-01 05:32:54     8514 | IssueCommentEvent |              |        1 | 2016-12-01 05:32:57    19438 | IssueCommentEvent |              |        1 | 2016-12-01 05:48:56    15435 |                   |              |        3 | 2016-12-01 05:40:24    21692 |                   |              |        3 | 2016-12-01 06:01:23    19438 |                   |              |        3 | 2016-12-01 05:48:56     8514 |                   |              |        3 | 2016-12-01 05:32:54</code></pre> <p>在<code>coordinator</code> 上创建临时表是最后的手段。它受节点的磁盘大小和<code>CPU</code> 的限制。</p> <h2 id="更多">更多</h2> <ol> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mp.weixin.qq.com/s/SElF3WkEBfrPub72OjlQJg"  target="_blank" rel="nofollow">Citus 分布式 PostgreSQL 集群 - SQL Reference(创建和修改分布式表 DDL)</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mp.weixin.qq.com/s/yfBI9vgDj4TTmML2BOjlzw"  target="_blank" rel="nofollow">Citus 分布式 PostgreSQL 集群 - SQL Reference(摄取、修改数据 DML)</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mp.weixin.qq.com/s/MenUhEHTbOJ8ENReqQOVSg"  target="_blank" rel="nofollow">Citus 分布式 PostgreSQL 集群 - SQL Reference(查询分布式表 SQL)</a></li> <li><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://mp.weixin.qq.com/s/g97RP3xmERj7_Rr8qUhjqw"  target="_blank" rel="nofollow">Citus 分布式 PostgreSQL 集群 - SQL Reference(查询处理)</a></li> </ol> 			                </div>
+                      				  				  				<p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/668f2b8b041cff97bea99d7939ef541a.jpg" alt="Citus 分布式 PostgreSQL 集群 - SQL Reference(SQL支持和变通方案)"></p> <p>由于<code>Citus</code> 通过扩展<code>PostgreSQL</code> 提供分布式功能，因此它与<code>PostgreSQL</code> 结构兼容。这意味着用户可以使用丰富且可扩展的<code>PostgreSQL</code> 生态系统附带的工具和功能来处理使用<code>Citus</code> 创建的分布式表。</p> <p><code>Citus</code> 对它能够在单个工作节点上执行的任何查询具有<code>100%</code> 的<code>SQL</code> 覆盖率。 在访问有关单个租户的信息时，此类查询在多租户应用程序中很常见。</p> <p>甚至跨节点查询（用于并行计算）也支持大多数<code>SQL</code> 功能。 但是，组合来自多个节点的信息的查询不支持某些<code>SQL</code> 功能。</p> <p><strong>跨节点 SQL 查询的限制：</strong></p> <ul> <li><code>SELECT … FOR UPDATE</code> 仅适用于单分片查询</li> <li><code>TABLESAMPLE</code> 仅适用于单分片查询</li> <li>关联子查询仅当关联在分布列上时才受支持。</li> <li>分布式表之间的外连接仅在分布列上受支持。</li> <li>仅当分布式表在外侧时，才支持分布式表和引用表或本地表之间的外连接</li> <li>递归 CTE 仅适用于单分片查询</li> <li>分组集仅适用于单分片查询</li> </ul> <p>要了解有关<code>PostgreSQL</code> 及其功能的更多信息，您可以访问PostgreSQL 文档。有关<code>PostgreSQL</code> SQL 命令方言（可供<code>Citus</code> 用户按原样使用）的详细参考，您可以查看SQL 命令参考。</p> <h2 id="变通方案">变通方案</h2> <p>在尝试变通方案之前，请考虑<code>Citus</code> 是否适合您的情况。<code>Citus</code> 当前版本适用于实时分析和多租户用例。</p> <p><code>Citus</code> 支持多租户用例中的所有<code>SQL</code> 语句。即使在跨节点查询的实时分析用例中，<code>Citus</code> 也支持大多数语句。<code>Citus</code> 不支持的<code>PostgreSQL</code> 特性中列出了几种不受支持的查询类型？ 许多不受支持的功能都有变通方案；以下是一些最有用的。</p> <h3 id="使用-cte-解决限制">使用 CTE 解决限制</h3> <p>当<code>SQL</code> 查询不受支持时，解决它的一种方法是使用<code>CTE</code>，它使用我们所谓的<code>pull-push</code> 执行。</p> <pre><code class="language-sql">SELECT * FROM ref LEFT JOIN dist USING (id) WHERE dist.value > 10; /* ERROR:  cannot pushdown the subquery DETAIL:  There exist a reference table in the outer part of the outer join */</code></pre> <p>要解决此限制，您可以通过将分布式部分包装在<code>CTE</code> 中来将查询转换为路由器查询</p> <pre><code class="language-sql">WITH x AS (SELECT * FROM dist WHERE dist.value > 10) SELECT * FROM ref LEFT JOIN x USING (id);</code></pre> <p>请记住，<code>coordinator</code> 会将<code>CTE</code> 的结果发送给所有需要它进行处理的<code>worker</code>。 因此，最好将最具体的过滤器和限制添加到内部查询中，或者聚合表。 这减少了此类查询可能导致的网络开销。在子查询/CTE 网络开销中了解更多信息。</p> <h3 id="临时表不得已的解决方法">临时表：不得已的解决方法</h3> <p>即使通过子查询使用推拉执行，仍有一些查询不受支持。其中之一是在分布式表上使用分组集。</p> <p>在我们的实时分析教程中，我们创建了一个名为<code>github_events</code> 的表，由<code>user_id</code> 列分布。让我们查询它并找到一组预选的<code>repos</code> 的最早事件，按事件类型和事件公开的组合分组。一种方便的方法是使用分组集。 但是，如前所述，分布式查询尚不支持此功能：</p> <pre><code class="language-sql">-- this won't work   SELECT repo_id, event_type, event_public,          grouping(event_type, event_public),          min(created_at)     FROM github_events    WHERE repo_id IN (8514, 15435, 19438, 21692) GROUP BY repo_id, ROLLUP(event_type, event_public);</code></pre> <pre><code class="language-sql">ERROR:  could not run distributed query with GROUPING HINT:  Consider using an equality filter on the distributed table's partition column.</code></pre> <p>不过，有一个窍门。我们可以将相关信息作为临时表拉取到<code>coordinator</code>：</p> <pre><code class="language-sql">-- grab the data, minus the aggregate, into a local table  CREATE TEMP TABLE results AS (   SELECT repo_id, event_type, event_public, created_at     FROM github_events        WHERE repo_id IN (8514, 15435, 19438, 21692)     );  -- now run the aggregate locally    SELECT repo_id, event_type, event_public,          grouping(event_type, event_public),          min(created_at)     FROM results GROUP BY repo_id, ROLLUP(event_type, event_public);</code></pre> <pre><code> repo_id |    event_type     | event_public | grouping |         min ---------+-------------------+--------------+----------+---------------------     8514 | PullRequestEvent  | t            |        0 | 2016-12-01 05:32:54     8514 | IssueCommentEvent | t            |        0 | 2016-12-01 05:32:57    19438 | IssueCommentEvent | t            |        0 | 2016-12-01 05:48:56    21692 | WatchEvent        | t            |        0 | 2016-12-01 06:01:23    15435 | WatchEvent        | t            |        0 | 2016-12-01 05:40:24    21692 | WatchEvent        |              |        1 | 2016-12-01 06:01:23    15435 | WatchEvent        |              |        1 | 2016-12-01 05:40:24     8514 | PullRequestEvent  |              |        1 | 2016-12-01 05:32:54     8514 | IssueCommentEvent |              |        1 | 2016-12-01 05:32:57    19438 | IssueCommentEvent |              |        1 | 2016-12-01 05:48:56    15435 |                   |              |        3 | 2016-12-01 05:40:24    21692 |                   |              |        3 | 2016-12-01 06:01:23    19438 |                   |              |        3 | 2016-12-01 05:48:56     8514 |                   |              |        3 | 2016-12-01 05:32:54</code></pre> <p>在<code>coordinator</code> 上创建临时表是最后的手段。它受节点的磁盘大小和<code>CPU</code> 的限制。</p> <h2 id="更多">更多</h2> <ol> <li>Citus 分布式 PostgreSQL 集群 - SQL Reference(创建和修改分布式表 DDL)</li> <li>Citus 分布式 PostgreSQL 集群 - SQL Reference(摄取、修改数据 DML)</li> <li>Citus 分布式 PostgreSQL 集群 - SQL Reference(查询分布式表 SQL)</li> <li>Citus 分布式 PostgreSQL 集群 - SQL Reference(查询处理)</li> </ol> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-215.htm">C# 正则表达式判断是否是有效的文件、文件夹路径</a></p>
                                         <p>下一个：<a href="/html/category/article-217.htm">Vuex入门mapState, mapGetters, mapMutations, mapActions详解终结篇带源码</a></p>
@@ -99,6 +99,36 @@ var _hmt = _hmt || [];
                             </div>
             <div class="col-md-4 w3l-services">
                 <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
+                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4124.htm">谈谈高并发系统的一些解决方案</a></h4>
+                <p>本文结合项目经验，整理一份大纲，供参考。 常用指标   RT（Response Time）：响应时间。可能会衍生出 TP999、TP99、TP95、TP90等指标。一般在几毫秒到几百毫秒之间。   Q</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
+                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row w3l-achievements">
     <div class="col-lg-12 item">
         <div class="card">
@@ -113,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
-                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
+                <h4><a href="/html/category/article-1939.htm">Springboot整合Spring Retry实现重试机制</a></h4>
+                <p>在项目开发过程中，经常会有这样的情况：第一次执行一个操作不成功，考虑到可能是网络原因造成，就多执行几次操作，直到得到想要的结果为止，这就是重试机制。 Springboot可以通过整合Spring Re</p>
             </div>
         </div>
     </div>
@@ -123,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
+                <h4><a href="/html/category/article-4095.htm">Docker基础 — 36、CMD指令和ENTRYPOINT指令的区别</a></h4>
+                <p>目录  1、CMD指令和ENTRYPOINT指令说明 2、CMD指令只有最后一条生效的原因 3、CMD指令演示 4、ENTRYPOINT指令演示 5、总结   CMD指令和ENTRYPOINT指令作用</p>
             </div>
         </div>
     </div>
@@ -133,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
-                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
+                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
+                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
             </div>
         </div>
     </div>
@@ -143,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
-                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
+                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
             </div>
         </div>
     </div>
@@ -153,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4515.htm">真正的宠物狗免费领养网站有哪些地方（真正的宠物狗免费领养网站有哪些地方呢）</a></h4>
-                <p>摘要：       今天给各位分享真正的宠物狗免费领养网站有哪些地方的知识，其中也会对真正的宠物狗免费领养网站有哪些地方呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录</p>
+                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
+                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
             </div>
         </div>
     </div>
@@ -163,38 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4585.htm">宠物疫苗猫咪可以打吗（猫咪打疫苗宠物店可以打吗?）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物疫苗猫咪可以打吗，以及猫咪打疫苗宠物店可以打吗?对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、两个月的小猫能打狂犬疫苗吗?...  </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></h4>
-                <p>&lt;div id="app"&gt;     &lt;h1&gt;懒加载lazy&lt;/h1&gt;     &lt;h3&gt;不让输入框实时同步&lt;/h3&gt;     &lt;inp</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4478.htm">开宠物店大概需要多少投资（开宠物店投资多少钱一月能得多少利）</a></h4>
-                <p>摘要：       今天给各位分享开宠物店大概需要多少投资的知识，其中也会对开宠物店投资多少钱一月能得多少利进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、开.</p>
+                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
+                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

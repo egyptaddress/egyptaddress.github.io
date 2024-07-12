@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div class="toc"> <div class="toc-container-header">目录</div> <ul> <li><a href="#%E6%96%B0%E9%A1%B9%E7%9B%AE%E4%BA%86" rel="nofollow">新项目了</a></li> <li><a href="#vite%E6%90%AD%E5%BB%BA" rel="nofollow">Vite搭建</a></li> <li><a href="#eslint" rel="nofollow">eslint</a> <ul> <li><a href="#%E5%85%88%E5%AE%89%E8%A3%85eslint" rel="nofollow">先安装eslint</a></li> <li><a href="#%E5%88%9B%E5%BB%BAeslintrcjs" rel="nofollow">创建.eslintrc.js</a></li> <li><a href="#%E5%BC%95%E5%85%A5%E8%A7%84%E5%88%99" rel="nofollow">引入规则</a> <ul> <li><a href="#airbnb" rel="nofollow">Airbnb</a></li> </ul> </li> <li><a href="#%E9%85%8D%E5%90%88prettier" rel="nofollow">配合prettier</a></li> <li><a href="#%E5%AF%B9ts%E7%9A%84%E6%94%AF%E6%8C%81" rel="nofollow">对ts的支持</a></li> <li><a href="#eslintrcjs" rel="nofollow">.eslintrc.js</a></li> </ul> </li> <li><a href="#%E5%9C%A8%E9%A1%B5%E9%9D%A2%E4%B8%8A%E6%9F%A5%E7%9C%8Beslint%E6%8A%A5%E9%94%99" rel="nofollow">在页面上查看eslint报错</a></li> <li><a href="#%E4%BD%BF%E7%94%A8setup-sugar%E7%9A%84%E5%9D%91" rel="nofollow">使用setup sugar的坑</a></li> </ul> </div> <h3 id="新项目了">新项目了</h3> <p>浑浑噩噩一个五年前的vue2的项目维护了一年多，要开始重构了。前端还是vue2，要加个后台系统来管理配置化功能。后台管理就捡起vue3吧，好久没写了，看看有啥新东西玩，有空了再更新一下博客。</p> <h3 id="vite搭建">Vite搭建</h3> <p>之前写了个用vue-cli来搭建的（<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/rion1234567/p/14119120.html"  target="_blank" rel="nofollow">vue-cli脚手架搭建vue3.0+typescripe项目</a>），还是Vue3刚出来那会踩的坑，现在vite逐渐成熟，性能、速度也比webpack要好，也来踩踩的。<br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://cn.vitejs.dev/guide/"  target="_blank" rel="nofollow">Vite</a>官网已经写的很详细了，不赘述，无坑。<br /><code>yarn create vite vue-app --template vue-ts</code></p> <h3 id="eslint">eslint</h3> <h4 id="先安装eslint">先安装eslint</h4> <p><code>yarn add -D eslint</code></p> <h4 id="创建eslintrcjs">创建.eslintrc.js</h4> <p>先来点基本配置</p> <pre><code>  module.exports = {     root: true,     env: {   	node: true,   	browser: true,   	es2021: true,     },     parserOptions: {   	ecmaVersion: 12,     },   }</code></pre> <h4 id="引入规则">引入规则</h4> <p>我这里就用几个官方规范吧，下面总是要自己配置一堆的，也可以用其他的优秀开源规范（<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://github.com/airbnb/javascript"  target="_blank" rel="nofollow">Airbnb</a>）<br /><code>yarn add -D eslint-plugin-vue</code><br /> .eslintrc中extends添加<code>'plugin:vue/vue3-recommended'</code></p> <h5 id="airbnb">Airbnb</h5> <p>如果要用Airbnb，需要安装<code>eslint-config-airbnb-base</code>和<code>eslint-plugin-import</code></p> <pre><code>yarn add -D eslint-config-airbnb-base eslint-plugin-import</code></pre> <p>.eslintrc中extends添加<code>'airbnb-base'</code></p> <h4 id="配合prettier">配合prettier</h4> <pre><code>yarn add -D eslint-plugin-prettier eslint-config-prettier yarn add -D -E prettier</code></pre> <p>.eslintrc差不多就写成这样</p> <pre><code>  ……   extends: [   	'plugin:vue/vue3-recommended',   	'eslint:recommended',   	'plugin:prettier/recommended'   ],   plugins: [ 'prettier'],   rules: {   	'prettier/prettier': 0,   }   ……</code></pre> <h4 id="对ts的支持">对ts的支持</h4> <pre><code>yarn add -D @typescript-eslint/eslint-plugin @typescript-eslint/parser</code></pre> <p>.eslintrc中添加配置</p> <pre><code>plugins: ['@typescript-eslint'], parserOptions: {   parser: '@typescript-eslint/parser' }</code></pre> <h4 id="eslintrcjs">.eslintrc.js</h4> <p>至此，eslint配置完成，可以正常使用，上代码</p> <pre><code>  module.exports = {     root: true,     env: {   	node: true,   	es2021: true,   	browser: true     },     extends: [   	'plugin:vue/vue3-recommended',   	'eslint:recommended',   	'plugin:prettier/recommended'     ],     plugins: ['@typescript-eslint', 'prettier'],     parserOptions: {   	parser: '@typescript-eslint/parser',   	ecmaVersion: 12     },     rules: {   	'prettier/prettier': 0,   	……     }   }</code></pre> <h3 id="在页面上查看eslint报错">在页面上查看eslint报错</h3> <p>强逼迫福音，经常有时候没注意看命令行，报错就一直留下来，提交代码也会被拦住。添加<code>vite-plugin-eslint</code>插件即可<br /> 在vite.config.ts中配置</p> <pre><code>  import { defineConfig } from 'vite'   import vue from '@vitejs/plugin-vue'   import eslintPlugin from 'vite-plugin-eslint'    export default defineConfig({     plugins: [   	vue(),   	eslintPlugin({   	  exclude: ['./node_modules/**'],   	  cache: false   	})     ]   })</code></pre> <p>记笔记！<code>cache</code>这个属性一定要带上<code>false</code>，否则修复的问题还是会不停报出来错，有毒。</p> <h3 id="使用setup-sugar的坑">使用setup sugar的坑</h3> <p><code>&lt;script setup&gt;</code>支持不return直接用，使用eslint旧版会报错<br /><code>'xxx' is assigned a value but never used.</code><br /> 在.eslintrc配置<code>'no-unused-vars': [0]</code>可解决<br /> 我试了新版本没有这个问题，在template里面使用变量就不会标红报错</p> <p>使用<code>defineProps</code>时eslint会报错，说未定义<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/afa5882f338f63e4e01be1a5cb059f55.jpg" alt="Vite2+Vue3+ts的eslint设置踩坑"><br /> 这个时候如果你在vue中引入<code>defineProps</code><br /><code>import {  defineProps } from 'vue'</code><br /> 那么你会得到另一个报错</p> <pre><code>[@vue/compiler-sfc] `defineProps` is a compiler macro and no longer needs to be imported.</code></pre> <p>解决方法：<br /> 在.eslintrc中，添加配置</p> <pre><code>env: {   // ...   'vue/setup-compiler-macros': true }</code></pre> <p>cool~</p> 			                </div>
+                      				  				  				<div class="toc"> <div class="toc-container-header">目录</div> <ul> <li>新项目了</li> <li>Vite搭建</li> <li>eslint <ul> <li>先安装eslint</li> <li>创建.eslintrc.js</li> <li>引入规则 <ul> <li>Airbnb</li> </ul> </li> <li>配合prettier</li> <li>对ts的支持</li> <li>.eslintrc.js</li> </ul> </li> <li>在页面上查看eslint报错</li> <li>使用setup sugar的坑</li> </ul> </div> <h3 id="新项目了">新项目了</h3> <p>浑浑噩噩一个五年前的vue2的项目维护了一年多，要开始重构了。前端还是vue2，要加个后台系统来管理配置化功能。后台管理就捡起vue3吧，好久没写了，看看有啥新东西玩，有空了再更新一下博客。</p> <h3 id="vite搭建">Vite搭建</h3> <p>之前写了个用vue-cli来搭建的（vue-cli脚手架搭建vue3.0+typescripe项目），还是Vue3刚出来那会踩的坑，现在vite逐渐成熟，性能、速度也比webpack要好，也来踩踩的。<br />Vite官网已经写的很详细了，不赘述，无坑。<br /><code>yarn create vite vue-app --template vue-ts</code></p> <h3 id="eslint">eslint</h3> <h4 id="先安装eslint">先安装eslint</h4> <p><code>yarn add -D eslint</code></p> <h4 id="创建eslintrcjs">创建.eslintrc.js</h4> <p>先来点基本配置</p> <pre><code>  module.exports = {     root: true,     env: {   	node: true,   	browser: true,   	es2021: true,     },     parserOptions: {   	ecmaVersion: 12,     },   }</code></pre> <h4 id="引入规则">引入规则</h4> <p>我这里就用几个官方规范吧，下面总是要自己配置一堆的，也可以用其他的优秀开源规范（Airbnb）<br /><code>yarn add -D eslint-plugin-vue</code><br /> .eslintrc中extends添加<code>'plugin:vue/vue3-recommended'</code></p> <h5 id="airbnb">Airbnb</h5> <p>如果要用Airbnb，需要安装<code>eslint-config-airbnb-base</code>和<code>eslint-plugin-import</code></p> <pre><code>yarn add -D eslint-config-airbnb-base eslint-plugin-import</code></pre> <p>.eslintrc中extends添加<code>'airbnb-base'</code></p> <h4 id="配合prettier">配合prettier</h4> <pre><code>yarn add -D eslint-plugin-prettier eslint-config-prettier yarn add -D -E prettier</code></pre> <p>.eslintrc差不多就写成这样</p> <pre><code>  ……   extends: [   	'plugin:vue/vue3-recommended',   	'eslint:recommended',   	'plugin:prettier/recommended'   ],   plugins: [ 'prettier'],   rules: {   	'prettier/prettier': 0,   }   ……</code></pre> <h4 id="对ts的支持">对ts的支持</h4> <pre><code>yarn add -D @typescript-eslint/eslint-plugin @typescript-eslint/parser</code></pre> <p>.eslintrc中添加配置</p> <pre><code>plugins: ['@typescript-eslint'], parserOptions: {   parser: '@typescript-eslint/parser' }</code></pre> <h4 id="eslintrcjs">.eslintrc.js</h4> <p>至此，eslint配置完成，可以正常使用，上代码</p> <pre><code>  module.exports = {     root: true,     env: {   	node: true,   	es2021: true,   	browser: true     },     extends: [   	'plugin:vue/vue3-recommended',   	'eslint:recommended',   	'plugin:prettier/recommended'     ],     plugins: ['@typescript-eslint', 'prettier'],     parserOptions: {   	parser: '@typescript-eslint/parser',   	ecmaVersion: 12     },     rules: {   	'prettier/prettier': 0,   	……     }   }</code></pre> <h3 id="在页面上查看eslint报错">在页面上查看eslint报错</h3> <p>强逼迫福音，经常有时候没注意看命令行，报错就一直留下来，提交代码也会被拦住。添加<code>vite-plugin-eslint</code>插件即可<br /> 在vite.config.ts中配置</p> <pre><code>  import { defineConfig } from 'vite'   import vue from '@vitejs/plugin-vue'   import eslintPlugin from 'vite-plugin-eslint'    export default defineConfig({     plugins: [   	vue(),   	eslintPlugin({   	  exclude: ['./node_modules/**'],   	  cache: false   	})     ]   })</code></pre> <p>记笔记！<code>cache</code>这个属性一定要带上<code>false</code>，否则修复的问题还是会不停报出来错，有毒。</p> <h3 id="使用setup-sugar的坑">使用setup sugar的坑</h3> <p><code><script setup></code>支持不return直接用，使用eslint旧版会报错<br /><code>'xxx' is assigned a value but never used.</code><br /> 在.eslintrc配置<code>'no-unused-vars': [0]</code>可解决<br /> 我试了新版本没有这个问题，在template里面使用变量就不会标红报错</p> <p>使用<code>defineProps</code>时eslint会报错，说未定义<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220509/afa5882f338f63e4e01be1a5cb059f55.jpg" alt="Vite2+Vue3+ts的eslint设置踩坑"><br /> 这个时候如果你在vue中引入<code>defineProps</code><br /><code>import {  defineProps } from 'vue'</code><br /> 那么你会得到另一个报错</p> <pre><code>[@vue/compiler-sfc] `defineProps` is a compiler macro and no longer needs to be imported.</code></pre> <p>解决方法：<br /> 在.eslintrc中，添加配置</p> <pre><code>env: {   // ...   'vue/setup-compiler-macros': true }</code></pre> <p>cool~</p> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-69.htm">SpringBoot三种方式实现定时任务</a></p>
                                         <p>下一个：<a href="/html/category/article-71.htm">go web 处理文件上传</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
+                <h4><a href="/html/category/article-3729.htm">Git基础之协作模式详解</a></h4>
+                <p>目录  1、分布式工作流程 2、集中式工作流 3、分支工作流 4、GitFlow 工作流(最流行) 5、Forking 工作流(偶尔使用) 6、总结   1、分布式工作流程 与传统的集中式版本控制系统</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,68 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3755.htm">Kotlin中的扩展函数（静态分派）</a></h4>
-                <p>扩展函数  扩展函数可以在已有类中添加新的方法，不会对原类做修改   举例1  对Context进行扩展showToast方法，可以在Fragment、Activity、Application中弹出T</p>
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4402.htm">狗粮品牌有哪些品牌 狗粮品牌有哪些品牌好</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于狗粮品牌有哪些品牌的问题，于是小编就整理了2个相关介绍狗粮品牌有哪些品牌的解答，让我们一起看看吧。狗粮哪几个品牌比较好？狗粮哪个</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
+                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4124.htm">谈谈高并发系统的一些解决方案</a></h4>
+                <p>本文结合项目经验，整理一份大纲，供参考。 常用指标   RT（Response Time）：响应时间。可能会衍生出 TP999、TP99、TP95、TP90等指标。一般在几毫秒到几百毫秒之间。   Q</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1629.htm">原生js实现楼层滚动（界面滑动）效果</a></h4>
+                <p>截取自自己写的代码 思路很简单，就是改编自回到顶部效果，控制滚动条位移到指定位置  先有个布局，四个触发li和四张图片 &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;h</p>
             </div>
         </div>
     </div>
@@ -125,66 +185,6 @@ var _hmt = _hmt || [];
             <div class="box-wrap">
                 <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
                 <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
-                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2823.htm">jQuery实现呼吸灯轮播图</a></h4>
-                <p>jQuery实现呼吸灯轮播图  jQuery实现呼吸灯轮播图    jQuery实现呼吸灯轮播图 &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;he</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
-                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
-                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

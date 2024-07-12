@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>话不多说，拿起键盘干就完了。</p> <p>目前我已经有了3个服务端的提供实例</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/c4b5c5b14e4f808c934dd3535270ae66.jpg">&nbsp; &nbsp;8001 8002 8003</p> <p>新建一个子模块，监控服务Hystrix Dashboard</p> <p>引入相关依赖:</p> <pre class="has"><code>&nbsp;&lt;!--&nbsp;hystrix和&nbsp;hystrix-dashboard相关--&gt; &nbsp;&nbsp;&nbsp;&lt;dependency&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;spring-cloud-starter-hystrix&lt;/artifactId&gt; &nbsp;&nbsp;&nbsp;&lt;/dependency&gt; &nbsp;&nbsp;&nbsp;&lt;dependency&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;artifactId&gt;spring-cloud-starter-hystrix-dashboard&lt;/artifactId&gt; &nbsp;&nbsp;&nbsp;&lt;/dependency&gt;</code></pre> <p>application.yml:</p> <pre class="has"><code>server:   port: 6001</code></pre> <p>创建一个启动类，添加注解@EnableHystrixDashboard:</p> <pre class="has"><code class="language-java">package com.ypp.springcloud;  import org.springframework.boot.SpringApplication; import org.springframework.boot.autoconfigure.SpringBootApplication; import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;  @SpringBootApplication @EnableHystrixDashboard // 服务监控注解 public class ConsumerHystrixDashboardApplication {  	public static void main(String[] args) { 		SpringApplication.run(ConsumerHystrixDashboardApplication.class, args); 	} }</code></pre> <p>服务提供端添加依赖:</p> <pre class="has"><code>&lt;!-- actuator监控信息完善  Eureka status、HystrixDashborad监控信息页面 --&gt; 		&lt;dependency&gt; 			&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; 			&lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt; 		&lt;/dependency&gt;</code></pre> <p>启动整个Spring Cloud,本机电脑配置低的基本扛不住。</p> <p>输入刚才HystrixDashboard配置的端口 localhost:6001/hystrix</p> <p>出现以下页面表示监控配置成功:</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/d852c480c6125bf57a3eb684cb719de3.jpg"></p> <p>如何查看服务访问的监控？</p> <p>按照它的格式输入:<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://localhost:8001/hystrix.stream"  rel="nofollow">http://localhost:8001/hystrix.stream</a>&nbsp;,必须按照它的格式输入地址,这里我监控8001服务实例，等下3个服务端全部都来看</p> <p>1：Delay：该参数用来控制服务器上轮询监控信息的延迟时间，默认为2000毫秒，可以通过配置该属性来降低客户端的网络和CPU消耗。<br /> 2：Title：该参数对应了头部标题Hystrix Stream之后的内容，默认会使用具体监控实例的URL，可以通过配置该信息来展示更合适的标题。</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/2b2ef1b912a5b337ea51f7f81b5089a3.jpg"></p> <p>点击Monitor Stream&nbsp; &nbsp;出现页面:</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/a23944ccea49c3146a85b2341e18ca4e.jpg"></p> <p>我配置的间隔5秒</p> <p>怎么看这个图？</p> <p>7色，1圈，一线</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/1e81022439d2d38481dcd210b2a28329.jpg"></p> <p>发送请求，来看看。目前是这个是8001的，我将8002 8003所有的服务实例全部打开来看</p> <p>开3个页面查看监控信息,8001 8002 8003，发请求</p> <p><img fetchpriority="high" decoding="async" alt="" class="has" height="626" src="http://img.555519.xyz/uploads/20221118/af04c910366b686105526f6b13d2b510.jpg"></p> <p>发送很多请求之后，可以看到每个微服务监控左边的圆圈一直在大小不停变换，请求量越来越多，如果越大越红，说明这个服务已经很危险了</p> <p>那条线也一直在起伏不定，直线说明基本没请求，线越高请求量也就越大。Success数量也一直在变，都是在统计当前微服务的情况，监控</p> <p>突然想到了美国一些大片的国防部的场景，一个大屏幕全是这些监控统计信息</p> <p></p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>话不多说，拿起键盘干就完了。</p> <p>目前我已经有了3个服务端的提供实例</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/c4b5c5b14e4f808c934dd3535270ae66.jpg">&nbsp; &nbsp;8001 8002 8003</p> <p>新建一个子模块，监控服务Hystrix Dashboard</p> <p>引入相关依赖:</p> <pre class="has"><code>&nbsp;<!--&nbsp;hystrix和&nbsp;hystrix-dashboard相关--> &nbsp;&nbsp;&nbsp;<dependency> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<groupId>org.springframework.cloud</groupId> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spring-cloud-starter-hystrix</artifactId> &nbsp;&nbsp;&nbsp;</dependency> &nbsp;&nbsp;&nbsp;<dependency> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<groupId>org.springframework.cloud</groupId> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId> &nbsp;&nbsp;&nbsp;</dependency></code></pre> <p>application.yml:</p> <pre class="has"><code>server:   port: 6001</code></pre> <p>创建一个启动类，添加注解@EnableHystrixDashboard:</p> <pre class="has"><code class="language-java">package com.ypp.springcloud;  import org.springframework.boot.SpringApplication; import org.springframework.boot.autoconfigure.SpringBootApplication; import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;  @SpringBootApplication @EnableHystrixDashboard // 服务监控注解 public class ConsumerHystrixDashboardApplication {  	public static void main(String[] args) { 		SpringApplication.run(ConsumerHystrixDashboardApplication.class, args); 	} }</code></pre> <p>服务提供端添加依赖:</p> <pre class="has"><code><!-- actuator监控信息完善  Eureka status、HystrixDashborad监控信息页面 --> 		<dependency> 			<groupId>org.springframework.boot</groupId> 			<artifactId>spring-boot-starter-actuator</artifactId> 		</dependency></code></pre> <p>启动整个Spring Cloud,本机电脑配置低的基本扛不住。</p> <p>输入刚才HystrixDashboard配置的端口 localhost:6001/hystrix</p> <p>出现以下页面表示监控配置成功:</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/d852c480c6125bf57a3eb684cb719de3.jpg"></p> <p>如何查看服务访问的监控？</p> <p>按照它的格式输入:<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://localhost:8001/hystrix.stream"  rel="nofollow">http://localhost:8001/hystrix.stream&nbsp;,必须按照它的格式输入地址,这里我监控8001服务实例，等下3个服务端全部都来看</p> <p>1：Delay：该参数用来控制服务器上轮询监控信息的延迟时间，默认为2000毫秒，可以通过配置该属性来降低客户端的网络和CPU消耗。<br /> 2：Title：该参数对应了头部标题Hystrix Stream之后的内容，默认会使用具体监控实例的URL，可以通过配置该信息来展示更合适的标题。</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/2b2ef1b912a5b337ea51f7f81b5089a3.jpg"></p> <p>点击Monitor Stream&nbsp; &nbsp;出现页面:</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/a23944ccea49c3146a85b2341e18ca4e.jpg"></p> <p>我配置的间隔5秒</p> <p>怎么看这个图？</p> <p>7色，1圈，一线</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads/20221118/1e81022439d2d38481dcd210b2a28329.jpg"></p> <p>发送请求，来看看。目前是这个是8001的，我将8002 8003所有的服务实例全部打开来看</p> <p>开3个页面查看监控信息,8001 8002 8003，发请求</p> <p><img fetchpriority="high" decoding="async" alt="" class="has" height="626" src="http://img.555519.xyz/uploads/20221118/af04c910366b686105526f6b13d2b510.jpg"></p> <p>发送很多请求之后，可以看到每个微服务监控左边的圆圈一直在大小不停变换，请求量越来越多，如果越大越红，说明这个服务已经很危险了</p> <p>那条线也一直在起伏不定，直线说明基本没请求，线越高请求量也就越大。Success数量也一直在变，都是在统计当前微服务的情况，监控</p> <p>突然想到了美国一些大片的国防部的场景，一个大屏幕全是这些监控统计信息</p> <p></p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-57.htm">linux下运行jsp（Linux下tomcat安装与配置）</a></p>
                                         <p>下一个：<a href="/html/category/article-59.htm">【Python】自带的venv管理虚拟环境</a></p>
@@ -99,6 +99,46 @@ var _hmt = _hmt || [];
                             </div>
             <div class="col-md-4 w3l-services">
                 <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
+                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2824.htm">如何使用线程池执行定时任务？</a></h4>
+                <p>在 Java 语言中，有两个线程池可以执行定时任务：ScheduledThreadPool 和 SingleThreadScheduledExecutor，其中 SingleThreadSchedul</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
+                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row w3l-achievements">
     <div class="col-lg-12 item">
         <div class="card">
@@ -113,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
-                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
             </div>
         </div>
     </div>
@@ -123,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></h4>
-                <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：  【夯实Spring Cloud】</p>
+                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
+                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
             </div>
         </div>
     </div>
@@ -133,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
+                <h4><a href="/html/category/article-4585.htm">宠物疫苗猫咪可以打吗（猫咪打疫苗宠物店可以打吗?）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物疫苗猫咪可以打吗，以及猫咪打疫苗宠物店可以打吗?对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、两个月的小猫能打狂犬疫苗吗?...  </p>
             </div>
         </div>
     </div>
@@ -143,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
+                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
+                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
             </div>
         </div>
     </div>
@@ -153,48 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3729.htm">Git基础之协作模式详解</a></h4>
-                <p>目录  1、分布式工作流程 2、集中式工作流 3、分支工作流 4、GitFlow 工作流(最流行) 5、Forking 工作流(偶尔使用) 6、总结   1、分布式工作流程 与传统的集中式版本控制系统</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2823.htm">jQuery实现呼吸灯轮播图</a></h4>
-                <p>jQuery实现呼吸灯轮播图  jQuery实现呼吸灯轮播图    jQuery实现呼吸灯轮播图 &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;he</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
-                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
+                <h4><a href="/html/category/article-5569.htm">襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于襄阳免费领养宠物猫信息的问题，于是小编就整理了4个相关介绍襄阳免费领养宠物猫信息的解答，让我们一起看看吧。襄樊有孤儿院吗？正常收</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				  			 <div id="log-box">  				<div id="catalog"><ul id="catalog-ul"> <li><i class="be be-arrowright"></i> <a href="#title-0" title="1.3.1如果这是跟踪查询（后续会讲到），EF会检查数据是否表示已在上下文实例的更改跟踪器中的实体中。">1.3.1如果这是跟踪查询（后续会讲到），EF会检查数据是否表示已在上下文实例的更改跟踪器中的实体中。</a></li> <li><i class="be be-arrowright"></i> <a href="#title-1" title="1.3.2如果这是非跟踪查询（后续会讲到），EF会检查数据是否表示已在此查询的结果集中的实体中。">1.3.2如果这是非跟踪查询（后续会讲到），EF会检查数据是否表示已在此查询的结果集中的实体中。</a></li> </ul><span class="log-zd"><span class="log-close"><a title="隐藏目录"><i class="be be-cross"></i><strong>目录</strong></a></span></span></div>  			</div> <h2>1.查询生命周期</h2> <p>在进入正题时候，我们先来了解EF Core查询的生命周期。</p> <h3>1.1LINQ查询会由Entity Framework Core处理并生成给数据库提供程序可处理的表示形式（说白了就是生成给数据库可识别数据形式）。</h3> <ul> <li>发送的查询结果（查询表示形式）会被缓存，以便每次执行查询时无需进行1.1中处理。</li> </ul> <h3>1.2查询结果（查询表示形式）会传递到数据库提供程序</h3> <ul> <li>数据库提供程序会识别出查询的哪些部分可以在数据库中求值。</li> <li>查询的这些部分会转换为特定数据库的查询语言（例如，关系数据库的T-SQL）。</li> <li>一个或多个查询会发送到数据库并返回结果集（返回的是数据库中的值，而不是实体实例中的）。</li> </ul> <h3>1.3对于结果集中的每一项</h3> <span class="directory"></span><h4 id="title-0">1.3.1如果这是跟踪查询（后续会讲到），EF会检查数据是否表示已在上下文实例的更改跟踪器中的实体中。</h4> <ul> <li>如果是，则会返回现有实体。</li> <li>如果不是，则会创建新实体、设置更改跟踪并返回该新实体。</li> </ul> <span class="directory"></span><h4 id="title-1">1.3.2如果这是非跟踪查询（后续会讲到），EF会检查数据是否表示已在此查询的结果集中的实体中。</h4> <ul> <li>如果是，则会返回现有实体。非跟踪查询使用弱引用跟踪已返回的实体。如果具有相同标识的上一个结果超出范围，并运行垃圾回收，则可能会获得新的实体实例。</li> <li>如果不是，则会创建新实体并返回该新实体。</li> </ul> <h3>1.4执行查询时</h3> <p>当调用LINQ运算符时，只会生成查询的内存中表示形式。当我们使用查询结果（查询表示形式）时才会发送到数据库。导致查询发送到数据库的最常见操作如下：</p> <ul> <li>在for循环中循环访问结果：</li> </ul> <div class="ay1code"> <pre class="brush:csharp;">var blogs = from b in _context.Blog           select new           {              b.BlogId,              b.Url           };  //触发数据库查询  foreach(var blog in blogs)  {      var id = blog.BlogId;  }</pre> </div> <p>当我们执行完LINQ运算符的时候，从SQL Server Profiler监控里面可以看到，并没有执行的SQL语句，也就是说查询结果blogs并没有立即发送给数据库获取返回数据结果集。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/c83a2b695488e2f9a30557a64780cd66.jpg"></p> <p>而当我们调试进去for循环时候，SQL Server Profiler监控里面可以看到出现了执行SQL语句。也就是说这时候查询结果blogs才执行发送给数据库返回结果集。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/dcc621186d69678c0f53a8baafeda32b.jpg"></p> <ul> <li>使用ToList、ToArray、Single、Count等运算符</li> </ul> <div class="ay1code"> <pre class="brush:csharp;">_context.Blog.ToList();  _context.Blog.ToArray();  _context.Blog.Count();  _context.Blog.Single();  _context.Blog.First();</pre> </div> <p>执行这种形式运算符也会立即发送到数据库获取结果集的。具体执行过程呈现，这里大伙自行测试吧。</p> <ul> <li>将查询结果数据绑定到UI</li> </ul> <h2>2.跟踪查询与非跟踪查询</h2> <p>在1小节生命周期里面我们有提及过跟踪与非跟踪查询，现在我们来了解下这两种查询区别。</p> <h3>2.1跟踪查询</h3> <p>返回实体类型的查询是默认会被跟踪的，这表示如果这些实体实例有更改行为，会通过SaveChanges()持久化将更改的值更新到数据库中，但是如果更改的值跟实体实例的值相同，则不会持久化提交数据到数据库，这就是跟踪查询。在以下示例中，将检测到对博客链接所做的更改，并在 SaveChanges() 期间将这些更改持久化到数据库中。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/0ddeb05f5114f51ec718063ce21a5264.jpg"></p> <div class="ay1code"> <pre class="brush:csharp;">//返回blog实体类型的查询是默认会被跟踪  var blog = _context.Blog.SingleOrDefault(b =&gt; b.BlogId == 1);  //检测对博客链接所做的更改  blog.Url = "1";  //持久化保存到数据库中  _context.SaveChanges();</pre> </div> <p>实体初始链接值是1，当我们点击Save按钮保存的时候，检测到对博客链接所做的更改值还是1的时候，并不会提交更改值到数据库中的。看看下图SQL Server Profiler监控就知道，并没有监控到对应有更新的T-SQL语句，也就是说并没有执行更新操作：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/d895326ca4c61642439772e7f2924935.jpg"></p> <p>当我们再把链接值更改为2点击保存时候，EF Core检测到博客链接值已经从1更改为2，就会持久化保存到数据库中。</p> <div class="ay1code"> <pre class="brush:csharp;">blog.Url = "2";</pre> </div> <p>废话少说，直接上图：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/75bf496b062190226e7edfae90231c52.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/6836fc5983ba918c42f84932aee9d78d.jpg"></p> <h3>2.2非跟踪查询</h3> <p>如果不需要更新从数据库中检索到的实体，则应使用非跟踪查询。可以将单个查询替换为非跟踪查询。</p> <div class="ay1code"> <pre class="brush:csharp;">var blogs = context.Blogs  //不用跟踪查询      .AsNoTracking()      .ToList();  //或者在上下文实例级别更改默认跟踪行为  context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;  var blogs = context.Blogs.ToList();</pre> </div> <p>还是一样老谭秘方事例，当你加上非跟踪查询标识后，无论怎么更改博客链接值，都不会持久化保存数据到数据库中的。</p> <div class="ay1code"> <pre class="brush:csharp;">var blogs = _context.Blog  //不用跟踪查询  .AsNoTracking()  .SingleOrDefault(m =&gt; m.BlogId == 1);  blogs.Url = "2";  _context.SaveChanges();</pre> </div> <p>直接上图跟踪结果：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/0062f882a66f86a3b25d4a9d1e26bd48.jpg"></p> <p>在这相信大家从该小节跟踪与非跟踪查询中事例描述中总算对1小节查询生命周期有一定理解吧。</p> <h3>2.3跟踪和自定义投影</h3> <p>即使查询的结果类型不是实体类型，默认情况下EF Core也会跟踪结果中包含的实体类型。在以下返回匿名类型的查询中，结果集中的Blog实例会被跟踪。</p> <div class="ay1code"> <pre class="brush:csharp;">var blog = context.Blogs      .Select(b =&gt;          new          {              Blog = b,              PostCount = b.Posts.Count()          });</pre> </div> <p>如果结果集包含来自LINQ组合的实体类型，EF Core将跟踪它们。</p> <div class="ay1code"> <pre class="brush:csharp;">var blog = context.Blogs      .Select(b =&gt;          new          {              Blog = b,              Post = b.Posts.OrderBy(p =&gt; p.Rating).LastOrDefault()          });</pre> </div> <p>如果结果集不包含任何实体类型，则不会执行跟踪。在以下查询中，我们返回匿名类型（具有实体中的某些值，但没有实际实体类型的实例）。查询中没有任何被跟踪的实体。</p> <div class="ay1code"> <pre class="brush:csharp;">var blog = context.Blogs      .Select(b =&gt;          new          {              Id = b.BlogId,              Url = b.Url          });</pre> </div> <p>EF Core支持执行顶级投影中的客户端评估。如果EF Core具体化实体实例以进行客户端评估，则会跟踪该实体实例。此处，由于我们要将blog实体传递到客户端方法StandardizeURL，因此EF Core也会跟踪博客实例。</p> <div class="ay1code"> <pre class="brush:csharp;">var blogs = context.Blogs      .OrderByDescending(blog =&gt; blog.Rating)      .Select(blog =&gt; new      {          Id = blog.BlogId,          Url = StandardizeUrl(blog)      })      .ToList();  public static string StandardizeUrl(Blog blog)  {      var url = blog.Url.ToLower();      if (!url.StartsWith("http://"))      {          url = string.Concat("http://", url);      }      return url;  }</pre> </div> 			                </div>
+                      				  				  				  			 <div id="log-box">  				<div id="catalog"><ul id="catalog-ul"> <li><i class="be be-arrowright"></i> 1.3.1如果这是跟踪查询（后续会讲到），EF会检查数据是否表示已在上下文实例的更改跟踪器中的实体中。</li> <li><i class="be be-arrowright"></i> 1.3.2如果这是非跟踪查询（后续会讲到），EF会检查数据是否表示已在此查询的结果集中的实体中。</li> </ul><span class="log-zd"><span class="log-close"><i class="be be-cross"></i><strong>目录</strong></span></span></div>  			</div> <h2>1.查询生命周期</h2> <p>在进入正题时候，我们先来了解EF Core查询的生命周期。</p> <h3>1.1LINQ查询会由Entity Framework Core处理并生成给数据库提供程序可处理的表示形式（说白了就是生成给数据库可识别数据形式）。</h3> <ul> <li>发送的查询结果（查询表示形式）会被缓存，以便每次执行查询时无需进行1.1中处理。</li> </ul> <h3>1.2查询结果（查询表示形式）会传递到数据库提供程序</h3> <ul> <li>数据库提供程序会识别出查询的哪些部分可以在数据库中求值。</li> <li>查询的这些部分会转换为特定数据库的查询语言（例如，关系数据库的T-SQL）。</li> <li>一个或多个查询会发送到数据库并返回结果集（返回的是数据库中的值，而不是实体实例中的）。</li> </ul> <h3>1.3对于结果集中的每一项</h3> <span class="directory"></span><h4 id="title-0">1.3.1如果这是跟踪查询（后续会讲到），EF会检查数据是否表示已在上下文实例的更改跟踪器中的实体中。</h4> <ul> <li>如果是，则会返回现有实体。</li> <li>如果不是，则会创建新实体、设置更改跟踪并返回该新实体。</li> </ul> <span class="directory"></span><h4 id="title-1">1.3.2如果这是非跟踪查询（后续会讲到），EF会检查数据是否表示已在此查询的结果集中的实体中。</h4> <ul> <li>如果是，则会返回现有实体。非跟踪查询使用弱引用跟踪已返回的实体。如果具有相同标识的上一个结果超出范围，并运行垃圾回收，则可能会获得新的实体实例。</li> <li>如果不是，则会创建新实体并返回该新实体。</li> </ul> <h3>1.4执行查询时</h3> <p>当调用LINQ运算符时，只会生成查询的内存中表示形式。当我们使用查询结果（查询表示形式）时才会发送到数据库。导致查询发送到数据库的最常见操作如下：</p> <ul> <li>在for循环中循环访问结果：</li> </ul> <div class="ay1code"> <pre class="brush:csharp;">var blogs = from b in _context.Blog           select new           {              b.BlogId,              b.Url           };  //触发数据库查询  foreach(var blog in blogs)  {      var id = blog.BlogId;  }</pre> </div> <p>当我们执行完LINQ运算符的时候，从SQL Server Profiler监控里面可以看到，并没有执行的SQL语句，也就是说查询结果blogs并没有立即发送给数据库获取返回数据结果集。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/c83a2b695488e2f9a30557a64780cd66.jpg"></p> <p>而当我们调试进去for循环时候，SQL Server Profiler监控里面可以看到出现了执行SQL语句。也就是说这时候查询结果blogs才执行发送给数据库返回结果集。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/dcc621186d69678c0f53a8baafeda32b.jpg"></p> <ul> <li>使用ToList、ToArray、Single、Count等运算符</li> </ul> <div class="ay1code"> <pre class="brush:csharp;">_context.Blog.ToList();  _context.Blog.ToArray();  _context.Blog.Count();  _context.Blog.Single();  _context.Blog.First();</pre> </div> <p>执行这种形式运算符也会立即发送到数据库获取结果集的。具体执行过程呈现，这里大伙自行测试吧。</p> <ul> <li>将查询结果数据绑定到UI</li> </ul> <h2>2.跟踪查询与非跟踪查询</h2> <p>在1小节生命周期里面我们有提及过跟踪与非跟踪查询，现在我们来了解下这两种查询区别。</p> <h3>2.1跟踪查询</h3> <p>返回实体类型的查询是默认会被跟踪的，这表示如果这些实体实例有更改行为，会通过SaveChanges()持久化将更改的值更新到数据库中，但是如果更改的值跟实体实例的值相同，则不会持久化提交数据到数据库，这就是跟踪查询。在以下示例中，将检测到对博客链接所做的更改，并在 SaveChanges() 期间将这些更改持久化到数据库中。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/0ddeb05f5114f51ec718063ce21a5264.jpg"></p> <div class="ay1code"> <pre class="brush:csharp;">//返回blog实体类型的查询是默认会被跟踪  var blog = _context.Blog.SingleOrDefault(b => b.BlogId == 1);  //检测对博客链接所做的更改  blog.Url = "1";  //持久化保存到数据库中  _context.SaveChanges();</pre> </div> <p>实体初始链接值是1，当我们点击Save按钮保存的时候，检测到对博客链接所做的更改值还是1的时候，并不会提交更改值到数据库中的。看看下图SQL Server Profiler监控就知道，并没有监控到对应有更新的T-SQL语句，也就是说并没有执行更新操作：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/d895326ca4c61642439772e7f2924935.jpg"></p> <p>当我们再把链接值更改为2点击保存时候，EF Core检测到博客链接值已经从1更改为2，就会持久化保存到数据库中。</p> <div class="ay1code"> <pre class="brush:csharp;">blog.Url = "2";</pre> </div> <p>废话少说，直接上图：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/75bf496b062190226e7edfae90231c52.jpg"></p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/6836fc5983ba918c42f84932aee9d78d.jpg"></p> <h3>2.2非跟踪查询</h3> <p>如果不需要更新从数据库中检索到的实体，则应使用非跟踪查询。可以将单个查询替换为非跟踪查询。</p> <div class="ay1code"> <pre class="brush:csharp;">var blogs = context.Blogs  //不用跟踪查询      .AsNoTracking()      .ToList();  //或者在上下文实例级别更改默认跟踪行为  context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;  var blogs = context.Blogs.ToList();</pre> </div> <p>还是一样老谭秘方事例，当你加上非跟踪查询标识后，无论怎么更改博客链接值，都不会持久化保存数据到数据库中的。</p> <div class="ay1code"> <pre class="brush:csharp;">var blogs = _context.Blog  //不用跟踪查询  .AsNoTracking()  .SingleOrDefault(m => m.BlogId == 1);  blogs.Url = "2";  _context.SaveChanges();</pre> </div> <p>直接上图跟踪结果：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220427/0062f882a66f86a3b25d4a9d1e26bd48.jpg"></p> <p>在这相信大家从该小节跟踪与非跟踪查询中事例描述中总算对1小节查询生命周期有一定理解吧。</p> <h3>2.3跟踪和自定义投影</h3> <p>即使查询的结果类型不是实体类型，默认情况下EF Core也会跟踪结果中包含的实体类型。在以下返回匿名类型的查询中，结果集中的Blog实例会被跟踪。</p> <div class="ay1code"> <pre class="brush:csharp;">var blog = context.Blogs      .Select(b =>          new          {              Blog = b,              PostCount = b.Posts.Count()          });</pre> </div> <p>如果结果集包含来自LINQ组合的实体类型，EF Core将跟踪它们。</p> <div class="ay1code"> <pre class="brush:csharp;">var blog = context.Blogs      .Select(b =>          new          {              Blog = b,              Post = b.Posts.OrderBy(p => p.Rating).LastOrDefault()          });</pre> </div> <p>如果结果集不包含任何实体类型，则不会执行跟踪。在以下查询中，我们返回匿名类型（具有实体中的某些值，但没有实际实体类型的实例）。查询中没有任何被跟踪的实体。</p> <div class="ay1code"> <pre class="brush:csharp;">var blog = context.Blogs      .Select(b =>          new          {              Id = b.BlogId,              Url = b.Url          });</pre> </div> <p>EF Core支持执行顶级投影中的客户端评估。如果EF Core具体化实体实例以进行客户端评估，则会跟踪该实体实例。此处，由于我们要将blog实体传递到客户端方法StandardizeURL，因此EF Core也会跟踪博客实例。</p> <div class="ay1code"> <pre class="brush:csharp;">var blogs = context.Blogs      .OrderByDescending(blog => blog.Rating)      .Select(blog => new      {          Id = blog.BlogId,          Url = StandardizeUrl(blog)      })      .ToList();  public static string StandardizeUrl(Blog blog)  {      var url = blog.Url.ToLower();      if (!url.StartsWith("http://"))      {          url = string.Concat("http://", url);      }      return url;  }</pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-193.htm">《易学C++》第15章 再识对象</a></p>
                                         <p>下一个：<a href="/html/category/article-195.htm">Go使用Gin+mysql实现增删改查</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
-                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
+                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
+                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,18 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
-                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
+                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
+                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
             </div>
         </div>
     </div>
@@ -133,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
-                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
+                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
+                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
             </div>
         </div>
     </div>
@@ -143,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
+                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
+                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
             </div>
         </div>
     </div>
@@ -153,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4515.htm">真正的宠物狗免费领养网站有哪些地方（真正的宠物狗免费领养网站有哪些地方呢）</a></h4>
-                <p>摘要：       今天给各位分享真正的宠物狗免费领养网站有哪些地方的知识，其中也会对真正的宠物狗免费领养网站有哪些地方呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录</p>
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
             </div>
         </div>
     </div>
@@ -163,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1054.htm">mysql 中插入百万条数据</a></h4>
-                <p>文章目录  mysql 中插入百万条数据     1. 创建测试表 2. 开启二进制日志 3. 创建一个生成随机字符串的函数: 4. 调用上边的两个插入函数        mysql 中插入百万条数据</p>
+                <h4><a href="/html/category/article-1322.htm">@RequestBody接收json对象报415的解决办法</a></h4>
+                <p>前端请求： $.ajax({             url: basePath() + "/index/login.do",             type : "post",          </p>
             </div>
         </div>
     </div>
@@ -173,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
-                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
+                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
+                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
             </div>
         </div>
     </div>
@@ -183,18 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4549.htm">深圳宠物领养中心官网（深圳宠物领养机构）</a></h4>
-                <p>摘要：       今天给各位分享深圳宠物领养中心官网的知识，其中也会对深圳宠物领养机构进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、那个,我想问下深圳的狗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
+                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
+                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

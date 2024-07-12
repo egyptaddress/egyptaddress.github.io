@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li><a href="#_label0" rel="nofollow">watch监听器的触发时机</a></li> <ul class="second_class_ul"> <li><a href="#_lab2_0_0" rel="nofollow">起因</a></li> <li><a href="#_lab2_0_1" rel="nofollow">代码</a></li> <li><a href="#_lab2_0_2" rel="nofollow">watch</a></li> <li><a href="#_lab2_0_3" rel="nofollow">控制台</a></li> <li><a href="#_lab2_0_4" rel="nofollow">说明</a></li> </ul> <li><a href="#_label1" rel="nofollow">vue watch的理解小记</a></li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"><a name="_label0" rel="nofollow"></a></p> <h2>watch监听器的触发时机</h2> <p class="maodian"><a name="_lab2_0_0" rel="nofollow"></a></p> <h3>起因</h3> <p>我需要在页面created时获得商家的类型id值，然后监听id值，动态的改变请求接口的地址。请求接口的函数在mounted中执行。业务逻辑写完后发现，页面在第一次加载时，接口没有数据，原因接口地址为空，即接口地址没有改变。</p> <p class="maodian"><a name="_lab2_0_1" rel="nofollow"></a></p> <h3>代码</h3> <div class="ay1code"> <pre class="brush:js;"> created() {      this.typeId = this.$route.params.id;      console.log("this.typeId的值发生改变，触发watch");    },    mounted() {      console.log(this.typeUrl, "mounted中的typeUrl的值");      //访问接口的函数      this.getData();    },  </pre> </div> <p class="maodian"><a name="_lab2_0_2" rel="nofollow"></a></p> <h3>watch</h3> <div class="ay1code"> <pre class="brush:js;">  watch: {    // 监听订单类型 给出对应面包屑    typeId: function (val) {      if (val == 1) {        console.log("watch触发了");        this.selfBreadcrumb[1].name = "核销订单";        this.typeUrl = "settlements";        console.log(this.typeUrl, "这里是watch");      } else if (val == 2) {        this.selfBreadcrumb[1].name = "物流订单";        this.typeUrl = "logistics-orders";      } else if (val == 4) {        this.selfBreadcrumb[1].name = "外卖订单";        this.typeUrl = "takeout-orders";      }    },  </pre> </div> <p class="maodian"><a name="_lab2_0_3" rel="nofollow"></a></p> <h3>控制台</h3> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220413/5fd96ffd2a7879ca8d8193b636129fc5.jpg"></p> <p class="maodian"><a name="_lab2_0_4" rel="nofollow"></a></p> <h3>说明</h3> <p>watch的触发会在created和mounted结束后。</p> <p>先占个坑，具体原理如何只有等我项目完成了再来康康。</p> <p class="maodian"><a name="_label1" rel="nofollow"></a></p> <h2>vue watch的理解小记</h2> <p>刚开始学时，感觉自己懂了。可是到用时才发现自己是渣渣中的渣渣。。。</p> <p>想通过路由id的变化来改变组件的加载数据时，遇到了一个问题，就是，组件不会重新渲染。一脸懵逼了，，，</p> <p>找到了watch的监控方法时，又用不好。扣扣会用了一些，赶紧记下来。</p> <p>首先确认 watch是一个对象，一定要当成对象来用。</p> <p>对象就有键，有值。</p> <ul> <li> <strong>键：</strong>就是你要监控的那个家伙，比如说$route，这个就是要监控路由的变化。或者是data中的某个变量。</li> <li> <strong>值可以是函数：</strong>就是当你监控的家伙变化时，需要执行的函数，这个函数有两个形参，第一个是当前值，第二个是变化后的值。</li> <li> <strong>值也可以是函数名：</strong>不过这个函数名要用单引号来包裹。</li> </ul> <p>第三种情况厉害了。</p> <p><strong>值是包括选项的对象：选项包括有三个。</strong></p> <ul> <li>第一个handler：其值是一个回调函数。即监听到变化时应该执行的函数。</li> <li>第二个是deep：其值是true或false；确认是否深入监听。（一般监听时是不能监听到对象属性值的变化的，数组的值变化可以听到。）</li> <li>第三个是immediate：其值是true或false；确认是否以当前的初始值执行handler的函数。</li> </ul> <div class="ay1code"> <pre class="brush:js;">var vm = new Vue({    data: {      a: 1,      b: 2    },    watch: {      a: function (val, oldVal) {        console.log('new: %s, old: %s', val, oldVal)      },      // 方法名      b: 'someMethod',      // 选项的对象      c: {        handler: function (val, oldVal) { /* ... */ },        deep: true，        immediate: true      }    }  })</pre> </div> 			                </div>
+                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li>watch监听器的触发时机</li> <ul class="second_class_ul"> <li>起因</li> <li>代码</li> <li>watch</li> <li>控制台</li> <li>说明</li> </ul> <li>vue watch的理解小记</li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"></p> <h2>watch监听器的触发时机</h2> <p class="maodian"></p> <h3>起因</h3> <p>我需要在页面created时获得商家的类型id值，然后监听id值，动态的改变请求接口的地址。请求接口的函数在mounted中执行。业务逻辑写完后发现，页面在第一次加载时，接口没有数据，原因接口地址为空，即接口地址没有改变。</p> <p class="maodian"></p> <h3>代码</h3> <div class="ay1code"> <pre class="brush:js;"> created() {      this.typeId = this.$route.params.id;      console.log("this.typeId的值发生改变，触发watch");    },    mounted() {      console.log(this.typeUrl, "mounted中的typeUrl的值");      //访问接口的函数      this.getData();    },  </pre> </div> <p class="maodian"></p> <h3>watch</h3> <div class="ay1code"> <pre class="brush:js;">  watch: {    // 监听订单类型 给出对应面包屑    typeId: function (val) {      if (val == 1) {        console.log("watch触发了");        this.selfBreadcrumb[1].name = "核销订单";        this.typeUrl = "settlements";        console.log(this.typeUrl, "这里是watch");      } else if (val == 2) {        this.selfBreadcrumb[1].name = "物流订单";        this.typeUrl = "logistics-orders";      } else if (val == 4) {        this.selfBreadcrumb[1].name = "外卖订单";        this.typeUrl = "takeout-orders";      }    },  </pre> </div> <p class="maodian"></p> <h3>控制台</h3> <p style="text-align:center"><img decoding="async" alt="在这里插入图片描述" src="http://img.555519.xyz/uploads3/20220413/5fd96ffd2a7879ca8d8193b636129fc5.jpg"></p> <p class="maodian"></p> <h3>说明</h3> <p>watch的触发会在created和mounted结束后。</p> <p>先占个坑，具体原理如何只有等我项目完成了再来康康。</p> <p class="maodian"></p> <h2>vue watch的理解小记</h2> <p>刚开始学时，感觉自己懂了。可是到用时才发现自己是渣渣中的渣渣。。。</p> <p>想通过路由id的变化来改变组件的加载数据时，遇到了一个问题，就是，组件不会重新渲染。一脸懵逼了，，，</p> <p>找到了watch的监控方法时，又用不好。扣扣会用了一些，赶紧记下来。</p> <p>首先确认 watch是一个对象，一定要当成对象来用。</p> <p>对象就有键，有值。</p> <ul> <li> <strong>键：</strong>就是你要监控的那个家伙，比如说$route，这个就是要监控路由的变化。或者是data中的某个变量。</li> <li> <strong>值可以是函数：</strong>就是当你监控的家伙变化时，需要执行的函数，这个函数有两个形参，第一个是当前值，第二个是变化后的值。</li> <li> <strong>值也可以是函数名：</strong>不过这个函数名要用单引号来包裹。</li> </ul> <p>第三种情况厉害了。</p> <p><strong>值是包括选项的对象：选项包括有三个。</strong></p> <ul> <li>第一个handler：其值是一个回调函数。即监听到变化时应该执行的函数。</li> <li>第二个是deep：其值是true或false；确认是否深入监听。（一般监听时是不能监听到对象属性值的变化的，数组的值变化可以听到。）</li> <li>第三个是immediate：其值是true或false；确认是否以当前的初始值执行handler的函数。</li> </ul> <div class="ay1code"> <pre class="brush:js;">var vm = new Vue({    data: {      a: 1,      b: 2    },    watch: {      a: function (val, oldVal) {        console.log('new: %s, old: %s', val, oldVal)      },      // 方法名      b: 'someMethod',      // 选项的对象      c: {        handler: function (val, oldVal) { /* ... */ },        deep: true，        immediate: true      }    }  })</pre> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-132.htm">encodeURI()函数和encodeURIComponent()函数</a></p>
                                         <p>下一个：<a href="/html/category/article-134.htm">node.js &#8212; 身份认证</a></p>
@@ -103,68 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
-                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-2823.htm">jQuery实现呼吸灯轮播图</a></h4>
-                <p>jQuery实现呼吸灯轮播图  jQuery实现呼吸灯轮播图    jQuery实现呼吸灯轮播图 &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;he</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
-                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3729.htm">Git基础之协作模式详解</a></h4>
-                <p>目录  1、分布式工作流程 2、集中式工作流 3、分支工作流 4、GitFlow 工作流(最流行) 5、Forking 工作流(偶尔使用) 6、总结   1、分布式工作流程 与传统的集中式版本控制系统</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4443.htm">中国农大动物医院哪个医生好 中国农大动物医院哪个医生好一点</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于中国农大动物医院哪个医生好的问题，于是小编就整理了4个相关介绍中国农大动物医院哪个医生好的解答，让我们一起看看吧。北京农大动物医</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4478.htm">开宠物店大概需要多少投资（开宠物店投资多少钱一月能得多少利）</a></h4>
-                <p>摘要：       今天给各位分享开宠物店大概需要多少投资的知识，其中也会对开宠物店投资多少钱一月能得多少利进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、开.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
             </div>
         </div>
     </div>
@@ -183,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4585.htm">宠物疫苗猫咪可以打吗（猫咪打疫苗宠物店可以打吗?）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物疫苗猫咪可以打吗，以及猫咪打疫苗宠物店可以打吗?对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、两个月的小猫能打狂犬疫苗吗?...  </p>
+                <h4><a href="/html/category/article-5570.htm">动物疫苗空瓶无害化处理措施（动物疫苗空瓶无害化处理措施有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗空瓶无害化处理措施，以及动物疫苗空瓶无害化处理措施有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、无害化处理方式有哪些...</p>
             </div>
         </div>
     </div>
@@ -193,8 +133,68 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
+                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
+                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4515.htm">真正的宠物狗免费领养网站有哪些地方（真正的宠物狗免费领养网站有哪些地方呢）</a></h4>
+                <p>摘要：       今天给各位分享真正的宠物狗免费领养网站有哪些地方的知识，其中也会对真正的宠物狗免费领养网站有哪些地方呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
+                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
+                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4478.htm">开宠物店大概需要多少投资（开宠物店投资多少钱一月能得多少利）</a></h4>
+                <p>摘要：       今天给各位分享开宠物店大概需要多少投资的知识，其中也会对开宠物店投资多少钱一月能得多少利进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、开.</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

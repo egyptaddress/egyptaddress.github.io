@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="htmledit_views"> <p>&nbsp;</p> <p>1、简介：</p> <p>Semaphore是Java的并发操作，用于多线程中，用于控制同时访问某个资源数，或某个操作的数量；</p> <p>初始许可数可以通过new Semaphore的构造函数指定，release释放许可，acquire阻塞，如果没有释放，该方法会一直阻塞直到有许可，或操作超时</p> <p>2、通过打印机的互斥demo来简单使用Semaphor，也能更加理解Semaphore</p> <pre class="has"><code>import java.util.concurrent.Semaphore;  /**  * semaphore的使用  */ public class MutrxPrint {      /**      * 定义初始值为1的信号量(会先允许有一个线程执行，后来的会阻塞等待)      */     private static final Semaphore mSemaphore = new Semaphore(1);       private static void print() throws InterruptedException {         System.out.println("print-----1");         //先等待，请求许可         mSemaphore.acquire();         System.out.println("print-----2");         System.out.println("print-----3--" + Thread.currentThread().getName() + "---Enter");         Thread.sleep(1000);         System.out.println("print-----4--" + Thread.currentThread().getName() + "---正在打印.....");         Thread.sleep(1000);         System.out.println("print-----5--" + Thread.currentThread().getName() + "---outer.....");         mSemaphore.release();     }      public static void main(String[] args){         //开启10个线程抢占         for (int i = 0; i &lt; 10; i++) {             new Thread(new Runnable() {                 @Override                 public void run() {                     try {                         print();                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             }).start();         }     } }</code></pre> <p>&nbsp;输出结果：</p> <pre class="has"><code>print-----3--Thread-1---Enter print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----4--Thread-1---正在打印..... print-----5--Thread-1---outer..... print-----2 print-----3--Thread-3---Enter print-----4--Thread-3---正在打印..... print-----5--Thread-3---outer..... print-----2</code></pre> <p>&nbsp;print---1说明是其他线程进来，由于acquire方法在阻塞，</p> <p>代码11行创建一个为1的许可数信号量，在调用print方法时代码17行会先判断是否还有剩余信号量许可数，有的话hui</p> <p>会继续往下执行，没有的话会阻塞，等到其他线程执行完并释放，也就是代码24行</p> <pre class="has"><code class="language-html">mSemaphore.release();之前阻塞的会继续执行 </code></pre> <p>3、连接池的模拟实现</p> <p>在项目中处理高并发时，一般数据库都会使用数据库连接池，假设现在数据库连接池最大连接数为10，当10个连接都分配出去以后，现在有用户继续请求连接，可能的处理：</p> <p>a、手动抛出异常，用户界面显示，服务器忙，稍后再试</p> <p>b、阻塞，等待其他连接的释放</p> <p>从用户体验上来说，更好的选择当然是阻塞，等待其他连接的释放，用户只会觉得稍微慢了一点，并不影响他的操作。下面使用Semaphore模拟实现一个数据库连接池：</p> <pre class="has"><code>import java.util.ArrayList; import java.util.List; import java.util.concurrent.Semaphore;  /**  * 连接池使用Semaphore  */ public class ConnectPool {     class Conn{}     private List&lt;Conn&gt; pools = new ArrayList&lt;&gt;(3);     private Semaphore mSemaphore = new Semaphore(3);     public ConnectPool() {         pools.add(new Conn());         pools.add(new Conn());         pools.add(new Conn());     }      /**      * 获取连接池的一个连接      * @return 连接池      */     private Conn getConn() throws InterruptedException {         mSemaphore.acquire();         System.out.println("------getConn--1--" + Thread.currentThread().getName());         Conn c = null;         //加这个同步的原因是为了防止两个线程同时走到这里，加入sync就可以防止将同一个conn 同时分配给这两个线程了         synchronized (ConnectPool.class){             c = pools.remove(0);         }         System.out.println("------getConn--2--" + Thread.currentThread().getName() + "---" + c);         return c;     }      /**      *      * @param c 释放连接池中的连接      */     private void releaseConn(Conn c){         pools.add(c);         System.out.println(Thread.currentThread().getName()+" release a conn " + c);         mSemaphore.release();     }      public static void main(String[] args){         ConnectPool mConnectPools = new ConnectPool();         new Thread(new Runnable() {             @Override             public void run() {                 try {                     Conn conn = mConnectPools.getConn();                     Thread.sleep(3000);                     mConnectPools.releaseConn(conn);                 } catch (InterruptedException e) {                     e.printStackTrace();                 }             }         }).start();          for (int i = 0; i &lt; 3; i++) {             new Thread(new Runnable() {                 @Override                 public void run() {                     try {                         Conn conn = mConnectPools.getConn();                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             }).start();         }     } }</code></pre> <p>输出日志：</p> <pre class="has"><code>------getConn--1--Thread-1 ------getConn--2--Thread-1---com.fengyu.cn.cha11.ConnectPool$Conn@2e4e6427 ------getConn--1--Thread-3 ------getConn--2--Thread-3---com.fengyu.cn.cha11.ConnectPool$Conn@1232cc0 ------getConn--1--Thread-0 ------getConn--2--Thread-0---com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802 Thread-0 release a conn com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802 ------getConn--1--Thread-2 ------getConn--2--Thread-2---com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802</code></pre> <p>测试时，让线程Thread-1获得连接池一个3秒的连接，同时又有3个线程去连接池获取连接，由于连接池中只有2个连接，所有有一个线程会等待，直到Thread-1释放连接池中的连接，他才会跟连接池连接上；</p> <p>好了文章有点啰嗦，有错误<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/lmj623565791/article/details/26810813"  rel="nofollow">希望各位提出一起探讨，学习</a>；</p> <p>文章转载：<a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/lmj623565791/article/details/26810813"  rel="nofollow">https://blog.csdn.net/lmj623565791/article/details/26810813</a></p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="htmledit_views"> <p>&nbsp;</p> <p>1、简介：</p> <p>Semaphore是Java的并发操作，用于多线程中，用于控制同时访问某个资源数，或某个操作的数量；</p> <p>初始许可数可以通过new Semaphore的构造函数指定，release释放许可，acquire阻塞，如果没有释放，该方法会一直阻塞直到有许可，或操作超时</p> <p>2、通过打印机的互斥demo来简单使用Semaphor，也能更加理解Semaphore</p> <pre class="has"><code>import java.util.concurrent.Semaphore;  /**  * semaphore的使用  */ public class MutrxPrint {      /**      * 定义初始值为1的信号量(会先允许有一个线程执行，后来的会阻塞等待)      */     private static final Semaphore mSemaphore = new Semaphore(1);       private static void print() throws InterruptedException {         System.out.println("print-----1");         //先等待，请求许可         mSemaphore.acquire();         System.out.println("print-----2");         System.out.println("print-----3--" + Thread.currentThread().getName() + "---Enter");         Thread.sleep(1000);         System.out.println("print-----4--" + Thread.currentThread().getName() + "---正在打印.....");         Thread.sleep(1000);         System.out.println("print-----5--" + Thread.currentThread().getName() + "---outer.....");         mSemaphore.release();     }      public static void main(String[] args){         //开启10个线程抢占         for (int i = 0; i < 10; i++) {             new Thread(new Runnable() {                 @Override                 public void run() {                     try {                         print();                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             }).start();         }     } }</code></pre> <p>&nbsp;输出结果：</p> <pre class="has"><code>print-----3--Thread-1---Enter print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----1 print-----4--Thread-1---正在打印..... print-----5--Thread-1---outer..... print-----2 print-----3--Thread-3---Enter print-----4--Thread-3---正在打印..... print-----5--Thread-3---outer..... print-----2</code></pre> <p>&nbsp;print---1说明是其他线程进来，由于acquire方法在阻塞，</p> <p>代码11行创建一个为1的许可数信号量，在调用print方法时代码17行会先判断是否还有剩余信号量许可数，有的话hui</p> <p>会继续往下执行，没有的话会阻塞，等到其他线程执行完并释放，也就是代码24行</p> <pre class="has"><code class="language-html">mSemaphore.release();之前阻塞的会继续执行 </code></pre> <p>3、连接池的模拟实现</p> <p>在项目中处理高并发时，一般数据库都会使用数据库连接池，假设现在数据库连接池最大连接数为10，当10个连接都分配出去以后，现在有用户继续请求连接，可能的处理：</p> <p>a、手动抛出异常，用户界面显示，服务器忙，稍后再试</p> <p>b、阻塞，等待其他连接的释放</p> <p>从用户体验上来说，更好的选择当然是阻塞，等待其他连接的释放，用户只会觉得稍微慢了一点，并不影响他的操作。下面使用Semaphore模拟实现一个数据库连接池：</p> <pre class="has"><code>import java.util.ArrayList; import java.util.List; import java.util.concurrent.Semaphore;  /**  * 连接池使用Semaphore  */ public class ConnectPool {     class Conn{}     private List<Conn> pools = new ArrayList<>(3);     private Semaphore mSemaphore = new Semaphore(3);     public ConnectPool() {         pools.add(new Conn());         pools.add(new Conn());         pools.add(new Conn());     }      /**      * 获取连接池的一个连接      * @return 连接池      */     private Conn getConn() throws InterruptedException {         mSemaphore.acquire();         System.out.println("------getConn--1--" + Thread.currentThread().getName());         Conn c = null;         //加这个同步的原因是为了防止两个线程同时走到这里，加入sync就可以防止将同一个conn 同时分配给这两个线程了         synchronized (ConnectPool.class){             c = pools.remove(0);         }         System.out.println("------getConn--2--" + Thread.currentThread().getName() + "---" + c);         return c;     }      /**      *      * @param c 释放连接池中的连接      */     private void releaseConn(Conn c){         pools.add(c);         System.out.println(Thread.currentThread().getName()+" release a conn " + c);         mSemaphore.release();     }      public static void main(String[] args){         ConnectPool mConnectPools = new ConnectPool();         new Thread(new Runnable() {             @Override             public void run() {                 try {                     Conn conn = mConnectPools.getConn();                     Thread.sleep(3000);                     mConnectPools.releaseConn(conn);                 } catch (InterruptedException e) {                     e.printStackTrace();                 }             }         }).start();          for (int i = 0; i < 3; i++) {             new Thread(new Runnable() {                 @Override                 public void run() {                     try {                         Conn conn = mConnectPools.getConn();                     } catch (InterruptedException e) {                         e.printStackTrace();                     }                 }             }).start();         }     } }</code></pre> <p>输出日志：</p> <pre class="has"><code>------getConn--1--Thread-1 ------getConn--2--Thread-1---com.fengyu.cn.cha11.ConnectPool$Conn@2e4e6427 ------getConn--1--Thread-3 ------getConn--2--Thread-3---com.fengyu.cn.cha11.ConnectPool$Conn@1232cc0 ------getConn--1--Thread-0 ------getConn--2--Thread-0---com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802 Thread-0 release a conn com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802 ------getConn--1--Thread-2 ------getConn--2--Thread-2---com.fengyu.cn.cha11.ConnectPool$Conn@2eb0c802</code></pre> <p>测试时，让线程Thread-1获得连接池一个3秒的连接，同时又有3个线程去连接池获取连接，由于连接池中只有2个连接，所有有一个线程会等待，直到Thread-1释放连接池中的连接，他才会跟连接池连接上；</p> <p>好了文章有点啰嗦，有错误希望各位提出一起探讨，学习；</p> <p>文章转载：https://blog.csdn.net/lmj623565791/article/details/26810813</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-1.htm">jpa mysql乐观锁_JPA @Lock(value = LockModeType.PESSIMISTIC_WRITE) 悲观锁防坑</a></p>
                                         <p>下一个：<a href="/html/category/article-3.htm">关于Hadoop在java客户端进行下载时的异常java.io.FileNotFoundException: Hadoop home directory is no existed的解决办法</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
+                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
-                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+                <h4><a href="/html/category/article-1351.htm">Rabbit MQ 怎么保证可靠性、幂等性、消费顺序</a></h4>
+                <p>RabbitMQ如何保证消息的可靠性 RabbitMQ消息丢失的三种情况 生产者弄丢消息时的解决方法  方法一：生产者在发送数据之前开启RabbitMQ的事务(采用该种方法由于事务机制，会导致吞吐量下</p>
             </div>
         </div>
     </div>
@@ -123,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
             </div>
         </div>
     </div>
@@ -133,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
-                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
+                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
+                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
             </div>
         </div>
     </div>
@@ -143,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1940.htm">vue2 自定义指令 实现全屏 、对话框拖拽</a></h4>
-                <p>模块下载 用于全屏 npm i screenfull@5.1.0 -S   新建文件 新建directives.js文件，复制下面代码 import Vue from "vue";  // 全屏 im</p>
+                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
+                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
             </div>
         </div>
     </div>
@@ -153,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1054.htm">mysql 中插入百万条数据</a></h4>
-                <p>文章目录  mysql 中插入百万条数据     1. 创建测试表 2. 开启二进制日志 3. 创建一个生成随机字符串的函数: 4. 调用上边的两个插入函数        mysql 中插入百万条数据</p>
+                <h4><a href="/html/category/article-1053.htm">Spring Cloud中使用Feign实现负载均衡详解</a></h4>
+                <p>本文属于【夯实Spring Cloud】系列文章，该系列旨在用通俗易懂的语言，带大家了解和学习Spring Cloud技术，希望能给读者带来一些干货。系列目录如下：  【夯实Spring Cloud】</p>
             </div>
         </div>
     </div>
@@ -163,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
-                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
+                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
+                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
             </div>
         </div>
     </div>
@@ -173,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
-                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
+                <h4><a href="/html/category/article-4443.htm">中国农大动物医院哪个医生好 中国农大动物医院哪个医生好一点</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于中国农大动物医院哪个医生好的问题，于是小编就整理了4个相关介绍中国农大动物医院哪个医生好的解答，让我们一起看看吧。北京农大动物医</p>
             </div>
         </div>
     </div>
@@ -183,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></h4>
-                <p>Centos7 Nginx编译包制作 找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下 1、准备一台虚拟机（可访问互联网） 2、安装所需插件 $ yum -y install gcc</p>
+                <h4><a href="/html/category/article-4515.htm">真正的宠物狗免费领养网站有哪些地方（真正的宠物狗免费领养网站有哪些地方呢）</a></h4>
+                <p>摘要：       今天给各位分享真正的宠物狗免费领养网站有哪些地方的知识，其中也会对真正的宠物狗免费领养网站有哪些地方呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录</p>
             </div>
         </div>
     </div>
@@ -193,8 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
-                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
+                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
+                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

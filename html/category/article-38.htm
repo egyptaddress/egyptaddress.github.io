@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <blockquote> <p>在分布式系统中，有很多复杂的理论，从CAP理论到BASE理论，我们不断的在可用性以及一致性之间做出抉择，每一部分都相当复杂，就分布式一致性而言，又有许多协议，从2PC到3PC再到paxos算法，到ZAB协议，再到Raft算法。本篇文章主要介绍Raft算法的实现过程，最近有空看了下国外的论文，这里做个简单的总结，本人水平有限，如有问题，欢迎批评指正。</p> </blockquote> <p>在介绍Raft算法之前，你肯定听说过Paxos算法，它是<code>Leslie Lamport</code>大师提出的，解决了很大一部分分布式领域一致性问题，但是由于其算法理解复杂，细节描述不够详细，现有的所有解决方案都是基于该算法自己实现具体的细节。这也被Raft算法的作者一直所诟病，所以它一直希望能有一种算法能够更加便于理解，所以在2014年，由斯坦福大学提出的一种全新的一致性协议。在原算法论文中，作者还有意的吐糟了Paxos算法：</p> <ol> <li>Paxos算法设计复杂，难以理解，主要原因是它的整个过程杂糅在一起，也就是他没有明确的选主与写入的阶段，刚开始不需要<code>leader</code>，将所有server分为两种主要的角色<code>Proposer</code>以及<code>Accepter</code>，每一个<code>Proposer</code>可以提出一个propose，然后进行投票选举，提交propose，造成整个过程比较复杂。</li> <li>它的许多实现细节并没有描述清楚，不能应用到实际的项目工程中，即使现有的基于<code>Paxos</code>算法实现方案比如Google的<code>Chubby</code>也是自己实现了一些具体的过程，而且也没有公开。</li> </ol> <p>基于上面的的一系列问题，作者本着简单实用的原则，实现了Raft，它相比<code>Paxos</code>算法有以下几大优点与不同：</p> <ol> <li>它将整个算法的实现分为三个阶段，防止像Paxos算法那样将整个过程杂糅在一起，导致理解困难，主要分为选主阶段、日志复制阶段以及安全状态。</li> <li>Strong leader：通过选举出主节点负责将Log复制到其他服务器，使得Raft算法简单易懂。</li> <li>Leader election：每一个节点通过sleep一个随机的<code>timeout</code>，每一个server有一个id，然后 通过投票选举。</li> <li>Membership changes：有时候，集群可能需要进行升级或者更改配置，它可以通过<code>joint consensus</code>的方式支持在线上更改配置，并且在这个阶段保证整个集群的可用性。</li> <li>snapshot：每一台机器维持着一份副本，这样可以在机器宕机恢复的时候读取<code>lastest commitId</code>进行恢复。</li> </ol> <p>基于以上对于Raft算法的介绍，我们开始介绍它的每一个实现细节。首先，我们了解一下什么是复制状态机，如下图所示：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/08caff8e87470cb5f0b2cba520641904.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 提到分布式一致性，我们不得不提到复制状态机，它结合一致性协议解决了分布式系统中的高可用以及容错性，比如Zookeeper，HDFS等。所谓复制状态机，就是说每一台服务器上维持着一份持久化Log，然后 通过一致性协议算法，保证每一个实例中的Log保持一致，并且顺序存放，这样客户端就可以在每一个实例中读取到相同的数据。如上图所示，有一个<code>Consensus Module</code>就是一致性协议模块，它可以是Paxos算法的实现或者Raft算法，下面，我们重点介绍Raft算法的实现。</p> <p>在这之前，需要理解Raft算法中的几个状态以及它的RPC调用，它主要有两个RPC通信，分别是<code>RequestVote RPC</code>以及<code>AppendEntries RPC</code>，分别负责选举以及数据的交互。</p> <p>这里需要着重理解<code>Term</code>，对于每一个leader，都会有一个<code>Term</code>，它会将这个term带到log日志中的entry中，代表当前entry是在哪一个term时期写入。具体过程下文会详细解释。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/6a6b2fcf9cf571716c0f890dba1d3f43.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 如上图，当前节点的term为4，state为leader，commitIndex为0，总共有五个实例。</p> <p><strong>选主阶段</strong></p> <p>Raft算法的选举算法比较简单理解，对于每一个实例都有一个<code>server id</code>以及<code>timeout</code>，每一个实例会随机sleep一个timeout，然后开始投票，都去选举那个最大的<code>serverid</code>,如果有超过半数以上的实例同意，那么将其选举为leader。之所以随机sleep一个time，是因为这样可以加快选举的流程，在一般情况下，只要网络状态良好，先timeout的实例先进行选举，这样只需要一轮选举就选举出leader，避免了由于相互选举而再次进入选举的情况。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/6121cbba1d08a0712aea56c76995c55f.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 主节点和其他子节点之间通过心跳机制保持联系，如果在一段时间内收不到心跳报告，则将该节点判为故障。</p> <p>如果从节点故障，那么待故障恢复之后，就会去主节点同步日志进行故障恢复。</p> <p>如果主节点故障，那么会重新进入选举阶段，每一个实例会将当前的term加1然后进行投票，如果接收到的投票小于自己的term，那么投反对票，即选举自己。最后统计大于半数的节点选举为leader，如果选举失败，则会将当前term再加1进行选举，直到选举成功。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/d1e21b6e0f918908a5c3a2a0c8a918e4.jpg" alt="分布式一致性协议：Raft算法详解"><br /><strong>数据的同步</strong></p> <p>在选举完成之后，客户端与leader交互写入数据，这时leader会在自己的log的第一个空位index中写入数，接着，通过<code>AppendEntries RPC</code>把当前index的entry以及<code>lastest commiteid</code>发送给每一个follower节点，如果follower接收到的<code>lastest commiteid</code>等于当前实例的，代表&lt;=该ID的所有entry已经被<code>commit</code>，此时follower返回true，否则返回false。如果超过半数的follower向leader返回true，那么代表当前entry写入成功。对于返回false的实例，可能是因为网络原因或者故障恢复的原因，数据没有正确同步，此时leader会从最后一个entry开始向前遍历，知道找到故障实例对应的entry，然后开始恢复数据。以下图为例：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/de7abefaca4567ad11a34b3d3d16529b.jpg" alt="分布式一致性协议：Raft算法详解"><br /> leader的当前index=8，term为3，x=4，开始同步数据，会收到第一个（包括自己），第三个和第五个实例的同意，大于半数的实例返回true，当前entry commit，第二个和第四个实例将会返回false，此时leader会从最后一个entry开始从后向前遍历，将当前index发送给返回false的实例，直到它返回true开始同步数据。比如刚开始leader发送<code>index=8，term=3，x=4</code>的数据给第二个实例，它将会返回false，接着发送前一个entry，也返回false，直到发送<code>index=6，term=3，y=7</code>的数据时返回true，开始正确同步数据，第四个实例也同理。</p> <p>那么，有人会提出，如果在数据同步的时候节点发生宕机该怎么办？它会出现哪些情况呢？<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/3ecddf1c8f8e1a0937165038f5549f12.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 对于a~f的实例，可能是因为某种故障而展现出的不同情况，它们都有可能成为当前leader的follower节点，以其中的（f）实例为例解释一下故障发生的原因。（f）实例之前可能是term=2是的leader节点，在写入数据的时候，它只写入了自己的log就发生宕机，在一个短暂的时间之后，它故障恢复，并且有再次被选举为leader，并且当前term=3，此时它写入数据，但是又在写入自己的log日志但未发送给其他节点的时候发生故障宕机。所以就造成了上述的现象，对于其他实例的故障也类似。</p> <p>从上面数据同步的过程可以看出，每一个实例都维护这一个最小<code>committed index</code>，代表着小于等于当前index的数据已经全部被commit，那么如果在收到leader的提交的index的时候会进行比较，此时会出现一个有意思的问题呢，之前提交的log日志可能被修改，或者更准确的说被覆盖。具体原因我们下面分情况来讨论一下上面提到的数据同步时宕机的情况。</p> <p><strong>case1</strong></p> <p>当前节点发起写数据的请求，刚写入自己的log，还没有append到其他实例上，发生宕机，如下图所示：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/63a504ad0eadf7647da5c111864617b7.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 接着很短的时间内故障恢复，并且之前的leader又被重新选举为leader，在写数据的时候，之前的数据已经存在，所以这条数据被认定为已经commit，所以不需要其他节点选举，直接将数据同步，如下图所示，S1恢复故障后继承被选举为leader，它直接将之前的数据同步到其他节点。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/1a6883a7c658ed602062ed3f9fc282d9.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 比较有意思，在故障恢复后，它不需要其他节点去投票就直接同步数据，但这并不会造成什么影响，只不过是数据可能会被重复消费，如果需要实现<code>exactly-once</code>语义需要用户自己去实现，比如在客户端缓存一个ID，保存当前消费的offset来达到目的。</p> <p><strong>case 2</strong></p> <p>当前主节点宕机，但是故障恢复后其他节点被选举为主节点。如下图所示，S1之前为leader，发生故障宕机，此时重新选举：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/50f068a0aa0fa17cbd8a51bfe6eccc5e.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 新选举的节点为S2，它写入新数据，当前term=6，那么它会不会覆盖之前主节点写入的数据呢？<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/4138fe7897536ca3d6238dd05984b849.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 答案是肯定的，它会覆盖之前的数据，最终结果如下图所示：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/03ce97ad574940b3b923730d3c3b809c.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 对于整个故障以及恢复的流程通过下图可以清楚的了解，该图描述的情况上面已经介绍过了，不过这里还是要说一下e状态，上面的case 2提到，当前leader宕机之前数据只写入了自己的log，那么数据会被重新选举后的leader覆盖，如d状态，但是e状态，就是说当前leader将数据同步到其他实例后宕机，那么重新选举并不会被S5覆盖，这是因为S5会选举失败。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/fff9842bbb18451bad1009e36be4d672.jpg" alt="分布式一致性协议：Raft算法详解"></p> <p><strong>Cluster membership changes</strong></p> <p>一个集群在运行过程中，有时候我们需要对当前集群进行配置修改或者硬件升级，通常的办法是将集群下线，修改完毕之后，然后上线，但是这会导致这段时间内服务不可用，那么可不可以集群不下线，修改配置后自动更新呢？</p> <p>Raft采用了<code>joint consensus</code>机制将整个更新阶段划分为两个阶段，地一个阶段是之前的旧配置阶段，这个阶段不能处理客户端的请求，当该阶段commit之后，将会过渡到下一个阶段，即支持新配置的阶段。如下图，第一个阶段为Cold配置阶段，代表使用之前的配置，Cold,Cnew阶段是中间状态，它会被保存为一个Log Entry，接着就是Cnew阶段，那表示更新配置后的状态。</p> <p>虚线表当前阶段被成功创建 ，但是未commit，实线代表当前阶段commit，Cold阶段刚开始被提交，急着创建了Cold,new阶段，但是没有被提交，直到Cold阶段完成Cold,new阶段才commit，在Cold,new 阶段完成之后，Cnew阶段才会被提交，如果在Cnew阶段leader宕机，那么就会退回到Cold或者Cold,new阶段进行处理。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/c0ea29723f8557cd482f175f2a6d40d9.jpg" alt="分布式一致性协议：Raft算法详解"><br /><strong>Snapshot</strong></p> <p>最后，简单介绍一下快照机制，对于集群中的每一个实例，都会维护着一个快照，这个快照中保存了最后提交的index，当前term，以及当前数据的最后更新值，如图中保存x,y的最近状态的值x=0，y=9，在发生故障的时候，就会通过读取快照从而快速恢复到之前的状态。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/c520cfd3c79e67bc6f529255538ee761.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 至此，我们介绍完了Raft算法的选主，写入数据、故障恢复以及如何线上修改集群配置，最后介绍了快照机制。从这一系列过程足以看出Raft算法是一个优秀的分布式一致性协议算法，值得我们深入研究。</p> <blockquote> <p>参考资料：<br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://raft.github.io/"  rel="nofollow">https://raft.github.io/</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://raft.github.io/raft.pdf"  rel="nofollow">https://raft.github.io/raft.pdf</a></p> </blockquote> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-light"> <blockquote> <p>在分布式系统中，有很多复杂的理论，从CAP理论到BASE理论，我们不断的在可用性以及一致性之间做出抉择，每一部分都相当复杂，就分布式一致性而言，又有许多协议，从2PC到3PC再到paxos算法，到ZAB协议，再到Raft算法。本篇文章主要介绍Raft算法的实现过程，最近有空看了下国外的论文，这里做个简单的总结，本人水平有限，如有问题，欢迎批评指正。</p> </blockquote> <p>在介绍Raft算法之前，你肯定听说过Paxos算法，它是<code>Leslie Lamport</code>大师提出的，解决了很大一部分分布式领域一致性问题，但是由于其算法理解复杂，细节描述不够详细，现有的所有解决方案都是基于该算法自己实现具体的细节。这也被Raft算法的作者一直所诟病，所以它一直希望能有一种算法能够更加便于理解，所以在2014年，由斯坦福大学提出的一种全新的一致性协议。在原算法论文中，作者还有意的吐糟了Paxos算法：</p> <ol> <li>Paxos算法设计复杂，难以理解，主要原因是它的整个过程杂糅在一起，也就是他没有明确的选主与写入的阶段，刚开始不需要<code>leader</code>，将所有server分为两种主要的角色<code>Proposer</code>以及<code>Accepter</code>，每一个<code>Proposer</code>可以提出一个propose，然后进行投票选举，提交propose，造成整个过程比较复杂。</li> <li>它的许多实现细节并没有描述清楚，不能应用到实际的项目工程中，即使现有的基于<code>Paxos</code>算法实现方案比如Google的<code>Chubby</code>也是自己实现了一些具体的过程，而且也没有公开。</li> </ol> <p>基于上面的的一系列问题，作者本着简单实用的原则，实现了Raft，它相比<code>Paxos</code>算法有以下几大优点与不同：</p> <ol> <li>它将整个算法的实现分为三个阶段，防止像Paxos算法那样将整个过程杂糅在一起，导致理解困难，主要分为选主阶段、日志复制阶段以及安全状态。</li> <li>Strong leader：通过选举出主节点负责将Log复制到其他服务器，使得Raft算法简单易懂。</li> <li>Leader election：每一个节点通过sleep一个随机的<code>timeout</code>，每一个server有一个id，然后 通过投票选举。</li> <li>Membership changes：有时候，集群可能需要进行升级或者更改配置，它可以通过<code>joint consensus</code>的方式支持在线上更改配置，并且在这个阶段保证整个集群的可用性。</li> <li>snapshot：每一台机器维持着一份副本，这样可以在机器宕机恢复的时候读取<code>lastest commitId</code>进行恢复。</li> </ol> <p>基于以上对于Raft算法的介绍，我们开始介绍它的每一个实现细节。首先，我们了解一下什么是复制状态机，如下图所示：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/08caff8e87470cb5f0b2cba520641904.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 提到分布式一致性，我们不得不提到复制状态机，它结合一致性协议解决了分布式系统中的高可用以及容错性，比如Zookeeper，HDFS等。所谓复制状态机，就是说每一台服务器上维持着一份持久化Log，然后 通过一致性协议算法，保证每一个实例中的Log保持一致，并且顺序存放，这样客户端就可以在每一个实例中读取到相同的数据。如上图所示，有一个<code>Consensus Module</code>就是一致性协议模块，它可以是Paxos算法的实现或者Raft算法，下面，我们重点介绍Raft算法的实现。</p> <p>在这之前，需要理解Raft算法中的几个状态以及它的RPC调用，它主要有两个RPC通信，分别是<code>RequestVote RPC</code>以及<code>AppendEntries RPC</code>，分别负责选举以及数据的交互。</p> <p>这里需要着重理解<code>Term</code>，对于每一个leader，都会有一个<code>Term</code>，它会将这个term带到log日志中的entry中，代表当前entry是在哪一个term时期写入。具体过程下文会详细解释。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/6a6b2fcf9cf571716c0f890dba1d3f43.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 如上图，当前节点的term为4，state为leader，commitIndex为0，总共有五个实例。</p> <p><strong>选主阶段</strong></p> <p>Raft算法的选举算法比较简单理解，对于每一个实例都有一个<code>server id</code>以及<code>timeout</code>，每一个实例会随机sleep一个timeout，然后开始投票，都去选举那个最大的<code>serverid</code>,如果有超过半数以上的实例同意，那么将其选举为leader。之所以随机sleep一个time，是因为这样可以加快选举的流程，在一般情况下，只要网络状态良好，先timeout的实例先进行选举，这样只需要一轮选举就选举出leader，避免了由于相互选举而再次进入选举的情况。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/6121cbba1d08a0712aea56c76995c55f.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 主节点和其他子节点之间通过心跳机制保持联系，如果在一段时间内收不到心跳报告，则将该节点判为故障。</p> <p>如果从节点故障，那么待故障恢复之后，就会去主节点同步日志进行故障恢复。</p> <p>如果主节点故障，那么会重新进入选举阶段，每一个实例会将当前的term加1然后进行投票，如果接收到的投票小于自己的term，那么投反对票，即选举自己。最后统计大于半数的节点选举为leader，如果选举失败，则会将当前term再加1进行选举，直到选举成功。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/d1e21b6e0f918908a5c3a2a0c8a918e4.jpg" alt="分布式一致性协议：Raft算法详解"><br /><strong>数据的同步</strong></p> <p>在选举完成之后，客户端与leader交互写入数据，这时leader会在自己的log的第一个空位index中写入数，接着，通过<code>AppendEntries RPC</code>把当前index的entry以及<code>lastest commiteid</code>发送给每一个follower节点，如果follower接收到的<code>lastest commiteid</code>等于当前实例的，代表<=该ID的所有entry已经被<code>commit</code>，此时follower返回true，否则返回false。如果超过半数的follower向leader返回true，那么代表当前entry写入成功。对于返回false的实例，可能是因为网络原因或者故障恢复的原因，数据没有正确同步，此时leader会从最后一个entry开始向前遍历，知道找到故障实例对应的entry，然后开始恢复数据。以下图为例：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/de7abefaca4567ad11a34b3d3d16529b.jpg" alt="分布式一致性协议：Raft算法详解"><br /> leader的当前index=8，term为3，x=4，开始同步数据，会收到第一个（包括自己），第三个和第五个实例的同意，大于半数的实例返回true，当前entry commit，第二个和第四个实例将会返回false，此时leader会从最后一个entry开始从后向前遍历，将当前index发送给返回false的实例，直到它返回true开始同步数据。比如刚开始leader发送<code>index=8，term=3，x=4</code>的数据给第二个实例，它将会返回false，接着发送前一个entry，也返回false，直到发送<code>index=6，term=3，y=7</code>的数据时返回true，开始正确同步数据，第四个实例也同理。</p> <p>那么，有人会提出，如果在数据同步的时候节点发生宕机该怎么办？它会出现哪些情况呢？<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/3ecddf1c8f8e1a0937165038f5549f12.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 对于a~f的实例，可能是因为某种故障而展现出的不同情况，它们都有可能成为当前leader的follower节点，以其中的（f）实例为例解释一下故障发生的原因。（f）实例之前可能是term=2是的leader节点，在写入数据的时候，它只写入了自己的log就发生宕机，在一个短暂的时间之后，它故障恢复，并且有再次被选举为leader，并且当前term=3，此时它写入数据，但是又在写入自己的log日志但未发送给其他节点的时候发生故障宕机。所以就造成了上述的现象，对于其他实例的故障也类似。</p> <p>从上面数据同步的过程可以看出，每一个实例都维护这一个最小<code>committed index</code>，代表着小于等于当前index的数据已经全部被commit，那么如果在收到leader的提交的index的时候会进行比较，此时会出现一个有意思的问题呢，之前提交的log日志可能被修改，或者更准确的说被覆盖。具体原因我们下面分情况来讨论一下上面提到的数据同步时宕机的情况。</p> <p><strong>case1</strong></p> <p>当前节点发起写数据的请求，刚写入自己的log，还没有append到其他实例上，发生宕机，如下图所示：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/63a504ad0eadf7647da5c111864617b7.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 接着很短的时间内故障恢复，并且之前的leader又被重新选举为leader，在写数据的时候，之前的数据已经存在，所以这条数据被认定为已经commit，所以不需要其他节点选举，直接将数据同步，如下图所示，S1恢复故障后继承被选举为leader，它直接将之前的数据同步到其他节点。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/1a6883a7c658ed602062ed3f9fc282d9.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 比较有意思，在故障恢复后，它不需要其他节点去投票就直接同步数据，但这并不会造成什么影响，只不过是数据可能会被重复消费，如果需要实现<code>exactly-once</code>语义需要用户自己去实现，比如在客户端缓存一个ID，保存当前消费的offset来达到目的。</p> <p><strong>case 2</strong></p> <p>当前主节点宕机，但是故障恢复后其他节点被选举为主节点。如下图所示，S1之前为leader，发生故障宕机，此时重新选举：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/50f068a0aa0fa17cbd8a51bfe6eccc5e.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 新选举的节点为S2，它写入新数据，当前term=6，那么它会不会覆盖之前主节点写入的数据呢？<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/4138fe7897536ca3d6238dd05984b849.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 答案是肯定的，它会覆盖之前的数据，最终结果如下图所示：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/03ce97ad574940b3b923730d3c3b809c.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 对于整个故障以及恢复的流程通过下图可以清楚的了解，该图描述的情况上面已经介绍过了，不过这里还是要说一下e状态，上面的case 2提到，当前leader宕机之前数据只写入了自己的log，那么数据会被重新选举后的leader覆盖，如d状态，但是e状态，就是说当前leader将数据同步到其他实例后宕机，那么重新选举并不会被S5覆盖，这是因为S5会选举失败。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/fff9842bbb18451bad1009e36be4d672.jpg" alt="分布式一致性协议：Raft算法详解"></p> <p><strong>Cluster membership changes</strong></p> <p>一个集群在运行过程中，有时候我们需要对当前集群进行配置修改或者硬件升级，通常的办法是将集群下线，修改完毕之后，然后上线，但是这会导致这段时间内服务不可用，那么可不可以集群不下线，修改配置后自动更新呢？</p> <p>Raft采用了<code>joint consensus</code>机制将整个更新阶段划分为两个阶段，地一个阶段是之前的旧配置阶段，这个阶段不能处理客户端的请求，当该阶段commit之后，将会过渡到下一个阶段，即支持新配置的阶段。如下图，第一个阶段为Cold配置阶段，代表使用之前的配置，Cold,Cnew阶段是中间状态，它会被保存为一个Log Entry，接着就是Cnew阶段，那表示更新配置后的状态。</p> <p>虚线表当前阶段被成功创建 ，但是未commit，实线代表当前阶段commit，Cold阶段刚开始被提交，急着创建了Cold,new阶段，但是没有被提交，直到Cold阶段完成Cold,new阶段才commit，在Cold,new 阶段完成之后，Cnew阶段才会被提交，如果在Cnew阶段leader宕机，那么就会退回到Cold或者Cold,new阶段进行处理。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/c0ea29723f8557cd482f175f2a6d40d9.jpg" alt="分布式一致性协议：Raft算法详解"><br /><strong>Snapshot</strong></p> <p>最后，简单介绍一下快照机制，对于集群中的每一个实例，都会维护着一个快照，这个快照中保存了最后提交的index，当前term，以及当前数据的最后更新值，如图中保存x,y的最近状态的值x=0，y=9，在发生故障的时候，就会通过读取快照从而快速恢复到之前的状态。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/c520cfd3c79e67bc6f529255538ee761.jpg" alt="分布式一致性协议：Raft算法详解"><br /> 至此，我们介绍完了Raft算法的选主，写入数据、故障恢复以及如何线上修改集群配置，最后介绍了快照机制。从这一系列过程足以看出Raft算法是一个优秀的分布式一致性协议算法，值得我们深入研究。</p> <blockquote> <p>参考资料：<br />https://raft.github.io/<br />https://raft.github.io/raft.pdf</p> </blockquote> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-37.htm">SpringSecurity核心服务详解</a></p>
                                         <p>下一个：<a href="/html/category/article-39.htm">python数据导入hive_使用 python 批量插入 hive</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
-                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
+                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
+                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
             </div>
         </div>
     </div>
@@ -113,8 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+                <h4><a href="/html/category/article-2823.htm">jQuery实现呼吸灯轮播图</a></h4>
+                <p>jQuery实现呼吸灯轮播图  jQuery实现呼吸灯轮播图    jQuery实现呼吸灯轮播图 &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;he</p>
             </div>
         </div>
     </div>
@@ -123,8 +123,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></h4>
-                <p>1  用gcc查看c源文件的汇编代码    &nbsp;      gcc -S -o xx.s 2.c &nbsp; http://blog.csdn.net/heiyeshuwu/article/</p>
+                <h4><a href="/html/category/article-2529.htm">Python 路径处理(os.path模块)</a></h4>
+                <p>dest_file = r'D:\PythonProject\TestPython\test.py' # 实际存在 dest_fake_file = r'X:\PythonProject\TestPy</p>
             </div>
         </div>
     </div>
@@ -133,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
-                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
             </div>
         </div>
     </div>
@@ -143,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
-                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
+                <h4><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></h4>
+                <p>使用框架实现表格展示和跳转功能，一直不懂原理。所以自己写一个简单的，加深理解。  布局分为2块，上面是表格展示数据，下面是点击按钮跳转。效果图：代码： &lt;!DOCTYPE html&gt; &l</p>
             </div>
         </div>
     </div>
@@ -153,8 +153,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2824.htm">如何使用线程池执行定时任务？</a></h4>
-                <p>在 Java 语言中，有两个线程池可以执行定时任务：ScheduledThreadPool 和 SingleThreadScheduledExecutor，其中 SingleThreadSchedul</p>
+                <h4><a href="/html/category/article-3755.htm">Kotlin中的扩展函数（静态分派）</a></h4>
+                <p>扩展函数  扩展函数可以在已有类中添加新的方法，不会对原类做修改   举例1  对Context进行扩展showToast方法，可以在Fragment、Activity、Application中弹出T</p>
             </div>
         </div>
     </div>
@@ -163,8 +163,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
-                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
+                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
+                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
             </div>
         </div>
     </div>
@@ -173,8 +173,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1939.htm">Springboot整合Spring Retry实现重试机制</a></h4>
-                <p>在项目开发过程中，经常会有这样的情况：第一次执行一个操作不成功，考虑到可能是网络原因造成，就多执行几次操作，直到得到想要的结果为止，这就是重试机制。 Springboot可以通过整合Spring Re</p>
+                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
+                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
             </div>
         </div>
     </div>
@@ -183,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1351.htm">Rabbit MQ 怎么保证可靠性、幂等性、消费顺序</a></h4>
-                <p>RabbitMQ如何保证消息的可靠性 RabbitMQ消息丢失的三种情况 生产者弄丢消息时的解决方法  方法一：生产者在发送数据之前开启RabbitMQ的事务(采用该种方法由于事务机制，会导致吞吐量下</p>
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
             </div>
         </div>
     </div>
@@ -193,8 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4123.htm">Vue +Vant 实现顶部搜索栏</a></h4>
-                <p>搜索栏组件源码(SearchBar.vue) &lt;template&gt;   &lt;section class="city-search"&gt;     &lt;van-icon class</p>
+                <h4><a href="/html/category/article-4586.htm">猫体外驱虫用什么药比较好知乎（猫体外驱虫滴在哪里）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈猫体外驱虫用什么药比较好知乎，以及猫体外驱虫滴在哪里对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫体外驱虫用什么药比较好?...   </p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

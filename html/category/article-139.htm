@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3>关于AOP切面导致WebSocket的@ServerEndPoint无法注入的问题</h3> <ul> <li><a href="#_5" rel="nofollow">前言</a></li> <li><a href="#_17" rel="nofollow">原因和解决方案</a></li> </ul> </div> <hr color="#000000" size="1&quot;"/> <h1><a id="_5" rel="nofollow"></a>前言</h1> <p><font color="#999AAA">今天给我的毕业设计加上了<code>AOP</code> 日志拦截，结果导致了<code>WebSocket</code> 的报错。，错误信息为：</font></p> <pre><code class="prism language-bash">Failed to register @ServerEndpoint class: class pers.xuyijie.communityinteractionsystem.websocket.MyWebSocket<span class="token variable">$$</span>EnhancerBySpringCGLIB Caused by: javax.websocket.DeploymentException: Cannot deploy POJO class<span class="token punctuation">[</span>pers.xuyijie.communityinteractionsystem.websocket.MyWebSocket<span class="token variable">$$</span>EnhancerBySpringCGLIB</code></pre> <hr color="#000000" size="1&quot;"/> <h1><a id="_17" rel="nofollow"></a>原因和解决方案</h1> <p><font color="#999AAA">原因是因为<code>WebServerContainer</code> 里面的<code>addEndPoint</code> 方法里的<code>annotation</code> 为 null。<img decoding="async" src="http://img.555519.xyz/uploads3/20220721/a22897de83725957806f3edec5dabe03.jpg" alt="关于 AOP 切面导致 WebSocket 的 @ServerEndPoint 无法注入的问题"><font color="#999AAA">感谢 华阳余文乐https://blog.csdn.net/qq_15807785/article/details/83547978 ，上图是他的调试截图。</font></font></p> <p><font color="#999AAA">导致为 null 的原因是因为 aop 的<code>@PointCut</code> 注解和 Aop 自定义的<code>@Log</code> 注解，总之，aop 不能作用到 websocket 的文件，否则就会导致问题。</font></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220721/c02e07c76fe321910a9636984fe270db.jpg" alt="关于 AOP 切面导致 WebSocket 的 @ServerEndPoint 无法注入的问题"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220721/179c3df2ce4218d84a68486c048b44b2.jpg" alt="关于 AOP 切面导致 WebSocket 的 @ServerEndPoint 无法注入的问题"><br /><font color="#999AAA">去掉 WebSocket 上的<code>@Log</code>，并确保<code>@PointCut 的 execution 中的包路径不包含</code> WebSocket 的文件就可以了。</font></p> <p>启动成功<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220721/6d7cb713143b622b089be86f34f92581.jpg" alt="关于 AOP 切面导致 WebSocket 的 @ServerEndPoint 无法注入的问题"></p> <hr color="#000000" size="1&quot;"/></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3>关于AOP切面导致WebSocket的@ServerEndPoint无法注入的问题</h3> <ul> <li>前言</li> <li>原因和解决方案</li> </ul> </div> <hr color="#000000" size="1""/> <h1>前言</h1> <p><font color="#999AAA">今天给我的毕业设计加上了<code>AOP</code> 日志拦截，结果导致了<code>WebSocket</code> 的报错。，错误信息为：</font></p> <pre><code class="prism language-bash">Failed to register @ServerEndpoint class: class pers.xuyijie.communityinteractionsystem.websocket.MyWebSocket<span class="token variable">$$</span>EnhancerBySpringCGLIB Caused by: javax.websocket.DeploymentException: Cannot deploy POJO class<span class="token punctuation">[</span>pers.xuyijie.communityinteractionsystem.websocket.MyWebSocket<span class="token variable">$$</span>EnhancerBySpringCGLIB</code></pre> <hr color="#000000" size="1""/> <h1>原因和解决方案</h1> <p><font color="#999AAA">原因是因为<code>WebServerContainer</code> 里面的<code>addEndPoint</code> 方法里的<code>annotation</code> 为 null。<img decoding="async" src="http://img.555519.xyz/uploads3/20220721/a22897de83725957806f3edec5dabe03.jpg" alt="关于 AOP 切面导致 WebSocket 的 @ServerEndPoint 无法注入的问题"><font color="#999AAA">感谢 华阳余文乐https://blog.csdn.net/qq_15807785/article/details/83547978 ，上图是他的调试截图。</font></font></p> <p><font color="#999AAA">导致为 null 的原因是因为 aop 的<code>@PointCut</code> 注解和 Aop 自定义的<code>@Log</code> 注解，总之，aop 不能作用到 websocket 的文件，否则就会导致问题。</font></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220721/c02e07c76fe321910a9636984fe270db.jpg" alt="关于 AOP 切面导致 WebSocket 的 @ServerEndPoint 无法注入的问题"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220721/179c3df2ce4218d84a68486c048b44b2.jpg" alt="关于 AOP 切面导致 WebSocket 的 @ServerEndPoint 无法注入的问题"><br /><font color="#999AAA">去掉 WebSocket 上的<code>@Log</code>，并确保<code>@PointCut 的 execution 中的包路径不包含</code> WebSocket 的文件就可以了。</font></p> <p>启动成功<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220721/6d7cb713143b622b089be86f34f92581.jpg" alt="关于 AOP 切面导致 WebSocket 的 @ServerEndPoint 无法注入的问题"></p> <hr color="#000000" size="1""/></div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-138.htm">ES6基础语法之函数介绍_基础知识</a></p>
                                         <p>下一个：<a href="/html/category/article-140.htm">Springboot过滤器和拦截器详解及使用场景</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
+                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
+                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
             </div>
         </div>
     </div>
@@ -113,28 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3122.htm">什么是https和http（https和http的区别）_在线工具</a></h4>
-                <p>前言 因为工作需要，需要用到大量的关于 HTTP 协议的知识，目前掌握的关于 HTTP 请求以及协议的知识都是零散的，打算针对知识盲区系统的学习一些，理清概念。 为什么会出现 HTTPS 因为 HTT</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
-                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
-                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
+                <h4><a href="/html/category/article-5570.htm">动物疫苗空瓶无害化处理措施（动物疫苗空瓶无害化处理措施有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗空瓶无害化处理措施，以及动物疫苗空瓶无害化处理措施有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、无害化处理方式有哪些...</p>
             </div>
         </div>
     </div>
@@ -153,8 +133,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
-                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
+                <h4><a href="/html/category/article-5569.htm">襄阳免费领养宠物猫信息 襄阳免费领养宠物猫信息网</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于襄阳免费领养宠物猫信息的问题，于是小编就整理了4个相关介绍襄阳免费领养宠物猫信息的解答，让我们一起看看吧。襄樊有孤儿院吗？正常收</p>
             </div>
         </div>
     </div>
@@ -163,8 +143,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
-                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
+                <h4><a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></h4>
+                <p>Centos7 Nginx编译包制作 找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下 1、准备一台虚拟机（可访问互联网） 2、安装所需插件 $ yum -y install gcc</p>
             </div>
         </div>
     </div>
@@ -173,8 +153,38 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
-                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
+                <h4><a href="/html/category/article-4068.htm">Typora + EasyBlogImageForTypora直接上传图片到博客园_在线工具</a></h4>
+                <p>1.描述问题 Gitee外链访问失效后一直在寻找有效措施，因为本人使用惯了typora，故使用typora + EasyBlogImageForTypora+Snipaste进行博客编写以及图片上传 </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1054.htm">mysql 中插入百万条数据</a></h4>
+                <p>文章目录  mysql 中插入百万条数据     1. 创建测试表 2. 开启二进制日志 3. 创建一个生成随机字符串的函数: 4. 调用上边的两个插入函数        mysql 中插入百万条数据</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1940.htm">vue2 自定义指令 实现全屏 、对话框拖拽</a></h4>
+                <p>模块下载 用于全屏 npm i screenfull@5.1.0 -S   新建文件 新建directives.js文件，复制下面代码 import Vue from "vue";  // 全屏 im</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-2240.htm">webpack 执行npm run 时，因为版本依赖报的那些错</a></h4>
+                <p>环境介绍 webpack 4.34.0 webpack-dev-server 3.7.0 报错 Error: invalid "instanceof" keyword value Promise   </p>
             </div>
         </div>
     </div>
@@ -189,23 +199,13 @@ var _hmt = _hmt || [];
         </div>
     </div>
 </div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
-            </div>
-        </div>
-    </div>
-</div>
 
 <h3 class="title-big mb-sm-3 mb-3">归纳</h3>
 <div class="row w3l-achievements">
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

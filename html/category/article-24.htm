@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<p>状态模式（State Pattern）指允许一个对象在其内部状态改变时改变它的行为，对象看起来似乎修改了它的类。</p> <p>一般用来实现状态机，而状态机常用在游戏、工作流引擎等系统的开发中：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/f4cad716ebc75b30c47ae89e8f385ed6.jpg" alt="设计模式学习笔记状态模式及其实现"></p> <p>有限状态机（Finite State Machine，FSM），状态机有三个组成部分：状态（State）、事件（Event）和动作（Action）。其中事件也叫作转移条件（Transition Condition）,事件主要用于触发状态的转移及动作的执行，动作不是必须的，也可能只转移状态，不执行任何动作。</p> <h2 id="一状态模式的介绍">一、状态模式的介绍</h2> <p>状态模式又名状态对象（Objects for States），它是一种对象行为型模式。它的解决思想是当控制一个对象状态转换的条件表达式过于复杂时，把相关“判断逻辑”提取出来，用各个不同的类进行表示，系统处于哪种情况、直接使用相应的状态类对象进行处理。</p> <h3 id="11-状态模式的结构">1.1 状态模式的结构</h3> <p>在状态模式的结构中，通过实现抽象状态类的具体状态类来定义多个状态，每个状态类仅实现自己的逻辑，上下文类负责切换状态。其结构类图如下所示：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b802cab023d82d6a2dfd652f064cfc90.jpg" alt="设计模式学习笔记状态模式及其实现"></p> <ul> <li><code>State</code>：抽象状态类，提供一个方法封装上下文对象的状态</li> <li><code>ConcreteState1、ConcreteState2</code>：具体状态类，继承抽象状态类，实现状态下的行为</li> <li><code>Context</code>：上下文类，负责对具体状态进行切换</li> <li><code>Client</code>：客户端，调用具体状态和上下文</li> </ul> <h3 id="12-状态模式的实现">1.2 状态模式的实现</h3> <p>首先是<strong>抽象状态类</strong>，具体代码如下：</p> <pre><code class="language-java">public abstract class State {     /**抽象业务方法，不同的具体状态可以有不同的实现*/     public abstract void handle(); }</code></pre> <p>其次是实现抽象状态类的<strong>具体状态类</strong>：</p> <pre><code class="language-java">public class ConcreteState1 extends State{      @Override     public void handle(Context context) {         System.out.println("进入ConcreteState1中~");         context.setState(this);     }      @Override     public String toString() {         return "concreteState1";     } } public class ConcreteState2 extends State{      @Override     public void handle(Context context) {         System.out.println("进入ConcreteState2中~");         context.setState(this);     }      @Override     public String toString() {         return "ConcreteState2";     } }</code></pre> <p>接下来是<strong>上下文类</strong>，维护当前状态，并负责具体状态的切换</p> <pre><code class="language-java">public class Context {      private State state;      //设置初始状态为null     public Context() {         state = null;     } 	//实现状态转换     public void setState(State state) {         this.state = state;     }      public State getState() {         return state;     } }</code></pre> <p><strong>客户端</strong>测试类</p> <pre><code class="language-java">public class Client {     public static void main(String[] args) {         Context context = new Context();         System.out.println("现在的状态是：" + context.getState());         System.out.println("---------------------------------");         State concreteState1 = new ConcreteState1();         concreteState1.handle(context);         System.out.println("现在的状态是：" + context.getState());         System.out.println("---------------------------------");         State concreteState2 = new ConcreteState2();         concreteState2.handle(context);         System.out.println("现在的状态是：" + context.getState());      } }</code></pre> <p>测试结果：</p> <pre><code>现在的状态是：null --------------------------------- 进入ConcreteState1中~ 现在的状态是：concreteState1 --------------------------------- 进入ConcreteState2中~ 现在的状态是：ConcreteState2</code></pre> <h2 id="二状态模式的应用场景">二、状态模式的应用场景</h2> <p>状态模式的应用比较广泛，比如游戏中角色状态的转换、公文审批中的流转等等。</p> <p>以下情况可以考虑使用状态模式：</p> <ul> <li>对象的行为依赖于它的某些属性值（状态），而且状态的改变将导致行为的变化</li> <li>代码中包含大量与对象状态有关的条件语句（if-else）,这些条件语句的出现会导致代码的可维护性和灵活性变差。</li> </ul> <h2 id="三状态模式实战">三、状态模式实战</h2> <p>本案例中模拟营销活动审核状态流转场景，在一个活动的上线中是需要多个层级进行审核才能上线的(案例来源于《重学Java设计模式》)。如下图中可以看到流程节点中包括各个状态到下一个状态扭转的关联条件：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/4f01017212e09b6116c0fcca2466393d.jpg" alt="设计模式学习笔记状态模式及其实现"></p> <p>因此在审批过程中就难免会包含很多条件语句的判断，长此以往，随着状态数量的增加，会增加代码的可维护性和可读性。下面就利用状态模式来实现多状态的审批过程，先来看看状态模式模型的结构：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/798a1f04f1e8899359429bd8510e6829.jpg" alt="设计模式学习笔记状态模式及其实现"></p> <ul> <li><code>State</code>：状态抽象类，定义所有状态的操作接口</li> <li><code>CheckState、CloseState、DoingState...</code>：具体状态类，各种状态的具体逻辑实现</li> <li><code>StateHandler</code>：状态处理类，相当于之前结构中提到的上下文类，负责对状态流程进行统一处理</li> </ul> <h3 id="具体代码">具体代码</h3> <ol> <li><strong>基本活动信息</strong>和<strong>活动枚举状态</strong></li> </ol> <pre><code class="language-java">public class ActivityInfo {      private String activityId;     private String activityName;     private Enum&lt;Status&gt; status;     private Date beginTime;     private Date endTime;      //get\set\Constructor } public enum Status {     Editing,     Check,     Pass,     Refuse,     Doing,     Close,     Open }</code></pre> <ol start="2"> <li><strong>活动业务处理</strong></li> </ol> <pre><code class="language-java">public class ActivityService {      private static Map&lt;String, Enum&lt;Status&gt;&gt; statusMap = new ConcurrentHashMap&lt;&gt;();      public static void init(String activityId, Enum&lt;Status&gt; initStatus) {         ActivityInfo activityInfo = new ActivityInfo();         activityInfo.setActivityId(activityId);         activityInfo.setActivityName("测试活动");         activityInfo.setStatus(initStatus);         activityInfo.setBeginTime(new Date());         activityInfo.setEndTime(new Date());         statusMap.put(activityId, initStatus);     }      /**      * 查询活动信息      * @param activityId 活动ID      * @return 查询后的活动信息      */     public static ActivityInfo queryActivityInfo(String activityId) {         ActivityInfo activityInfo = new ActivityInfo();         activityInfo.setActivityId(activityId);         activityInfo.setActivityName("测试活动");         activityInfo.setStatus(statusMap.get(activityId));         activityInfo.setBeginTime(new Date());         activityInfo.setEndTime(new Date());         return activityInfo;     }      /**      * 查询活动状态      * @param activityId 活动ID      * @return 查询后的活动状态      */     public static Enum&lt;Status&gt; queryActivityStatus(String activityId) {         return statusMap.get(activityId);     }      public static synchronized void execStatus(String activityId, Enum&lt;Status&gt; beforeStatus, Enum&lt;Status&gt; afterStatus) {         /*如果前后两个状态相同，直接返回*/         if (!beforeStatus.equals(statusMap.get(activityId))) {             return;         }         /*反之更新statusMap*/         statusMap.put(activityId, afterStatus);     } }</code></pre> <p>2.<strong>活动返回格式</strong></p> <pre><code class="language-java">public class Result {      private String code;     private String info;          //get/set }</code></pre> <ol start="3"> <li><strong>抽象状态类</strong>和<strong>具体状态实现</strong></li> </ol> <pre><code class="language-java">public abstract class State {      /**提审*/     public abstract Result arraignment(String activityId, Enum&lt;Status&gt; currentStatus);     /**撤审*/     public abstract Result checkRevoke(String activityId, Enum&lt;Status&gt; currentStatus);     /**审核通过*/     public abstract Result checkPass(String activityId, Enum&lt;Status&gt; currentStatus);     /**拒审*/     public abstract Result checkRefuse(String activityId, Enum&lt;Status&gt; currentStatus);     /**关闭*/     public abstract Result close(String activityId, Enum&lt;Status&gt; currentStatus);     /**开启活动*/     public abstract Result open(String activityId, Enum&lt;Status&gt; currentStatus);     /**活动中*/     public abstract Result doing(String activityId, Enum&lt;Status&gt; currentStatus);  } public class CheckState extends State {     @Override     public Result arraignment(String activityId, Enum&lt;Status&gt; currentStatus) {         return new Result("0001", "提审后不能重复提审");     }      @Override     public Result checkRevoke(String activityId, Enum&lt;Status&gt; currentStatus) {         ActivityService.execStatus(activityId, Status.Check, Status.Editing);         return new Result("0000", "活动审核撤销回编辑");     }      @Override     public Result checkPass(String activityId, Enum&lt;Status&gt; currentStatus) {         ActivityService.execStatus(activityId, Status.Check, Status.Pass);         return new Result("0000", "活动审核通过");     }      @Override     public Result checkRefuse(String activityId, Enum&lt;Status&gt; currentStatus) {         ActivityService.execStatus(activityId, Status.Check, Status.Refuse);         return new Result("0000", "活动审核被拒绝");     }      @Override     public Result close(String activityId, Enum&lt;Status&gt; currentStatus) {         return new Result("0001", "活动审核后不能直接关闭");     }      @Override     public Result open(String activityId, Enum&lt;Status&gt; currentStatus) {         return new Result("0001", "活动审核后不能再开启");     }      @Override     public Result doing(String activityId, Enum&lt;Status&gt; currentStatus) {         return new Result("0001", "活动审核不通过无法进入活动中");     } } //下面依次是其他几个状态，较多省略</code></pre> <ol start="4"> <li><strong>状态处理类</strong>，相当于前面的上下文，负责进行状态转移</li> </ol> <pre><code class="language-java">public class StateHandler {      private Map&lt;Enum&lt;Status&gt;, State&gt; stateMap = new ConcurrentHashMap&lt;&gt;();      public StateHandler() {         stateMap.put(Status.Check, new CheckState());         stateMap.put(Status.Close, new CloseState());         stateMap.put(Status.Doing, new DoingState());         stateMap.put(Status.Refuse, new RefuseState());         stateMap.put(Status.Pass, new PassState());         stateMap.put(Status.Open, new OpenState());         stateMap.put(Status.Editing, new EditingState());     }      public Result arraignment(String activityId, Enum&lt;Status&gt; currentStatus) {         return stateMap.get(currentStatus).arraignment(activityId, currentStatus);     }      public Result checkPass(String activityId, Enum&lt;Status&gt; currentStatus) {         return stateMap.get(currentStatus).checkPass(activityId, currentStatus);     }      public Result checkRefuse(String activityId, Enum&lt;Status&gt; currentStatus) {         return stateMap.get(currentStatus).checkRefuse(activityId, currentStatus);     }      public Result checkRevoke(String activityId, Enum&lt;Status&gt; currentStatus) {         return stateMap.get(currentStatus).checkRevoke(activityId, currentStatus);     }      public Result close(String activityId, Enum&lt;Status&gt; currentStatus) {         return stateMap.get(currentStatus).close(activityId, currentStatus);     }      public Result open(String activityId, Enum&lt;Status&gt; currentStatus) {         return stateMap.get(currentStatus).open(activityId, currentStatus);     }      public Result doing(String activityId, Enum&lt;Status&gt; currentStatus) {         return stateMap.get(currentStatus).doing(activityId, currentStatus);     } }</code></pre> <p>5.<strong>测试类</strong></p> <pre><code class="language-java">public class ApiTest {      private Logger logger = LoggerFactory.getLogger(ApiTest.class);      @Test     public void test_Check2Close() {         String activityId = "100001";         ActivityService.init(activityId, Status.Check);         StateHandler stateHandler = new StateHandler();         Result result = stateHandler.close(activityId, Status.Check);         logger.info("测试结果（提审到关闭）：{}", JSON.toJSONString(result));         logger.info("活动信息：{} 状态：{}", JSON.toJSONString(ActivityService.queryActivityInfo(activityId)), JSON.toJSONString(ActivityService.queryActivityStatus(activityId)));     }      @Test     public void test_Refuse2Revoke() {         String activityId = "100001";         ActivityService.init(activityId, Status.Refuse);          StateHandler stateHandler = new StateHandler();         Result result = stateHandler.checkRevoke(activityId, Status.Refuse);          logger.info("测试结果(拒绝To撤审)：{}", JSON.toJSONString(result));         logger.info("活动信息：{} 状态：{}", JSON.toJSONString(ActivityService.queryActivityInfo(activityId)), JSON.toJSONString(ActivityService.queryActivityInfo(activityId).getStatus()));     } }</code></pre> <p>测试结果：</p> <pre><code>19:49:48.755 [main] INFO  ApiTest - 测试结果(拒绝To撤审)：{"code":"0000","info":"拒绝后返回编辑状态"} 19:49:48.768 [main] INFO  ApiTest - 活动信息：{"activityId":"100001","activityName":"测试活动","beginTime":1649591388759,"endTime":1649591388759,"status":"Editing"} 状态："Editing"</code></pre> <h2 id="参考资料">参考资料</h2> <p>《重学Java设计模式》</p> <p>《设计模式》</p> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=http://c.biancheng.net/view/1388.html"  target="_blank" rel="nofollow">http://c.biancheng.net/view/1388.html</a></p> 			                </div>
+                      				  				  				<p>状态模式（State Pattern）指允许一个对象在其内部状态改变时改变它的行为，对象看起来似乎修改了它的类。</p> <p>一般用来实现状态机，而状态机常用在游戏、工作流引擎等系统的开发中：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/f4cad716ebc75b30c47ae89e8f385ed6.jpg" alt="设计模式学习笔记状态模式及其实现"></p> <p>有限状态机（Finite State Machine，FSM），状态机有三个组成部分：状态（State）、事件（Event）和动作（Action）。其中事件也叫作转移条件（Transition Condition）,事件主要用于触发状态的转移及动作的执行，动作不是必须的，也可能只转移状态，不执行任何动作。</p> <h2 id="一状态模式的介绍">一、状态模式的介绍</h2> <p>状态模式又名状态对象（Objects for States），它是一种对象行为型模式。它的解决思想是当控制一个对象状态转换的条件表达式过于复杂时，把相关“判断逻辑”提取出来，用各个不同的类进行表示，系统处于哪种情况、直接使用相应的状态类对象进行处理。</p> <h3 id="11-状态模式的结构">1.1 状态模式的结构</h3> <p>在状态模式的结构中，通过实现抽象状态类的具体状态类来定义多个状态，每个状态类仅实现自己的逻辑，上下文类负责切换状态。其结构类图如下所示：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b802cab023d82d6a2dfd652f064cfc90.jpg" alt="设计模式学习笔记状态模式及其实现"></p> <ul> <li><code>State</code>：抽象状态类，提供一个方法封装上下文对象的状态</li> <li><code>ConcreteState1、ConcreteState2</code>：具体状态类，继承抽象状态类，实现状态下的行为</li> <li><code>Context</code>：上下文类，负责对具体状态进行切换</li> <li><code>Client</code>：客户端，调用具体状态和上下文</li> </ul> <h3 id="12-状态模式的实现">1.2 状态模式的实现</h3> <p>首先是<strong>抽象状态类</strong>，具体代码如下：</p> <pre><code class="language-java">public abstract class State {     /**抽象业务方法，不同的具体状态可以有不同的实现*/     public abstract void handle(); }</code></pre> <p>其次是实现抽象状态类的<strong>具体状态类</strong>：</p> <pre><code class="language-java">public class ConcreteState1 extends State{      @Override     public void handle(Context context) {         System.out.println("进入ConcreteState1中~");         context.setState(this);     }      @Override     public String toString() {         return "concreteState1";     } } public class ConcreteState2 extends State{      @Override     public void handle(Context context) {         System.out.println("进入ConcreteState2中~");         context.setState(this);     }      @Override     public String toString() {         return "ConcreteState2";     } }</code></pre> <p>接下来是<strong>上下文类</strong>，维护当前状态，并负责具体状态的切换</p> <pre><code class="language-java">public class Context {      private State state;      //设置初始状态为null     public Context() {         state = null;     } 	//实现状态转换     public void setState(State state) {         this.state = state;     }      public State getState() {         return state;     } }</code></pre> <p><strong>客户端</strong>测试类</p> <pre><code class="language-java">public class Client {     public static void main(String[] args) {         Context context = new Context();         System.out.println("现在的状态是：" + context.getState());         System.out.println("---------------------------------");         State concreteState1 = new ConcreteState1();         concreteState1.handle(context);         System.out.println("现在的状态是：" + context.getState());         System.out.println("---------------------------------");         State concreteState2 = new ConcreteState2();         concreteState2.handle(context);         System.out.println("现在的状态是：" + context.getState());      } }</code></pre> <p>测试结果：</p> <pre><code>现在的状态是：null --------------------------------- 进入ConcreteState1中~ 现在的状态是：concreteState1 --------------------------------- 进入ConcreteState2中~ 现在的状态是：ConcreteState2</code></pre> <h2 id="二状态模式的应用场景">二、状态模式的应用场景</h2> <p>状态模式的应用比较广泛，比如游戏中角色状态的转换、公文审批中的流转等等。</p> <p>以下情况可以考虑使用状态模式：</p> <ul> <li>对象的行为依赖于它的某些属性值（状态），而且状态的改变将导致行为的变化</li> <li>代码中包含大量与对象状态有关的条件语句（if-else）,这些条件语句的出现会导致代码的可维护性和灵活性变差。</li> </ul> <h2 id="三状态模式实战">三、状态模式实战</h2> <p>本案例中模拟营销活动审核状态流转场景，在一个活动的上线中是需要多个层级进行审核才能上线的(案例来源于《重学Java设计模式》)。如下图中可以看到流程节点中包括各个状态到下一个状态扭转的关联条件：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/4f01017212e09b6116c0fcca2466393d.jpg" alt="设计模式学习笔记状态模式及其实现"></p> <p>因此在审批过程中就难免会包含很多条件语句的判断，长此以往，随着状态数量的增加，会增加代码的可维护性和可读性。下面就利用状态模式来实现多状态的审批过程，先来看看状态模式模型的结构：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/798a1f04f1e8899359429bd8510e6829.jpg" alt="设计模式学习笔记状态模式及其实现"></p> <ul> <li><code>State</code>：状态抽象类，定义所有状态的操作接口</li> <li><code>CheckState、CloseState、DoingState...</code>：具体状态类，各种状态的具体逻辑实现</li> <li><code>StateHandler</code>：状态处理类，相当于之前结构中提到的上下文类，负责对状态流程进行统一处理</li> </ul> <h3 id="具体代码">具体代码</h3> <ol> <li><strong>基本活动信息</strong>和<strong>活动枚举状态</strong></li> </ol> <pre><code class="language-java">public class ActivityInfo {      private String activityId;     private String activityName;     private Enum<Status> status;     private Date beginTime;     private Date endTime;      //get\set\Constructor } public enum Status {     Editing,     Check,     Pass,     Refuse,     Doing,     Close,     Open }</code></pre> <ol start="2"> <li><strong>活动业务处理</strong></li> </ol> <pre><code class="language-java">public class ActivityService {      private static Map<String, Enum<Status>> statusMap = new ConcurrentHashMap<>();      public static void init(String activityId, Enum<Status> initStatus) {         ActivityInfo activityInfo = new ActivityInfo();         activityInfo.setActivityId(activityId);         activityInfo.setActivityName("测试活动");         activityInfo.setStatus(initStatus);         activityInfo.setBeginTime(new Date());         activityInfo.setEndTime(new Date());         statusMap.put(activityId, initStatus);     }      /**      * 查询活动信息      * @param activityId 活动ID      * @return 查询后的活动信息      */     public static ActivityInfo queryActivityInfo(String activityId) {         ActivityInfo activityInfo = new ActivityInfo();         activityInfo.setActivityId(activityId);         activityInfo.setActivityName("测试活动");         activityInfo.setStatus(statusMap.get(activityId));         activityInfo.setBeginTime(new Date());         activityInfo.setEndTime(new Date());         return activityInfo;     }      /**      * 查询活动状态      * @param activityId 活动ID      * @return 查询后的活动状态      */     public static Enum<Status> queryActivityStatus(String activityId) {         return statusMap.get(activityId);     }      public static synchronized void execStatus(String activityId, Enum<Status> beforeStatus, Enum<Status> afterStatus) {         /*如果前后两个状态相同，直接返回*/         if (!beforeStatus.equals(statusMap.get(activityId))) {             return;         }         /*反之更新statusMap*/         statusMap.put(activityId, afterStatus);     } }</code></pre> <p>2.<strong>活动返回格式</strong></p> <pre><code class="language-java">public class Result {      private String code;     private String info;          //get/set }</code></pre> <ol start="3"> <li><strong>抽象状态类</strong>和<strong>具体状态实现</strong></li> </ol> <pre><code class="language-java">public abstract class State {      /**提审*/     public abstract Result arraignment(String activityId, Enum<Status> currentStatus);     /**撤审*/     public abstract Result checkRevoke(String activityId, Enum<Status> currentStatus);     /**审核通过*/     public abstract Result checkPass(String activityId, Enum<Status> currentStatus);     /**拒审*/     public abstract Result checkRefuse(String activityId, Enum<Status> currentStatus);     /**关闭*/     public abstract Result close(String activityId, Enum<Status> currentStatus);     /**开启活动*/     public abstract Result open(String activityId, Enum<Status> currentStatus);     /**活动中*/     public abstract Result doing(String activityId, Enum<Status> currentStatus);  } public class CheckState extends State {     @Override     public Result arraignment(String activityId, Enum<Status> currentStatus) {         return new Result("0001", "提审后不能重复提审");     }      @Override     public Result checkRevoke(String activityId, Enum<Status> currentStatus) {         ActivityService.execStatus(activityId, Status.Check, Status.Editing);         return new Result("0000", "活动审核撤销回编辑");     }      @Override     public Result checkPass(String activityId, Enum<Status> currentStatus) {         ActivityService.execStatus(activityId, Status.Check, Status.Pass);         return new Result("0000", "活动审核通过");     }      @Override     public Result checkRefuse(String activityId, Enum<Status> currentStatus) {         ActivityService.execStatus(activityId, Status.Check, Status.Refuse);         return new Result("0000", "活动审核被拒绝");     }      @Override     public Result close(String activityId, Enum<Status> currentStatus) {         return new Result("0001", "活动审核后不能直接关闭");     }      @Override     public Result open(String activityId, Enum<Status> currentStatus) {         return new Result("0001", "活动审核后不能再开启");     }      @Override     public Result doing(String activityId, Enum<Status> currentStatus) {         return new Result("0001", "活动审核不通过无法进入活动中");     } } //下面依次是其他几个状态，较多省略</code></pre> <ol start="4"> <li><strong>状态处理类</strong>，相当于前面的上下文，负责进行状态转移</li> </ol> <pre><code class="language-java">public class StateHandler {      private Map<Enum<Status>, State> stateMap = new ConcurrentHashMap<>();      public StateHandler() {         stateMap.put(Status.Check, new CheckState());         stateMap.put(Status.Close, new CloseState());         stateMap.put(Status.Doing, new DoingState());         stateMap.put(Status.Refuse, new RefuseState());         stateMap.put(Status.Pass, new PassState());         stateMap.put(Status.Open, new OpenState());         stateMap.put(Status.Editing, new EditingState());     }      public Result arraignment(String activityId, Enum<Status> currentStatus) {         return stateMap.get(currentStatus).arraignment(activityId, currentStatus);     }      public Result checkPass(String activityId, Enum<Status> currentStatus) {         return stateMap.get(currentStatus).checkPass(activityId, currentStatus);     }      public Result checkRefuse(String activityId, Enum<Status> currentStatus) {         return stateMap.get(currentStatus).checkRefuse(activityId, currentStatus);     }      public Result checkRevoke(String activityId, Enum<Status> currentStatus) {         return stateMap.get(currentStatus).checkRevoke(activityId, currentStatus);     }      public Result close(String activityId, Enum<Status> currentStatus) {         return stateMap.get(currentStatus).close(activityId, currentStatus);     }      public Result open(String activityId, Enum<Status> currentStatus) {         return stateMap.get(currentStatus).open(activityId, currentStatus);     }      public Result doing(String activityId, Enum<Status> currentStatus) {         return stateMap.get(currentStatus).doing(activityId, currentStatus);     } }</code></pre> <p>5.<strong>测试类</strong></p> <pre><code class="language-java">public class ApiTest {      private Logger logger = LoggerFactory.getLogger(ApiTest.class);      @Test     public void test_Check2Close() {         String activityId = "100001";         ActivityService.init(activityId, Status.Check);         StateHandler stateHandler = new StateHandler();         Result result = stateHandler.close(activityId, Status.Check);         logger.info("测试结果（提审到关闭）：{}", JSON.toJSONString(result));         logger.info("活动信息：{} 状态：{}", JSON.toJSONString(ActivityService.queryActivityInfo(activityId)), JSON.toJSONString(ActivityService.queryActivityStatus(activityId)));     }      @Test     public void test_Refuse2Revoke() {         String activityId = "100001";         ActivityService.init(activityId, Status.Refuse);          StateHandler stateHandler = new StateHandler();         Result result = stateHandler.checkRevoke(activityId, Status.Refuse);          logger.info("测试结果(拒绝To撤审)：{}", JSON.toJSONString(result));         logger.info("活动信息：{} 状态：{}", JSON.toJSONString(ActivityService.queryActivityInfo(activityId)), JSON.toJSONString(ActivityService.queryActivityInfo(activityId).getStatus()));     } }</code></pre> <p>测试结果：</p> <pre><code>19:49:48.755 [main] INFO  ApiTest - 测试结果(拒绝To撤审)：{"code":"0000","info":"拒绝后返回编辑状态"} 19:49:48.768 [main] INFO  ApiTest - 活动信息：{"activityId":"100001","activityName":"测试活动","beginTime":1649591388759,"endTime":1649591388759,"status":"Editing"} 状态："Editing"</code></pre> <h2 id="参考资料">参考资料</h2> <p>《重学Java设计模式》</p> <p>《设计模式》</p> <p>http://c.biancheng.net/view/1388.html</p> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-23.htm">.Net IDE智能提示汉化(.Net6、AspNetCore)</a></p>
                                         <p>下一个：<a href="/html/category/article-25.htm">写了个开源小中间件——运行时动态日志等级开关</a></p>
@@ -103,8 +103,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
-                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
+                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
             </div>
         </div>
     </div>
@@ -113,68 +113,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1911.htm">动态添加select后不显示layui动态添加select后重新渲染</a></h4>
-                <p>一、问题：利用jQuery动态添加的代码中包含select，运行后不显示 1、显示的状态 2、后台的代码 正常情况下应该像队长班级一样显示，但是却惊奇的发现，事与愿违 二、原因 Layui会对sele</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
-                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
-                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
-                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
-                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></h4>
-                <p>在搭建vue开发项目的时候，引入axios组件的时候，设置的全局axios总是访问不了，先以为是axios版本冲突问题，后来发现是项目打开层级的问题。 进入下层目录重新打开，解决了！</p>
+                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
+                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
             </div>
         </div>
     </div>
@@ -193,8 +133,68 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
-                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
+                <h4><a href="/html/category/article-1629.htm">原生js实现楼层滚动（界面滑动）效果</a></h4>
+                <p>截取自自己写的代码 思路很简单，就是改编自回到顶部效果，控制滚动条位移到指定位置  先有个布局，四个触发li和四张图片 &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;h</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3121.htm">windows 平台下编译openssl 最新版本-3.0.5</a></h4>
+                <p>根据openssl 官方仓库的描述，他们不提供二进制版本的文件，需要我们自己针对不同的平台打包 环境配置 安装好以下软件，并配置好环境变量  Perl Nasm namke.exe cl.exe 最后</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1054.htm">mysql 中插入百万条数据</a></h4>
+                <p>文章目录  mysql 中插入百万条数据     1. 创建测试表 2. 开启二进制日志 3. 创建一个生成随机字符串的函数: 4. 调用上边的两个插入函数        mysql 中插入百万条数据</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3122.htm">什么是https和http（https和http的区别）_在线工具</a></h4>
+                <p>前言 因为工作需要，需要用到大量的关于 HTTP 协议的知识，目前掌握的关于 HTTP 请求以及协议的知识都是零散的，打算针对知识盲区系统的学习一些，理清概念。 为什么会出现 HTTPS 因为 HTT</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1912.htm">远程服务器连接（密钥验证，跳板机）</a></h4>
+                <p>服务器远程连接 天下大事 必作于细 rsa密钥配置 本地设备 利用git生成一对rsa公私密钥 keygen windows的话，默认生成目录在C:\Users\用户名.sshid_rsa为私钥文件i</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1351.htm">Rabbit MQ 怎么保证可靠性、幂等性、消费顺序</a></h4>
+                <p>RabbitMQ如何保证消息的可靠性 RabbitMQ消息丢失的三种情况 生产者弄丢消息时的解决方法  方法一：生产者在发送数据之前开启RabbitMQ的事务(采用该种方法由于事务机制，会导致吞吐量下</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

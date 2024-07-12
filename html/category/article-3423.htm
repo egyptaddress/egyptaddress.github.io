@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-dracula"> <blockquote> <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。</p> </blockquote> <div class="toc"> <h3>文章目录</h3> <ul> <li><a href="#_5" rel="nofollow">三阶段提交的定义</a></li> <li><a href="#3PC_22" rel="nofollow">3PC的出现</a></li> <li><a href="#3PC_35" rel="nofollow">3PC协议的基本过程</a></li> <li> <ul> <li><a href="#CanCommit_44" rel="nofollow">CanCommit阶段</a></li> <li><a href="#PreCommit_63" rel="nofollow">PreCommit阶段</a></li> <li><a href="#DoCommit_80" rel="nofollow">DoCommit阶段</a></li> </ul> </li> <li><a href="#3PC_95" rel="nofollow">3PC中的超时策略</a></li> <li><a href="#3PC_120" rel="nofollow">3PC协议的一些分析</a></li> <li> <ul> <li><a href="#3PC_123" rel="nofollow">3PC的数据不一致问题</a></li> <li><a href="#_133" rel="nofollow">决策状态的对齐</a></li> </ul> </li> <li><a href="#_161" rel="nofollow">本文小结</a></li> </ul> </div> <hr/> <h1><a id="_5" rel="nofollow"></a>三阶段提交的定义</h1> <blockquote> <p>三阶段提交（Three-phase commit），也叫三阶段提交协议（Three-phase commit protocol），是二阶段提交（2PC）的改进版本。</p> </blockquote> <p>所谓的三个阶段分别是：<strong>询问，然后再锁资源，最后真正提交</strong>。</p> <ul> <li>第一阶段：CanCommit</li> <li>第二阶段：PreCommit</li> <li>第三阶段：Do Commit</li> </ul> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/4f1292a168019527472ac78cecc19dcc.jpg" alt="浅谈分布式一致性协议之3PC"><br /> 与两阶段提交不同的是，三阶段提交有两个改动点。</p> <ul> <li><strong>引入超时机制 - 同时在协调者和参与者中都引入超时机制</strong>。</li> <li><strong>在第一阶段和第二阶段中插入一个准备阶段，保证了在最后提交阶段之前各参与节点的状态是一致的</strong>。</li> </ul> <hr/> <h1><a id="3PC_22" rel="nofollow"></a>3PC的出现</h1> <p>之前文章中提到了 2PC 协议<strong>存在的协调者单点、参与者阻塞超时、网络分区、容错性</strong>等问题，这些在某些程度上是做优化和调整的，并不是致命问题。</p> <p>我们对 2PC 协议的异常情况做了拆解，但是那是个m*n的组合问题，我们尽量去分析主要矛盾，于是<strong>发现在协调者和唯一接收指令的参与者都出现不可恢复宕机时，即使后面选举了新的协调者，仍然可能出现数据的不一致性</strong>。</p> <p>3PC 的出现可能是多种因素促成的。但是基本上<strong>可以确定 3PC 将对 2PC 存在的问题进行修正和优化，但是这样并不意味着 3PC 不会引入新的问题</strong>。</p> <p><strong>本文将从 3PC 的协议过程来阐述这两大块内容:</strong></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/6a1c6c99e1946e40748527b93b9f0bf9.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h1><a id="3PC_35" rel="nofollow"></a>3PC协议的基本过程</h1> <blockquote> <p>3PC协议 Three-Phase-Commit 又称三阶段提交协议，相比 2PC 协议增加了一个阶段，因此我们普遍把 3PC 协议看作是 2PC 协议的改进版本。3PC 协议将 2PC 协议的准备阶段一分为二，从而形成了三个阶段：</p> </blockquote> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/0aa75d511bd32a49e6e44046ea8a6206.jpg" alt="浅谈分布式一致性协议之3PC"></p> <p><strong>协调者和参与者等待超时情况单独说，先看正常情况的基本过程，要不然容易混淆</strong>。</p> <hr/> <h2><a id="CanCommit_44" rel="nofollow"></a>CanCommit阶段</h2> <p>在2PC准备阶段中，协调者向参与者发送指令后，参与者如果具备执行条件，则获取锁并执行动作，只不过未真正提交，可以认为参与者就差临门一脚了，还得等协调者信号。</p> <p>如果是 commit 信号那还好，如果是 rollback 信号，那么对于一些本地执行了动作的参与者来说白白浪费了，所以从这个角度来说，2PC 有点激进了，但是这么做也是有原因的，在复杂的网络环境中多一轮交互意味着性能的损耗。</p> <p>3PC来说更加合理，先由协调者向参与者发送询问信号，兄弟们有档期吗？？然后开始收集反馈，相比来说更加轻量。</p> <p><strong>这个阶段参与者并不真实获取锁占用资源，只是对自身执行事务状态的检查，查看是否具备执行事务的条件，进而回复询问</strong>。</p> <p>根据参与者对询问的反馈，在 CanCommit 阶段可能出现的两情况：</p> <blockquote> <p>A.所有参与者均Ready的场景</p> </blockquote> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/c1b0238d203e2fdf7cc3bd85737dcc90.jpg" alt="浅谈分布式一致性协议之3PC"></p> <blockquote> <p>B.存在参与者不OK的场景</p> </blockquote> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/7ee229c144e0ee42091cb0bfac85d89c.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h2><a id="PreCommit_63" rel="nofollow"></a>PreCommit阶段</h2> <p><strong>第二个阶段的具体动作取决于第一个阶段的结果</strong>，因此可以分为两种情况：</p> <blockquote> <p>CanCommit阶段一致通过</p> </blockquote> <p>在第一阶段所有参与者都 Ready，那么协调者就会向参与者发送本地执行的相关指令，这部分和 2PC 的第一阶段非常相似，参与者收到指令后进行本地事务执行，并记录日志，并且对处理结果反馈到协调者，来做决策。过程中参与者可能成功或者失败，出现了两种情况：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/0612ec4def449acefdfc5283e0ec25f3.jpg" alt="浅谈分布式一致性协议之3PC"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/e269114384884e6a4c26969897666342.jpg" alt="浅谈分布式一致性协议之3PC"></p> <blockquote> <p>CanCommit阶段存在分歧</p> </blockquote> <p>在第一阶段如果存在参与者不 Ready 的情况，那么协调者就会发送信号给所有参与者，告知本次事务取消了，该干啥干啥吧，对参与者来说损失并不大，因为本质上参与者并没有做什么事情。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/d996e7ba0287da5d686ae81f460caef8.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h2><a id="DoCommit_80" rel="nofollow"></a>DoCommit阶段</h2> <p>这是 3PC 的第三个阶段和<strong>2PC的第二个阶段类似，同样的 DoCommit 执行具体动作取决于第二阶段 PreCommit 的结果</strong>，因此仍然分为两种情况：</p> <blockquote> <p>PreCommit阶段一致通过</p> </blockquote> <p>在 PreCommit 之后参与者全部完成本地事务执行但是没有提交，并且都给协调者 ACK 回复，这时协调者认为万事俱备只欠东风了，在 DoCommit 阶段协调者向参与者发送提交指令，参与者收到之后开始执行本地提交，并反馈结果，最终完成这次事务，Cool!</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/2695a3768dd57b1ea82d36bcc127ed63.jpg" alt="浅谈分布式一致性协议之3PC"></p> <blockquote> <p>PreCommit阶段存在分歧</p> </blockquote> <p>协调者在第二个阶段 PreCommit 收到参与者的反馈后，发现存在部分参与者无法执行事务的情况，这时就决定告诉其他参与者本地回滚，释放资源，取消本次事务。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/cfbd522c9f0e171b9e5974b5b23c2f9f.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h1><a id="3PC_95" rel="nofollow"></a>3PC中的超时策略</h1> <p>我们前面提到 3PC 要解决 2PC 的参与者阻塞超时问题，在2PC中参与者比较痴情，协调者不给信号会长时间阻塞，不释放资源，这样别人也没法处理其他事情，确实不太好，看来 2PC 还是太依赖协调者了。</p> <p>3PC 认为网络超时是普遍发生的情况，如果参与者在一种大概率确定的状态下执行一些动作也是被允许的，将在外军令有所不受。</p> <p>3PC 的超时处理可能发生在 PreCommit 和 DoCommit 阶段，来看个图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/ec1c9da3a8a2347c4a1045ef46b80836.jpg" alt="浅谈分布式一致性协议之3PC"></p> <blockquote> <p>参与者等待 PreCommit 超时</p> </blockquote> <p>协调者和参与者之间可能存在较大的网络延时，或者协调者出现故障，或者出现网络分区等情况，参与者并不会傻等，在超过设定时间之后，参与者就继续做之前的事情了，因为好像被大哥鸽了，只能该干啥干啥，这也是正确的决策。</p> <blockquote> <p>参与者等待 DoCommit 超时</p> </blockquote> <p>在 CanCommit 和 PreCommit 之后，参与者认为大家都对齐了都是棒棒的，如果参与者在设定时间内并没有收到协调者的 DoCommit 指令，那么就本地执行提交完成这次事务，因为参与者揣测大哥的意思大概率也是让我们提交，干等着也不是办法，回滚可能和大家不一样，抉择之下参与者选择提交事务。</p> <blockquote> <p>协调者等待反馈超时</p> </blockquote> <p>3PC协调者的等待超时处理和2PC基本上是一样的，无论在哪个阶段超时都认为不具备条件，进行 abort 或者 rollback 操作，这个非常好理解。</p> <p><strong>可以看到3PC协议中参与者不再过度依赖协调者的指令信号，而是有了自己的相对独立性，可以根据当前所处的状态来进行自我决策。避免了2PC中的阻塞等待带来的资源浪费情况，确实是个不错的优化，但是我们并不能完全保证这种优化就都是完全正确的呀！换句话说3PC解决了2PC的bug，但是不代表3PC没有引入新的bug。</strong></p> <hr/> <h1><a id="3PC_120" rel="nofollow"></a>3PC协议的一些分析</h1> <p>前面我们说到3PC协议的一个重要作用就是要对2PC协议的改进和优化，从上面的过程分析可知确实做了一些优化，但是仍然不可避免出现了新的问题。</p> <h2><a id="3PC_123" rel="nofollow"></a>3PC的数据不一致问题</h2> <p>2PC协议在某些场景下数据不一致问题，那么3PC有没有这种问题呢？</p> <p><strong>答案是有，根源是新加的参与者超时机制</strong>。比如参与者A因为自身网络问题，在设定时间内未收到协调者的信号，这时参与者A基于之前的状态执行了Commit操作，提交了事务，这种情况确实会发生，根据真实的协调者信号是commit还是rollback会出现不同的结果。</p> <p>如果协调者发送的是Commit指令，就和参与者A独自决策结果一致，没啥问题。如果协调者在DoCommit阶段发送的是rollback指令，那么超时的参与者A由于执行了本地事务提交，从而和其他收到指令执行rollback的参与者的数据不一致。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/dea80794158f1d00c75c48d5649dde59.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h2><a id="_133" rel="nofollow"></a>决策状态的对齐</h2> <p><strong>我们知道2PC协议的决策结果初始阶段只有决策者知道</strong>，只有在它发送了决策解决才有参与者知道，这样就存在决策结果丢失的情况。</p> <p>假如协调者挂掉，新协调者可以咨询所有的参与者来确定决策状态，根据所有参与者的情况来确定，但是万一真理掌握在少数人手中呢？</p> <blockquote> <p>极端情况</p> </blockquote> <p>假如有10个参与者，9个都是正常的，1个状态未知(先叫做A吧)，10个参与者都向协调者发送了反馈，如果A反馈的是Not Ready信号，其他9个都是Ready信号。</p> <p>协调者汇总结果决策出不具备执行条件，开始向所有参与者发送rollback，恰好第一个收到信号的是A机器，协调者挂了，A收到信号后也挂了。</p> <p>新的协调者询问了其余9个都是OK，新的协调者就认为具备条件了从而发送Commit信号，这样就出现了不一致。</p> <blockquote> <p>脑洞大开：</p> </blockquote> <p>这个过程和清宫剧中皇帝立储很像嘛，皇帝把结果挂在朝堂的牌匾之上，假定诏书消失了且皇帝挂了，那么结果就不得而知了，智囊团在没有私心的前提下就需要考察所有的侯选人的情况来确定，这样就可能出现不一致。</p> <blockquote> <p>决策透明化：</p> </blockquote> <p>在3PC中仍然存在只有1台机器收到指令然后挂掉的情况，但是如果出现在前置阶段，对整个结果是没有影响的，因为会被取消并且参与者并没有本地执行。</p> <p>现在看3PC的思想是把做重大动作时的决策结果透明化统一化，产生的影响也就非常小了，因此PreCommit阶段的状态是明确的。</p> <p>我们需要把决策结果透明化，让所有参与者都知道决策结果，3PC的PreCommit阶段对齐了结果，只要有1台还活着，整个事务的状态就是确定的，毕竟所有参与者全挂的情况概率非常低。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/21f54d452813f3ab72404b92dd592abd.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h1><a id="_161" rel="nofollow"></a>本文小结</h1> <p>3PC协议是对2PC协议的优化和改进，通过将2PC的准备阶段一分为二：CanCommit和PreCommit，整个过程中下一阶段的流转要取决于上一个阶段的结果，流转简图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/c07114e91b97e3b7e2cb06d64e700e92.jpg" alt="浅谈分布式一致性协议之3PC"><br /> 经过CanCommit和PreCommit阶段后，参与者之间对齐并保留了决策结果，避免2PC协议极端情况决策结果的错误缺失，是个比较好的做法。</p> <p>2PC协议只有协调者有超时机制，3PC协议对参与者也引入了超时机制，在不同的阶段进行不同的超时处理，<strong>但是由于网络波动和网络分区存在让参与者的超时处理带来新的不确定性，甚至可能出现数据不一致</strong>。</p> <p>3PC协议增加一轮询问阶段所以整个交互过程比2PC更长了，性能相比2PC是会有一些下降的，但是3PC协议对于网络分区等情况也并没有处理地很好。</p> <p><strong>总体来说，3PC相比2PC做了很多改进有一定的效果，但是仍然存在数据不一致问题，还需继续努力</strong>。</p> </div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-dracula"> <blockquote> <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。</p> </blockquote> <div class="toc"> <h3>文章目录</h3> <ul> <li>三阶段提交的定义</li> <li>3PC的出现</li> <li>3PC协议的基本过程</li> <li> <ul> <li>CanCommit阶段</li> <li>PreCommit阶段</li> <li>DoCommit阶段</li> </ul> </li> <li>3PC中的超时策略</li> <li>3PC协议的一些分析</li> <li> <ul> <li>3PC的数据不一致问题</li> <li>决策状态的对齐</li> </ul> </li> <li>本文小结</li> </ul> </div> <hr/> <h1>三阶段提交的定义</h1> <blockquote> <p>三阶段提交（Three-phase commit），也叫三阶段提交协议（Three-phase commit protocol），是二阶段提交（2PC）的改进版本。</p> </blockquote> <p>所谓的三个阶段分别是：<strong>询问，然后再锁资源，最后真正提交</strong>。</p> <ul> <li>第一阶段：CanCommit</li> <li>第二阶段：PreCommit</li> <li>第三阶段：Do Commit</li> </ul> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/4f1292a168019527472ac78cecc19dcc.jpg" alt="浅谈分布式一致性协议之3PC"><br /> 与两阶段提交不同的是，三阶段提交有两个改动点。</p> <ul> <li><strong>引入超时机制 - 同时在协调者和参与者中都引入超时机制</strong>。</li> <li><strong>在第一阶段和第二阶段中插入一个准备阶段，保证了在最后提交阶段之前各参与节点的状态是一致的</strong>。</li> </ul> <hr/> <h1>3PC的出现</h1> <p>之前文章中提到了 2PC 协议<strong>存在的协调者单点、参与者阻塞超时、网络分区、容错性</strong>等问题，这些在某些程度上是做优化和调整的，并不是致命问题。</p> <p>我们对 2PC 协议的异常情况做了拆解，但是那是个m*n的组合问题，我们尽量去分析主要矛盾，于是<strong>发现在协调者和唯一接收指令的参与者都出现不可恢复宕机时，即使后面选举了新的协调者，仍然可能出现数据的不一致性</strong>。</p> <p>3PC 的出现可能是多种因素促成的。但是基本上<strong>可以确定 3PC 将对 2PC 存在的问题进行修正和优化，但是这样并不意味着 3PC 不会引入新的问题</strong>。</p> <p><strong>本文将从 3PC 的协议过程来阐述这两大块内容:</strong></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/6a1c6c99e1946e40748527b93b9f0bf9.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h1>3PC协议的基本过程</h1> <blockquote> <p>3PC协议 Three-Phase-Commit 又称三阶段提交协议，相比 2PC 协议增加了一个阶段，因此我们普遍把 3PC 协议看作是 2PC 协议的改进版本。3PC 协议将 2PC 协议的准备阶段一分为二，从而形成了三个阶段：</p> </blockquote> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/0aa75d511bd32a49e6e44046ea8a6206.jpg" alt="浅谈分布式一致性协议之3PC"></p> <p><strong>协调者和参与者等待超时情况单独说，先看正常情况的基本过程，要不然容易混淆</strong>。</p> <hr/> <h2>CanCommit阶段</h2> <p>在2PC准备阶段中，协调者向参与者发送指令后，参与者如果具备执行条件，则获取锁并执行动作，只不过未真正提交，可以认为参与者就差临门一脚了，还得等协调者信号。</p> <p>如果是 commit 信号那还好，如果是 rollback 信号，那么对于一些本地执行了动作的参与者来说白白浪费了，所以从这个角度来说，2PC 有点激进了，但是这么做也是有原因的，在复杂的网络环境中多一轮交互意味着性能的损耗。</p> <p>3PC来说更加合理，先由协调者向参与者发送询问信号，兄弟们有档期吗？？然后开始收集反馈，相比来说更加轻量。</p> <p><strong>这个阶段参与者并不真实获取锁占用资源，只是对自身执行事务状态的检查，查看是否具备执行事务的条件，进而回复询问</strong>。</p> <p>根据参与者对询问的反馈，在 CanCommit 阶段可能出现的两情况：</p> <blockquote> <p>A.所有参与者均Ready的场景</p> </blockquote> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/c1b0238d203e2fdf7cc3bd85737dcc90.jpg" alt="浅谈分布式一致性协议之3PC"></p> <blockquote> <p>B.存在参与者不OK的场景</p> </blockquote> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/7ee229c144e0ee42091cb0bfac85d89c.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h2>PreCommit阶段</h2> <p><strong>第二个阶段的具体动作取决于第一个阶段的结果</strong>，因此可以分为两种情况：</p> <blockquote> <p>CanCommit阶段一致通过</p> </blockquote> <p>在第一阶段所有参与者都 Ready，那么协调者就会向参与者发送本地执行的相关指令，这部分和 2PC 的第一阶段非常相似，参与者收到指令后进行本地事务执行，并记录日志，并且对处理结果反馈到协调者，来做决策。过程中参与者可能成功或者失败，出现了两种情况：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/0612ec4def449acefdfc5283e0ec25f3.jpg" alt="浅谈分布式一致性协议之3PC"><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/e269114384884e6a4c26969897666342.jpg" alt="浅谈分布式一致性协议之3PC"></p> <blockquote> <p>CanCommit阶段存在分歧</p> </blockquote> <p>在第一阶段如果存在参与者不 Ready 的情况，那么协调者就会发送信号给所有参与者，告知本次事务取消了，该干啥干啥吧，对参与者来说损失并不大，因为本质上参与者并没有做什么事情。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/d996e7ba0287da5d686ae81f460caef8.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h2>DoCommit阶段</h2> <p>这是 3PC 的第三个阶段和<strong>2PC的第二个阶段类似，同样的 DoCommit 执行具体动作取决于第二阶段 PreCommit 的结果</strong>，因此仍然分为两种情况：</p> <blockquote> <p>PreCommit阶段一致通过</p> </blockquote> <p>在 PreCommit 之后参与者全部完成本地事务执行但是没有提交，并且都给协调者 ACK 回复，这时协调者认为万事俱备只欠东风了，在 DoCommit 阶段协调者向参与者发送提交指令，参与者收到之后开始执行本地提交，并反馈结果，最终完成这次事务，Cool!</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/2695a3768dd57b1ea82d36bcc127ed63.jpg" alt="浅谈分布式一致性协议之3PC"></p> <blockquote> <p>PreCommit阶段存在分歧</p> </blockquote> <p>协调者在第二个阶段 PreCommit 收到参与者的反馈后，发现存在部分参与者无法执行事务的情况，这时就决定告诉其他参与者本地回滚，释放资源，取消本次事务。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/cfbd522c9f0e171b9e5974b5b23c2f9f.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h1>3PC中的超时策略</h1> <p>我们前面提到 3PC 要解决 2PC 的参与者阻塞超时问题，在2PC中参与者比较痴情，协调者不给信号会长时间阻塞，不释放资源，这样别人也没法处理其他事情，确实不太好，看来 2PC 还是太依赖协调者了。</p> <p>3PC 认为网络超时是普遍发生的情况，如果参与者在一种大概率确定的状态下执行一些动作也是被允许的，将在外军令有所不受。</p> <p>3PC 的超时处理可能发生在 PreCommit 和 DoCommit 阶段，来看个图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/ec1c9da3a8a2347c4a1045ef46b80836.jpg" alt="浅谈分布式一致性协议之3PC"></p> <blockquote> <p>参与者等待 PreCommit 超时</p> </blockquote> <p>协调者和参与者之间可能存在较大的网络延时，或者协调者出现故障，或者出现网络分区等情况，参与者并不会傻等，在超过设定时间之后，参与者就继续做之前的事情了，因为好像被大哥鸽了，只能该干啥干啥，这也是正确的决策。</p> <blockquote> <p>参与者等待 DoCommit 超时</p> </blockquote> <p>在 CanCommit 和 PreCommit 之后，参与者认为大家都对齐了都是棒棒的，如果参与者在设定时间内并没有收到协调者的 DoCommit 指令，那么就本地执行提交完成这次事务，因为参与者揣测大哥的意思大概率也是让我们提交，干等着也不是办法，回滚可能和大家不一样，抉择之下参与者选择提交事务。</p> <blockquote> <p>协调者等待反馈超时</p> </blockquote> <p>3PC协调者的等待超时处理和2PC基本上是一样的，无论在哪个阶段超时都认为不具备条件，进行 abort 或者 rollback 操作，这个非常好理解。</p> <p><strong>可以看到3PC协议中参与者不再过度依赖协调者的指令信号，而是有了自己的相对独立性，可以根据当前所处的状态来进行自我决策。避免了2PC中的阻塞等待带来的资源浪费情况，确实是个不错的优化，但是我们并不能完全保证这种优化就都是完全正确的呀！换句话说3PC解决了2PC的bug，但是不代表3PC没有引入新的bug。</strong></p> <hr/> <h1>3PC协议的一些分析</h1> <p>前面我们说到3PC协议的一个重要作用就是要对2PC协议的改进和优化，从上面的过程分析可知确实做了一些优化，但是仍然不可避免出现了新的问题。</p> <h2>3PC的数据不一致问题</h2> <p>2PC协议在某些场景下数据不一致问题，那么3PC有没有这种问题呢？</p> <p><strong>答案是有，根源是新加的参与者超时机制</strong>。比如参与者A因为自身网络问题，在设定时间内未收到协调者的信号，这时参与者A基于之前的状态执行了Commit操作，提交了事务，这种情况确实会发生，根据真实的协调者信号是commit还是rollback会出现不同的结果。</p> <p>如果协调者发送的是Commit指令，就和参与者A独自决策结果一致，没啥问题。如果协调者在DoCommit阶段发送的是rollback指令，那么超时的参与者A由于执行了本地事务提交，从而和其他收到指令执行rollback的参与者的数据不一致。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/dea80794158f1d00c75c48d5649dde59.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h2>决策状态的对齐</h2> <p><strong>我们知道2PC协议的决策结果初始阶段只有决策者知道</strong>，只有在它发送了决策解决才有参与者知道，这样就存在决策结果丢失的情况。</p> <p>假如协调者挂掉，新协调者可以咨询所有的参与者来确定决策状态，根据所有参与者的情况来确定，但是万一真理掌握在少数人手中呢？</p> <blockquote> <p>极端情况</p> </blockquote> <p>假如有10个参与者，9个都是正常的，1个状态未知(先叫做A吧)，10个参与者都向协调者发送了反馈，如果A反馈的是Not Ready信号，其他9个都是Ready信号。</p> <p>协调者汇总结果决策出不具备执行条件，开始向所有参与者发送rollback，恰好第一个收到信号的是A机器，协调者挂了，A收到信号后也挂了。</p> <p>新的协调者询问了其余9个都是OK，新的协调者就认为具备条件了从而发送Commit信号，这样就出现了不一致。</p> <blockquote> <p>脑洞大开：</p> </blockquote> <p>这个过程和清宫剧中皇帝立储很像嘛，皇帝把结果挂在朝堂的牌匾之上，假定诏书消失了且皇帝挂了，那么结果就不得而知了，智囊团在没有私心的前提下就需要考察所有的侯选人的情况来确定，这样就可能出现不一致。</p> <blockquote> <p>决策透明化：</p> </blockquote> <p>在3PC中仍然存在只有1台机器收到指令然后挂掉的情况，但是如果出现在前置阶段，对整个结果是没有影响的，因为会被取消并且参与者并没有本地执行。</p> <p>现在看3PC的思想是把做重大动作时的决策结果透明化统一化，产生的影响也就非常小了，因此PreCommit阶段的状态是明确的。</p> <p>我们需要把决策结果透明化，让所有参与者都知道决策结果，3PC的PreCommit阶段对齐了结果，只要有1台还活着，整个事务的状态就是确定的，毕竟所有参与者全挂的情况概率非常低。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/21f54d452813f3ab72404b92dd592abd.jpg" alt="浅谈分布式一致性协议之3PC"></p> <hr/> <h1>本文小结</h1> <p>3PC协议是对2PC协议的优化和改进，通过将2PC的准备阶段一分为二：CanCommit和PreCommit，整个过程中下一阶段的流转要取决于上一个阶段的结果，流转简图：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220901/c07114e91b97e3b7e2cb06d64e700e92.jpg" alt="浅谈分布式一致性协议之3PC"><br /> 经过CanCommit和PreCommit阶段后，参与者之间对齐并保留了决策结果，避免2PC协议极端情况决策结果的错误缺失，是个比较好的做法。</p> <p>2PC协议只有协调者有超时机制，3PC协议对参与者也引入了超时机制，在不同的阶段进行不同的超时处理，<strong>但是由于网络波动和网络分区存在让参与者的超时处理带来新的不确定性，甚至可能出现数据不一致</strong>。</p> <p>3PC协议增加一轮询问阶段所以整个交互过程比2PC更长了，性能相比2PC是会有一些下降的，但是3PC协议对于网络分区等情况也并没有处理地很好。</p> <p><strong>总体来说，3PC相比2PC做了很多改进有一定的效果，但是仍然存在数据不一致问题，还需继续努力</strong>。</p> </div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-3122.htm">什么是https和http（https和http的区别）_在线工具</a></p>
                                         <p>下一个：<a href="/html/category/article-3424.htm">用gcc查看c源文件的汇编代码   C++性能优化技术导论</a></p>
@@ -122,8 +122,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-2530.htm">MySQL中的TEXT数据类型是什么？</a></h4>
-                <p>TEXT数据对象对于在MySQL数据库中存储长格式文本字符串很有用。以下是关于TEXT数据类型的一些要点-   TEXT是列类型的族，旨在用作大容量字符存储。   实际的TEXT列类型为四种类型-TI</p>
+                <h4><a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></h4>
+                <p>常用数据结构基本上是面试必问的问题，比如HashMap、LinkList、ConcurrentHashMap等。 关于HashMap，有个学员私信了我一个面试题说： “HashMap是怎么解决哈希冲突</p>
             </div>
         </div>
     </div>
@@ -132,8 +132,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4549.htm">深圳宠物领养中心官网（深圳宠物领养机构）</a></h4>
-                <p>摘要：       今天给各位分享深圳宠物领养中心官网的知识，其中也会对深圳宠物领养机构进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、那个,我想问下深圳的狗.</p>
+                <h4><a href="/html/category/article-4096.htm">什么是Python高阶函数</a></h4>
+                <p>高阶函数 什么是高阶函数 高阶函数就是能够把函数当成参数传递的函数就是高阶函数，换句话说如果一个函数的参数是函数，那么这个函数就是一个高阶函数。 高阶函数可以是你使用def关键字自定义的函数，也有Py</p>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1926.htm">分享C++三种类型new类型的运算符使用详情_C 语言_</a></h4>
-                <p>目录  1.new操作符 2.::operator new  2.1原始调用 2.2重载1 2.3重载2  3.place new     1.new操作符 new operator，平时用的最多的n</p>
+                <h4><a href="/html/category/article-3755.htm">Kotlin中的扩展函数（静态分派）</a></h4>
+                <p>扩展函数  扩展函数可以在已有类中添加新的方法，不会对原类做修改   举例1  对Context进行扩展showToast方法，可以在Fragment、Activity、Application中弹出T</p>
             </div>
         </div>
     </div>
@@ -152,8 +152,38 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></h4>
-                <p>Centos7 Nginx编译包制作 找一台可连接互联网的虚拟机来制作编译好的Nginx包，具体操作如下 1、准备一台虚拟机（可访问互联网） 2、安装所需插件 $ yum -y install gcc</p>
+                <h4><a href="/html/category/article-1954.htm">FreeRTOS进阶之任务创建完全解析_操作系统</a></h4>
+                <p>目录  前言 1.创建任务堆栈和任务TCB 2.初始化任务TCB必要的字段 3.初始化任务堆栈 4.进入临界区 5.当前任务数量增加1 6.为第一次运行做必要的初始化 7.更新当前正在运行的任务TCB</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3729.htm">Git基础之协作模式详解</a></h4>
+                <p>目录  1、分布式工作流程 2、集中式工作流 3、分支工作流 4、GitFlow 工作流(最流行) 5、Forking 工作流(偶尔使用) 6、总结   1、分布式工作流程 与传统的集中式版本控制系统</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1321.htm">Spring Boot的依赖配置文件的解析</a></h4>
+                <p>SpringBoot笔记-day01 在pom.xml中 &lt;parent&gt;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&l</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
             </div>
         </div>
     </div>
@@ -172,8 +202,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4514.htm">戴尔vostro不认硬盘（戴尔 不识别硬盘）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈戴尔vostro不认硬盘，以及戴尔 不识别硬盘对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、戴尔笔记本电脑光驱位硬盘有时不能识别... </p>
+                <h4><a href="/html/category/article-4322.htm">宠物粮食品牌前十排名榜单 宠物粮食品牌前十排名榜单图片</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食品牌前十排名榜单的问题，于是小编就整理了4个相关介绍宠物粮食品牌前十排名榜单的解答，让我们一起看看吧。什么品牌鸽粮性价比</p>
             </div>
         </div>
     </div>
@@ -182,38 +212,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4442.htm">动物疫苗价格表图片高清大全集（动物疫苗价格查询）</a></h4>
-                <p>摘要：       今天给各位分享动物疫苗价格表图片高清大全集的知识，其中也会对动物疫苗价格查询进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗打疫苗一般.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4443.htm">中国农大动物医院哪个医生好 中国农大动物医院哪个医生好一点</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于中国农大动物医院哪个医生好的问题，于是小编就整理了4个相关介绍中国农大动物医院哪个医生好的解答，让我们一起看看吧。北京农大动物医</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1331.htm">为什么我建议需要定期重建数据量大但是性能关键的表_在线工具</a></h4>
-                <p>个人创作公约：本人声明创作的所有文章皆为自己原创，如果有参考任何文章的地方，会标注出来，如果有疏漏，欢迎大家批判。如果大家发现网上有抄袭本文章的，欢迎举报，并且积极向这个github 仓库 提交 is</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4067.htm">lambda表达式之allMatch、anyMatch、noneMatch</a></h4>
-                <p>　　allMatch：Stream中全部元素符合传入的predicate返回 true 　　anyMatch：Stream中只要有一个元素符合传入的predicate返回 true 　　noneMat</p>
+                <h4><a href="/html/category/article-4095.htm">Docker基础 — 36、CMD指令和ENTRYPOINT指令的区别</a></h4>
+                <p>目录  1、CMD指令和ENTRYPOINT指令说明 2、CMD指令只有最后一条生效的原因 3、CMD指令演示 4、ENTRYPOINT指令演示 5、总结   CMD指令和ENTRYPOINT指令作用</p>
             </div>
         </div>
     </div>
@@ -224,7 +224,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>

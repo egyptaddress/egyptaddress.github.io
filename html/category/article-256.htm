@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
         <div class="row">
             <div class="col-md-8">
                 <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。<br /> 代码我就改造了下，不直接上真实代码。<br /> 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是：</p> <pre><code class="prism language-cpp">	@ResponseBody     @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/order/select"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     @<span class="token function">ApiImplicitParams</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryNum"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"查询流水"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">,</span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryDate"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"流水日期"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>     <span class="token punctuation">}</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@ApiIgnore Order hero<span class="token punctuation">)</span> throws Exception <span class="token punctuation">{<!-- --></span>          xxxxx<span class="token punctuation">;</span>     <span class="token punctuation">}</span> </code></pre> <p>这个post接口，有点奇怪，多了很多没见过的注解，而一般情况，post接口里参数对象应该是这么写的：</p> <pre><code class="prism language-cpp"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@RequestBody Order hero<span class="token punctuation">)</span> throws Exception <span class="token punctuation">{<!-- --></span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span> </code></pre> <p>也就是传参的body前面一般会加上@RequestBody参数，但是支付服务的接口用到了@ApiImplicitParam和@ApiIgnore 注解，属于Swagger2的注解，有必要先学习下这两个注解的基本使用：</p> <blockquote> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://www.cnblogs.com/h-c-g/p/11004020.html"  rel="nofollow">@ApiImplicitParam的使用</a><br /><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://blog.csdn.net/u010250240/article/details/103120635"  rel="nofollow">@ApiIgnore注解的使用</a></p> </blockquote> <p>但是呢，一开始没想太多，调支付服务的feign接口的方法就按着平常写的post接口来：</p> <pre><code class="prism language-cpp">@<span class="token function">FeignClient</span><span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">,</span> path<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">)</span> <span class="token keyword">public</span> interface payFeignClient <span class="token punctuation">{<!-- --></span>      @ResponseBody     @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/payment/order/select"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@RequestBody Order order<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>然后在调式的时候，发现小程序调支付服务这个订单查询接口的时候，支付服务那边接受的参数对象Order字段里面的值都是null，原因是feign这边传的Order对象是RequestBody类型，而支付服务那边的接口接受参数时没有加@RequestBody，所以应该是反序列化的时候，由于格式不同，就没有成功，才出现了支付服务这边接受的参数对象Order字段里面的值都为null。</p> <p>解决办法：<br /> feign接口改成这样子就正常了：</p> <pre><code class="prism language-cpp">@<span class="token function">FeignClient</span><span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">,</span> path<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">)</span> <span class="token keyword">public</span> interface payFeignClient <span class="token punctuation">{<!-- --></span>      @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/payment/qry/barcode/pay"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     @<span class="token function">Headers</span><span class="token punctuation">(</span>MediaType<span class="token punctuation">.</span>APPLICATION_FORM_URLENCODED_VALUE<span class="token punctuation">)</span>     <span class="token keyword">public</span> ResultInfo<span class="token operator">&lt;</span>QryBarcodePayModel<span class="token operator">&gt;</span> <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"qryNo"</span><span class="token punctuation">)</span> String qryNo<span class="token punctuation">,</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"hotelCode"</span><span class="token punctuation">)</span> String hotelCode<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>这里对比一下feign和原接口的参数：<br /> 原接口：</p> <pre><code class="prism language-cpp">@<span class="token function">ApiImplicitParams</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryNum"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"查询流水"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">,</span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryDate"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"流水日期"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>     <span class="token punctuation">}</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@ApiIgnore Order hero<span class="token punctuation">)</span> </code></pre> <p>feign接口：</p> <pre><code class="prism language-cpp">@<span class="token function">Headers</span><span class="token punctuation">(</span>MediaType<span class="token punctuation">.</span>APPLICATION_FORM_URLENCODED_VALUE<span class="token punctuation">)</span>     <span class="token keyword">public</span> ResultInfo<span class="token operator">&lt;</span>QryBarcodePayModel<span class="token operator">&gt;</span> <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"qryNo"</span><span class="token punctuation">)</span> String qryNo<span class="token punctuation">,</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"hotelCode"</span><span class="token punctuation">)</span> String hotelCode<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <p>可以看出来差别很大，首先传参，原接口是post请求，传的是一个对象，但是对象前加了@ApiIgnore 注解，相信前面给的链接学习后知道这个注解表示的是忽略的意思，也就是传参的时候，忽略掉这个对象，所以feign传的参压根就没有对象。<br /> 其次原接口对两个参数加了@ApiImplicitParam，需要提前说明的是，加了@ApiImplicitParam的两个参数queryNum、queryDate都属于Order 类里的属性。<br /> 重点看@ApiImplicitParam的paramType = “form”, required = true这两个地方，paramType="form"就表示传参以form表单的形式，所以feign接口方法上面加了@Headers(MediaType.APPLICATION_FORM_URLENCODED_VALUE)。<br /> 其次require=true就表示这两个参数是必传的。<br /> 以上就确定了feign的接口方法应该如何写，最后参数到原接口过来时，会自动将queryNum、queryDate两个参数set到Order对象里去，至于为何，我也不太清楚，暂时知道是可以这么用的。</p> </p></div> 			                </div>
+                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <p>最近在做小程序调支付服务接口的一个功能，这个feign接口传参真的太费事。<br /> 代码我就改造了下，不直接上真实代码。<br /> 比如小程序调支付服务的订单查询接口，支付服务那边的controller的订单查询方法是：</p> <pre><code class="prism language-cpp">	@ResponseBody     @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/order/select"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     @<span class="token function">ApiImplicitParams</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryNum"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"查询流水"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">,</span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryDate"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"流水日期"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>     <span class="token punctuation">}</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@ApiIgnore Order hero<span class="token punctuation">)</span> throws Exception <span class="token punctuation">{<!-- --></span>          xxxxx<span class="token punctuation">;</span>     <span class="token punctuation">}</span> </code></pre> <p>这个post接口，有点奇怪，多了很多没见过的注解，而一般情况，post接口里参数对象应该是这么写的：</p> <pre><code class="prism language-cpp"><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@RequestBody Order hero<span class="token punctuation">)</span> throws Exception <span class="token punctuation">{<!-- --></span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span> </code></pre> <p>也就是传参的body前面一般会加上@RequestBody参数，但是支付服务的接口用到了@ApiImplicitParam和@ApiIgnore 注解，属于Swagger2的注解，有必要先学习下这两个注解的基本使用：</p> <blockquote> <p>@ApiImplicitParam的使用<br />@ApiIgnore注解的使用</p> </blockquote> <p>但是呢，一开始没想太多，调支付服务的feign接口的方法就按着平常写的post接口来：</p> <pre><code class="prism language-cpp">@<span class="token function">FeignClient</span><span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">,</span> path<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">)</span> <span class="token keyword">public</span> interface payFeignClient <span class="token punctuation">{<!-- --></span>      @ResponseBody     @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/payment/order/select"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@RequestBody Order order<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>然后在调式的时候，发现小程序调支付服务这个订单查询接口的时候，支付服务那边接受的参数对象Order字段里面的值都是null，原因是feign这边传的Order对象是RequestBody类型，而支付服务那边的接口接受参数时没有加@RequestBody，所以应该是反序列化的时候，由于格式不同，就没有成功，才出现了支付服务这边接受的参数对象Order字段里面的值都为null。</p> <p>解决办法：<br /> feign接口改成这样子就正常了：</p> <pre><code class="prism language-cpp">@<span class="token function">FeignClient</span><span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">,</span> path<span class="token operator">=</span><span class="token string">"pay"</span><span class="token punctuation">)</span> <span class="token keyword">public</span> interface payFeignClient <span class="token punctuation">{<!-- --></span>      @<span class="token function">RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/payment/qry/barcode/pay"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>POST<span class="token punctuation">)</span>     @<span class="token function">ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">,</span> notes <span class="token operator">=</span> <span class="token string">"订单查询"</span><span class="token punctuation">)</span>     @<span class="token function">Headers</span><span class="token punctuation">(</span>MediaType<span class="token punctuation">.</span>APPLICATION_FORM_URLENCODED_VALUE<span class="token punctuation">)</span>     <span class="token keyword">public</span> ResultInfo<span class="token operator"><</span>QryBarcodePayModel<span class="token operator">></span> <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"qryNo"</span><span class="token punctuation">)</span> String qryNo<span class="token punctuation">,</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"hotelCode"</span><span class="token punctuation">)</span> String hotelCode<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> </code></pre> <p>这里对比一下feign和原接口的参数：<br /> 原接口：</p> <pre><code class="prism language-cpp">@<span class="token function">ApiImplicitParams</span><span class="token punctuation">(</span><span class="token punctuation">{<!-- --></span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryNum"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"查询流水"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">,</span>             @<span class="token function">ApiImplicitParam</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"queryDate"</span><span class="token punctuation">,</span> value <span class="token operator">=</span> <span class="token string">"流水日期"</span><span class="token punctuation">,</span> paramType <span class="token operator">=</span> <span class="token string">"form"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>     <span class="token punctuation">}</span><span class="token punctuation">)</span>     <span class="token keyword">public</span> Order <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>@ApiIgnore Order hero<span class="token punctuation">)</span> </code></pre> <p>feign接口：</p> <pre><code class="prism language-cpp">@<span class="token function">Headers</span><span class="token punctuation">(</span>MediaType<span class="token punctuation">.</span>APPLICATION_FORM_URLENCODED_VALUE<span class="token punctuation">)</span>     <span class="token keyword">public</span> ResultInfo<span class="token operator"><</span>QryBarcodePayModel<span class="token operator">></span> <span class="token function">qryBarcodePay</span><span class="token punctuation">(</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"qryNo"</span><span class="token punctuation">)</span> String qryNo<span class="token punctuation">,</span>             @<span class="token function">RequestParam</span><span class="token punctuation">(</span>required <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> name <span class="token operator">=</span> <span class="token string">"hotelCode"</span><span class="token punctuation">)</span> String hotelCode<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre> <p>可以看出来差别很大，首先传参，原接口是post请求，传的是一个对象，但是对象前加了@ApiIgnore 注解，相信前面给的链接学习后知道这个注解表示的是忽略的意思，也就是传参的时候，忽略掉这个对象，所以feign传的参压根就没有对象。<br /> 其次原接口对两个参数加了@ApiImplicitParam，需要提前说明的是，加了@ApiImplicitParam的两个参数queryNum、queryDate都属于Order 类里的属性。<br /> 重点看@ApiImplicitParam的paramType = “form”, required = true这两个地方，paramType="form"就表示传参以form表单的形式，所以feign接口方法上面加了@Headers(MediaType.APPLICATION_FORM_URLENCODED_VALUE)。<br /> 其次require=true就表示这两个参数是必传的。<br /> 以上就确定了feign的接口方法应该如何写，最后参数到原接口过来时，会自动将queryNum、queryDate两个参数set到Order对象里去，至于为何，我也不太清楚，暂时知道是可以这么用的。</p> </p></div> 			                </div>
                 <div class="col-md-12 mt-5">
                                         <p>上一个：<a href="/html/category/article-255.htm">python 查看包的版本</a></p>
                                         <p>下一个：<a href="/html/category/article-257.htm">JavaScript如何将字符串转换为分层对象</a></p>
@@ -99,6 +99,76 @@ var _hmt = _hmt || [];
                             </div>
             <div class="col-md-4 w3l-services">
                 <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4479.htm">宠物狗粮上市公司 宠物狗粮上市公司有哪些</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物狗粮上市公司的问题，于是小编就整理了3个相关介绍宠物狗粮上市公司的解答，让我们一起看看吧。我去店里买狗粮，老板推荐”爱贝“给</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4550.htm">宠物领养平台app小程序叫什么来着的（宠物领养 app）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物领养平台app小程序叫什么来着的，以及宠物领养 app对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、谁知道领养宠物的app...  </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3756.htm">接口隔离原则（Interface Segregation Principle，ISP）</a></h4>
+                <p>接口隔离原则（Interface Segregation Principle，ISP）要求程序员尽量将臃肿庞大的接口拆分成更小的和更具体的接口，让接口中只包含客户感兴趣的方法。  定义  客户端不应该</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-3423.htm">浅谈分布式一致性协议之3PC</a></h4>
+                <p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷。所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。   文章目录  三阶段提交的定义 3PC的出现 3PC协议的基本过程   Can</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-1940.htm">vue2 自定义指令 实现全屏 、对话框拖拽</a></h4>
+                <p>模块下载 用于全屏 npm i screenfull@5.1.0 -S   新建文件 新建directives.js文件，复制下面代码 import Vue from "vue";  // 全屏 im</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4369.htm">符合动物医院法定条件有哪些内容和要求呢（动物医院资质级别有哪些）</a></h4>
+                <p>摘要：       今天给各位分享符合动物医院法定条件有哪些内容和要求呢的知识，其中也会对动物医院资质级别有哪些进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-4293.htm">免费领养宠物的平台小狗有哪些（免费领养宠物的app有哪些）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈免费领养宠物的平台小狗有哪些，以及免费领养宠物的app有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、家中有一只狗想找新主人上哪..</p>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row w3l-achievements">
     <div class="col-lg-12 item">
         <div class="card">
@@ -113,8 +183,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4368.htm">风水***说养猫好不好（风水***说养猫好不好养）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈风水大师说养猫好不好，以及风水大师说养猫好不好养对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫对风水好吗2、...        本</p>
+                <h4><a href="/html/category/article-1352.htm">vs code编写web项目</a></h4>
+                <p>vs code编写web项目 0.小贴士 1.vs和vscode是不一样的是不一样的 2.在已经存在maven的时候，直接在maven的+创建项目，用ctrl+shoeft+p 搜索不到maven的创</p>
             </div>
         </div>
     </div>
@@ -123,78 +193,8 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                <h4><a href="/html/category/article-4323.htm">四川红烧鱼的做法 最正宗的做法(四川红烧鱼怎么做好吃又简单视频教程)</a></h4>
-                <p>各位同学好，相信还有很多人对于正宗四川怎么做的相关问题不太了解，今天给各位分享一下关于正宗四川红烧鱼怎么做的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：正宗四川红烧鱼怎么做正宗四川红烧</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4292.htm">动物注射疫苗属于什么免疫（动物疫苗是什么意思）</a></h4>
-                <p>摘要：       今天给各位分享动物注射疫苗属于什么免疫的知识，其中也会对动物疫苗是什么意思进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、狗狗要打哪些疫苗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3730.htm">vue-v-model 常用修饰符</a></h4>
-                <p>&lt;div id="app"&gt;     &lt;h1&gt;懒加载lazy&lt;/h1&gt;     &lt;h3&gt;不让输入框实时同步&lt;/h3&gt;     &lt;inp</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1322.htm">@RequestBody接收json对象报415的解决办法</a></h4>
-                <p>前端请求： $.ajax({             url: basePath() + "/index/login.do",             type : "post",          </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-3729.htm">Git基础之协作模式详解</a></h4>
-                <p>目录  1、分布式工作流程 2、集中式工作流 3、分支工作流 4、GitFlow 工作流(最流行) 5、Forking 工作流(偶尔使用) 6、总结   1、分布式工作流程 与传统的集中式版本控制系统</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1630.htm">vue的路由组件的引入以及路由组件懒加载和router-link</a></h4>
-                <p>App.vue &lt;template&gt;   &lt;div&gt;     &lt;router-link to="/"&gt;首页&lt;/router-link&gt;     &lt;</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4403.htm">dv哪个牌子最好(dv品牌排行榜前十名)</a></h4>
-                <p>蝶侠小编给大家带来了哪个的好相关文章，一起来看一下吧。 dv摄像机哪个品牌好  dv摄像机十大品牌排行榜分别是佳能Glad、索尼SONY、松下、欧达Ordro、杰伟世JVC、哥普乐GoPro、大疆DJ</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-1925.htm">Spring Ioc源码分析系列&#8211;Ioc的基础知识准备_在线工具</a></h4>
-                <p>Spring Ioc源码分析系列--Ioc的基础知识准备  本系列文章代码基于Spring Framework 5.2.x  Ioc的概念 在Spring里，Ioc的定义为The IoC Contai</p>
+                <h4><a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></h4>
+                <p>springboot2+spring-retry配置及使用  参考 1 配置依赖 2 启动类开启retry 3 使用   @Retryable和@Backoff @Recover 使用样例     参</p>
             </div>
         </div>
     </div>
@@ -205,7 +205,7 @@ var _hmt = _hmt || [];
     <div class="col-lg-12 item">
         <div class="card">
             <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">24</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
                                 <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
                                 <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
