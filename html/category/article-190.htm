@@ -1,476 +1,925 @@
-<!doctype html>
-<html lang="zh-CN">
-
+<!DOCTYPE html>
+<html>
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-190.htm" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>MySQL中一条SQL查询语句是如何执行的_Mysql - EgyptAddress</title>
-    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
-        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
-    <script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
-     crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <title>System Error</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <style>
+        /* Base */
+        body {
+            color: #333;
+            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0 20px 20px;
+            word-break: break-word;
+        }
+        h1{
+            margin: 10px 0 0;
+            font-size: 28px;
+            font-weight: 500;
+            line-height: 32px;
+        }
+        h2{
+            color: #4288ce;
+            font-weight: 400;
+            padding: 6px 0;
+            margin: 6px 0 0;
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+        }
+        h3.subheading {
+            color: #4288ce;
+            margin: 6px 0 0;
+            font-weight: 400;
+        }
+        h3{
+            margin: 12px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        abbr{
+            cursor: help;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+        a{
+            color: #868686;
+            cursor: pointer;
+        }
+        a:hover{
+            text-decoration: underline;
+        }
+        .line-error{
+            background: #f8cbcb;
+        }
+
+        .echo table {
+            width: 100%;
+        }
+
+        .echo pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f7f7f7;
+            border: 0;
+            border-radius: 3px;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        .echo pre > pre {
+            padding: 0;
+            margin: 0;
+        }
+        /* Layout */
+        .col-md-3 {
+            width: 25%;
+        }
+        .col-md-9 {
+            width: 75%;
+        }
+        [class^="col-md-"] {
+            float: left;
+        }
+        .clearfix {
+            clear:both;
+        }
+        @media only screen 
+        and (min-device-width : 375px) 
+        and (max-device-width : 667px) { 
+            .col-md-3,
+            .col-md-9 {
+                width: 100%;
+            }
+        }
+        /* Exception Info */
+        .exception {
+            margin-top: 20px;
+        }
+        .exception .message{
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-bottom: 0 none;
+            line-height: 18px;
+            font-size:16px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+
+        .exception .code{
+            float: left;
+            text-align: center;
+            color: #fff;
+            margin-right: 12px;
+            padding: 16px;
+            border-radius: 4px;
+            background: #999;
+        }
+        .exception .source-code{
+            padding: 6px;
+            border: 1px solid #ddd;
+
+            background: #f9f9f9;
+            overflow-x: auto;
+
+        }
+        .exception .source-code pre{
+            margin: 0;
+        }
+        .exception .source-code pre ol{
+            margin: 0;
+            color: #4288ce;
+            display: inline-block;
+            min-width: 100%;
+            box-sizing: border-box;
+        font-size:14px;
+            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
+            padding-left: 56px;
+        }
+        .exception .source-code pre li{
+            border-left: 1px solid #ddd;
+            height: 18px;
+            line-height: 18px;
+        }
+        .exception .source-code pre code{
+            color: #333;
+            height: 100%;
+            display: inline-block;
+            border-left: 1px solid #fff;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace{
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-top: 0 none;
+            line-height: 16px;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace ol{
+            margin: 12px;
+        }
+        .exception .trace ol li{
+            padding: 2px 4px;
+        }
+        .exception div:last-child{
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Exception Variables */
+        .exception-var table{
+            width: 100%;
+            margin: 12px 0;
+            box-sizing: border-box;
+            table-layout:fixed;
+            word-wrap:break-word;            
+        }
+        .exception-var table caption{
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 6px 0;
+        }
+        .exception-var table caption small{
+            font-weight: 300;
+            display: inline-block;
+            margin-left: 10px;
+            color: #ccc;
+        }
+        .exception-var table tbody{
+            font-size: 13px;
+            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
+        }
+        .exception-var table td{
+            padding: 0 6px;
+            vertical-align: top;
+            word-break: break-all;
+        }
+        .exception-var table td:first-child{
+            width: 28%;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .exception-var table td pre{
+            margin: 0;
+        }
+
+        /* Copyright Info */
+        .copyright{
+            margin-top: 24px;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
+        }
+
+        /* SPAN elements with the classes below are added by prettyprint. */
+        pre.prettyprint .pln { color: #000 }  /* plain text */
+        pre.prettyprint .str { color: #080 }  /* string content */
+        pre.prettyprint .kwd { color: #008 }  /* a keyword */
+        pre.prettyprint .com { color: #800 }  /* a comment */
+        pre.prettyprint .typ { color: #606 }  /* a type name */
+        pre.prettyprint .lit { color: #066 }  /* a literal value */
+        /* punctuation, lisp open bracket, lisp close bracket */
+        pre.prettyprint .pun, pre.prettyprint .opn, pre.prettyprint .clo { color: #660 }
+        pre.prettyprint .tag { color: #008 }  /* a markup tag name */
+        pre.prettyprint .atn { color: #606 }  /* a markup attribute name */
+        pre.prettyprint .atv { color: #080 }  /* a markup attribute value */
+        pre.prettyprint .dec, pre.prettyprint .var { color: #606 }  /* a declaration; a variable name */
+        pre.prettyprint .fun { color: red }  /* a function name */
+    </style>
 </head>
-
 <body>
-        <!-- header -->
-    <header id="site-header" class="fixed-top">
-        <div class="container">
-            <nav class="navbar navbar-expand-lg stroke">
-                <a class="navbar-brand" href="/">
-                                        <span class="fa fa-laptop"></span> EgyptAddress
-                                    </a>
-                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
-                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
-                    </span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                    <ul class="navbar-nav ml-auto">
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/">首页</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/html/category/">文章分类</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="#">关于</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">联系</a>
-                        </li>
-                    </ul>
+    <div class="echo">
+            </div>
+        <div class="exception">
+    <div class="message">
+        
+            <div class="info">
+                <div>
+                    <h2>[8]&nbsp;<abbr title="think\exception\ErrorException">ErrorException</abbr> in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></h2>
                 </div>
-                <!-- toggle switch for light and dark theme -->
-                <div class="mobile-position">
-                    <nav class="navigation">
-                        <div class="theme-switch-wrapper">
-                            <label class="theme-switch" for="checkbox">
-                                <input type="checkbox" id="checkbox">
-                                <div class="mode-container">
-                                    <i class="gg-sun"></i>
-                                    <i class="gg-moon"></i>
-                                </div>
-                            </label>
-                        </div>
-                    </nav>
-                </div>
-                <!-- //toggle switch for light and dark theme -->
-            </nav>
+                <div><h1>未定义变量: hot_city_list</h1></div>
+            </div>
+        
+    </div>
+	        <div class="source-code">
+            <pre class="prettyprint lang-php"><ol start="124"><li class="line-124"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-125"><code>            &lt;?php if(is_array($hot_country_list) || $hot_country_list instanceof \think\Collection || $hot_country_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_country_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-126"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-127"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-128"><code>            &lt;/li&gt;
+</code></li><li class="line-129"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li><li class="line-130"><code>        &lt;/ul&gt;
+</code></li><li class="line-131"><code>    &lt;/div&gt;
+</code></li><li class="line-132"><code>&lt;/div&gt;
+</code></li><li class="line-133"><code>&lt;?php endif; if($hot_city_list): ?&gt;
+</code></li><li class="line-134"><code>&lt;div class=&quot;panel panel-default box article-list&quot;&gt;
+</code></li><li class="line-135"><code>    &lt;div class=&quot;panel-heading&quot;&gt;&lt;h2&gt;热门城市&lt;/h2&gt;&lt;/div&gt;
+</code></li><li class="line-136"><code>    &lt;div class=&quot;panel-body&quot;&gt;
+</code></li><li class="line-137"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-138"><code>            &lt;?php if(is_array($hot_city_list) || $hot_city_list instanceof \think\Collection || $hot_city_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_city_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-139"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-140"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-141"><code>            &lt;/li&gt;
+</code></li><li class="line-142"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li></ol></pre>
         </div>
-    </header>
-    <!-- //header -->
+	        <div class="trace">
+            <h2>Call Stack</h2>
+            <ol>
+                <li>in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></li>
+                                <li>
+                at <abbr title="think\Error">Error</abbr>::appError(8, '<a class="toggle" title="Undefined variable: hot_city_list">Undefined variable: ...</a>', '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 133, ['cacheFile' => '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 'vars' => ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], 'config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a>                </li>
+                                <li>
+                at include('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\template\driver\File.php line 53">File.php line 53</a>                </li>
+                                <li>
+                at <abbr title="think\template\driver\File">File</abbr>->read('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\Template.php line 188">Template.php line 188</a>                </li>
+                                <li>
+                at <abbr title="think\Template">Template</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\view\driver\Think.php line 86">Think.php line 86</a>                </li>
+                                <li>
+                at <abbr title="think\view\driver\Think">Think</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\View.php line 163">View.php line 163</a>                </li>
+                                <li>
+                at <abbr title="think\View">View</abbr>->fetch('<a class="toggle" title="egyptaddress/index/url_blog">egyptaddress/index/u...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\controller\Index.php line 442">Index.php line 442</a>                </li>
+                                <li>
+                at <abbr title="addons\xcblog\controller\Index">Index</abbr>->url_blog()                </li>
+                                <li>
+                at call_user_func_array([<em>object</em>(<abbr title="addons\xcblog\controller\Index">Index</abbr>), 'url_blog'], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\vendor\karsonzhang\fastadmin-addons\src\addons\Route.php line 78">Route.php line 78</a>                </li>
+                                <li>
+                at <abbr title="think\addons\Route">Route</abbr>->execute('xcblog', 'index', 'url_blog')                </li>
+                                <li>
+                at <abbr title="ReflectionMethod">ReflectionMethod</abbr>->invokeArgs(<em>object</em>(<abbr title="think\addons\Route">Route</abbr>), ['xcblog', 'index', 'url_blog']) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 343">App.php line 343</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::invokeMethod(['\think\addons\Route', 'execute'], ['website_id' => '1', 'id' => '190', 'addon' => 'xcblog', ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 470">App.php line 470</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::exec(['type' => 'method', 'method' => ['\think\addons\Route', 'execute'], 'var' => []], ['app_host' => '', 'app_debug' => <em>true</em>, 'app_trace' => <em>false</em>, ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 139">App.php line 139</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::run() in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php line 19">start.php line 19</a>                </li>
+                                <li>
+                at require('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\public\index.php line 23">index.php line 23</a>                </li>
+                            </ol>
+        </div>
+    </div>
+        
     
-    <!-- about breadcrumb -->
-    <section class="w3l-about-breadcrumb text-center">
-        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
-            <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">MySQL中一条SQL查询语句是如何执行的_Mysql</h1>
-                <ul class="breadcrumbs-custom-path mt-2">
-                    <li><a href="/">首页</a></li>
-                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
-                    <li><a href="/html/category/">文章分类</a></li>
-                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-    <!-- //about breadcrumb -->
-    <div class="container py-lg-5 py-3">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="post-content-content">
-                      				  				  				  			 <div id="log-box">  				<div id="catalog"><ul id="catalog-ul"> <li><i class="be be-arrowright"></i> 1.1.1 TCP/IP协议</li> <li><i class="be be-arrowright"></i> 1.1.2 UNIX域套接字</li> <li><i class="be be-arrowright"></i> 1.1.3 命名管道和共享内存</li> <li><i class="be be-arrowright"></i> 2.2.2 语法分析</li> <li><i class="be be-arrowright"></i> 2.2.3 预处理器</li> <li><i class="be be-arrowright"></i> 2.3.1 什么是查询优化器？</li> <li><i class="be be-arrowright"></i> 2.3.2 优化器究竟做了什么？</li> <li><i class="be be-arrowright"></i> 2.3.3 执行计划</li> <li><i class="be be-arrowright"></i> 3.3.1 创建表的时候指定存储引擎</li> <li><i class="be be-arrowright"></i> 3.3.2 修改表的存储引擎</li> <li><i class="be be-arrowright"></i> 3.5.1 MylSAM</li> <li><i class="be be-arrowright"></i> 3.5.2 InnoDB</li> <li><i class="be be-arrowright"></i> 3.5.3 Memory</li> <li><i class="be be-arrowright"></i> 3.5.4 CSV</li> <li><i class="be be-arrowright"></i> 3.5.5 Archive</li> </ul><span class="log-zd"><span class="log-close"><i class="be be-cross"></i><strong>目录</strong></span></span></div>  			</div> <div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li>前言</li> <li>1. 处理连接</li> <ul class="second_class_ul"> <li>1.1 客户端和服务端的通信方式</li> <ul class="third_class_ul"> <li>1.1.1 TCP/IP协议</li> <li>1.1.2 UNIX域套接字</li> <li>1.1.3 命名管道和共享内存</li> </ul> <li>1.2 权限验证</li> <ul class="third_class_ul"></ul> <li>1.3 查看MySQL连接</li> <ul class="third_class_ul"></ul> </ul> <li>2. 解析与优化</li> <ul class="second_class_ul"> <li>2.1 查询缓存</li> <ul class="third_class_ul"></ul> <li>2.2 解析器 & 预处理器（Parser & Preprocessor）</li> <ul class="third_class_ul"></ul> <li>2.2.1 词法解析</li> <ul class="third_class_ul"> <li>2.2.2 语法分析</li> <li>2.2.3 预处理器</li> </ul> <li>2.3 查询优化器（Optimizer）与查询执行计划</li> <ul class="third_class_ul"> <li>2.3.1 什么是查询优化器？</li> <li>2.3.2 优化器究竟做了什么？</li> <li>2.3.3 执行计划</li> </ul> </ul> <li>3. 存储引擎</li> <ul class="second_class_ul"> <li>3.1 什么是存储引擎</li> <ul class="third_class_ul"></ul> <li>3.2 为什么需要存储引擎</li> <ul class="third_class_ul"></ul> <li>3.3 存储引擎怎么用</li> <ul class="third_class_ul"> <li>3.3.1 创建表的时候指定存储引擎</li> <li>3.3.2 修改表的存储引擎</li> </ul> <li>3.4 存储引擎底层区别</li> <ul class="third_class_ul"></ul> <li>3.5 常见存储引擎比较</li> <ul class="third_class_ul"> <li>3.5.1 MylSAM</li> <li>3.5.2 InnoDB</li> <li>3.5.3 Memory</li> <li>3.5.4 CSV</li> <li>3.5.5 Archive</li> </ul> <li>3.6 如何选择存储引擎</li> <ul class="third_class_ul"></ul> </ul> <li>总结</li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"></p> <h2>前言</h2> <p>MySQL是典型的C/S架构（客户端/服务器架构），客户端进程向服务端进程发送一段文本（MySQL指令），服务器进程进行语句处理然后返回执行结果。</p> <p>问题来了。服务器进程对客户端发送的请求究竟做了什么处理呢？本文以查询请求为例，讲解MySQL服务器进程的处理流程。</p> <p>如下图所示，服务器进程在处理客户端请求的时候，大致需要进行3个步骤：</p> <ul> <li> <p>处理连接</p> </li> <li> <p>解析与优化</p> </li> <li> <p>存储引擎</p> </li> </ul> <p>接下来我们来详细了解一下这3步具体都做了什么。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/fba3e534352ee8efe7248980965cc41e.jpg"></p> <p class="maodian"></p> <h2>1. 处理连接</h2> <p>客户端向服务器发送请求并最终收到响应，本质上是一个进程间通信的过程。</p> <p>MySQL有专门用于处理连接的模块——连接器。</p> <p class="maodian"></p> <h3>1.1 客户端和服务端的通信方式</h3> <p class="maodian"></p> <span class="directory"></span><h4 id="title-0">1.1.1 TCP/IP协议</h4> <p>TCP/IP协议是MySQL客户端和服务器最常用的通信方式。</p> <p>我们平时所说的MySQL服务器默认监听的端口是3306，这句话的前提是客户端进程和服务器进程使用的是TCP/IP协议进行通信。</p> <p>我们在使用mysql命令启动客户端程序时，只要在-h参数后跟随IP地址作为服务器进程所在的主机地址，那么通讯方式便是TCP/IP协议。</p> <blockquote> <p>如果客户端进程和服务器进程位于同一台主机，且要使用TCP/IP协议进行通信，则IP地址需要指定为127.0.0.1，而不能使用localhost</p> </blockquote> <p class="maodian"></p> <span class="directory"></span><h4 id="title-1">1.1.2 UNIX域套接字</h4> <p>如果客户端进程和服务器进程都位于类UNIX操作系统（MacOS、Centos、Ubuntu等）的主机之上，并且在启动客户端程序时没有指定主机名，或者指定的主机名为localhost，又或者指定了--protocol=socket的启动参数，那么客户端进程和服务器进程就会使用UNIX域套接字进行进程间通信。</p> <p>MySQL服务器进程默认监听的UNIX域套接字文件为/temp/mysql.sock，客户端进程启动时也默认会连接到这个UNIX域套接字文件之上。</p> <blockquote> <p>如果不明白UNIX域套接字到底是什么也没关系，只要知道这是进程之间的一种通讯方式就可以了，这里提及的主要目的是希望读者知晓MySQL客户端和进程通讯方式不止于TCP/IP协议</p> </blockquote> <p class="maodian"></p> <span class="directory"></span><h4 id="title-2">1.1.3 命名管道和共享内存</h4> <p>如果你的MySQL是安装在Windows主机之上，客户端和服务器进程可以使用命名管道和共享内存的方式进行通信。</p> <p>不过使用这些通信方式需要在服务端和客户端启动时添加一些启动参数。</p> <ul> <li> <p>使用命名管道进行通信。需要在启动服务器时添加--enable-named-pipe参数，同时在启动客户端进程时添加--pipe或者--protocol=pipe参数</p> </li> <li> <p>使用共享内存进行通信。需要在启动服务器时添加--shared-memory参数，启动成功后，共享内存便成为本地客户端程序的默认连接方式；也可以在启动客户端进程的命令中加上--protocol=memory参数明确指定使用共享内存进行通信</p> </li> </ul> <blockquote> <p>如果不明白命名管道和共享内存到底是什么没关系，只要知道这是进程之间的一种通讯方式就可以了，这里提及的主要目的是希望读者知晓MySQL客户端和进程通讯方式不止于TCP/IP协议</p> </blockquote> <p class="maodian"></p> <h3>1.2 权限验证</h3> <p>确认通信方式并且成功建立连接之后，连接器就要开始验证你的身份了，使用的信息就是你的用户名和密码。</p> <ul> <li> <p>如果用户名或者密码错误，客户端连接会立即断开</p> </li> <li> <p>如果用户名密码认证通过，连接器会到权限表里面查出当前登陆用户拥有的权限。之后这个连接里面的权限判断逻辑，都将依赖于此时读到的权限。</p> </li> </ul> <p class="maodian"></p> <h3>1.3 查看MySQL连接</h3> <p>每当一个客户端连接到服务端时，服务端进程都会创建一个单独的线程来处理当前客户端的交互操作。</p> <p>那么如何查看MySQL当前所有的连接？</p> <div class="ay1code"> <pre class="brush:sql;">mysql> show global status like 'Thread%';    +-------------------+-------+  | Variable_name     | Value |  +-------------------+-------+  | Threads_cached    | 0     |  | Threads_connected | 1     |  | Threads_created   | 1     |  | Threads_running   | 1     |  +-------------------+-------+</pre> </div> <p>各字段含义如下表</p> <table> <tbody> <tr> <th>字段</th> <th>含义</th> </tr> <tr> <td>Threads_cached</td> <td>缓存中的线程连接数</td> </tr> <tr> <td>Threads_connected</td> <td>当前打开的连接数</td> </tr> <tr> <td>Threads_created</td> <td>为处理连接创建的线程数</td> </tr> <tr> <td>Threads_running</td> <td>非睡眠状态的连接数，通常指并发连接数</td> </tr> </tbody> </table> <p>建立连接之后，除非客户端主动断开连接，否则服务器会等待客户端发送请求。但是线程的创建和保持是需要消耗服务器资源的，因此服务器会把长时间不活动的客户端连接断开。</p> <p>有2个参数控制这个自动断开连接的行为，每个参数都默认为28800秒，8小时。</p> <div class="ay1code"> <pre class="brush:sql;">-- 非交互式超时时间，如JDBC连接  mysql> show global variables like 'wait_timeout';  +---------------+-------+  | Variable_name | Value |  +---------------+-------+  | wait_timeout  | 28800 |  +---------------+-------+    -- 交互式超时时间，如数据库查看工具Navicat等  mysql> show global variables like 'interactive_timeout';  +---------------------+-------+  | Variable_name       | Value |  +---------------------+-------+  | interactive_timeout | 28800 |  +---------------------+-------+</pre> </div> <p>既然连接消耗资源，那是不是MySQL的最大连接数也有默认限制呢？没错！默认最大连接数为151。</p> <div class="ay1code"> <pre class="brush:sql;">mysql> show variables like 'max_connections';  +-----------------+-------+  | Variable_name   | Value |  +-----------------+-------+  | max_connections | 151   |  +-----------------+-------+</pre> </div> <blockquote> <p>题外话：细心的读者可能会发现MySQL某些查询语句带有global关键字，这个关键字有什么含义呢？</p> </blockquote> <p>MySQL的系统变量有两个作用范围（不区分大小写），分别是</p> <ul> <li> <p>GLOBAL（全局范围）：变量的设置影响服务器和所有客户端</p> </li> <li> <p>SESSION（会话范围）：变量的设置仅影响当前连接（会话）</p> </li> </ul> <p>但是并非每个参数都具有两个作用范围，比如允许同时连接到服务器的客户端的数量max_connections就只有全局级别。</p> <p>当没有带作用范围关键字时，默认是SESSION级别，包括查询和修改操作。</p> <p>比如修改一个参数之后，在当前窗口生效了，但是在其他窗口却没有生效</p> <div class="ay1code"> <pre class="brush:sql;">show VARIABLES like 'autocommit';  set autocommit = on;</pre> </div> <p>因此，如果只是临时修改，请使用SESSION级别，如果需要当前设置在其他会话中生效，需要使用GLOBAL关键字。</p> <p>到此为止，服务器进程已经和客户端进程建立了连接，下一步将处理客户端传来的请求了。</p> <p class="maodian"></p> <h2>2. 解析与优化</h2> <p>服务器收到客户端传来的请求之后，还需要经过查询缓存、词法语法解析和预处理、查询优化的处理。</p> <p class="maodian"></p> <h3>2.1 查询缓存</h3> <p>如果我们两次都执行同一条查询指令，第二次的响应时间会不会比第一次的响应时间短一些？</p> <p>之前使用过Redis缓存工具的读者应该会有这个很自然的想法，MySQL收到查询请求之后应该先到缓存中查看一下，看一下之前是不是执行过这条指令。如果缓存命中，则直接返回结果；否则重新进行查询，然后加入缓存。</p> <p>MySQL确实内部自带了一个缓存模块。</p> <p>现在有一张500W行且没有添加索引的数据表，我执行以下命令两次，第二次会不会变得很快？</p> <div class="ay1code"> <pre class="brush:sql;">SELECT * FROM t_user WHERE user_name = '蝉沐风'</pre> </div> <p>并不会！说明缓存没有生效，为什么？MySQL默认是关闭自身的缓存功能的，查看一下query_cache_type变量设置。</p> <div class="ay1code"> <pre class="brush:sql;">mysql> show variables like 'query_cache_type';  +------------------------------+---------+  | Variable_name                | Value   |  +------------------------------+---------+  | query_cache_type             | OFF     |  +------------------------------+---------+</pre> </div> <p>默认关闭就意味着不推荐，MySQL为什么不推荐用户使用自己的缓存功能呢？</p> <ul> <li> <p>MySQL自带的缓存系统应用场景非常有限，它要求SQL语句必须一模一样，多一个空格，变一个大小写都被认为是两条不同的SQL语句</p> </li> <li> <p>缓存失效非常频繁。只要一个表的数据有任何修改，针对该表的所有缓存都会失效。对于更新频繁的数据表而言，缓存命中率非常低！</p> </li> </ul> <p>所以缓存的功能还是交给专业的ORM框架（比如MyBatis默认开启一级缓存）或者独立的缓存服务Redis更加适合。</p> <blockquote> <p>MySQL8.0已经彻底移除了缓存功能</p> </blockquote> <p class="maodian"></p> <h3>2.2 解析器 & 预处理器（Parser & Preprocessor）</h3> <p>现在跳过缓存这一步了，接下来需要做什么了？</p> <p>如果我随便在客户端终端里输入一个字符串chanmufeng，服务器返回了一个1064的错误</p> <div class="ay1code"> <pre class="brush:sql;">mysql> chanmufeng;  ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'chanmufeng' at line 1  </pre> </div> <p>服务器是怎么判断出我的输入是错误的呢？这就是MySQL的Parser解析器的作用了，它主要包含两步，分别是词法解析和语法分析。</p> <p class="maodian"></p> <h3>2.2.1 词法解析</h3> <p>以下面的SQL语句为例</p> <div class="ay1code"> <pre class="brush:sql;">SELECT * FROM t_user WHERE user_name = '蝉沐风' AND age > 3;  </pre> </div> <p>分析器先会做“词法分析”，就是把一条完整的SQL语句打碎成一个个单词，比如一条简单的SQL语句，会打碎成8个符号，每个符号是什么类型，从哪里开始到哪里结束。</p> <p>MySQL 从你输入的SELECT这个关键字识别出来，这是一个查询语句。它也要把字符串t_user识 别成“表名 t_user”，把字符串user_name识别成“列 user_name"。</p> <p class="maodian"></p> <span class="directory"></span><h4 id="title-3">2.2.2 语法分析</h4> <p>做完词法解析，接下来需要做语法分析了。</p> <p>根据词法分析的结果，语法分析器会根据语法规则，判断你输入的这个 SQL 语句是否满足 MySQL 语法，比如单引号是否闭合，关键词拼写是否正确等。</p> <p>解析器会根据SQL语句生成一个数据结构，这个数据结构我们成为解析树。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/3fbebb55ea35a6e825c1ba423a684ad8.jpg"></p> <p>我故意拼错了SELECT关键字，MySQL报了语法错误，就是在语法分析这一步。</p> <div class="ay1code"> <pre class="brush:sql;">mysql> ELECT * FROM t_user WHERE user_name = '蝉沐风' AND age > 3;  ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'ELECT * FROM t_user WHERE user_name = '蝉沐风'' at line 1  </pre> </div> <p>词法语法分析是一个非常基础的功能，Java 的编译器、百度搜索引擎如果要识别语句，必须也要有词法语法分析功能。</p> <p>任何数据库的中间件，要解析 SQL完成路由功能，也必须要有词法和语法分析功能，比如 Mycat，Sharding-JDBC（用到了Druid Parser）等都是如此。在市面上也有很多的开源的词法解析的工具，比如 LEX，Yacc等。</p> <p class="maodian"></p> <span class="directory"></span><h4 id="title-4">2.2.3 预处理器</h4> <p>如果我们写了一条语法和词法都没有问题的SQL，但是字段名和表名却不存在，这个错误是在哪一个阶段爆出的呢？</p> <p>词法解析和语法分析是无法知道数据库里有什么表，有哪些字段的。要知道这些信息还需要解析阶段的另一个工具——预处理器。</p> <p>它会检查生成的解析树，解决解析器无法解析的语义。比如，它会检查表和列名是否存在，检查名字和别名，保证没有歧义。预处理之后得到一个新的解析树。</p> <blockquote> <p>本质上，解析和预处理是一个编译过程，涉及到词法解析、语法和语义分析，更多细节我们不会探究，感兴趣的读者可以看一下编译原理方面的书籍。</p> </blockquote> <p class="maodian"></p> <h3>2.3 查询优化器（Optimizer）与查询执行计划</h3> <p>到了这一步，MySQL终于知道我们想查询的表和列以及相应的搜索条件了，是不是可以直接进行查询了？</p> <p>还不行。MySQL作者担心我们写的SQL太垃圾，所以有设计出一个叫做查询优化器的东东，辅助我们提高查询效率。</p> <p class="maodian"></p> <span class="directory"></span><h4 id="title-5">2.3.1 什么是查询优化器？</h4> <p>一条 SQL语句是不是只有一种执行方式？或者说数据库最终执行的 SQL是不是就是我们发送的 SQL?</p> <p>不是。一条 SQL 语句是可以有很多种执行方式的，最终返回相同的结果，他们是等价的。</p> <p>举一个非常简单的例子，比如你执行下面这样的语句：</p> <div class="ay1code"> <pre class="brush:sql;">SELECT * FROM t1, t2 WHERE t1.id = 10 AND t2.id = 20  </pre> </div> <ul> <li> <p>既可以先从表 t1 里面取出 id=10 的记录，再根据 id 值关联到表 t2，再判断 t2 里面 id 的值是否等于 20。</p> </li> <li> <p>也可以先从表 t2 里面取出 id=20 的记录，再根据 id 值关联到表 t1，再判断 t1 里面 id 的值是否等于 10。</p> </li> </ul> <p>这两种执行方法的逻辑结果是一样的，但是执行的效率会有不同，如果有这么多种执行方式，这些执行方式怎么得到的？最终选择哪一种去执行？根据什么判断标准去选择？</p> <p>这个就是 MySQL的查询优化器的模块（Optimizer）的工作。</p> <p>查询优化器的目的就是根据解析树生成不同的执行计划（Execution Plan），然后选择一种最优的执行计划，MySQL 里面使用的是基于开销（cost）的优化器，哪种执行计划开销最小，就用哪种。</p> <p class="maodian"></p> <span class="directory"></span><h4 id="title-6">2.3.2 优化器究竟做了什么？</h4> <p>举两个简单的例子∶</p> <ul> <li> <p>当我们对多张表进行关联查询的时候，以哪个表的数据作为基准表。</p> </li> <li> <p>有多个索引可以使用的时候，选择哪个索引。</p> </li> </ul> <p>实际上，对于每一种数据库来说，优化器的模块都是必不可少的，他们通过复杂的算法实现尽可能优化查询效率。</p> <p>往细节上说，查询优化器主要做了下面几方面的优化：</p> <ul> <li> <p>子查询优化</p> </li> <li> <p>等价谓词重写</p> </li> <li> <p>条件化简</p> </li> <li> <p>外连接消除</p> </li> <li> <p>嵌套连接消除</p> </li> <li> <p>连接消除</p> </li> <li> <p>语义优化</p> </li> </ul> <blockquote> <p>本文不会对优化的细节展开讲解，大家先对MySQL的整体架构有所了解就可以了，具体细节之后单独开篇介绍</p> </blockquote> <p>但是优化器也不是万能的，如果SQL语句写得实在太垃圾，再牛的优化器也救不了你了。因此大家在编写SQL语句的时候还是要有意识地进行优化。</p> <p class="maodian"></p> <span class="directory"></span><h4 id="title-7">2.3.3 执行计划</h4> <p>优化完之后，得到一个什么东西呢？优化器最终会把解析树变成一个查询执行计划。</p> <p>查询执行计划展示了接下来执行查询的具体方式，比如多张表关联查询，先查询哪张表，在执行查询的时候有多个索引可以使用，实际上该使用哪些索引。</p> <p>MySQL提供了一个查看执行计划的工具。我们在 SQL语句前面加上 EXPLAIN就可以看到执行计划的信息。</p> <div class="ay1code"> <pre class="brush:sql;">mysql> EXPLAIN SELECT * FROM t_user WHERE user_name = '';  +----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+  | id | select_type | table  | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |  +----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+  |  1 | SIMPLE      | t_user | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    1 |   100.00 | Using where |  +----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+  </pre> </div> <p>如果要得到更加详细的信息，还可以用FORMAT=JSON，或者开启optimizer trace。</p> <div class="ay1code"> <pre class="brush:xhtml;">mysql&gt; EXPLAIN FORMAT=JSON SELECT * FROM t_user WHERE user_name = '';  </pre> </div> <blockquote> <p>文本不会带大家详细了解执行计划的每一个参数，内容很庞杂，大家先对MySQL的整体架构有所了解就可以了，具体细节之后单独开篇介绍</p> </blockquote> <p class="maodian"></p> <h2>3. 存储引擎</h2> <p>经历千辛万苦，MySQL终于算出了最终的执行计划，然后就可以直接执行了吗？</p> <p>好吧。。。依然还不可以。</p> <p>我们知道，表是由一行一行的记录组成的，但这只是逻辑上的概念，或者说只是看上去是这样而已。</p> <p class="maodian"></p> <h3>3.1 什么是存储引擎</h3> <p>到底该把数据存储在什么位置，是内存还是磁盘？怎么从表里读取数据，以及怎么把数据写入具体的表中，这都是存储引擎 负责的事情。</p> <p>好吧，看到这里或许你还不知道存储引擎到底是什么。毕竟存储引擎这个名字听起来太玄乎了，它的前身叫做表处理器，是不是就接地气了许多呢？</p> <p class="maodian"></p> <h3>3.2 为什么需要存储引擎</h3> <p>因为存储的需求不同。</p> <p>试想一下：</p> <ul> <li> <p>如果一张表，需要很高的访问速度，而不需要考虑持久化的问题，是不是最好把数据放在内存呢？</p> </li> <li> <p>如果一张表，是用来做历史数据存档的，不需要修改，也不需要索引，那是不是要支持数据的压缩?</p> </li> <li> <p>如果一张表用在读写并发很多的业务中，是不是要支持读写互不干扰，而且要保证比较高的数据一致性呢?</p> </li> </ul> <p>大家应该明白了，为什么要支持这么多的存储引擎，因为一种存储引擎不能提供所有的特性。</p> <blockquote> <p>存储引擎是计算机抽象的典型代表，它的功能就是接受上层指令，然后对表中数据进行读取和写入，而这些操作对上层完全是屏蔽的。你甚至可以查阅MySQL文档定义自己的存储引擎，只要对外实现同样的接口就可以了。</p> </blockquote> <blockquote> <p>存储引擎就是MySQL对数据进行读写的插件而已，可以根据不同目的随意更换（插拔）</p> </blockquote> <p class="maodian"></p> <h3>3.3 存储引擎怎么用</h3> <p class="maodian"></p> <span class="directory"></span><h4 id="title-8">3.3.1 创建表的时候指定存储引擎</h4> <p>在创建表的时候可以指定当前表的存储引擎，如果没有指定，默认的存储引擎为InnoDB，如果想显式指定存储引擎，可以这样</p> <div class="ay1code"> <pre class="brush:sql;">CREATE TABLE `t_user_innodb` (    `id` int(11) NOT NULL AUTO_INCREMENT,    PRIMARY KEY (`id`)  ) ENGINE=innodb DEFAULT CHARSET=utf8mb4;  </pre> </div> <p class="maodian"></p> <span class="directory"></span><h4 id="title-9">3.3.2 修改表的存储引擎</h4> <div class="ay1code"> <pre class="brush:sql;">ALTER TABLE 表名 ENGINE = 存储引擎名称;  </pre> </div> <p class="maodian"></p> <h3>3.4 存储引擎底层区别</h3> <p>下面我们分别创建3张设置了不同存储引擎的表，t_user_innodb、t_user_myisam、t_user_memory</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/f5fd483dec0f44739445d16eaf075805.jpg"></p> <p>我们看一下不同存储引擎在底层存储方面的差异，首先找到MySQL的数据存储目录</p> <div class="ay1code"> <pre class="brush:sql;">mysql> show variables like 'datadir';  +---------------+-----------------+  | Variable_name | Value           |  +---------------+-----------------+  | datadir       | /var/lib/mysql/ |  +---------------+-----------------+  </pre> </div> <p>进入到目标目录之后，找到当前数据库对应的目录（MySQL会为一个数据库创建一个同名的目录），数据库中表的存储结构如下</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220424/55c29e4750ee4d975f867f75deed9f77.jpg"></p> <p>不同的存储引擎存放数据的方式不一样，产生的文件数量和格式也不一样，InnoDB文件包含2个，MEMORY文件包含1个，MYISAM文件包含3个。</p> <p class="maodian"></p> <h3>3.5 常见存储引擎比较</h3> <p>首先我们查看一下当前MySQL服务器支持的存储引擎都有哪一些。</p> <div class="ay1code"> <pre class="brush:sql;">mysql> SHOW ENGINES;  +--------------------+---------+--------------+------+------------+  | Engine             | Support | Transactions | XA   | Savepoints |  +--------------------+---------+--------------+------+------------+  | InnoDB             | DEFAULT | YES          | YES  | YES        |  | MRG_MYISAM         | YES     | NO           | NO   | NO         |  | MEMORY             | YES     | NO           | NO   | NO         |  | BLACKHOLE          | YES     | NO           | NO   | NO         |  | MyISAM             | YES     | NO           | NO   | NO         |  | CSV                | YES     | NO           | NO   | NO         |  | ARCHIVE            | YES     | NO           | NO   | NO         |  | PERFORMANCE_SCHEMA | YES     | NO           | NO   | NO         |  | FEDERATED          | NO      | NULL         | NULL | NULL       |  +--------------------+---------+--------------+------+------------+  </pre> </div> <p>其中，</p> <ul> <li> <p>Support表示该存储引擎是否可用；</p> </li> <li> <p>DEFAULT表示当前MySQL服务器默认的存储引擎；</p> </li> <li> <p>Transactions表示该存储引擎是否支持事务；</p> </li> <li> <p>XA表示该存储引擎是否支持分布式事务；</p> </li> <li> <p>Savepoints表示该存储引擎是否支持事务的部分回滚。</p> </li> </ul> <p class="maodian"></p> <span class="directory"></span><h4 id="title-10">3.5.1 MylSAM</h4> <p>应用范围比较小，表级锁定限制了读/写的性能，因此在Web和数据仓库配置中，通常用于只读或以读为主的工作。</p> <p>特点:</p> <ul> <li> <p>支持表级别的锁（插入和更新会锁表），不支持事务；</p> </li> <li> <p>拥有较高的插入（insert）和查询（select）速度；</p> </li> <li> <p>存储了表的行数（count速度更快）。</p> </li> </ul> <blockquote> <p>怎么快速向数据库插入100万条数据？</p> </blockquote> <p>可以先用MylSAM插入数据，然后修改存储引擎为InnoDB。</p> <p class="maodian"></p> <span class="directory"></span><h4 id="title-11">3.5.2 InnoDB</h4> <p>MySQL 5.7及更新版中的默认存储引擎。InnoDB是一个事务安全（与ACID兼容）的MySQL 存储引擎，它具有提交、回滚和崩溃恢复功能来保护用户数据。InnoDB行级锁（不升级为更粗粒度的锁）和Oracle风格的一致非锁读提高了多用户并发性。InnoDB将用户数据存储在聚集索引中，以减少基于主键的常见查询的I/O。为了保持数据完整性，InnoDB还支持外键引用完整性约束。</p> <p>特点：</p> <ul> <li> <p>支持事务，支持外键，因此数据的完整性、一致性更高；</p> </li> <li> <p>支持行级别的锁和表级别的锁；</p> </li> <li> <p>支持读写并发，写不阻塞读（MVCC）；</p> </li> <li> <p>特殊的索引存放方式，可以减少IO，提升査询效率。</p> </li> </ul> <blockquote> <p>番外：InnoDB本来是InnobaseOy公司开发的，它和MySQL AB公司合作开源了InnoDB的代码。但是没想到MySQL的竞争对手Oracle把InnobaseOy收购了。后来08年Sun公司（开发Java语言的Sun）收购了MySQL AB，09年Sun公司又被Oracle收购了，所以MySQL和 InnoDB又是一家了。有人觉得MySQL越来越像Oracle,其实也是这个原因。</p> </blockquote> <p class="maodian"></p> <span class="directory"></span><h4 id="title-12">3.5.3 Memory</h4> <p>将所有数据存储在RAM中，以便快速访问。这个引擎以前被称为堆引擎。</p> <p>特点：</p> <ul> <li> <p>把数据放在内存里面，读写的速度很快，但是数据库重启或者崩溃，数据会全部消失；</p> </li> <li> <p>只适合做临时表。</p> </li> </ul> <p class="maodian"></p> <span class="directory"></span><h4 id="title-13">3.5.4 CSV</h4> <p>它的表实际上是带有逗号分隔值的文本文件。csv表允许以CSV格式导入或转储数据, 以便与读写相同格式的脚本和应用程序交换数据。因为CSV表没有索引，所以通常在正常操作期间将数据保存在InnoDB表中，只在导入或导出阶段使用csv表。</p> <p>特点：</p> <ul> <li> <p>不允许空行，不支持索引；</p> </li> <li> <p>格式通用，可以直接编辑，适合在不同数据库之间导入导出。</p> </li> </ul> <p class="maodian"></p> <span class="directory"></span><h4 id="title-14">3.5.5 Archive</h4> <p>专用与存档，空间经过压缩，用于存储和检索大量很少引用的信息。</p> <p>特点：</p> <ul> <li> <p>不支持索引；</p> </li> <li> <p>不支持update、delete。</p> </li> </ul> <p class="maodian"></p> <h3>3.6 如何选择存储引擎</h3> <ul> <li> <p>如果对数据一致性要求比较高，需要事务支持，可以选择InnoDB。</p> </li> <li> <p>如果数据查询多更新少，对查询性能要求比较高，可以选择MyISAM。</p> </li> <li> <p>如果需要一个用于查询的临时表，可以选择Memory。</p> </li> </ul> <p>如果所有的存储引擎都不能满足你的需求，并且技术能力足够，可以根据官网内部手册用C语言开发一个存储引擎：https://dev.mvsql.com/doc/internals/en/custom-engine.html</p> <p class="maodian"></p> <h2>总结</h2> 			                </div>
-                <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-189.htm">gin结合gorm实现mysql增删改查</a></p>
-                                        <p>下一个：<a href="/html/category/article-191.htm">实现单例模式的八种方法</a></p>
-                                    </div>
-
-                            </div>
-            <div class="col-md-4 w3l-services">
-                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6982.htm">给宠物医院的好评怎么写（给宠物医院的好评怎么写简短）</a></h4>
-                <p>摘要：       今天给各位分享给宠物医院的好评怎么写的知识，其中也会对给宠物医院的好评怎么写简短进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、给宠物医院.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6706.htm">广东厨房电器十大品牌有哪些牌子(广东厨房电器十大品牌有哪些厂家)</a></h4>
-                <p>最近经常有小伙伴私信询问厨房电器？相关的问题，今天，蝶侠小编整理了以下内容，希望可以对大家有所帮助。本文目录一览：1、广东厨房电器十大品牌有哪些？2、广东十大白酒品牌3、广东瓷砖十大名牌有哪些牌子 广</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6983.htm">动物医院诊室的岗位职责是什么 动物医院诊室的岗位职责是什么呢</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于动物医院诊室的岗位职责是什么的问题，于是小编就整理了5个相关介绍动物医院诊室的岗位职责是什么的解答，让我们一起看看吧。动物诊所助</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7167.htm">宠物用品一件代发小程序（宠物食品一件代发）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物用品一件代发小程序，以及宠物食品一件代发对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、阿里巴巴里一件代发是怎么操作的...     </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6799.htm">动物医院前台个人总结怎么写（动物医院前台个人总结怎么写范文）</a></h4>
-                <p>摘要：       今天给各位分享动物医院前台个人总结怎么写的知识，其中也会对动物医院前台个人总结怎么写范文进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、宠.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7074.htm">做梦梦见海豹是什么意思啊（梦见小海豹心理学解析）</a></h4>
-                <p>摘要：       今天给各位分享做梦梦见海豹是什么意思啊的知识，其中也会对梦见小海豹心理学解析进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、梦见海豹有什么.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6890.htm">宠物粮食品牌取名字大全（宠物粮食品牌取名字大全集）</a></h4>
-                <p>摘要：       今天给各位分享宠物粮食品牌取名字大全的知识，其中也会对宠物粮食品牌取名字大全集进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、猫粮品牌排名.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7121.htm">领养宠物渠道（领养宠物渠道分析）</a></h4>
-                <p>摘要：       今天给各位分享领养宠物渠道的知识，其中也会对领养宠物渠道分析进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、网上免费领养狗狗靠谱吗?哪里可.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7305.htm">一个宠物店一年的纯利润是多少（宠物店一般一个月营业额多少）</a></h4>
-                <p>摘要：       今天给各位分享一个宠物店一年的纯利润是多少的知识，其中也会对宠物店一般一个月营业额多少进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、经营.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6016.htm">宠物粮食排行榜前十 宠物粮食排行榜前十名</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮食排行榜前十的问题，于是小编就整理了5个相关介绍宠物粮食排行榜前十的解答，让我们一起看看吧。宠物食物？宠物粮有哪些比较靠谱</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">14</span> <a href="/html/date/2024-08/" title="2024-08 归档">2024-08</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
-                            </div>
-        </div>
-    </div>
-</div>
-            </div>
-        </div>
-    </div>
-    
-        <!-- Footer -->
-    <section class="w3l-footer py-sm-5 py-4">
-        <div class="container">
-            <div class="footer-content">
-                <div class="row">
-                    <div class="col-lg-8 footer-left">
-                        <p class="m-0">EgyptAddress 版权所有</p>
-                    </div>
-                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
-                        <ul class="social m-0 p-0">
-                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
-                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
-                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
-                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
-                        </ul>
-                    </div>
+        <div class="exception-var">
+        <h2>Environment Variables</h2>
+                <div>
+                        <h3 class="subheading">GET Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>website_id</strong></div>
+                    <div class="col-md-9"><small>
+                        1                    </small></div>
                 </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>id</strong></div>
+                    <div class="col-md-9"><small>
+                        190                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>POST Data</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
             </div>
-        </div>
-        <!-- move top -->
-        <button onclick="topFunction()" id="movetop" title="Go to top">
-            <span class="fa fa-angle-up"></span>
-        </button>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Files</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Cookies</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Session</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">Server/Request Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ALLUSERSPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Roaming                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>COMPUTERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ComSpec</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\system32\cmd.exe                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DriverData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\System32\Drivers\DriverData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_APP_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Internet Explorer                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_USER_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Default                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FREI0R_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        D:\PROGRA~1\APOWER~1\VIDEOC~1\frei0r;D:\Program Files (x86)\Apowersoft\Video Converter Studio\frei0r                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEDRIVE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEPATH</strong></div>
+                    <div class="col-md-9"><small>
+                        \Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOCALAPPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOGONSERVER</strong></div>
+                    <div class="col-md-9"><small>
+                        \\DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>NUMBER_OF_PROCESSORS</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OneDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\OneDrive                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OS</strong></div>
+                    <div class="col-md-9"><small>
+                        Windows_NT                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>Path</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATHEXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_ARCHITECTURE</strong></div>
+                    <div class="col-md-9"><small>
+                        AMD64                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_IDENTIFIER</strong></div>
+                    <div class="col-md-9"><small>
+                        Intel64 Family 6 Model 158 Stepping 10, GenuineIntel                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_LEVEL</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_REVISION</strong></div>
+                    <div class="col-md-9"><small>
+                        9e0a                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PSModulePath</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PUBLIC</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\Public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SESSIONNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        Console                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemRoot</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN_ROAMINGPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>windir</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_ACCEPT</strong></div>
+                    <div class="col-md-9"><small>
+                        */*                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_USER_AGENT</strong></div>
+                    <div class="col-md-9"><small>
+                        Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_HOST</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REDIRECT_STATUS</strong></div>
+                    <div class="col-md-9"><small>
+                        200                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        80                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        49947                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_SOFTWARE</strong></div>
+                    <div class="col-md-9"><small>
+                        nginx/1.15.11                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>GATEWAY_INTERFACE</strong></div>
+                    <div class="col-md-9"><small>
+                        CGI/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_SCHEME</strong></div>
+                    <div class="col-md-9"><small>
+                        http                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PROTOCOL</strong></div>
+                    <div class="col-md-9"><small>
+                        HTTP/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_ROOT</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog?website_id=1&amp;id=190                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_LENGTH</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_TYPE</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_METHOD</strong></div>
+                    <div class="col-md-9"><small>
+                        GET                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>QUERY_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        s=/addons/xcblog/index/url_blog&amp;website_id=1&amp;id=190                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_TRANSLATED</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_INFO</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_FILENAME</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public/index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FCGI_ROLE</strong></div>
+                    <div class="col-md-9"><small>
+                        RESPONDER                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PHP_SELF</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME_FLOAT</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987384.0819                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987384                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Environment Variables</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">ThinkPHP Constants</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_VERSION</strong></div>
+                    <div class="col-md-9"><small>
+                        5.0.26                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987384.0827                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_MEM</strong></div>
+                    <div class="col-md-9"><small>
+                        409072                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DS</strong></div>
+                    <div class="col-md-9"><small>
+                        \                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LIB_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CORE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TRAIT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\traits\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ROOT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXTEND_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\extend\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>VENDOR_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>RUNTIME_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOG_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\log\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CACHE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\cache\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\temp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ENV_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        PHP_                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_CLI</strong></div>
+                    <div class="col-md-9"><small>
+                        false                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_WIN</strong></div>
+                    <div class="col-md-9"><small>
+                        true                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FILTER_VALIDATE_BOOL</strong></div>
+                    <div class="col-md-9"><small>
+                        258                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTMLPURIFIER_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\ezyang\htmlpurifier\library                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ADDON_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\addons\                    </small></div>
+                </div>
+                            </div>
+                    </div>
+            </div>
+    
+    <div class="copyright">
+        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
+        <span>V5.0.26</span> 
+        <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
+    </div>
         <script>
-        // When the user scrolls down 20px from the top of the document, show the button
-        window.onscroll = function() {
-            scrollFunction()
-        };
+        var LINE = 133;
 
-        function scrollFunction() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                document.getElementById("movetop").style.display = "block";
+        function $(selector, node){
+            var elements;
+
+            node = node || document;
+            if(document.querySelectorAll){
+                elements = node.querySelectorAll(selector);
             } else {
-                document.getElementById("movetop").style.display = "none";
-            }
-        }
-
-        // When the user clicks on the button, scroll to the top of the document
-        function topFunction() {
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        }
-        </script>
-        <!-- /move top -->
-    </section>
-    <!-- //Footer -->
-
-    <!-- all js scripts and files here -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
-    <!-- /typig-text-->
-    <script>
-    const typedTextSpan = document.querySelector(".typed-text");
-    const cursorSpan = document.querySelector(".cursor");
-
-    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
-    const typingDelay = 200;
-    const erasingDelay = 10;
-    const newTextDelay = 100; // Delay between current and next text
-    let textArrayIndex = 0;
-    let charIndex = 0;
-
-    function type() {
-        if (charIndex < textArray[textArrayIndex].length) {
-            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
-            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
-            charIndex++;
-            setTimeout(type, typingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            setTimeout(erase, newTextDelay);
-        }
-    }
-
-    function erase() {
-        if (charIndex > 0) {
-            // add class 'typing' if there's none
-            if (!cursorSpan.classList.contains("typing")) {
-                cursorSpan.classList.add("typing");
-            }
-            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
-            charIndex--;
-            setTimeout(erase, erasingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            textArrayIndex++;
-            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
-            setTimeout(type, typingDelay);
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
-        if (textArray.length) setTimeout(type, newTextDelay + 250);
-    });
-    </script>
-    <!-- //typig-text-->
-    <!-- services owlcarousel -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
-    <!-- script for services -->
-    <script>
-    $(document).ready(function() {
-        $('.owl-two').owlCarousel({
-            loop: true,
-            margin: 30,
-            nav: false,
-            responsiveClass: true,
-            autoplay: false,
-            autoplayTimeout: 5000,
-            autoplaySpeed: 1000,
-            autoplayHoverPause: false,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                480: {
-                    items: 1,
-                    nav: false
-                },
-                700: {
-                    items: 1,
-                    nav: false
-                },
-                1090: {
-                    items: 3,
-                    nav: false
+                switch(selector.substr(0, 1)){
+                    case '#':
+                        elements = [node.getElementById(selector.substr(1))];
+                        break;
+                    case '.':
+                        if(document.getElementsByClassName){
+                            elements = node.getElementsByClassName(selector.substr(1));
+                        } else {
+                            elements = get_elements_by_class(selector.substr(1), node);
+                        }
+                        break;
+                    default:
+                        elements = node.getElementsByTagName();
                 }
             }
-        })
-    })
-    </script>
-    <!-- //script for services -->
-    <!-- script for tesimonials carousel slider -->
-    <script>
-    $(document).ready(function() {
-        $("#owl-demo1").owlCarousel({
-            loop: true,
-            margin: 20,
-            nav: false,
-            responsiveClass: true,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                736: {
-                    items: 1,
-                    nav: false
-                },
-                1000: {
-                    items: 2,
-                    nav: false,
-                    loop: false
+            return elements;
+
+            function get_elements_by_class(search_class, node, tag) {
+                var elements = [], eles, 
+                    pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
+
+                node = node || document;
+                tag  = tag  || '*';
+
+                eles = node.getElementsByTagName(tag);
+                for(var i = 0; i < eles.length; i++) {
+                    if(pattern.test(eles[i].className)) {
+                        elements.push(eles[i])
+                    }
+                }
+
+                return elements;
+            }
+        }
+
+        $.getScript = function(src, func){
+            var script = document.createElement('script');
+            
+            script.async  = 'async';
+            script.src    = src;
+            script.onload = func || function(){};
+            
+            $('head')[0].appendChild(script);
+        }
+
+        ;(function(){
+            var files = $('.toggle');
+            var ol    = $('ol', $('.prettyprint')[0]);
+            var li    = $('li', ol[0]);   
+
+            // 短路径和长路径变换
+            for(var i = 0; i < files.length; i++){
+                files[i].ondblclick = function(){
+                    var title = this.title;
+
+                    this.title = this.innerHTML;
+                    this.innerHTML = title;
                 }
             }
-        })
-    })
+
+            // 设置出错行
+            var err_line = $('.line-' + LINE, ol[0])[0];
+            err_line.className = err_line.className + ' line-error';
+
+            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
+                prettyPrint();
+
+                // 解决Firefox浏览器一个很诡异的问题
+                // 当代码高亮后，ol的行号莫名其妙的错位
+                // 但是只要刷新li里面的html重新渲染就没有问题了
+                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
+                    ol[0].innerHTML = ol[0].innerHTML;
+                }
+            });
+
+        })();
     </script>
-    <!-- //script for tesimonials carousel slider -->
-    <!-- video popup -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('.popup-with-zoom-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-zoom-in'
-        });
-
-        $('.popup-with-move-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-slide-bottom'
-        });
-    });
-    </script>
-    <!-- //video popup -->
-    <!-- stats number counter-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
-    <script>
-    $('.counter').countUp();
-    </script>
-    <!-- //stats number counter -->
-    <!-- disable body scroll which navbar is in active -->
-    <script>
-    $(function() {
-        $('.navbar-toggler').click(function() {
-            $('body').toggleClass('noscroll');
-        })
-
-        $('.post-content-content .js_to').click(function(){
-            var url = $(this).data('url');
-            var code = $(this).data('code');
-            url += code;
-
-            window.open(url);
-        })
-    });
-    </script>
-    <!-- disable body scroll which navbar is in active -->
-    <!--/MENU-JS-->
-    <script>
-    $(window).on("scroll", function() {
-        var scroll = $(window).scrollTop();
-
-        if (scroll >= 80) {
-            $("#site-header").addClass("nav-fixed");
-        } else {
-            $("#site-header").removeClass("nav-fixed");
-        }
-    });
-
-    //Main navigation Active Class Add Remove
-    $(".navbar-toggler").on("click", function() {
-        $("header").toggleClass("active");
-    });
-    $(document).on("ready", function() {
-        if ($(window).width() > 991) {
-            $("header").removeClass("active");
-        }
-        $(window).on("resize", function() {
-            if ($(window).width() > 991) {
-                $("header").removeClass("active");
-            }
-        });
-    });
-    </script>
-    <!--//MENU-JS-->
-    <!-- bootstrap js -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
-</body>
-
+    </body>
 </html>

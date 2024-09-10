@@ -1,476 +1,925 @@
-<!doctype html>
-<html lang="zh-CN">
-
+<!DOCTYPE html>
+<html>
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-127.htm" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>ssh之struts2篇拦截器&amp;常用标签 - EgyptAddress</title>
-    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
-        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
-    <script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
-     crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <title>System Error</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <style>
+        /* Base */
+        body {
+            color: #333;
+            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0 20px 20px;
+            word-break: break-word;
+        }
+        h1{
+            margin: 10px 0 0;
+            font-size: 28px;
+            font-weight: 500;
+            line-height: 32px;
+        }
+        h2{
+            color: #4288ce;
+            font-weight: 400;
+            padding: 6px 0;
+            margin: 6px 0 0;
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+        }
+        h3.subheading {
+            color: #4288ce;
+            margin: 6px 0 0;
+            font-weight: 400;
+        }
+        h3{
+            margin: 12px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        abbr{
+            cursor: help;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+        a{
+            color: #868686;
+            cursor: pointer;
+        }
+        a:hover{
+            text-decoration: underline;
+        }
+        .line-error{
+            background: #f8cbcb;
+        }
+
+        .echo table {
+            width: 100%;
+        }
+
+        .echo pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f7f7f7;
+            border: 0;
+            border-radius: 3px;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        .echo pre > pre {
+            padding: 0;
+            margin: 0;
+        }
+        /* Layout */
+        .col-md-3 {
+            width: 25%;
+        }
+        .col-md-9 {
+            width: 75%;
+        }
+        [class^="col-md-"] {
+            float: left;
+        }
+        .clearfix {
+            clear:both;
+        }
+        @media only screen 
+        and (min-device-width : 375px) 
+        and (max-device-width : 667px) { 
+            .col-md-3,
+            .col-md-9 {
+                width: 100%;
+            }
+        }
+        /* Exception Info */
+        .exception {
+            margin-top: 20px;
+        }
+        .exception .message{
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-bottom: 0 none;
+            line-height: 18px;
+            font-size:16px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+
+        .exception .code{
+            float: left;
+            text-align: center;
+            color: #fff;
+            margin-right: 12px;
+            padding: 16px;
+            border-radius: 4px;
+            background: #999;
+        }
+        .exception .source-code{
+            padding: 6px;
+            border: 1px solid #ddd;
+
+            background: #f9f9f9;
+            overflow-x: auto;
+
+        }
+        .exception .source-code pre{
+            margin: 0;
+        }
+        .exception .source-code pre ol{
+            margin: 0;
+            color: #4288ce;
+            display: inline-block;
+            min-width: 100%;
+            box-sizing: border-box;
+        font-size:14px;
+            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
+            padding-left: 56px;
+        }
+        .exception .source-code pre li{
+            border-left: 1px solid #ddd;
+            height: 18px;
+            line-height: 18px;
+        }
+        .exception .source-code pre code{
+            color: #333;
+            height: 100%;
+            display: inline-block;
+            border-left: 1px solid #fff;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace{
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-top: 0 none;
+            line-height: 16px;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace ol{
+            margin: 12px;
+        }
+        .exception .trace ol li{
+            padding: 2px 4px;
+        }
+        .exception div:last-child{
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Exception Variables */
+        .exception-var table{
+            width: 100%;
+            margin: 12px 0;
+            box-sizing: border-box;
+            table-layout:fixed;
+            word-wrap:break-word;            
+        }
+        .exception-var table caption{
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 6px 0;
+        }
+        .exception-var table caption small{
+            font-weight: 300;
+            display: inline-block;
+            margin-left: 10px;
+            color: #ccc;
+        }
+        .exception-var table tbody{
+            font-size: 13px;
+            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
+        }
+        .exception-var table td{
+            padding: 0 6px;
+            vertical-align: top;
+            word-break: break-all;
+        }
+        .exception-var table td:first-child{
+            width: 28%;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .exception-var table td pre{
+            margin: 0;
+        }
+
+        /* Copyright Info */
+        .copyright{
+            margin-top: 24px;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
+        }
+
+        /* SPAN elements with the classes below are added by prettyprint. */
+        pre.prettyprint .pln { color: #000 }  /* plain text */
+        pre.prettyprint .str { color: #080 }  /* string content */
+        pre.prettyprint .kwd { color: #008 }  /* a keyword */
+        pre.prettyprint .com { color: #800 }  /* a comment */
+        pre.prettyprint .typ { color: #606 }  /* a type name */
+        pre.prettyprint .lit { color: #066 }  /* a literal value */
+        /* punctuation, lisp open bracket, lisp close bracket */
+        pre.prettyprint .pun, pre.prettyprint .opn, pre.prettyprint .clo { color: #660 }
+        pre.prettyprint .tag { color: #008 }  /* a markup tag name */
+        pre.prettyprint .atn { color: #606 }  /* a markup attribute name */
+        pre.prettyprint .atv { color: #080 }  /* a markup attribute value */
+        pre.prettyprint .dec, pre.prettyprint .var { color: #606 }  /* a declaration; a variable name */
+        pre.prettyprint .fun { color: red }  /* a function name */
+    </style>
 </head>
-
 <body>
-        <!-- header -->
-    <header id="site-header" class="fixed-top">
-        <div class="container">
-            <nav class="navbar navbar-expand-lg stroke">
-                <a class="navbar-brand" href="/">
-                                        <span class="fa fa-laptop"></span> EgyptAddress
-                                    </a>
-                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
-                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
-                    </span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                    <ul class="navbar-nav ml-auto">
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/">首页</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/html/category/">文章分类</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="#">关于</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">联系</a>
-                        </li>
-                    </ul>
+    <div class="echo">
+            </div>
+        <div class="exception">
+    <div class="message">
+        
+            <div class="info">
+                <div>
+                    <h2>[8]&nbsp;<abbr title="think\exception\ErrorException">ErrorException</abbr> in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></h2>
                 </div>
-                <!-- toggle switch for light and dark theme -->
-                <div class="mobile-position">
-                    <nav class="navigation">
-                        <div class="theme-switch-wrapper">
-                            <label class="theme-switch" for="checkbox">
-                                <input type="checkbox" id="checkbox">
-                                <div class="mode-container">
-                                    <i class="gg-sun"></i>
-                                    <i class="gg-moon"></i>
-                                </div>
-                            </label>
-                        </div>
-                    </nav>
-                </div>
-                <!-- //toggle switch for light and dark theme -->
-            </nav>
+                <div><h1>未定义变量: hot_city_list</h1></div>
+            </div>
+        
+    </div>
+	        <div class="source-code">
+            <pre class="prettyprint lang-php"><ol start="124"><li class="line-124"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-125"><code>            &lt;?php if(is_array($hot_country_list) || $hot_country_list instanceof \think\Collection || $hot_country_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_country_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-126"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-127"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-128"><code>            &lt;/li&gt;
+</code></li><li class="line-129"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li><li class="line-130"><code>        &lt;/ul&gt;
+</code></li><li class="line-131"><code>    &lt;/div&gt;
+</code></li><li class="line-132"><code>&lt;/div&gt;
+</code></li><li class="line-133"><code>&lt;?php endif; if($hot_city_list): ?&gt;
+</code></li><li class="line-134"><code>&lt;div class=&quot;panel panel-default box article-list&quot;&gt;
+</code></li><li class="line-135"><code>    &lt;div class=&quot;panel-heading&quot;&gt;&lt;h2&gt;热门城市&lt;/h2&gt;&lt;/div&gt;
+</code></li><li class="line-136"><code>    &lt;div class=&quot;panel-body&quot;&gt;
+</code></li><li class="line-137"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-138"><code>            &lt;?php if(is_array($hot_city_list) || $hot_city_list instanceof \think\Collection || $hot_city_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_city_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-139"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-140"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-141"><code>            &lt;/li&gt;
+</code></li><li class="line-142"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li></ol></pre>
         </div>
-    </header>
-    <!-- //header -->
+	        <div class="trace">
+            <h2>Call Stack</h2>
+            <ol>
+                <li>in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></li>
+                                <li>
+                at <abbr title="think\Error">Error</abbr>::appError(8, '<a class="toggle" title="Undefined variable: hot_city_list">Undefined variable: ...</a>', '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 133, ['cacheFile' => '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 'vars' => ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], 'config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a>                </li>
+                                <li>
+                at include('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\template\driver\File.php line 53">File.php line 53</a>                </li>
+                                <li>
+                at <abbr title="think\template\driver\File">File</abbr>->read('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\Template.php line 188">Template.php line 188</a>                </li>
+                                <li>
+                at <abbr title="think\Template">Template</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\view\driver\Think.php line 86">Think.php line 86</a>                </li>
+                                <li>
+                at <abbr title="think\view\driver\Think">Think</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\View.php line 163">View.php line 163</a>                </li>
+                                <li>
+                at <abbr title="think\View">View</abbr>->fetch('<a class="toggle" title="egyptaddress/index/url_blog">egyptaddress/index/u...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\controller\Index.php line 442">Index.php line 442</a>                </li>
+                                <li>
+                at <abbr title="addons\xcblog\controller\Index">Index</abbr>->url_blog()                </li>
+                                <li>
+                at call_user_func_array([<em>object</em>(<abbr title="addons\xcblog\controller\Index">Index</abbr>), 'url_blog'], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\vendor\karsonzhang\fastadmin-addons\src\addons\Route.php line 78">Route.php line 78</a>                </li>
+                                <li>
+                at <abbr title="think\addons\Route">Route</abbr>->execute('xcblog', 'index', 'url_blog')                </li>
+                                <li>
+                at <abbr title="ReflectionMethod">ReflectionMethod</abbr>->invokeArgs(<em>object</em>(<abbr title="think\addons\Route">Route</abbr>), ['xcblog', 'index', 'url_blog']) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 343">App.php line 343</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::invokeMethod(['\think\addons\Route', 'execute'], ['website_id' => '1', 'id' => '127', 'addon' => 'xcblog', ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 470">App.php line 470</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::exec(['type' => 'method', 'method' => ['\think\addons\Route', 'execute'], 'var' => []], ['app_host' => '', 'app_debug' => <em>true</em>, 'app_trace' => <em>false</em>, ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 139">App.php line 139</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::run() in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php line 19">start.php line 19</a>                </li>
+                                <li>
+                at require('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\public\index.php line 23">index.php line 23</a>                </li>
+                            </ol>
+        </div>
+    </div>
+        
     
-    <!-- about breadcrumb -->
-    <section class="w3l-about-breadcrumb text-center">
-        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
-            <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">ssh之struts2篇拦截器&amp;常用标签</h1>
-                <ul class="breadcrumbs-custom-path mt-2">
-                    <li><a href="/">首页</a></li>
-                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
-                    <li><a href="/html/category/">文章分类</a></li>
-                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-    <!-- //about breadcrumb -->
-    <div class="container py-lg-5 py-3">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="post-content-content">
-                      				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <div class="toc"> <h3>struts2之拦截器&常用标签</h3> <ul> <li>一、拦截器</li> <li> <ul> <li>1、拦截器概述</li> <li>2、拦截器工作原理</li> <li>3、拦截器配置</li> <li> <ul> <li>3.1、拦截器</li> <li>3.2、拦截器栈</li> <li>3.3、默认拦截器栈</li> <li>3.4、内建拦截器</li> </ul> </li> <li>4、自定义拦截器</li> <li> <ul> <li>4.1、实现自定义拦截器</li> <li>4.2、举个栗子</li> </ul> </li> </ul> </li> <li>二、标签</li> <li> <ul> <li>1、分类</li> <li>2、控制标签</li> <li>3、数据标签</li> <li> <ul> <li>3.1、< s:property >标签</li> <li>3.2、< s:a >标签</li> <li>3.3、< s:debug >标签</li> <li>3.4、< s:include >标签</li> <li>3.5、< s:param >标签</li> </ul> </li> <li>4、模板和主题</li> <li>5、表单标签</li> <li> <ul> <li>5.1、< s:form >标签</li> <li>5.2、< s:submit >标签</li> <li>5.3、< s:textfield >和< s:textarea >标签</li> <li>5.4、< s:password >标签</li> <li>5.5、< s:radio >标签</li> <li>5.6、< s:checkbox >和< s:checkboxlist >标签</li> <li>5.7、< s:select >标签</li> <li>5.8、< s:optgroup >标签</li> <li>5.9、< s:file >标签</li> <li>5.10、< s:hidden >标签</li> <li>5.11、< s:reset >标签</li> </ul> </li> <li>6、非表单标签</li> </ul> </li> </ul> </div> <h1>一、拦截器</h1> <h2>1、拦截器概述</h2> <p><strong>概述</strong>：interceptor是struts2的核心组成部分，可动态拦截Action的调用对象，类似Servlet中的过滤器。可插拔，实现AOP。<br /> 拦截器组合在一起=拦截器链/栈，对应各个功能的拦截器按照一定的顺序排列在一起形成的链，链组成的集合就是栈。</p> <h2>2、拦截器工作原理</h2> <p>通常以代理的方式调用，在一个Action执行前后进行拦截，围绕Action和Result的执行而执行，以链式，对真正要执行的execute方法进行拦截。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/ee77187e3ee4ed4eccbded0297db4bfc.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h2>3、拦截器配置</h2> <h3>3.1、拦截器</h3> <p>在struts.xml文件中配置，标签：< interceptor ><br /> name属性指定拦截器名称，class属性指定拦截器的实现类。<br /> 传参用< param >标签，其中name指定参数名，param Value表示参数的值。</p> <pre><code><interceptor name="login_icpt" class="login_interceptor">                 <param name="name">param Value</param>  </interceptor></code></pre> <h3>3.2、拦截器栈</h3> <p>拦截器栈被附加到一个Action上时，在执行Action之前必先执行栈中的每一个拦截器。<br /> 定义拦截器栈使用标签interceptors元素和interceptors-stack子元素，当配置多个拦截器时，interceptor-ref元素指定多个拦截器</p> <pre><code><package name="defualt" namespace="/" extends="struts-default">     <interceptors>         <interceptor name="icpt1" class="interceptorClass1"/>         <interceptor name="icpt2" class="interceptorClass2"/>          <!--定义一个拦截器栈，myStack，包含俩拦截器和一个拦截器栈-->         <interceptor-stack name="myStack">             <interceptor-ref name="defaultStack"></interceptor-ref>             <interceptor-ref name="icpt1"></interceptor-ref>             <interceptor-ref name="icpt2"></interceptor-ref>         </interceptor-stack>     </interceptors> </package></code></pre> <h3>3.3、默认拦截器栈</h3> <p>配置默认拦截器用标签：< default-interceptor-ref></p> <pre><code> <default-interceptor-ref name="myStack"></default-interceptor-ref>                      <result name="success">/login_success.jsp</result>         </action></code></pre> <h3><a id="34_45" rel="nofollow">3.4、内建拦截器</h3> <p>在struts-default.xml文件中，拦截器以name-class的形式配置。位置如下：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/10222a37a20fa66c663bed51c838dfd0.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h2>4、自定义拦截器</h2> <h3>4.1、实现自定义拦截器</h3> <p><strong>方式一：</strong><br /> 实现自定义拦截器=直接或间接的实现com.opensymphony.xwork2.interceptor.Interceptor接口。<br /> 实现其中的三个方法：void init()、<br /> void destory()、<br /> String intercept(ActionInvocation invocation) throws Exception<br /><strong>方式二：</strong><br /> 继承抽象拦截器类AbstractInterceptor，该类实现了上述接口的方法，只需实现interceptor（）就可以创建自定义拦截器。</p> <h3>4.2、举个栗子</h3> <p><strong>步骤：</strong><br /> 1）、必须实现Interceptor接口或者继承AbstractInterceptor类；<br /> 2）、在struts.xml中自定义拦截器；<br /> 3）、在struts.xml中Action使用拦截器。<br /> 举个栗子：（懒得自己写了。。。）<br /> https://jingyan.baidu.com/article/63f236285c13260208ab3d93.html</p> <h1>二、标签</h1> <h2>1、分类</h2> <p>主要分为：普通标签和UI标签。</p> <table> <thead> <tr> <th>标签库</th> <th>细分</th> </tr> </thead> <tbody> <tr> <td>普通标签</td> <td>control标签，data标签</td> </tr> <tr> <td>UI标签</td> <td>Form、Non-Form、Ajax标签</td> </tr> </tbody> </table> <p>标签库：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/ebd9dbca2e9fb97218012ba47aabc9d5.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h2>2、控制标签</h2> <table> <thead> <tr> <th>控制标签</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td><s:if></td> <td>可单独使用，程序的分支逻辑控制。必须指定test属性，用于设置标签的判断条件，其值为布尔类型的条件表达式</td> </tr> <tr> <td><s:elseif></td> <td>结合<s:if>使用，程序的分支逻辑控制。必须指定test属性，用于设置标签的判断条件，其值为布尔类型的条件表达式</td> </tr> <tr> <td><s:else></td> <td>结合<s:if>使用，程序的分支逻辑控制。</td> </tr> <tr> <td><s:iterator></td> <td>用于对集合中的数据进行迭代，可根据条件遍历集合。</td> </tr> </tbody> </table> <p>control_tags.jsp控制标签：</p> <pre><code><%@ page contentType="text/html;charset=UTF-8" language="java" %> <html> <head>     <title>控制标签</title> </head> <body> <center>     <table border="1px" cellpadding="0" cellspacing="0">         <s:iterator var="name" value="{'java','python','sql','c','c#'}" status="st">             <s:if test="#st.odd">                 <tr style="background-color: aliceblue">                     <td><s:property value="name"/> </td>                 </tr>             </s:if>             <s:else>                 <tr style="background-color: darkgray">                     <td><s:property value="name"/> </td>                 </tr>             </s:else>         </s:iterator>     </table> </center> </body> </html></code></pre> <p>s:iterator循环输出集合中的值，status属性的odd方法获取作为if，else标签的判断条件，对行数进行显示控制。<br /> 使用iterator遍历List集合时，判断索引的奇偶决定表格的颜色。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/ba88b83f576796a1c9e97f6313b6f2dd.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h2>3、数据标签</h2> <p>< s:property><br /> < s:a><br /> < s:debug><br /> < s:include><br /> < s:param></p> <h3>3.1、< s:property >标签</h3> <table> <thead> <tr> <th>属性</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td>id</td> <td>可选，指定该元素的标识</td> </tr> <tr> <td>default</td> <td>可选，若输出属性值为null，则显示default属性的指定值</td> </tr> <tr> <td>escape</td> <td>可选，指定是否忽略html代码（true忽略）</td> </tr> <tr> <td>value</td> <td>可选，指定需要输出的属性值，没有则默认输出ValueStack栈顶值</td> </tr> </tbody> </table> <p>property_tags.jsp</p> <pre><code><%@ page contentType="text/html;charset=UTF-8" language="java" %> <html> <head>     <title>数据标签</title> </head> <body> <center><h2>数据标签property</h2> 输出字符串： <s:property value="'keep going!'"/><br> 忽略html代码： <s:property value="'<h3>keep going!</h3>'" escapeHtml="true"/><br> 不忽略： <s:property value="'<h3>keep going!</h3>'" escapeHtml="false"/><br> 输出默认值： <s:property value="" default="true"/> </center> </body> </html></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/35c2eeafdf0047c41b45ea185b20a314.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h3>3.2、< s:a >标签</h3> <p>构造页面超链接</p> <table> <thead> <tr> <th>属性</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td>href</td> <td>可选，String，指定超链接地址</td> </tr> <tr> <td>action</td> <td>可选，String，指定超链接Action地址</td> </tr> <tr> <td>namespace</td> <td>可选，String，指定Action地址</td> </tr> <tr> <td>id</td> <td>可选，String，指定id</td> </tr> <tr> <td>method</td> <td>可选，String，指定Action调用方法</td> </tr> </tbody> </table> <h3>3.3、< s:debug >标签</h3> <p>使用该标签，网页中会生成debug的链接，输出服务器对象信息。</p> <h3>3.4、< s:include >标签</h3> <p>一个属性：value<br /> 指定被包含的jsp、Servlet等<br /> < param >子标签：用来传参，name参数名，value参数值</p> <pre><code><s:include value="property_tags.jsp">   <s:param name="user" value="aa"/> </s:include></code></pre> <h3>3.5、< s:param >标签</h3> <p>结合其他标签使用<br /> 1）使用value指定参数值<br /> 2）通过标签体指定参数值</p> <pre><code>    <s:param name="color" value="red"/>          <s:param name="color">red</s:param></code></pre> <h2>4、模板和主题</h2> <p><strong>simple：</strong><br /> 最简单的主题，每个UI标签只生成最基本的html元素，没有任何附加功能。<br /><strong>xhtml：</strong><br /> stryts2的默认主题，扩展了simple主题，提供布局功能、lable显示名称、验证框架和国际化框架的集成。<br /><strong>css_html：</strong><br /> 扩展xhtml，添加了对css的支持和控制。<br /><strong>Ajax：</strong><br /> 继承了xhtml，提供Ajax支持。</p> <h2>5、表单标签</h2> <p>用来向服务器提交用户输入信息，所有表单标签在org.apache.struts2.components包都有一个相对应的类，继承自UIBean类。</p> <h3>5.1、< s:form >标签</h3> <p>form标签输出一个html输入表单，此外，xhtml主题的form标签还输出表单元素外围的表格。<br /> 使用时一般包含其它的表单元素，如：< s:textfield >、< s:radio >等</p> <h3>5.2、< s:submit >标签</h3> <p>submit标签输出一个提交按钮。submit标签和form标签一起使用可以提供异步表单提交功能。</p> <table> <thead> <tr> <th>属性</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td>action</td> <td>可选，String，指定提交时对应的action</td> </tr> <tr> <td>method</td> <td>可选，String，指定action中调用的方法</td> </tr> </tbody> </table> <p>submit标签可以输出以下三种类型提交按钮。</p> <pre><code>  input:等价于：<input type="submit" .../>   image:等价于：<input type="image" .../>     button:等价于：<input type="button" .../></code></pre> <h3>5.3、< s:textfield >和< s:textarea >标签</h3> <p>都用于创建文本框<br /> textfield标签： textfield标签输出一个HMTL<strong>单行文本</strong>输入控件，等价于：</p> <pre><code><input type="text" .../>      <s:form action="register" method="post">         <s:textfield name="username" lable="用户名"/></code></pre> <p>textarea标签：输出一个html<strong>多行文本</strong>输入控件，等价于：<code><s:textarea name="description" lable="描述"/></code></p> <h3>5.4、< s:password >标签</h3> <p>password标签输出一个HTML口令输入控件，密码输入框，</p> <table> <thead> <tr> <th>属性</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td>name</td> <td>指定输入框名称</td> </tr> <tr> <td>size</td> <td>指定输入框的显示宽度，字符数</td> </tr> <tr> <td>maxlength</td> <td>限定输入框的最大输入字符串个数</td> </tr> <tr> <td>shoePassword</td> <td>是否显示初始值，密文显示 掩码代替</td> </tr> </tbody> </table> <p>举栗子：</p> <pre><code><s:password label="password" name="password" maxLength="15" size="6" showPassword="true"/></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/5347bd18fd45e5d10b602948d97cb453.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h3>5.5、< s:radio >标签</h3> <p>radio标签输出一组hmtl单选按钮：<code><input type="radio" .../></code></p> <table> <thead> <tr> <th>属性</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td>list</td> <td>必选，生成单选框的集合</td> </tr> <tr> <td>listKey</td> <td>可选，指定集合对象的哪个属性作为选项的value</td> </tr> <tr> <td>listValue</td> <td>可选， 指定集合对象的哪个属性作为选项的内容</td> </tr> </tbody> </table> <p>举个栗子：</p> <pre><code class="prism language-java"><span class="token operator"><</span>s<span class="token operator">:</span>radio list<span class="token operator">=</span><span class="token string">"#{'0':'男','1':'女'}"</span> name<span class="token operator">=</span><span class="token string">"sex"</span> label<span class="token operator">=</span><span class="token string">"性别"</span> value<span class="token operator">=</span><span class="token string">"0"</span><span class="token operator">/</span><span class="token operator">></span></code></pre> <p>完整版：（顺便加个textarea的）</p> <pre><code class="prism language-java"><span class="token operator"><</span><span class="token operator">%</span>@ page contentType<span class="token operator">=</span><span class="token string">"text/html;charset=UTF-8"</span> language<span class="token operator">=</span><span class="token string">"java"</span><span class="token operator">%</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>html<span class="token punctuation">></span></span><span class="token generics function"><span class="token punctuation"><</span>head<span class="token punctuation">></span></span><span class="token generics function"><span class="token punctuation"><</span>title<span class="token punctuation">></span></span>登录页面<span class="token operator"><</span><span class="token operator">/</span>title<span class="token operator">></span><span class="token operator"><</span><span class="token operator">/</span>head<span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>body<span class="token punctuation">></span></span><span class="token operator"><</span>div align<span class="token operator">=</span><span class="token string">"center"</span><span class="token operator">></span><span class="token operator"><</span>form action<span class="token operator">=</span><span class="token string">"login"</span> method<span class="token operator">=</span><span class="token string">"post"</span><span class="token operator">></span>         用户名<span class="token operator">:</span><span class="token operator"><</span>input type<span class="token operator">=</span><span class="token string">"text"</span> name<span class="token operator">=</span><span class="token string">"username"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span>         密  码<span class="token operator">:</span><span class="token operator"><</span>input type<span class="token operator">=</span><span class="token string">"password"</span>  name<span class="token operator">=</span><span class="token string">"password"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>s<span class="token operator">:</span>radio list<span class="token operator">=</span><span class="token string">"#{'0':'男','1':'女'}"</span> name<span class="token operator">=</span><span class="token string">"sex"</span> label<span class="token operator">=</span><span class="token string">"性别"</span> value<span class="token operator">=</span><span class="token string">"0"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>s<span class="token operator">:</span>textarea label<span class="token operator">=</span><span class="token string">"个性签名"</span> name<span class="token operator">=</span><span class="token string">"description"</span> rows<span class="token operator">=</span><span class="token string">"5"</span> cols<span class="token operator">=</span><span class="token string">"15"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>input type<span class="token operator">=</span><span class="token string">"submit"</span> value<span class="token operator">=</span><span class="token string">"login"</span><span class="token operator">/</span><span class="token operator">></span><span class="token operator"><</span><span class="token operator">/</span>form<span class="token operator">></span><span class="token operator"><</span><span class="token operator">/</span>div<span class="token operator">></span><span class="token operator"><</span><span class="token operator">/</span>body<span class="token operator">></span><span class="token operator"><</span><span class="token operator">/</span>html<span class="token operator">></span></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/3f46ea811c04ffc5d6e4d0875690c659.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h3>5.6、< s:checkbox >和< s:checkboxlist >标签</h3> <p>checkbox标签输出一个html复选框，等价于：<code><input type="checkbox" .../></code><br /> checkboxlist标签使用一个列表创建一系列复选框，属性设置与< s:select/>和< s:radio/>类似，只是创建的是html复选框。不同的是，checkboxlist标签是多选标签。<br /> 举个栗子：</p> <pre><code class="prism language-java"><span class="token operator"><</span>s<span class="token operator">:</span>checkbox label<span class="token operator">=</span><span class="token string">"普通用户"</span> name<span class="token operator">=</span><span class="token string">"user"</span> value<span class="token operator">=</span><span class="token string">"ture"</span> fieldValue<span class="token operator">=</span><span class="token string">"user"</span><span class="token operator">/</span><span class="token operator">></span><span class="token operator"><</span>s<span class="token operator">:</span>checkbox label<span class="token operator">=</span><span class="token string">"管理员"</span> name<span class="token operator">=</span><span class="token string">"admin"</span> fieldValue<span class="token operator">=</span><span class="token string">"admin"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>s<span class="token operator">:</span>checkboxlist list<span class="token operator">=</span><span class="token string">"{'足球','篮球','排球','网球'}"</span> name<span class="token operator">=</span><span class="token string">"intersters"</span> label<span class="token operator">=</span><span class="token string">"球类运动"</span> labelposition<span class="token operator">=</span><span class="token string">"left"</span><span class="token operator">/</span><span class="token operator">></span><span class="token operator"><</span>s<span class="token operator">:</span>checkboxlist list<span class="token operator">=</span><span class="token string">"{'java','c','python','php'}"</span> name<span class="token operator">=</span><span class="token string">"course"</span> label<span class="token operator">=</span><span class="token string">"计算机语言"</span> labelposition<span class="token operator">=</span><span class="token string">"left"</span> listKey<span class="token operator">=</span><span class="token string">"key"</span> listValue<span class="token operator">=</span><span class="token string">"value"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/ac74e625d3db9bee343d60c79580fe13.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h3>5.7、< s:select >标签</h3> <p>select标签输出一个html下拉列表框，等价于:<select …><option …>< /option>< /select ><br /> 举个栗子：</p> <pre><code class="prism language-java"><span class="token operator"><</span>s<span class="token operator">:</span>select list<span class="token operator">=</span><span class="token string">"{'软件','计科','空信','电科','电信','物联网','通信'}"</span> label<span class="token operator">=</span><span class="token string">"所学专业"</span> size<span class="token operator">=</span><span class="token string">"3"</span> multiple<span class="token operator">=</span><span class="token string">"false"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span></code></pre> <p><em>multiple布尔类型，指定是否多选，默认为false。<br /> list必选，生成下拉框的集合。<br /> size可选，Int类型，指定最多可以同时显示多少个选项。</em><br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/367db8af492ba1fc1ba861309acc99f3.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h3>5.8、< s:optgroup >标签</h3> <p>optgroup标签作为select标签的子标签使用，用于创建选项组。<br /> 可以在select标签的标签体中使用一个或者多个optgroup标签，对选项进行逻辑分析组。</p> <pre><code class="prism language-java"><span class="token operator"><</span>s<span class="token operator">:</span>select list<span class="token operator">=</span><span class="token string">"#{'java','数据库'}"</span> label<span class="token operator">=</span><span class="token string">"所学"</span> name<span class="token operator">=</span><span class="token string">"couses"</span> listKey<span class="token operator">=</span><span class="token string">"value"</span> listValue<span class="token operator">=</span><span class="token string">"key"</span><span class="token operator">></span><span class="token operator"><</span>s<span class="token operator">:</span>optgroup label<span class="token operator">=</span><span class="token string">"Java"</span> list<span class="token operator">=</span><span class="token string">"#{'jsp':'jsp','servlet':'servlet','javabean':'javabean'}"</span> listValue<span class="token operator">=</span><span class="token string">"key"</span> listKey<span class="token operator">=</span><span class="token string">"value"</span><span class="token operator">/</span><span class="token operator">></span><span class="token operator"><</span>s<span class="token operator">:</span>optgroup label<span class="token operator">=</span><span class="token string">"数据库"</span> list<span class="token operator">=</span><span class="token string">"#{'mysql':'mysql','oracle':'oracle','sqlserver':'sqlserver'}"</span> listValue<span class="token operator">=</span><span class="token string">"key"</span> listKey<span class="token operator">=</span><span class="token string">"value"</span><span class="token operator">/</span><span class="token operator">></span><span class="token operator"><</span><span class="token operator">/</span>s<span class="token operator">:</span>select<span class="token operator">></span></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/472ac23b3001af6080d0039e0533df00.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h3>5.9、< s:file >标签</h3> <p>用于创建文件选择框，生成html中的< input type=“file”/>标签。<br /> 举栗子：</p> <pre><code class="prism language-java"><span class="token operator"><</span>s<span class="token operator">:</span>file name<span class="token operator">=</span><span class="token string">"upLoadfile"</span> accept<span class="token operator">=</span><span class="token string">"text/*"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>s<span class="token operator">:</span>file name<span class="token operator">=</span><span class="token string">"other"</span> accept<span class="token operator">=</span><span class="token string">"text/html,text/plain"</span><span class="token operator">/</span><span class="token operator">></span></code></pre> <p>accept指定接收文件类型，默认input。<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/819cc4f704424fde27939d9bd24b5d90.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h3>5.10、< s:hidden >标签</h3> <p>hidden标签输出一个html隐藏表单元素，等价于:<code><input type="hidden" .../></code></p> <pre><code class="prism language-java"><span class="token operator"><</span>s<span class="token operator">:</span>hidden name<span class="token operator">=</span><span class="token string">"id"</span> value<span class="token operator">=</span><span class="token string">"5"</span><span class="token operator">/</span><span class="token operator">></span></code></pre> <h3>5.11、< s:reset >标签</h3> <p>重置按钮，属性 name ，指定重置按钮的名称；属性value ，显示按钮的值<br /> 举个栗子：</p> <pre><code class="prism language-java"><span class="token operator"><</span>form action<span class="token operator">=</span><span class="token string">"login"</span> method<span class="token operator">=</span><span class="token string">"post"</span><span class="token operator">></span>         用户名<span class="token operator">:</span><span class="token operator"><</span>input type<span class="token operator">=</span><span class="token string">"text"</span> name<span class="token operator">=</span><span class="token string">"username"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span>         密  码<span class="token operator">:</span><span class="token operator"><</span>input type<span class="token operator">=</span><span class="token string">"password"</span>  name<span class="token operator">=</span><span class="token string">"password"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>s<span class="token operator">:</span>radio list<span class="token operator">=</span><span class="token string">"#{'0':'男','1':'女'}"</span> name<span class="token operator">=</span><span class="token string">"sex"</span> label<span class="token operator">=</span><span class="token string">"性别"</span> value<span class="token operator">=</span><span class="token string">"0"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>s<span class="token operator">:</span>textarea label<span class="token operator">=</span><span class="token string">"个性签名"</span> name<span class="token operator">=</span><span class="token string">"description"</span> rows<span class="token operator">=</span><span class="token string">"5"</span> cols<span class="token operator">=</span><span class="token string">"15"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>s<span class="token operator">:</span>file name<span class="token operator">=</span><span class="token string">"upLoadfile"</span> accept<span class="token operator">=</span><span class="token string">"jpg/*"</span> label<span class="token operator">=</span><span class="token string">"头像"</span><span class="token operator">/</span><span class="token operator">></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token generics function"><span class="token punctuation"><</span>br<span class="token punctuation">></span></span><span class="token operator"><</span>s<span class="token operator">:</span>reset value<span class="token operator">=</span><span class="token string">"重置"</span><span class="token operator">/</span><span class="token operator">></span><span class="token operator"><</span>input type<span class="token operator">=</span><span class="token string">"submit"</span> value<span class="token operator">=</span><span class="token string">"提交"</span><span class="token operator">/</span><span class="token operator">></span><span class="token operator"><</span><span class="token operator">/</span>form<span class="token operator">></span></code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/a2c5c4be01946192e739ba5758515b03.jpg" alt="ssh之struts2篇拦截器&常用标签"><br /> 重置后：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220902/b296828b648daee8fa3d893ec00499c5.jpg" alt="ssh之struts2篇拦截器&常用标签"></p> <h2>6、非表单标签</h2> <table> <thead> <tr> <th>非表单标签</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td>< s:actionerror></td> <td>如果action实例的getActionError（）方法返回不为null，该标签负责输出该方法返回的系列错误</td> </tr> <tr> <td><s:actionmessage></td> <td>如果action实例的getActionMessager（）方法返回不为null，该标签负责输出该方法返回的系列消息</td> </tr> <tr> <td>< s:fielderror></td> <td>如果action实例存在表单域的类型转换错误、校验错误，该标签负责输出错误提示</td> </tr> </tbody> </table> </div> 			                </div>
-                <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-126.htm">深入浅出Java线程池原理分析与使用</a></p>
-                                        <p>下一个：<a href="/html/category/article-128.htm">C# 11 对 ref 和 struct 的改进</a></p>
-                                    </div>
-
-                            </div>
-            <div class="col-md-4 w3l-services">
-                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7305.htm">一个宠物店一年的纯利润是多少（宠物店一般一个月营业额多少）</a></h4>
-                <p>摘要：       今天给各位分享一个宠物店一年的纯利润是多少的知识，其中也会对宠物店一般一个月营业额多少进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、经营.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6891.htm">上海宠物领养中心免费领养狗狗吗（上海宠物领养活动）</a></h4>
-                <p>摘要：       今天给各位分享上海宠物领养中心免费领养狗狗吗的知识，其中也会对上海宠物领养活动进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、哪里有领养流.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6104.htm">动物疫苗价格查询表图片大全及价格 动物疫苗价格查询表图片大全及价格</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于动物疫苗价格查询表图片大全及价格的问题，于是小编就整理了4个相关介绍动物疫苗价格查询表图片大全及价格的解答，让我们一起看看吧。小</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7212.htm">46岁纵火男</a></h4>
-                <p>1月8日，四川成都一小区居民房发生火灾。 接警后，消防救援人员前往现场处置。 据悉，这次火灾发生是由于家庭矛盾。47岁的向子女索要3000元，不过子女只愿支付2000元。 没想到，这名男子直接纵火。 </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6753.htm">为什么猫咪***不能洗澡（猫咪洗澡***能一起吗）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈为什么猫咪打针不能洗澡，以及猫咪洗澡打针能一起吗对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫打疫苗前能洗澡吗?2、...      </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6105.htm">动物医院取什么名字形容敬业的（动物医院是干嘛的）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈动物医院取什么名字形容敬业的，以及动物医院是干嘛的对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、医院起名大全2、...        本</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7167.htm">宠物用品一件代发小程序（宠物食品一件代发）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物用品一件代发小程序，以及宠物食品一件代发对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、阿里巴巴里一件代发是怎么操作的...     </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4549.htm">深圳宠物领养中心官网（深圳宠物领养机构）</a></h4>
-                <p>摘要：       今天给各位分享深圳宠物领养中心官网的知识，其中也会对深圳宠物领养机构进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、那个,我想问下深圳的狗.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6660.htm">广州宠物领养平台官网电话 广州宠物领养平台官网电话号码</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于广州宠物领养平台官网电话的问题，于是小编就整理了4个相关介绍广州宠物领养平台官网电话的解答，让我们一起看看吧。广州哪里有收养猫猫</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6799.htm">动物医院前台个人总结怎么写（动物医院前台个人总结怎么写范文）</a></h4>
-                <p>摘要：       今天给各位分享动物医院前台个人总结怎么写的知识，其中也会对动物医院前台个人总结怎么写范文进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、宠.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">14</span> <a href="/html/date/2024-08/" title="2024-08 归档">2024-08</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
-                            </div>
-        </div>
-    </div>
-</div>
-            </div>
-        </div>
-    </div>
-    
-        <!-- Footer -->
-    <section class="w3l-footer py-sm-5 py-4">
-        <div class="container">
-            <div class="footer-content">
-                <div class="row">
-                    <div class="col-lg-8 footer-left">
-                        <p class="m-0">EgyptAddress 版权所有</p>
-                    </div>
-                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
-                        <ul class="social m-0 p-0">
-                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
-                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
-                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
-                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
-                        </ul>
-                    </div>
+        <div class="exception-var">
+        <h2>Environment Variables</h2>
+                <div>
+                        <h3 class="subheading">GET Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>website_id</strong></div>
+                    <div class="col-md-9"><small>
+                        1                    </small></div>
                 </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>id</strong></div>
+                    <div class="col-md-9"><small>
+                        127                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>POST Data</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
             </div>
-        </div>
-        <!-- move top -->
-        <button onclick="topFunction()" id="movetop" title="Go to top">
-            <span class="fa fa-angle-up"></span>
-        </button>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Files</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Cookies</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Session</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">Server/Request Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ALLUSERSPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Roaming                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>COMPUTERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ComSpec</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\system32\cmd.exe                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DriverData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\System32\Drivers\DriverData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_APP_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Internet Explorer                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_USER_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Default                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FREI0R_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        D:\PROGRA~1\APOWER~1\VIDEOC~1\frei0r;D:\Program Files (x86)\Apowersoft\Video Converter Studio\frei0r                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEDRIVE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEPATH</strong></div>
+                    <div class="col-md-9"><small>
+                        \Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOCALAPPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOGONSERVER</strong></div>
+                    <div class="col-md-9"><small>
+                        \\DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>NUMBER_OF_PROCESSORS</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OneDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\OneDrive                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OS</strong></div>
+                    <div class="col-md-9"><small>
+                        Windows_NT                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>Path</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATHEXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_ARCHITECTURE</strong></div>
+                    <div class="col-md-9"><small>
+                        AMD64                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_IDENTIFIER</strong></div>
+                    <div class="col-md-9"><small>
+                        Intel64 Family 6 Model 158 Stepping 10, GenuineIntel                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_LEVEL</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_REVISION</strong></div>
+                    <div class="col-md-9"><small>
+                        9e0a                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PSModulePath</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PUBLIC</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\Public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SESSIONNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        Console                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemRoot</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN_ROAMINGPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>windir</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_ACCEPT</strong></div>
+                    <div class="col-md-9"><small>
+                        */*                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_USER_AGENT</strong></div>
+                    <div class="col-md-9"><small>
+                        Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_HOST</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REDIRECT_STATUS</strong></div>
+                    <div class="col-md-9"><small>
+                        200                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        80                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        65478                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_SOFTWARE</strong></div>
+                    <div class="col-md-9"><small>
+                        nginx/1.15.11                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>GATEWAY_INTERFACE</strong></div>
+                    <div class="col-md-9"><small>
+                        CGI/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_SCHEME</strong></div>
+                    <div class="col-md-9"><small>
+                        http                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PROTOCOL</strong></div>
+                    <div class="col-md-9"><small>
+                        HTTP/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_ROOT</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog?website_id=1&amp;id=127                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_LENGTH</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_TYPE</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_METHOD</strong></div>
+                    <div class="col-md-9"><small>
+                        GET                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>QUERY_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        s=/addons/xcblog/index/url_blog&amp;website_id=1&amp;id=127                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_TRANSLATED</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_INFO</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_FILENAME</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public/index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FCGI_ROLE</strong></div>
+                    <div class="col-md-9"><small>
+                        RESPONDER                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PHP_SELF</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME_FLOAT</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987375.6227                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987375                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Environment Variables</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">ThinkPHP Constants</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_VERSION</strong></div>
+                    <div class="col-md-9"><small>
+                        5.0.26                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987375.6232                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_MEM</strong></div>
+                    <div class="col-md-9"><small>
+                        409072                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DS</strong></div>
+                    <div class="col-md-9"><small>
+                        \                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LIB_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CORE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TRAIT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\traits\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ROOT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXTEND_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\extend\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>VENDOR_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>RUNTIME_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOG_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\log\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CACHE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\cache\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\temp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ENV_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        PHP_                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_CLI</strong></div>
+                    <div class="col-md-9"><small>
+                        false                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_WIN</strong></div>
+                    <div class="col-md-9"><small>
+                        true                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FILTER_VALIDATE_BOOL</strong></div>
+                    <div class="col-md-9"><small>
+                        258                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTMLPURIFIER_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\ezyang\htmlpurifier\library                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ADDON_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\addons\                    </small></div>
+                </div>
+                            </div>
+                    </div>
+            </div>
+    
+    <div class="copyright">
+        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
+        <span>V5.0.26</span> 
+        <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
+    </div>
         <script>
-        // When the user scrolls down 20px from the top of the document, show the button
-        window.onscroll = function() {
-            scrollFunction()
-        };
+        var LINE = 133;
 
-        function scrollFunction() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                document.getElementById("movetop").style.display = "block";
+        function $(selector, node){
+            var elements;
+
+            node = node || document;
+            if(document.querySelectorAll){
+                elements = node.querySelectorAll(selector);
             } else {
-                document.getElementById("movetop").style.display = "none";
-            }
-        }
-
-        // When the user clicks on the button, scroll to the top of the document
-        function topFunction() {
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        }
-        </script>
-        <!-- /move top -->
-    </section>
-    <!-- //Footer -->
-
-    <!-- all js scripts and files here -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
-    <!-- /typig-text-->
-    <script>
-    const typedTextSpan = document.querySelector(".typed-text");
-    const cursorSpan = document.querySelector(".cursor");
-
-    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
-    const typingDelay = 200;
-    const erasingDelay = 10;
-    const newTextDelay = 100; // Delay between current and next text
-    let textArrayIndex = 0;
-    let charIndex = 0;
-
-    function type() {
-        if (charIndex < textArray[textArrayIndex].length) {
-            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
-            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
-            charIndex++;
-            setTimeout(type, typingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            setTimeout(erase, newTextDelay);
-        }
-    }
-
-    function erase() {
-        if (charIndex > 0) {
-            // add class 'typing' if there's none
-            if (!cursorSpan.classList.contains("typing")) {
-                cursorSpan.classList.add("typing");
-            }
-            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
-            charIndex--;
-            setTimeout(erase, erasingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            textArrayIndex++;
-            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
-            setTimeout(type, typingDelay);
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
-        if (textArray.length) setTimeout(type, newTextDelay + 250);
-    });
-    </script>
-    <!-- //typig-text-->
-    <!-- services owlcarousel -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
-    <!-- script for services -->
-    <script>
-    $(document).ready(function() {
-        $('.owl-two').owlCarousel({
-            loop: true,
-            margin: 30,
-            nav: false,
-            responsiveClass: true,
-            autoplay: false,
-            autoplayTimeout: 5000,
-            autoplaySpeed: 1000,
-            autoplayHoverPause: false,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                480: {
-                    items: 1,
-                    nav: false
-                },
-                700: {
-                    items: 1,
-                    nav: false
-                },
-                1090: {
-                    items: 3,
-                    nav: false
+                switch(selector.substr(0, 1)){
+                    case '#':
+                        elements = [node.getElementById(selector.substr(1))];
+                        break;
+                    case '.':
+                        if(document.getElementsByClassName){
+                            elements = node.getElementsByClassName(selector.substr(1));
+                        } else {
+                            elements = get_elements_by_class(selector.substr(1), node);
+                        }
+                        break;
+                    default:
+                        elements = node.getElementsByTagName();
                 }
             }
-        })
-    })
-    </script>
-    <!-- //script for services -->
-    <!-- script for tesimonials carousel slider -->
-    <script>
-    $(document).ready(function() {
-        $("#owl-demo1").owlCarousel({
-            loop: true,
-            margin: 20,
-            nav: false,
-            responsiveClass: true,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                736: {
-                    items: 1,
-                    nav: false
-                },
-                1000: {
-                    items: 2,
-                    nav: false,
-                    loop: false
+            return elements;
+
+            function get_elements_by_class(search_class, node, tag) {
+                var elements = [], eles, 
+                    pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
+
+                node = node || document;
+                tag  = tag  || '*';
+
+                eles = node.getElementsByTagName(tag);
+                for(var i = 0; i < eles.length; i++) {
+                    if(pattern.test(eles[i].className)) {
+                        elements.push(eles[i])
+                    }
+                }
+
+                return elements;
+            }
+        }
+
+        $.getScript = function(src, func){
+            var script = document.createElement('script');
+            
+            script.async  = 'async';
+            script.src    = src;
+            script.onload = func || function(){};
+            
+            $('head')[0].appendChild(script);
+        }
+
+        ;(function(){
+            var files = $('.toggle');
+            var ol    = $('ol', $('.prettyprint')[0]);
+            var li    = $('li', ol[0]);   
+
+            // 短路径和长路径变换
+            for(var i = 0; i < files.length; i++){
+                files[i].ondblclick = function(){
+                    var title = this.title;
+
+                    this.title = this.innerHTML;
+                    this.innerHTML = title;
                 }
             }
-        })
-    })
+
+            // 设置出错行
+            var err_line = $('.line-' + LINE, ol[0])[0];
+            err_line.className = err_line.className + ' line-error';
+
+            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
+                prettyPrint();
+
+                // 解决Firefox浏览器一个很诡异的问题
+                // 当代码高亮后，ol的行号莫名其妙的错位
+                // 但是只要刷新li里面的html重新渲染就没有问题了
+                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
+                    ol[0].innerHTML = ol[0].innerHTML;
+                }
+            });
+
+        })();
     </script>
-    <!-- //script for tesimonials carousel slider -->
-    <!-- video popup -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('.popup-with-zoom-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-zoom-in'
-        });
-
-        $('.popup-with-move-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-slide-bottom'
-        });
-    });
-    </script>
-    <!-- //video popup -->
-    <!-- stats number counter-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
-    <script>
-    $('.counter').countUp();
-    </script>
-    <!-- //stats number counter -->
-    <!-- disable body scroll which navbar is in active -->
-    <script>
-    $(function() {
-        $('.navbar-toggler').click(function() {
-            $('body').toggleClass('noscroll');
-        })
-
-        $('.post-content-content .js_to').click(function(){
-            var url = $(this).data('url');
-            var code = $(this).data('code');
-            url += code;
-
-            window.open(url);
-        })
-    });
-    </script>
-    <!-- disable body scroll which navbar is in active -->
-    <!--/MENU-JS-->
-    <script>
-    $(window).on("scroll", function() {
-        var scroll = $(window).scrollTop();
-
-        if (scroll >= 80) {
-            $("#site-header").addClass("nav-fixed");
-        } else {
-            $("#site-header").removeClass("nav-fixed");
-        }
-    });
-
-    //Main navigation Active Class Add Remove
-    $(".navbar-toggler").on("click", function() {
-        $("header").toggleClass("active");
-    });
-    $(document).on("ready", function() {
-        if ($(window).width() > 991) {
-            $("header").removeClass("active");
-        }
-        $(window).on("resize", function() {
-            if ($(window).width() > 991) {
-                $("header").removeClass("active");
-            }
-        });
-    });
-    </script>
-    <!--//MENU-JS-->
-    <!-- bootstrap js -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
-</body>
-
+    </body>
 </html>

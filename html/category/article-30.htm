@@ -1,476 +1,925 @@
-<!doctype html>
-<html lang="zh-CN">
-
+<!DOCTYPE html>
+<html>
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-30.htm" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Redis Cluster 集群搭建与扩容、缩容 - EgyptAddress</title>
-    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
-        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
-    <script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
-     crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <title>System Error</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <style>
+        /* Base */
+        body {
+            color: #333;
+            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0 20px 20px;
+            word-break: break-word;
+        }
+        h1{
+            margin: 10px 0 0;
+            font-size: 28px;
+            font-weight: 500;
+            line-height: 32px;
+        }
+        h2{
+            color: #4288ce;
+            font-weight: 400;
+            padding: 6px 0;
+            margin: 6px 0 0;
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+        }
+        h3.subheading {
+            color: #4288ce;
+            margin: 6px 0 0;
+            font-weight: 400;
+        }
+        h3{
+            margin: 12px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        abbr{
+            cursor: help;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+        a{
+            color: #868686;
+            cursor: pointer;
+        }
+        a:hover{
+            text-decoration: underline;
+        }
+        .line-error{
+            background: #f8cbcb;
+        }
+
+        .echo table {
+            width: 100%;
+        }
+
+        .echo pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f7f7f7;
+            border: 0;
+            border-radius: 3px;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        .echo pre > pre {
+            padding: 0;
+            margin: 0;
+        }
+        /* Layout */
+        .col-md-3 {
+            width: 25%;
+        }
+        .col-md-9 {
+            width: 75%;
+        }
+        [class^="col-md-"] {
+            float: left;
+        }
+        .clearfix {
+            clear:both;
+        }
+        @media only screen 
+        and (min-device-width : 375px) 
+        and (max-device-width : 667px) { 
+            .col-md-3,
+            .col-md-9 {
+                width: 100%;
+            }
+        }
+        /* Exception Info */
+        .exception {
+            margin-top: 20px;
+        }
+        .exception .message{
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-bottom: 0 none;
+            line-height: 18px;
+            font-size:16px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+
+        .exception .code{
+            float: left;
+            text-align: center;
+            color: #fff;
+            margin-right: 12px;
+            padding: 16px;
+            border-radius: 4px;
+            background: #999;
+        }
+        .exception .source-code{
+            padding: 6px;
+            border: 1px solid #ddd;
+
+            background: #f9f9f9;
+            overflow-x: auto;
+
+        }
+        .exception .source-code pre{
+            margin: 0;
+        }
+        .exception .source-code pre ol{
+            margin: 0;
+            color: #4288ce;
+            display: inline-block;
+            min-width: 100%;
+            box-sizing: border-box;
+        font-size:14px;
+            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
+            padding-left: 56px;
+        }
+        .exception .source-code pre li{
+            border-left: 1px solid #ddd;
+            height: 18px;
+            line-height: 18px;
+        }
+        .exception .source-code pre code{
+            color: #333;
+            height: 100%;
+            display: inline-block;
+            border-left: 1px solid #fff;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace{
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-top: 0 none;
+            line-height: 16px;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace ol{
+            margin: 12px;
+        }
+        .exception .trace ol li{
+            padding: 2px 4px;
+        }
+        .exception div:last-child{
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Exception Variables */
+        .exception-var table{
+            width: 100%;
+            margin: 12px 0;
+            box-sizing: border-box;
+            table-layout:fixed;
+            word-wrap:break-word;            
+        }
+        .exception-var table caption{
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 6px 0;
+        }
+        .exception-var table caption small{
+            font-weight: 300;
+            display: inline-block;
+            margin-left: 10px;
+            color: #ccc;
+        }
+        .exception-var table tbody{
+            font-size: 13px;
+            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
+        }
+        .exception-var table td{
+            padding: 0 6px;
+            vertical-align: top;
+            word-break: break-all;
+        }
+        .exception-var table td:first-child{
+            width: 28%;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .exception-var table td pre{
+            margin: 0;
+        }
+
+        /* Copyright Info */
+        .copyright{
+            margin-top: 24px;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
+        }
+
+        /* SPAN elements with the classes below are added by prettyprint. */
+        pre.prettyprint .pln { color: #000 }  /* plain text */
+        pre.prettyprint .str { color: #080 }  /* string content */
+        pre.prettyprint .kwd { color: #008 }  /* a keyword */
+        pre.prettyprint .com { color: #800 }  /* a comment */
+        pre.prettyprint .typ { color: #606 }  /* a type name */
+        pre.prettyprint .lit { color: #066 }  /* a literal value */
+        /* punctuation, lisp open bracket, lisp close bracket */
+        pre.prettyprint .pun, pre.prettyprint .opn, pre.prettyprint .clo { color: #660 }
+        pre.prettyprint .tag { color: #008 }  /* a markup tag name */
+        pre.prettyprint .atn { color: #606 }  /* a markup attribute name */
+        pre.prettyprint .atv { color: #080 }  /* a markup attribute value */
+        pre.prettyprint .dec, pre.prettyprint .var { color: #606 }  /* a declaration; a variable name */
+        pre.prettyprint .fun { color: red }  /* a function name */
+    </style>
 </head>
-
 <body>
-        <!-- header -->
-    <header id="site-header" class="fixed-top">
-        <div class="container">
-            <nav class="navbar navbar-expand-lg stroke">
-                <a class="navbar-brand" href="/">
-                                        <span class="fa fa-laptop"></span> EgyptAddress
-                                    </a>
-                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
-                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
-                    </span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                    <ul class="navbar-nav ml-auto">
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/">首页</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/html/category/">文章分类</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="#">关于</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">联系</a>
-                        </li>
-                    </ul>
+    <div class="echo">
+            </div>
+        <div class="exception">
+    <div class="message">
+        
+            <div class="info">
+                <div>
+                    <h2>[8]&nbsp;<abbr title="think\exception\ErrorException">ErrorException</abbr> in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></h2>
                 </div>
-                <!-- toggle switch for light and dark theme -->
-                <div class="mobile-position">
-                    <nav class="navigation">
-                        <div class="theme-switch-wrapper">
-                            <label class="theme-switch" for="checkbox">
-                                <input type="checkbox" id="checkbox">
-                                <div class="mode-container">
-                                    <i class="gg-sun"></i>
-                                    <i class="gg-moon"></i>
-                                </div>
-                            </label>
-                        </div>
-                    </nav>
-                </div>
-                <!-- //toggle switch for light and dark theme -->
-            </nav>
+                <div><h1>未定义变量: hot_city_list</h1></div>
+            </div>
+        
+    </div>
+	        <div class="source-code">
+            <pre class="prettyprint lang-php"><ol start="124"><li class="line-124"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-125"><code>            &lt;?php if(is_array($hot_country_list) || $hot_country_list instanceof \think\Collection || $hot_country_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_country_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-126"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-127"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-128"><code>            &lt;/li&gt;
+</code></li><li class="line-129"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li><li class="line-130"><code>        &lt;/ul&gt;
+</code></li><li class="line-131"><code>    &lt;/div&gt;
+</code></li><li class="line-132"><code>&lt;/div&gt;
+</code></li><li class="line-133"><code>&lt;?php endif; if($hot_city_list): ?&gt;
+</code></li><li class="line-134"><code>&lt;div class=&quot;panel panel-default box article-list&quot;&gt;
+</code></li><li class="line-135"><code>    &lt;div class=&quot;panel-heading&quot;&gt;&lt;h2&gt;热门城市&lt;/h2&gt;&lt;/div&gt;
+</code></li><li class="line-136"><code>    &lt;div class=&quot;panel-body&quot;&gt;
+</code></li><li class="line-137"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-138"><code>            &lt;?php if(is_array($hot_city_list) || $hot_city_list instanceof \think\Collection || $hot_city_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_city_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-139"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-140"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-141"><code>            &lt;/li&gt;
+</code></li><li class="line-142"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li></ol></pre>
         </div>
-    </header>
-    <!-- //header -->
+	        <div class="trace">
+            <h2>Call Stack</h2>
+            <ol>
+                <li>in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></li>
+                                <li>
+                at <abbr title="think\Error">Error</abbr>::appError(8, '<a class="toggle" title="Undefined variable: hot_city_list">Undefined variable: ...</a>', '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 133, ['cacheFile' => '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 'vars' => ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], 'config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a>                </li>
+                                <li>
+                at include('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\template\driver\File.php line 53">File.php line 53</a>                </li>
+                                <li>
+                at <abbr title="think\template\driver\File">File</abbr>->read('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\Template.php line 188">Template.php line 188</a>                </li>
+                                <li>
+                at <abbr title="think\Template">Template</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\view\driver\Think.php line 86">Think.php line 86</a>                </li>
+                                <li>
+                at <abbr title="think\view\driver\Think">Think</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\View.php line 163">View.php line 163</a>                </li>
+                                <li>
+                at <abbr title="think\View">View</abbr>->fetch('<a class="toggle" title="egyptaddress/index/url_blog">egyptaddress/index/u...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\controller\Index.php line 442">Index.php line 442</a>                </li>
+                                <li>
+                at <abbr title="addons\xcblog\controller\Index">Index</abbr>->url_blog()                </li>
+                                <li>
+                at call_user_func_array([<em>object</em>(<abbr title="addons\xcblog\controller\Index">Index</abbr>), 'url_blog'], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\vendor\karsonzhang\fastadmin-addons\src\addons\Route.php line 78">Route.php line 78</a>                </li>
+                                <li>
+                at <abbr title="think\addons\Route">Route</abbr>->execute('xcblog', 'index', 'url_blog')                </li>
+                                <li>
+                at <abbr title="ReflectionMethod">ReflectionMethod</abbr>->invokeArgs(<em>object</em>(<abbr title="think\addons\Route">Route</abbr>), ['xcblog', 'index', 'url_blog']) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 343">App.php line 343</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::invokeMethod(['\think\addons\Route', 'execute'], ['website_id' => '1', 'id' => '30', 'addon' => 'xcblog', ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 470">App.php line 470</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::exec(['type' => 'method', 'method' => ['\think\addons\Route', 'execute'], 'var' => []], ['app_host' => '', 'app_debug' => <em>true</em>, 'app_trace' => <em>false</em>, ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 139">App.php line 139</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::run() in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php line 19">start.php line 19</a>                </li>
+                                <li>
+                at require('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\public\index.php line 23">index.php line 23</a>                </li>
+                            </ol>
+        </div>
+    </div>
+        
     
-    <!-- about breadcrumb -->
-    <section class="w3l-about-breadcrumb text-center">
-        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
-            <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">Redis Cluster 集群搭建与扩容、缩容</h1>
-                <ul class="breadcrumbs-custom-path mt-2">
-                    <li><a href="/">首页</a></li>
-                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
-                    <li><a href="/html/category/">文章分类</a></li>
-                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-    <!-- //about breadcrumb -->
-    <div class="container py-lg-5 py-3">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="post-content-content">
-                      				  				  				<blockquote> <p>说明：仍然是伪集群，所有的Redis节点，都在一个服务器上，采用不同配置文件，不同端口的形式实现</p> <p>前提：已经安装好了Redis，本文的redis的版本是redis-6.2.3</p> <p>Redis的下载、安装参考：https://www.cnblogs.com/rxx1005/p/15754565.html</p> <p>文章中，Redis的安装目录为：/opt/app/redis/cluster/redis-6.2.3</p> <p>本文使用到的工具：</p> <ul> <li>SSH工具：MobaXterm</li> <li>截图工具：FSCapture</li> </ul> </blockquote> <h1 id="前言">前言</h1> <p>redis cluster 的两种部署方式：</p> <ul> <li>方法1：自定义配置文件安装，下文中的第一种，推荐使用此种办法</li> <li>方法2：使用redis自带的cluster-create工具：不推荐使用，玩玩就行了</li> </ul> <h1 id="准备工作">准备工作</h1> <h2 id="将常用脚本复制到bin目录下">将常用脚本复制到bin目录下</h2> <p>此步骤是个人习惯，可以不复制，后面使用命令时，直接使用src目录的即可。</p> <p>在编译Redis之后，会在 redis的<strong>src</strong>目录下生成一些脚本</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/06a767784e4d676700166ac0fbd006f6.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>我把这些常用脚本，使用<strong>cp</strong> 命令，拷贝到 resdis 根目录下的 bin 目录下（bin目录自己创建的）</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/6ca523563b538472abcf484ab4628b5b.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <hr/> <h2 id="安装rubyredis50之后不需要安装">安装ruby（redis5.0之后不需要安装）</h2> <p><strong>此处可跳过！！！</strong> 我使用的是redis-6.2.3，创建集群的时候，不再使用redis-trib.rb，而是用 redis-cli --cluster ，使用redis-cli<br /> --cluster创建集群，不需要安装ruby，下面是安装ruby的办法。</p> <blockquote> <p>注意：不要直接在Linux上执行 yum install ruby ，因为这样安装的ruby版本太低了</p> </blockquote> <p>低版本redis搭建 cluster集群，需要用到<strong>redis</strong>得<strong>src</strong>目录下的<strong>redis-trib.rb</strong> ，此脚本需要依赖 ruby 语言，现安装 ruby，在Linux上，直接使用<strong>wget</strong><br /> 命令，下载ruby安装包，也可以去官网下载之后，上传到Linux，官网：http://www.ruby-lang.org/en/downloads/</p> <pre><code class="language-shell">[root@localhost conf]# wget https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.1.tar.gz</code></pre> <p><strong>解压，编译</strong>，编译约1~2分钟</p> <pre><code class="language-shell">[root@localhost app]# tar -zxvf ruby-3.1.1.tar.gz [root@localhost ruby-3.1.1]# cd ruby-3.1.1 [root@localhost ruby-3.1.1]# ./configure --prefix=/usr/local/ruby --enable-shared [root@localhost ruby-3.1.1]# make & make install</code></pre> <p><strong>添加环境变量</strong>：</p> <p>编辑<strong>/etc/profile</strong> 文件，在文件末尾加上以下内容</p> <pre><code class="language-nginx">export RUBY_HOME=/usr/local/ruby export PATH=$RUBY_HOME/bin:$RUBY_HOME/lib:$PATH</code></pre> <p>保存，退出，重新加载文件</p> <pre><code class="language-shell">[root@localhost ~]# source /etc/profile</code></pre> <p>执行<strong>ruby -v</strong>，如果出现版本号，说明安装成功</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/dc248fd90d0204a0cd99ece92471fc1f.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>安装redis库</p> <pre><code class="language-shell">[root@localhost ruby-3.1.1]# gem install redis</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/84550cc2040ab95317358f5a61f5a8d8.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>至此，ruby就安装好了。</p> <hr/> <h1 id="自定义配置文件集群搭建">自定义配置文件集群搭建</h1> <h2 id="配置">配置</h2> <p>在redis根目录下，创建一个conf文件夹，并在conf文件夹下，创建6个文件夹，用于存集群每个节点的配置文件、数据文件等</p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# mkdir conf [root@localhost redis-6.2.3]# cd conf/ [root@localhost conf]# mkdir 7001 7002 7003 7004 7005 7006</code></pre> <p>在 7001 文件夹内，创建一个redis 的配置文件：</p> <pre><code class="language-shell">[root@localhost conf]# cd 7001/ [root@localhost 7001]# touch redis.conf</code></pre> <p>在 redis.conf 配置文件内，加入以下配置：</p> <pre><code class="language-nginx"># 将bind这一行注释掉，或者修改为0:0:0:0，这表示任意地址都可以连接此Redis服务  # bind 127.0.0.1   # 关闭保护模式，如果开启的话，外部客户端就连不上Redis  protected-mode no   # 配置redis的端口号(不同节点使用不同的端口号) port 7001   # 以守护进程运行（后台运行redis）  daemonize yes   # 服务启动后记录线程号的文件 pidfile "redis.pid"   # 日志 logfile "/opt/app/redis/cluster/redis-6.2.3/conf/7001/log.log"   # 数据库的个数  databases 16   # 设置数据保存到数据文件中的save规则,3600秒内修改1次key,进行一次磁盘保存操作  save 3600 1  save 300 100 save 60 10000   # 指定存储至本地数据库时是否压缩数据，默认是yes，redis采用LZF压缩，需要消耗CPU资源  rdbcompression yes   # 保存rdb文件时，是否对rdb文件进行校验 rdbchecksum yes   # 保存数据的文件名字  dbfilename "dump.rdb"  # 保存数据的目录，这个目录需要提前创建出来 dir "/opt/app/redis/cluster/redis-6.2.3/conf/7001"   # 是否开启aof持久化 appendonly yes   # aof文件名字  appendfilename "appendonly.aof"   # 集群配置文件,自动生成,不能人为维护  cluster-config-file "nodes.conf"   #开启cluster集群 cluster-enabled yes   #Redis集群节点超时时限 cluster-node-timeout 15000</code></pre> <p>将这个配置文件，复制5份到 7002 7003 7004 7005 7006 目录下</p> <pre><code class="language-shell">[root@localhost 7001]# cp redis.conf ../7002/ [root@localhost 7001]# cp redis.conf ../7003/ [root@localhost 7001]# cp redis.conf ../7004/ [root@localhost 7001]# cp redis.conf ../7005/ [root@localhost 7001]# cp redis.conf ../7006/</code></pre> <p>效果如下：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/62a44910384a1e2f6fa5bf266359ffe0.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>将每个目录下的配置文件里面，所有的7001，改成和目录一样的数字（替换所有配置文件中的7001），要替换三个位置。</p> <h2 id="启动-redis-服务">启动 redis 服务</h2> <pre><code class="language-shell">[root@localhost conf]# pwd /opt/app/redis/cluster/redis-6.2.3/conf [root@localhost conf]# ../bin/redis-server 7001/redis.conf [root@localhost conf]# ../bin/redis-server 7002/redis.conf [root@localhost conf]# ../bin/redis-server 7003/redis.conf [root@localhost conf]# ../bin/redis-server 7004/redis.conf [root@localhost conf]# ../bin/redis-server 7005/redis.conf [root@localhost conf]# ../bin/redis-server 7006/redis.conf</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/1629bb8ef197f9dd65b30f3ca2777a7e.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h2 id="创建集群">创建集群</h2> <p>使用<strong>redis-cli --cluster</strong> 搭建集群，注意下面的IP，建议使用具体的IP，不要使用127.0.0.1，防止有坑</p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# pwd /opt/app/redis/cluster/redis-6.2.3 [root@localhost redis-6.2.3]# ./bin/redis-cli  --cluster create 192.168.3.100:7001  192.168.3.100:7002  192.168.3.100:7003  192.168.3.100:7004  192.168.3.100:7005  192.168.3.100:7006  --cluster-replicas  1</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/4a996330589e34f064b295f73aadef74.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h2 id="测试集群">测试集群</h2> <p>至此，集群就搭建好了，可以测试一下，连接集群，注意下面的命令，一定要带上<strong>-c</strong> ，表示以集群的模式访问：</p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# ./bin/redis-cli -c -p 7001</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/3b8f10f355cb8d95e82f2e01fd0fb2f0.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>如果集群中，其中一个节点挂掉，从节点会自动变为主节点，若原主节点重连，会自动变为从节点</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/f4e03c7f17a7e7c82a9e66868e51e848.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>关闭集群办法：</p> <pre><code class="language-shell">[root@localhost bin]# pwd /opt/app/redis/cluster/redis-6.2.3/bin [root@localhost bin]# ./redis-cli -c -p 7001 shutdown [root@localhost bin]# ./redis-cli -c -p 7002 shutdown [root@localhost bin]# ./redis-cli -c -p 7003 shutdown [root@localhost bin]# ./redis-cli -c -p 7004 shutdown [root@localhost bin]# ./redis-cli -c -p 7005 shutdown [root@localhost bin]# ./redis-cli -c -p 7006 shutdown # 如果需要删除集群数据，看清楚当前位置 [root@localhost 7001]# pwd /opt/app/redis/cluster/redis-6.2.3/conf/7001 [root@localhost 7001]# rm -rf appendonly.aof dump.rdb log.log nodes.conf [root@localhost 7001]# cd ../7002/ ; rm -rf appendonly.aof dump.rdb log.log nodes.conf [root@localhost 7002]# cd ../7003/ ; rm -rf appendonly.aof dump.rdb log.log nodes.conf [root@localhost 7003]# cd ../7004/ ; rm -rf appendonly.aof dump.rdb log.log nodes.conf [root@localhost 7004]# cd ../7005/ ; rm -rf appendonly.aof dump.rdb log.log nodes.conf [root@localhost 7005]# cd ../7006/ ; rm -rf appendonly.aof dump.rdb log.log nodes.conf</code></pre> <blockquote> <p>PS：一开始，我用<strong>redis-trib.rb</strong>搭建集群，但报出警告说，<strong>redis-trib.rb已经不可用了</strong>，让使用<strong>redis-cli --cluster</strong>代替，下图的<strong>示例</strong>后面的命令，是已经帮助我替换好的命令<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/40173107fd214c57ddc2a6280956ab7d.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> </blockquote> <h1 id="使用-cluster-create-创建集群">使用 cluster-create 创建集群</h1> <blockquote> <p>建议这块只做了解，实践中，使用上一种创建方式，其实这块创建集群，使用的仍然是<strong>redis-cli --cluster</strong>创建</p> </blockquote> <h2 id="脚本位置">脚本位置</h2> <p>在redis的<strong>/redis-6.2.3/utils/create-cluster</strong>目录下，有一个<strong>create-cluster</strong>脚本，可以使用此脚本创建集群</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/daa5b54ae6bd1e5a62f63e8eca706a89.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h2 id="脚本配置">脚本配置</h2> <p>先编辑一下这个脚本，打开之后，可能需要修改前面几行配置</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/889a77aec23184c7e54a8f0cb33a0277.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <blockquote> <p>注意：集群节点的数量，必须大于6个，否则启动集群，会有如下错误：<br /><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/768fe401612693a65ba84cfeb3156341.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> </blockquote> <h2 id="启动集群">启动集群</h2> <p>启动redis服务，创建集群</p> <pre><code class="language-shell">[root@localhost create-cluster]# ./create-cluster start Starting 30001 Starting 30002 Starting 30003 Starting 30004 Starting 30005 Starting 30006 [root@localhost create-cluster]# ./create-cluster create</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/b37b2dae0a43b58a168bb764608eb746.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>启动之后，会在create-cluster脚本的位置，自动生成配置文件、数据文件、log文件等</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/9cb5a9de7789ab715066adb27c81edab.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h2 id="测试集群-1">测试集群</h2> <p>仍然使用<strong>redis-cli -c</strong></p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# ./bin/redis-cli -c -p 30001</code></pre> <p>至此，集群搭建结束。</p> <hr/> <h1 id="集群扩容">集群扩容</h1> <blockquote> <p>集群扩容时，先增加主节点，再给新增的主节点分配槽，然后增加从节点</p> </blockquote> <p>在第一种集群的基础上，再增加两个节点，7007和7008，7007作为新增的主节点，7008作为7007的从节点。</p> <h2 id="添加配置">添加配置</h2> <p>把7001的配置文件，复制给7007和7008，并把配置文件里面的7001，全部替换成7007和7008。</p> <pre><code class="language-shell">[root@localhost conf]# pwd /opt/app/redis/cluster/redis-6.2.3/conf [root@localhost conf]# mkdir 7007 7008 [root@localhost conf]# cp 7001/redis.conf 7007/redis.conf [root@localhost conf]# cp 7001/redis.conf 7008/redis.conf [root@localhost conf]# ll 总用量 0 drwxr-xr-x. 2 root root 112 3月  27 12:01 7001 drwxr-xr-x. 2 root root 112 3月  27 12:01 7002 drwxr-xr-x. 2 root root 112 3月  27 12:01 7003 drwxr-xr-x. 2 root root 112 3月  27 12:01 7004 drwxr-xr-x. 2 root root 112 3月  27 12:01 7005 drwxr-xr-x. 2 root root 112 3月  27 12:01 7006 drwxr-xr-x. 2 root root  24 3月  27 12:05 7007 drwxr-xr-x. 2 root root  24 3月  27 12:05 7008</code></pre> <h2 id="增加主节点">增加主节点</h2> <p>扩容时，先增加主节点，再增加从节点</p> <h3 id="先启动7007节点">先启动7007节点</h3> <pre><code class="language-shell">[root@localhost redis-6.2.3]# pwd /opt/app/redis/cluster/redis-6.2.3 [root@localhost redis-6.2.3]# ./bin/redis-server conf/7007/redis.conf</code></pre> <p>增加主节点之前的集群状态</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/8ebe4b266b54b8ebb9313bb2bc0c8293.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h3 id="向集群中增加主节点">向集群中增加主节点</h3> <pre><code class="language-shell">[root@localhost redis-6.2.3]# ./bin/redis-cli --cluster add-node 192.168.3.100:7007 192.168.3.100:7001</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c45b423813af674fd223494bcfde7aa4.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h3 id="查看集群状态">查看集群状态</h3> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/dab66b3711fe56147ac17cb7660a8ce0.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>新增的节点，已成为集群中的主节点，但还没有给新主节点分配槽，0~16383（共16384个）这个范围的槽，全部被分配在了原来的三个主节点上，即使现在向集群中set数据，数据仍会被分配到原来的三个主节点上。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/19dbff206746bc91002be75bd60f0a9d.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h3 id="分配槽slot">分配槽（slot）</h3> <p>现在，为新增的主节点分配槽，执行以下命令：</p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# ./bin/redis-cli --cluster reshard 192.168.3.100:7001</code></pre> <p>此时会询问给新增master节点分配多少个槽，总共16384个，平均分配给4个主节点，每个节点分配4096，就输入4096</p> <p>然后询问接收节点的ID，输入新增的master节点的ID</p> <p>然后输入从哪几个节点来分，输入前三个主节点的ID，最后输入done表示结束。</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/fbc92ace0e052f29c6009ec622406b35.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>输入yes开始数据迁移，等待结束</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/a441a24b48b2063fb6459452c648fa2d.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h3 id="检查">检查</h3> <p>使用redis-cli --cluster check检查当前的集群状态，看槽是否已经分配完成</p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# ./bin/redis-cli --cluster check 192.168.3.100:7001</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/66acee2063f693666e5a32e9a7d0b5e6.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h3 id="测试">测试</h3> <p>查看下面的数据所在的槽和所属的redis服务端口</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/550f3d96b0ee113c325b362bfa2fcf41.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>至此，集群增加主节点结束。</p> <h2 id="增加从节点">增加从节点</h2> <p>增加从节点有两个步骤：1、将新增节点7008加入到集群中，暂时作为主节点。2、将新增的节点7008挂接到从节点7007上去。</p> <h3 id="启动新增的从节点">启动新增的从节点</h3> <pre><code class="language-shell">[root@localhost redis-6.2.3]# pwd /opt/app/redis/cluster/redis-6.2.3 [root@localhost redis-6.2.3]# ./bin/redis-server  conf/7008/redis.conf</code></pre> <h3 id="将节点加入到集群">将节点加入到集群</h3> <p>将新增的节点7008，加入到集群中，暂时作为主节点</p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# pwd /opt/app/redis/cluster/redis-6.2.3 [root@localhost redis-6.2.3]# ./bin/redis-cli --cluster add-node 192.168.3.100:7008 192.168.3.100:7001</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/346814be20d477b60ee9cb2895b18d90.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h3 id="挂接节点">挂接节点</h3> <p>将新节点7008，挂接到集群的7007主节点上，作为其从节点。在7008的客户端里面执行以下命令，最后面的ID是主节点7007的ID：</p> <pre><code class="language-shell">127.0.0.1:7008> cluster replicate 1d708c5042d53b6bc1e855ea41755782b6692e1a</code></pre> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/07542d064013a880c5b0ad24c38c714a.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h3 id="查看状态测试">查看状态、测试</h3> <p>此时查看状态，7008已经成为7007的从节点，而且7008上的数据，和7007上的数据完全一样</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/6fd7777c1377ff81de23090d2cc30176.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>至此，集群扩容已完成。</p> <hr/> <h1 id="集群缩容">集群缩容</h1> <blockquote> <p>缩容的步骤，正好与扩容相反，先删除从节点，再将主节点的槽，分配给其他三个主节点的其中一个，然后删除主节点</p> </blockquote> <h2 id="删除从节点">删除从节点</h2> <p>以删除7008从节点为例，使用<strong>redis-cli --cluster del-node</strong>命令删除从节点，<strong>192.168.3.100:7001 表示要从哪个集群删除</strong>（注意这并不是要删除的节点IP和端口），后面的<strong>cd26feeb271c1260ec134d85dcdeaf4c72bfc3ad才表示要删除的节点ID</strong>，也就是7008的ID</p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# ./bin/redis-cli --cluster del-node 192.168.3.100:7001 cd26feeb271c1260ec134d85dcdeaf4c72bfc3ad >>> Removing node cd26feeb271c1260ec134d85dcdeaf4c72bfc3ad from cluster 192.168.3.100:7001 >>> Sending CLUSTER FORGET messages to the cluster... >>> Sending CLUSTER RESET SOFT to the deleted node.</code></pre> <p>此时再查看集群状态，集群中已经没有7008节点了，但是7008的服务还启动着，现在就可以关掉了</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/26b3fc95fd24704430e30f215d9f496f.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>关掉7008服务</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/6f931bbff69aac82626c7d865f3983cd.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h2 id="将要删除的主节点的槽分配给其他主节点">将要删除的主节点的槽分配给其他主节点</h2> <p>在删除集群中的主节点7007之前，需要先将其槽分给其他的三个主节点中的某一个，这里以分配给7001节点为例：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/70bf592368bc7971f6d61ea4718115ea.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/7abf7ded3d5b58ffd49c5e7342606719.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <h2 id="删除主节点">删除主节点</h2> <p>此时，7007上已经没有数据和槽了，可以从集群中删除7007节点了，删除方式和删除从节点一样，直接执行删除命令：</p> <pre><code class="language-shell">[root@localhost redis-6.2.3]# pwd /opt/app/redis/cluster/redis-6.2.3 [root@localhost redis-6.2.3]# ./bin/redis-cli --cluster del-node 192.168.3.100:7001 1d708c5042d53b6bc1e855ea41755782b6692e1a >>> Removing node 1d708c5042d53b6bc1e855ea41755782b6692e1a from cluster 192.168.3.100:7001 >>> Sending CLUSTER FORGET messages to the cluster... >>> Sending CLUSTER RESET SOFT to the deleted node. [root@localhost redis-6.2.3]#</code></pre> <p>再查看集群状态，集群中已经没有7007节点了</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/c84165eb4bb6402cd856ca3c0c10edc3.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>再关闭7007服务即可：</p> <p><img decoding="async" src="http://img.555519.xyz/uploads3/20220510/67660309687ea23564e12f0bd6916f07.jpg" alt="Redis Cluster 集群搭建与扩容、缩容"></p> <p>至此，redis集群缩容完成</p> <hr/> <h1 id="java连接cluster集群">Java连接cluster集群</h1> <h2 id="使用jedis连接redis">使用Jedis连接Redis</h2> <p>新建一个简单的maven项目，在pom文件中引入jedis依赖：</p> <pre><code class="language-xml"><dependency>     <groupId>redis.clients</groupId>     <artifactId>jedis</artifactId>     <version>4.1.1</version> </dependency></code></pre> <p>测试：</p> <pre><code class="language-java">public class RedisClusterTest {     public static void main(String[] args) {         Set<HostAndPort> nodes = new HashSet();         //集群的所有节点         nodes.add(new HostAndPort("192.168.3.100", 7001));         nodes.add(new HostAndPort("192.168.3.100", 7002));         nodes.add(new HostAndPort("192.168.3.100", 7003));         nodes.add(new HostAndPort("192.168.3.100", 7004));         nodes.add(new HostAndPort("192.168.3.100", 7005));         nodes.add(new HostAndPort("192.168.3.100", 7006));         //JedisCluster客户端         JedisCluster jedisCluster = new JedisCluster(nodes);         //set值         jedisCluster.set("a", "a");         jedisCluster.set("b", "b");         jedisCluster.set("c", "c");         jedisCluster.set("d", "d");         //get值         System.out.println(jedisCluster.get("a"));         System.out.println(jedisCluster.get("b"));         System.out.println(jedisCluster.get("c"));         System.out.println(jedisCluster.get("d"));         //关闭jedisCluster         jedisCluster.close();     } }</code></pre> <h2 id="springboot项目连接redis">SpringBoot项目连接Redis</h2> <h3 id="加入依赖">加入依赖</h3> <p>新建一个SpringBoot项目，在项目中引入以下依赖：</p> <pre><code class="language-xml"><!--        Spring web的依赖--> <dependency>     <groupId>org.springframework.boot</groupId>     <artifactId>spring-boot-starter-web</artifactId> </dependency>          <!--        SpringBoot项目pom文件中，加入redis依赖--> <dependency>     <groupId>org.springframework.boot</groupId>     <artifactId>spring-boot-starter-data-redis</artifactId>     <version>2.6.4</version> </dependency>          <!--        test   --> <dependency>     <groupId>org.springframework.boot</groupId>     <artifactId>spring-boot-test</artifactId>     <version>2.6.5</version>     <scope>compile</scope> </dependency>          <!--        test   --> <dependency>     <groupId>org.springframework.boot</groupId>     <artifactId>spring-boot-starter-test</artifactId>     <version>RELEASE</version>     <scope>compile</scope> </dependency>          <!--        fastjson,设置序列化--> <dependency>     <groupId>com.alibaba</groupId>     <artifactId>fastjson</artifactId>     <version>1.2.79</version> </dependency></code></pre> <h3 id="配置集群ip和端口">配置集群IP和端口</h3> <p>在application.properties配置文件中，加入集群的节点的配置信息（这里做了简化）</p> <pre><code class="language-properties">spring.redis.cluster.nodes=192.168.3.100:7001,192.168.3.100:7002,192.168.3.100:7003,192.168.3.100:7004,192.168.3.100:7005,192.168.3.100:7006</code></pre> <h3 id="配置redistemplate的序列化">配置RedisTemplate的序列化：</h3> <pre><code class="language-java">@Configuration public class RedisConfig {     @Bean     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {         RedisTemplate<String, Object> redisTemplate = new RedisTemplate();         redisTemplate.setConnectionFactory(redisConnectionFactory);          Jackson2JsonRedisSerializer<Object> jsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);          ObjectMapper om = new ObjectMapper();         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);         jsonRedisSerializer.setObjectMapper(om);          StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();          redisTemplate.setKeySerializer(stringRedisSerializer);         redisTemplate.setValueSerializer(jsonRedisSerializer);          redisTemplate.setHashKeySerializer(stringRedisSerializer);         redisTemplate.setHashValueSerializer(jsonRedisSerializer);          redisTemplate.afterPropertiesSet();         return redisTemplate;     } }</code></pre> <h3 id="测试-1">测试</h3> <pre><code class="language-java">@SpringBootTest(classes = RedisBootApplication.class) public class TestRedisClusterClient {      @Autowired     RedisTemplate<String, Object> redisTemplate;      @Test     public void test1() {         redisTemplate.opsForValue().set("a", 1);         redisTemplate.opsForValue().set("b", 2);         redisTemplate.opsForValue().set("c", 3);         redisTemplate.opsForValue().set("d", 4);         System.out.println(redisTemplate.opsForValue().get("a"));         System.out.println(redisTemplate.opsForValue().get("b"));         System.out.println(redisTemplate.opsForValue().get("c"));         System.out.println(redisTemplate.opsForValue().get("d"));     } }</code></pre> <p>在redis-cli中查看</p> <pre><code class="language-shell">127.0.0.1:7001> get a -> Redirected to slot [15495] located at 192.168.3.100:7003 "1" 192.168.3.100:7003> get b -> Redirected to slot [3300] located at 192.168.3.100:7001 "2" 192.168.3.100:7001> get c -> Redirected to slot [7365] located at 192.168.3.100:7002 "3" 192.168.3.100:7003> get d -> Redirected to slot [11298] located at 192.168.3.100:7001 "4"</code></pre> 			                </div>
-                <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-29.htm">Kubernetes Ingress作用及Ingress-Nginx实际操作详解</a></p>
-                                        <p>下一个：<a href="/html/category/article-31.htm">SpringBoot Jar包部署在Nginx上</a></p>
-                                    </div>
-
-                            </div>
-            <div class="col-md-4 w3l-services">
-                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6614.htm">领养宠物的平台软件叫什么（领养宠物的平台软件叫什么来着）</a></h4>
-                <p>摘要：       今天给各位分享领养宠物的平台软件叫什么的知识，其中也会对领养宠物的平台软件叫什么来着进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、手机上.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6568.htm">宠物粮行业分析论文题目 宠物粮行业分析论文题目大全</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物粮行业分析论文题目的问题，于是小编就整理了2个相关介绍宠物粮行业分析论文题目的解答，让我们一起看看吧。以珍惜粮食杜绝浪费为主</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6891.htm">上海宠物领养中心免费领养狗狗吗（上海宠物领养活动）</a></h4>
-                <p>摘要：       今天给各位分享上海宠物领养中心免费领养狗狗吗的知识，其中也会对上海宠物领养活动进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、哪里有领养流.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6799.htm">动物医院前台个人总结怎么写（动物医院前台个人总结怎么写范文）</a></h4>
-                <p>摘要：       今天给各位分享动物医院前台个人总结怎么写的知识，其中也会对动物医院前台个人总结怎么写范文进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、宠.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-5570.htm">动物疫苗空瓶无害化处理措施（动物疫苗空瓶无害化处理措施有哪些）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈动物疫苗空瓶无害化处理措施，以及动物疫苗空瓶无害化处理措施有哪些对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、无害化处理方式有哪些...</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7167.htm">宠物用品一件代发小程序（宠物食品一件代发）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物用品一件代发小程序，以及宠物食品一件代发对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、阿里巴巴里一件代发是怎么操作的...     </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4478.htm">开宠物店大概需要多少投资（开宠物店投资多少钱一月能得多少利）</a></h4>
-                <p>摘要：       今天给各位分享开宠物店大概需要多少投资的知识，其中也会对开宠物店投资多少钱一月能得多少利进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、开.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6104.htm">动物疫苗价格查询表图片大全及价格 动物疫苗价格查询表图片大全及价格</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于动物疫苗价格查询表图片大全及价格的问题，于是小编就整理了4个相关介绍动物疫苗价格查询表图片大全及价格的解答，让我们一起看看吧。小</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-5928.htm">米加小镇狗粮在哪里买（米加小镇养宠物）</a></h4>
-                <p>摘要：       今天给各位分享米加小镇狗粮在哪里买的知识，其中也会对米加小镇养宠物进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、米加小镇商店在哪里... </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6148.htm">兽药厂家前100强（兽药十大厂家）</a></h4>
-                <p>摘要：       今天给各位分享兽药厂家前100强的知识，其中也会对兽药十大厂家进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、谁知道中国有哪些百强兽药企业.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">14</span> <a href="/html/date/2024-08/" title="2024-08 归档">2024-08</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
-                            </div>
-        </div>
-    </div>
-</div>
-            </div>
-        </div>
-    </div>
-    
-        <!-- Footer -->
-    <section class="w3l-footer py-sm-5 py-4">
-        <div class="container">
-            <div class="footer-content">
-                <div class="row">
-                    <div class="col-lg-8 footer-left">
-                        <p class="m-0">EgyptAddress 版权所有</p>
-                    </div>
-                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
-                        <ul class="social m-0 p-0">
-                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
-                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
-                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
-                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
-                        </ul>
-                    </div>
+        <div class="exception-var">
+        <h2>Environment Variables</h2>
+                <div>
+                        <h3 class="subheading">GET Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>website_id</strong></div>
+                    <div class="col-md-9"><small>
+                        1                    </small></div>
                 </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>id</strong></div>
+                    <div class="col-md-9"><small>
+                        30                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>POST Data</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
             </div>
-        </div>
-        <!-- move top -->
-        <button onclick="topFunction()" id="movetop" title="Go to top">
-            <span class="fa fa-angle-up"></span>
-        </button>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Files</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Cookies</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Session</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">Server/Request Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ALLUSERSPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Roaming                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>COMPUTERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ComSpec</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\system32\cmd.exe                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DriverData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\System32\Drivers\DriverData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_APP_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Internet Explorer                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_USER_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Default                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FREI0R_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        D:\PROGRA~1\APOWER~1\VIDEOC~1\frei0r;D:\Program Files (x86)\Apowersoft\Video Converter Studio\frei0r                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEDRIVE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEPATH</strong></div>
+                    <div class="col-md-9"><small>
+                        \Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOCALAPPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOGONSERVER</strong></div>
+                    <div class="col-md-9"><small>
+                        \\DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>NUMBER_OF_PROCESSORS</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OneDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\OneDrive                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OS</strong></div>
+                    <div class="col-md-9"><small>
+                        Windows_NT                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>Path</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATHEXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_ARCHITECTURE</strong></div>
+                    <div class="col-md-9"><small>
+                        AMD64                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_IDENTIFIER</strong></div>
+                    <div class="col-md-9"><small>
+                        Intel64 Family 6 Model 158 Stepping 10, GenuineIntel                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_LEVEL</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_REVISION</strong></div>
+                    <div class="col-md-9"><small>
+                        9e0a                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PSModulePath</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PUBLIC</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\Public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SESSIONNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        Console                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemRoot</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN_ROAMINGPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>windir</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_ACCEPT</strong></div>
+                    <div class="col-md-9"><small>
+                        */*                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_USER_AGENT</strong></div>
+                    <div class="col-md-9"><small>
+                        Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_HOST</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REDIRECT_STATUS</strong></div>
+                    <div class="col-md-9"><small>
+                        200                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        80                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        64089                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_SOFTWARE</strong></div>
+                    <div class="col-md-9"><small>
+                        nginx/1.15.11                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>GATEWAY_INTERFACE</strong></div>
+                    <div class="col-md-9"><small>
+                        CGI/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_SCHEME</strong></div>
+                    <div class="col-md-9"><small>
+                        http                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PROTOCOL</strong></div>
+                    <div class="col-md-9"><small>
+                        HTTP/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_ROOT</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog?website_id=1&amp;id=30                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_LENGTH</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_TYPE</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_METHOD</strong></div>
+                    <div class="col-md-9"><small>
+                        GET                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>QUERY_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        s=/addons/xcblog/index/url_blog&amp;website_id=1&amp;id=30                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_TRANSLATED</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_INFO</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_FILENAME</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public/index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FCGI_ROLE</strong></div>
+                    <div class="col-md-9"><small>
+                        RESPONDER                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PHP_SELF</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME_FLOAT</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987362.7842                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987362                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Environment Variables</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">ThinkPHP Constants</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_VERSION</strong></div>
+                    <div class="col-md-9"><small>
+                        5.0.26                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987362.7848                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_MEM</strong></div>
+                    <div class="col-md-9"><small>
+                        409072                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DS</strong></div>
+                    <div class="col-md-9"><small>
+                        \                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LIB_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CORE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TRAIT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\traits\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ROOT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXTEND_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\extend\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>VENDOR_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>RUNTIME_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOG_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\log\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CACHE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\cache\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\temp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ENV_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        PHP_                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_CLI</strong></div>
+                    <div class="col-md-9"><small>
+                        false                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_WIN</strong></div>
+                    <div class="col-md-9"><small>
+                        true                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FILTER_VALIDATE_BOOL</strong></div>
+                    <div class="col-md-9"><small>
+                        258                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTMLPURIFIER_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\ezyang\htmlpurifier\library                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ADDON_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\addons\                    </small></div>
+                </div>
+                            </div>
+                    </div>
+            </div>
+    
+    <div class="copyright">
+        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
+        <span>V5.0.26</span> 
+        <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
+    </div>
         <script>
-        // When the user scrolls down 20px from the top of the document, show the button
-        window.onscroll = function() {
-            scrollFunction()
-        };
+        var LINE = 133;
 
-        function scrollFunction() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                document.getElementById("movetop").style.display = "block";
+        function $(selector, node){
+            var elements;
+
+            node = node || document;
+            if(document.querySelectorAll){
+                elements = node.querySelectorAll(selector);
             } else {
-                document.getElementById("movetop").style.display = "none";
-            }
-        }
-
-        // When the user clicks on the button, scroll to the top of the document
-        function topFunction() {
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        }
-        </script>
-        <!-- /move top -->
-    </section>
-    <!-- //Footer -->
-
-    <!-- all js scripts and files here -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
-    <!-- /typig-text-->
-    <script>
-    const typedTextSpan = document.querySelector(".typed-text");
-    const cursorSpan = document.querySelector(".cursor");
-
-    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
-    const typingDelay = 200;
-    const erasingDelay = 10;
-    const newTextDelay = 100; // Delay between current and next text
-    let textArrayIndex = 0;
-    let charIndex = 0;
-
-    function type() {
-        if (charIndex < textArray[textArrayIndex].length) {
-            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
-            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
-            charIndex++;
-            setTimeout(type, typingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            setTimeout(erase, newTextDelay);
-        }
-    }
-
-    function erase() {
-        if (charIndex > 0) {
-            // add class 'typing' if there's none
-            if (!cursorSpan.classList.contains("typing")) {
-                cursorSpan.classList.add("typing");
-            }
-            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
-            charIndex--;
-            setTimeout(erase, erasingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            textArrayIndex++;
-            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
-            setTimeout(type, typingDelay);
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
-        if (textArray.length) setTimeout(type, newTextDelay + 250);
-    });
-    </script>
-    <!-- //typig-text-->
-    <!-- services owlcarousel -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
-    <!-- script for services -->
-    <script>
-    $(document).ready(function() {
-        $('.owl-two').owlCarousel({
-            loop: true,
-            margin: 30,
-            nav: false,
-            responsiveClass: true,
-            autoplay: false,
-            autoplayTimeout: 5000,
-            autoplaySpeed: 1000,
-            autoplayHoverPause: false,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                480: {
-                    items: 1,
-                    nav: false
-                },
-                700: {
-                    items: 1,
-                    nav: false
-                },
-                1090: {
-                    items: 3,
-                    nav: false
+                switch(selector.substr(0, 1)){
+                    case '#':
+                        elements = [node.getElementById(selector.substr(1))];
+                        break;
+                    case '.':
+                        if(document.getElementsByClassName){
+                            elements = node.getElementsByClassName(selector.substr(1));
+                        } else {
+                            elements = get_elements_by_class(selector.substr(1), node);
+                        }
+                        break;
+                    default:
+                        elements = node.getElementsByTagName();
                 }
             }
-        })
-    })
-    </script>
-    <!-- //script for services -->
-    <!-- script for tesimonials carousel slider -->
-    <script>
-    $(document).ready(function() {
-        $("#owl-demo1").owlCarousel({
-            loop: true,
-            margin: 20,
-            nav: false,
-            responsiveClass: true,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                736: {
-                    items: 1,
-                    nav: false
-                },
-                1000: {
-                    items: 2,
-                    nav: false,
-                    loop: false
+            return elements;
+
+            function get_elements_by_class(search_class, node, tag) {
+                var elements = [], eles, 
+                    pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
+
+                node = node || document;
+                tag  = tag  || '*';
+
+                eles = node.getElementsByTagName(tag);
+                for(var i = 0; i < eles.length; i++) {
+                    if(pattern.test(eles[i].className)) {
+                        elements.push(eles[i])
+                    }
+                }
+
+                return elements;
+            }
+        }
+
+        $.getScript = function(src, func){
+            var script = document.createElement('script');
+            
+            script.async  = 'async';
+            script.src    = src;
+            script.onload = func || function(){};
+            
+            $('head')[0].appendChild(script);
+        }
+
+        ;(function(){
+            var files = $('.toggle');
+            var ol    = $('ol', $('.prettyprint')[0]);
+            var li    = $('li', ol[0]);   
+
+            // 短路径和长路径变换
+            for(var i = 0; i < files.length; i++){
+                files[i].ondblclick = function(){
+                    var title = this.title;
+
+                    this.title = this.innerHTML;
+                    this.innerHTML = title;
                 }
             }
-        })
-    })
+
+            // 设置出错行
+            var err_line = $('.line-' + LINE, ol[0])[0];
+            err_line.className = err_line.className + ' line-error';
+
+            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
+                prettyPrint();
+
+                // 解决Firefox浏览器一个很诡异的问题
+                // 当代码高亮后，ol的行号莫名其妙的错位
+                // 但是只要刷新li里面的html重新渲染就没有问题了
+                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
+                    ol[0].innerHTML = ol[0].innerHTML;
+                }
+            });
+
+        })();
     </script>
-    <!-- //script for tesimonials carousel slider -->
-    <!-- video popup -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('.popup-with-zoom-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-zoom-in'
-        });
-
-        $('.popup-with-move-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-slide-bottom'
-        });
-    });
-    </script>
-    <!-- //video popup -->
-    <!-- stats number counter-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
-    <script>
-    $('.counter').countUp();
-    </script>
-    <!-- //stats number counter -->
-    <!-- disable body scroll which navbar is in active -->
-    <script>
-    $(function() {
-        $('.navbar-toggler').click(function() {
-            $('body').toggleClass('noscroll');
-        })
-
-        $('.post-content-content .js_to').click(function(){
-            var url = $(this).data('url');
-            var code = $(this).data('code');
-            url += code;
-
-            window.open(url);
-        })
-    });
-    </script>
-    <!-- disable body scroll which navbar is in active -->
-    <!--/MENU-JS-->
-    <script>
-    $(window).on("scroll", function() {
-        var scroll = $(window).scrollTop();
-
-        if (scroll >= 80) {
-            $("#site-header").addClass("nav-fixed");
-        } else {
-            $("#site-header").removeClass("nav-fixed");
-        }
-    });
-
-    //Main navigation Active Class Add Remove
-    $(".navbar-toggler").on("click", function() {
-        $("header").toggleClass("active");
-    });
-    $(document).on("ready", function() {
-        if ($(window).width() > 991) {
-            $("header").removeClass("active");
-        }
-        $(window).on("resize", function() {
-            if ($(window).width() > 991) {
-                $("header").removeClass("active");
-            }
-        });
-    });
-    </script>
-    <!--//MENU-JS-->
-    <!-- bootstrap js -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
-</body>
-
+    </body>
 </html>

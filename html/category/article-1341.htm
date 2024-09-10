@@ -1,476 +1,925 @@
-<!doctype html>
-<html lang="zh-CN">
-
+<!DOCTYPE html>
+<html>
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-1341.htm" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>FreeRTOS进阶之队列示例完全解析_操作系统 - EgyptAddress</title>
-    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
-        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
-    <script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
-     crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <title>System Error</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <style>
+        /* Base */
+        body {
+            color: #333;
+            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0 20px 20px;
+            word-break: break-word;
+        }
+        h1{
+            margin: 10px 0 0;
+            font-size: 28px;
+            font-weight: 500;
+            line-height: 32px;
+        }
+        h2{
+            color: #4288ce;
+            font-weight: 400;
+            padding: 6px 0;
+            margin: 6px 0 0;
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+        }
+        h3.subheading {
+            color: #4288ce;
+            margin: 6px 0 0;
+            font-weight: 400;
+        }
+        h3{
+            margin: 12px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        abbr{
+            cursor: help;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+        a{
+            color: #868686;
+            cursor: pointer;
+        }
+        a:hover{
+            text-decoration: underline;
+        }
+        .line-error{
+            background: #f8cbcb;
+        }
+
+        .echo table {
+            width: 100%;
+        }
+
+        .echo pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f7f7f7;
+            border: 0;
+            border-radius: 3px;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        .echo pre > pre {
+            padding: 0;
+            margin: 0;
+        }
+        /* Layout */
+        .col-md-3 {
+            width: 25%;
+        }
+        .col-md-9 {
+            width: 75%;
+        }
+        [class^="col-md-"] {
+            float: left;
+        }
+        .clearfix {
+            clear:both;
+        }
+        @media only screen 
+        and (min-device-width : 375px) 
+        and (max-device-width : 667px) { 
+            .col-md-3,
+            .col-md-9 {
+                width: 100%;
+            }
+        }
+        /* Exception Info */
+        .exception {
+            margin-top: 20px;
+        }
+        .exception .message{
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-bottom: 0 none;
+            line-height: 18px;
+            font-size:16px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+
+        .exception .code{
+            float: left;
+            text-align: center;
+            color: #fff;
+            margin-right: 12px;
+            padding: 16px;
+            border-radius: 4px;
+            background: #999;
+        }
+        .exception .source-code{
+            padding: 6px;
+            border: 1px solid #ddd;
+
+            background: #f9f9f9;
+            overflow-x: auto;
+
+        }
+        .exception .source-code pre{
+            margin: 0;
+        }
+        .exception .source-code pre ol{
+            margin: 0;
+            color: #4288ce;
+            display: inline-block;
+            min-width: 100%;
+            box-sizing: border-box;
+        font-size:14px;
+            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
+            padding-left: 56px;
+        }
+        .exception .source-code pre li{
+            border-left: 1px solid #ddd;
+            height: 18px;
+            line-height: 18px;
+        }
+        .exception .source-code pre code{
+            color: #333;
+            height: 100%;
+            display: inline-block;
+            border-left: 1px solid #fff;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace{
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-top: 0 none;
+            line-height: 16px;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace ol{
+            margin: 12px;
+        }
+        .exception .trace ol li{
+            padding: 2px 4px;
+        }
+        .exception div:last-child{
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Exception Variables */
+        .exception-var table{
+            width: 100%;
+            margin: 12px 0;
+            box-sizing: border-box;
+            table-layout:fixed;
+            word-wrap:break-word;            
+        }
+        .exception-var table caption{
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 6px 0;
+        }
+        .exception-var table caption small{
+            font-weight: 300;
+            display: inline-block;
+            margin-left: 10px;
+            color: #ccc;
+        }
+        .exception-var table tbody{
+            font-size: 13px;
+            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
+        }
+        .exception-var table td{
+            padding: 0 6px;
+            vertical-align: top;
+            word-break: break-all;
+        }
+        .exception-var table td:first-child{
+            width: 28%;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .exception-var table td pre{
+            margin: 0;
+        }
+
+        /* Copyright Info */
+        .copyright{
+            margin-top: 24px;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
+        }
+
+        /* SPAN elements with the classes below are added by prettyprint. */
+        pre.prettyprint .pln { color: #000 }  /* plain text */
+        pre.prettyprint .str { color: #080 }  /* string content */
+        pre.prettyprint .kwd { color: #008 }  /* a keyword */
+        pre.prettyprint .com { color: #800 }  /* a comment */
+        pre.prettyprint .typ { color: #606 }  /* a type name */
+        pre.prettyprint .lit { color: #066 }  /* a literal value */
+        /* punctuation, lisp open bracket, lisp close bracket */
+        pre.prettyprint .pun, pre.prettyprint .opn, pre.prettyprint .clo { color: #660 }
+        pre.prettyprint .tag { color: #008 }  /* a markup tag name */
+        pre.prettyprint .atn { color: #606 }  /* a markup attribute name */
+        pre.prettyprint .atv { color: #080 }  /* a markup attribute value */
+        pre.prettyprint .dec, pre.prettyprint .var { color: #606 }  /* a declaration; a variable name */
+        pre.prettyprint .fun { color: red }  /* a function name */
+    </style>
 </head>
-
 <body>
-        <!-- header -->
-    <header id="site-header" class="fixed-top">
-        <div class="container">
-            <nav class="navbar navbar-expand-lg stroke">
-                <a class="navbar-brand" href="/">
-                                        <span class="fa fa-laptop"></span> EgyptAddress
-                                    </a>
-                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
-                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
-                    </span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                    <ul class="navbar-nav ml-auto">
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/">首页</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/html/category/">文章分类</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="#">关于</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">联系</a>
-                        </li>
-                    </ul>
+    <div class="echo">
+            </div>
+        <div class="exception">
+    <div class="message">
+        
+            <div class="info">
+                <div>
+                    <h2>[8]&nbsp;<abbr title="think\exception\ErrorException">ErrorException</abbr> in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></h2>
                 </div>
-                <!-- toggle switch for light and dark theme -->
-                <div class="mobile-position">
-                    <nav class="navigation">
-                        <div class="theme-switch-wrapper">
-                            <label class="theme-switch" for="checkbox">
-                                <input type="checkbox" id="checkbox">
-                                <div class="mode-container">
-                                    <i class="gg-sun"></i>
-                                    <i class="gg-moon"></i>
-                                </div>
-                            </label>
-                        </div>
-                    </nav>
-                </div>
-                <!-- //toggle switch for light and dark theme -->
-            </nav>
+                <div><h1>未定义变量: hot_city_list</h1></div>
+            </div>
+        
+    </div>
+	        <div class="source-code">
+            <pre class="prettyprint lang-php"><ol start="124"><li class="line-124"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-125"><code>            &lt;?php if(is_array($hot_country_list) || $hot_country_list instanceof \think\Collection || $hot_country_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_country_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-126"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-127"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-128"><code>            &lt;/li&gt;
+</code></li><li class="line-129"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li><li class="line-130"><code>        &lt;/ul&gt;
+</code></li><li class="line-131"><code>    &lt;/div&gt;
+</code></li><li class="line-132"><code>&lt;/div&gt;
+</code></li><li class="line-133"><code>&lt;?php endif; if($hot_city_list): ?&gt;
+</code></li><li class="line-134"><code>&lt;div class=&quot;panel panel-default box article-list&quot;&gt;
+</code></li><li class="line-135"><code>    &lt;div class=&quot;panel-heading&quot;&gt;&lt;h2&gt;热门城市&lt;/h2&gt;&lt;/div&gt;
+</code></li><li class="line-136"><code>    &lt;div class=&quot;panel-body&quot;&gt;
+</code></li><li class="line-137"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-138"><code>            &lt;?php if(is_array($hot_city_list) || $hot_city_list instanceof \think\Collection || $hot_city_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_city_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-139"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-140"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-141"><code>            &lt;/li&gt;
+</code></li><li class="line-142"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li></ol></pre>
         </div>
-    </header>
-    <!-- //header -->
+	        <div class="trace">
+            <h2>Call Stack</h2>
+            <ol>
+                <li>in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></li>
+                                <li>
+                at <abbr title="think\Error">Error</abbr>::appError(8, '<a class="toggle" title="Undefined variable: hot_city_list">Undefined variable: ...</a>', '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 133, ['cacheFile' => '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 'vars' => ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], 'config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a>                </li>
+                                <li>
+                at include('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\template\driver\File.php line 53">File.php line 53</a>                </li>
+                                <li>
+                at <abbr title="think\template\driver\File">File</abbr>->read('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\Template.php line 188">Template.php line 188</a>                </li>
+                                <li>
+                at <abbr title="think\Template">Template</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\view\driver\Think.php line 86">Think.php line 86</a>                </li>
+                                <li>
+                at <abbr title="think\view\driver\Think">Think</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\View.php line 163">View.php line 163</a>                </li>
+                                <li>
+                at <abbr title="think\View">View</abbr>->fetch('<a class="toggle" title="egyptaddress/index/url_blog">egyptaddress/index/u...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\controller\Index.php line 442">Index.php line 442</a>                </li>
+                                <li>
+                at <abbr title="addons\xcblog\controller\Index">Index</abbr>->url_blog()                </li>
+                                <li>
+                at call_user_func_array([<em>object</em>(<abbr title="addons\xcblog\controller\Index">Index</abbr>), 'url_blog'], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\vendor\karsonzhang\fastadmin-addons\src\addons\Route.php line 78">Route.php line 78</a>                </li>
+                                <li>
+                at <abbr title="think\addons\Route">Route</abbr>->execute('xcblog', 'index', 'url_blog')                </li>
+                                <li>
+                at <abbr title="ReflectionMethod">ReflectionMethod</abbr>->invokeArgs(<em>object</em>(<abbr title="think\addons\Route">Route</abbr>), ['xcblog', 'index', 'url_blog']) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 343">App.php line 343</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::invokeMethod(['\think\addons\Route', 'execute'], ['website_id' => '1', 'id' => '1341', 'addon' => 'xcblog', ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 470">App.php line 470</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::exec(['type' => 'method', 'method' => ['\think\addons\Route', 'execute'], 'var' => []], ['app_host' => '', 'app_debug' => <em>true</em>, 'app_trace' => <em>false</em>, ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 139">App.php line 139</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::run() in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php line 19">start.php line 19</a>                </li>
+                                <li>
+                at require('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\public\index.php line 23">index.php line 23</a>                </li>
+                            </ol>
+        </div>
+    </div>
+        
     
-    <!-- about breadcrumb -->
-    <section class="w3l-about-breadcrumb text-center">
-        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
-            <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">FreeRTOS进阶之队列示例完全解析_操作系统</h1>
-                <ul class="breadcrumbs-custom-path mt-2">
-                    <li><a href="/">首页</a></li>
-                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
-                    <li><a href="/html/category/">文章分类</a></li>
-                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-    <!-- //about breadcrumb -->
-    <div class="container py-lg-5 py-3">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li>前言</li> <li>1.队列创建函数</li> <li>2.入队</li> <ul class="second_class_ul"> <li>2.1 xQueueGenericSend()</li> <li>2.2 xQueueGenericSendFromISR ()</li> </ul> <li>3.出队</li> <ul class="second_class_ul"></ul> </ul> </div> <p class="maodian"></p> <h2>前言</h2> <p>FreeRTOS提供了多种任务间通讯方式，包括：</p> <ul> <li>任务通知（版本V8.2以及以上版本）</li> <li>队列</li> <li>二进制信号量</li> <li>计数信号量</li> <li>互斥量</li> <li>递归互斥量</li> </ul> <p>其中，二进制信号量、计数信号量、互斥量和递归互斥量都是使用队列来实现的，因此掌握队列的运行机制，是很有必要的。</p> <p>队列是FreeRTOS主要的任务间通讯方式。可以在任务与任务间、中断和任务间传送信息。发送到队列的消息是通过拷贝实现的，这意味着队列存储的数据是原数据，而不是原数据的引用。先看一下队列的数据结构：</p> <div class="ay1code"> <pre class="brush:cpp;">typedef struct QueueDefinition  {      int8_t *pcHead;             /* 指向队列存储区起始位置,即第一个队列项 */      int8_t *pcTail;             /* 指向队列存储区结束后的下一个字节 */      int8_t *pcWriteTo;          /* 指向下队列存储区的下一个空闲位置 */      union                       /* 使用联合体用来确保两个互斥的结构体成员不会同时出现 */      {          int8_t *pcReadFrom;     /* 当结构体用于队列时,这个字段指向出队项目中的最后一个. */          UBaseType_t uxRecursiveCallCount;/* 当结构体用于互斥量时,用作计数器,保存递归互斥量被"获取"的次数. */      } u;      List_t xTasksWaitingToSend;      /* 因为等待入队而阻塞的任务列表,按照优先级顺序存储 */      List_t xTasksWaitingToReceive;   /* 因为等待队列项而阻塞的任务列表,按照优先级顺序存储 */      volatile UBaseType_t uxMessagesWaiting;/*< 当前队列的队列项数目 */      UBaseType_t uxLength;            /* 队列项的数目 */      UBaseType_t uxItemSize;          /* 每个队列项的大小 */      volatile BaseType_t xRxLock;   /* 队列上锁后,存储从队列收到的列表项数目，如果队列没有上锁，设置为queueUNLOCKED */      volatile BaseType_t xTxLock;   /* 队列上锁后,存储发送到队列的列表项数目，如果队列没有上锁，设置为queueUNLOCKED */      #if ( configUSE_QUEUE_SETS == 1 )          struct QueueDefinition *pxQueueSetContainer;      #endif       #if ( configUSE_TRACE_FACILITY == 1 )          UBaseType_t uxQueueNumber;          uint8_t ucQueueType;      #endif      #if ( configSUPPORT_STATIC_ALLOCATION == 1 )          uint8_t ucStaticAllocationFlags;      #endif  } xQUEUE;   typedef xQUEUE Queue_t;</pre> </div> <p>下面的所有API函数都是围绕这个数据结构展开，因此数据结构的每个成员都需要了解。如果你是第一次看这篇文章，即使有注释，可能你对结构体的某些成员还是不理解，不要着急，这是正常的。后面介绍API函数的时候，会一一使用这些成员，结合着具体实例，会很容理解的，你需要做的，是要反复翻到这里查看。</p> <p class="maodian"></p> <h2>1.队列创建函数</h2> <p>在FreeRTOS队列API函数一文中，我们介绍了创建队列API函数xQueueCreate()，但其实这是一个宏，只是定义的像函数而已。真正被执行的函数是xQueueGenericCreate()，我们称这个函数为通用队列创建函数。</p> <p>我们来分析一下xQueueGenericCreate()函数，函数原型为：</p> <div class="ay1code"> <pre class="brush:cpp;">QueueHandle_t xQueueGenericCreate          (                   const UBaseType_t uxQueueLength,                   const UBaseType_t uxItemSize,                   uint8_t *pucQueueStorage,                   StaticQueue_t *pxStaticQueue,                   const uint8_t ucQueueType           )</pre> </div> <p><code>uxQueueLength</code>：队列项数目</p> <p><code>uxItemSize</code>：每个队列项的大小</p> <p><code>pucQueueStorage</code>：使用静态分配队列时才使用，指向定义队列存储空间，如果使用动态分配队列空间（默认），向这个参数传递NULL。</p> <p><code>pxStaticQueue</code>：使用静态分配队列时才使用，指向队列控制结构体，如果使用动态分配队列空间（默认），向这个参数传递NULL。<br />ucQueueType：类型。可能的值为：</p> <blockquote> <p>queueQUEUE_TYPE_BASE：表示队列<br />queueQUEUE_TYPE_SET：表示队列集合<br />queueQUEUE_TYPE_MUTEX：表示互斥量<br />queueQUEUE_TYPE_COUNTING_SEMAPHORE：表示计数信号量<br />queueQUEUE_TYPE_BINARY_SEMAPHORE：表示二进制信号量<br />queueQUEUE_TYPE_RECURSIVE_MUTEX ：表示递归互斥量</p> </blockquote> <p>然而，等下我们看源码，就会看到，在xQueueGenericCreate()函数中，参数ucQueueType只是用来可视化跟踪调试用。</p> <p>xQueueGenericCreate()函数的源码如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">QueueHandle_t xQueueGenericCreate(                 const UBaseType_t uxQueueLength,                 const UBaseType_t uxItemSize,                uint8_t *pucQueueStorage,                StaticQueue_t *pxStaticQueue,                const uint8_t ucQueueType )  {  Queue_t *pxNewQueue;      /* 如果使能可视化跟踪调试,这里用来消除编译器警告. */      ( void ) ucQueueType;      /*分配队列结构体和队列项存储空间.可以静态也可以动态分配,取决于参数值,FreeRTOS默认采取动态分配 */      pxNewQueue = prvAllocateQueueMemory( uxQueueLength, uxItemSize, &pucQueueStorage, pxStaticQueue );      if( pxNewQueue != NULL )      {          if( uxItemSize == ( UBaseType_t ) 0 )          {              /* 没有为队列项存储分配内存,但是pcHead指针不能设置为NULL,因为队列用作互斥量时,pcHead要设置成NULL.这里只是将pcHead指向一个已知的区域 */              pxNewQueue->pcHead = ( int8_t * ) pxNewQueue;          }          else          {              /* 指向队列项存储区域*/              pxNewQueue->pcHead = ( int8_t * ) pucQueueStorage;          }          /* 初始化队列结构体成员*/          pxNewQueue->uxLength = uxQueueLength;          pxNewQueue->uxItemSize = uxItemSize;          ( void ) xQueueGenericReset( pxNewQueue, pdTRUE );          #if ( configUSE_TRACE_FACILITY == 1 )          {              pxNewQueue->ucQueueType = ucQueueType;          }          #endif /* configUSE_TRACE_FACILITY */          traceQUEUE_CREATE( pxNewQueue );      }      return ( QueueHandle_t ) pxNewQueue;  }</pre> </div> <p>我们以默认的动态分配队列存储空间方式讲述一下队列创建过程。首先调用函数prvAllocateQueueMemory分配队列结构体和队列项存储空间，结构体和队列项在存储空间上是连续的，如图1-1所示。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/aaa16252e11a8e2f00185c2095a17b73.jpg"></p> <p>图1-1：为队列分配的内存</p> <p>如果队列内存申请成功，接下来会初始化队列结构体成员，先是pcHead成员，然后是uxLength和uxItemSize成员，最后调用函数xQueueGenericReset()初始化剩下的结构体成员。</p> <p>假设我们申请了3个队列项，每个队列项占用4字节存储空间（即uxLength=3、uxItemSize=4），则经过初始化后的队列内存如图1-2所示。（这个图形象的描述了队列结构体的大部分成员的作用）。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/11375d63b40005529efca6354a93fbb6.jpg"></p> <p>图1-2：初始化后的队列项内存</p> <p class="maodian"></p> <h2>2.入队</h2> <p>队列项入队也称为投递（Send），分为带中断保护的入队操作和不带中断保护的入队操作。每种情况下又分为从队列尾部入队和从队列首部入队两种操作，从队列尾部入队还有一种特殊情况，覆盖式入队，即队列满后自动覆盖最旧的队列项。如表2-1所示。</p> <p>表2-1：入队API接口列表</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/02ae985c28aaf656b751ebfff7a97fbb.jpg"></p> <p class="maodian"></p> <h3>2.1 xQueueGenericSend()</h3> <p>这个函数用于入队操作，绝不可以用在中断服务程序中。根据参数的不同，可以从队列尾入队、从队列首入队和覆盖式入队。覆盖式入队用于只有一个队列项的场合，入队时如果队列已满，则将之前的队列项覆盖掉。函数原型为：</p> <div class="ay1code"> <pre class="brush:cpp;">BaseType_t xQueueGenericSend  				(   					QueueHandle_t xQueue,   					const void * const pvItemToQueue,   					TickType_t xTicksToWait,   					const BaseType_t xCopyPosition   				)</pre> </div> <p><code>xQueue</code>：队列句柄pvItemToQueue：指针，指向要入队的项目</p> <p><code>xTicksToWait</code>：如果队列满，等待队列空闲的最大时间，如果队列满并且xTicksToWait被设置成0，函数立刻返回。时间单位为系统节拍时钟周期，宏portTICK_PERIOD_MS可以用来辅助计算真实延时值。</p> <p>如果INCLUDE_vTaskSuspend设置成1，并且指定延时为portMAX_DELAY将引起任务无限阻塞（没有超时）。</p> <p><code>xCopyPosition</code>：入队位置，可以选择从队列尾入队、从队列首入队和覆盖式入队。</p> <p>这个函数为了获得最高效率而放宽了编码标准：有多个返回点。因此如果纯粹以文字方式来讲解，我觉得很难达到好的效果，所以我首先给出整理后的源码（去除调试和队列集合有关代码），然后画出流程图，对函数的关键点做重点描述。</p> <p>整理后的源码：</p> <div class="ay1code"> <pre class="brush:cpp;">BaseType_t xQueueGenericSend(   				QueueHandle_t xQueue,   				const void * const pvItemToQueue,   				TickType_t xTicksToWait,   				const BaseType_t xCopyPosition )  {  BaseType_t xEntryTimeSet = pdFALSE, xYieldRequired;  TimeOut_t xTimeOut;  Queue_t * const pxQueue = ( Queue_t * ) xQueue;       for( ;; )      {          taskENTER_CRITICAL();          {              /* 队列还有空闲?正在运行的任务一定要比等待访问队列的任务优先级高.如果使用覆盖式入队,则不需要关注队列是否满*/              if( ( pxQueue->uxMessagesWaiting < pxQueue->uxLength ) || ( xCopyPosition == queueOVERWRITE ) )              {                  /*完成数据拷贝工作,分为从队列尾入队,从队列首入队和覆盖式入队*/                  xYieldRequired = prvCopyDataToQueue( pxQueue, pvItemToQueue, xCopyPosition );                  /* 如果有任务在此等待队列数据到来,则将该任务解除阻塞*/                  if( listLIST_IS_EMPTY( &( pxQueue->xTasksWaitingToReceive ) ) == pdFALSE )                  {                      /*有任务因等待出队而阻塞,则将任务从队列等待接收列表中删除,然后加入到就绪列表*/                      if( xTaskRemoveFromEventList( &( pxQueue->xTasksWaitingToReceive ) ) != pdFALSE )                      {                          /* 解除阻塞的任务有更高的优先级,则当前任务要让出CPU,因此触发一个上下文切换.又因为现在还在临界区,要等退出临界区后,才会执行上下文切换.*/                          queueYIELD_IF_USING_PREEMPTION();                      }                  }                  else if( xYieldRequired != pdFALSE )                  {                      /* 这个分支处理特殊情况*/                      queueYIELD_IF_USING_PREEMPTION();                  }                  taskEXIT_CRITICAL();                  return pdPASS;              }              else              {                  if( xTicksToWait == ( TickType_t ) 0 )                  {                      /* 如果队列满并且没有设置超时,则直接退出 */                      taskEXIT_CRITICAL();                      /* 返回队列满错误码 */                      return errQUEUE_FULL;                  }                  else if( xEntryTimeSet == pdFALSE )                  {                      /* 队列满并且规定了阻塞时间,因此需要配置超时结构体对象 */                      vTaskSetTimeOutState( &xTimeOut );                      xEntryTimeSet = pdTRUE;                  }              }          }          taskEXIT_CRITICAL();          /* 退出临界区,至此,中断和其它任务可以向这个队列执行入队(投递)或出队(读取)操作.因为队列满,任务无法入队,下面的代码将当前任务将阻塞在这个队列上,在这段代码执行过程中我们需要挂起调度器,防止其它任务操作队列事件列表;挂起调度器虽然可以禁止其它任务操作这个队列,但并不能阻止中断服务程序操作这个队列,因此还需要将队列上锁,防止中断程序读取队列后,使阻塞在出队操作其它任务解除阻塞,执行上下文切换(因为调度器挂起后,不允许执行上下文切换) */          vTaskSuspendAll();          prvLockQueue( pxQueue );          /* 查看任务的超时时间是否到期 */          if( xTaskCheckForTimeOut( &xTimeOut, &xTicksToWait ) == pdFALSE )          {              if( prvIsQueueFull( pxQueue ) != pdFALSE )              {                  /*超时时间未到期,并且队列仍然满*/                  vTaskPlaceOnEventList( &( pxQueue->xTasksWaitingToSend ), xTicksToWait );                  /* 解除队列锁,如果有任务要解除阻塞,则将任务移到挂起就绪列表中(因为当前调度器挂起,所以不能移到就绪列表)*/                  prvUnlockQueue( pxQueue );                  /* 恢复调度器,将任务从挂起就绪列表移到就绪列表中*/                  if( xTaskResumeAll() == pdFALSE )                  {                      portYIELD_WITHIN_API();                  }              }              else              {                  /* 队列有空闲,重试 */                  prvUnlockQueue( pxQueue );                  ( void ) xTaskResumeAll();              }          }          else          {              /* 超时时间到期,返回队列满错误码*/              prvUnlockQueue( pxQueue );              ( void ) xTaskResumeAll();              traceQUEUE_SEND_FAILED( pxQueue );              return errQUEUE_FULL;          }      }  }</pre> </div> <p>程序流程如图2-1所示，我们对图中红色字体标注的部分做详解。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/373b950f02dd2780e2a782c700f9f66f.jpg"></p> <p>图2-1:通用入队操作流程图</p> <p>当任务将数据入队时，如果队列未满或者以覆盖式入队，情况是最简单的，调用函数prvCopyDataToQueue()将要入队的数据拷贝到队列。</p> <p>这个函数处理三种入队情况</p> <p>第一种是队列项大小为0时（即队列结构体成员uxItemSize为0，比如二进制信号量和计数信号量），不进行数据拷贝工作，而是将队列项计数器加1（即队列结构体成员uxMessagesWaiting++）；</p> <p>第二种情况是从队列尾入队时，则将数据拷贝到指针pxQueue->pcWriteTo指向的地方、更新指针指向的位置、队列项计数器加1；</p> <p>第三种情况是从队列首入队时，则将数据拷贝到指针pxQueue->u.pcReadFrom指向的地方、更新指针指向的位置、队列项计数器加1。如果是覆盖式入队，还会调整队列项计数器的值。</p> <p>完成数据入队操作后，还要检查是否有任务因为等待出队而阻塞，因为这次数据入队，队列至少有一个队列项，如果有阻塞任务，则阻塞的最高优先级任务可以解除阻塞了。</p> <p>因等待出队而阻塞的任务会将任务的事件列表项（即任务TCB结构体成员xEventListItem，我们在FreeRTOS任务创建分析一文中讲到过事件列表项，它是任务TCB的一个结构体成员）挂接到队列的等待出队列表上（即队列结构体成员xTasksWaitingToReceive）。</p> <p>现在，因为要解除任务阻塞，我们需要将任务的事件列表项从队列的等待出队队列上删除，并且将任务移动到就绪列表中。这一切，都是调用函数xTaskRemoveFromEventList()实现的。</p> <p>之后，如果解除阻塞的任务优先级比当前任务优先级更高，则触发一个PendSV中断，等退出临界区后，进行上下文切换。入队任务完成。</p> <p>上面讨论了最理想的情况，过程也简洁明了，但如果任务入队时，队列满并且不允许覆盖入队，则情况会变得复杂起来。</p> <p>在这种情况下，先看一个简单分支：阻塞时间为0的情况。设置阻塞时间为0意味着当队列满时，函数立即返回，返回一个错误代码，表示队列满。</p> <p>如果阻塞时间不为0，则本任务会因为等待入队而进入阻塞。在将任务设置为阻塞的过程中，是不希望有其它任务和中断操作这个队列的事件列表的（队列结构体成员xTasksWaitingToReceive列表和xTasksWaitingToSend列表），因为操作队列事件列表可能引起其它任务解除阻塞，这可能会发生优先级翻转。</p> <p>比如任务A的优先级低于本任务，但是在本任务进入阻塞的过程中，任务A却因为其它原因解除阻塞了，这显然是要绝对禁止的。因此FreeRTOS使用挂起调度器来简单粗暴的禁止其它任务操作队列，因为挂起调度器意味着任务不能切换并且不准调用可能引起任务切换的API函数。</p> <p>但挂起调度器并不会禁止中断，中断服务函数仍然可以操作队列事件列表，可能会解除任务阻塞、可能会进行上下文切换，这是不允许的。于是，解决办法是不但挂起调度器，还要给队列上锁！</p> <p>队列结构体中有两个成员跟队列上锁有关：xRxLock和xTxLock。</p> <p>这两个成员变量为queueUNLOCKED（宏，定义为-1）时，表示队列未上锁；</p> <p>当这两个成员变量为queueLOCKED_UNMODIFIED（宏，定义为0）时，表示队列上锁。</p> <p>给队列上锁是调用宏prvLockQueue()实现的，代码很简单，将队列结构体成员xRxLock和xTxLock都设置为queueLOCKED_UNMODIFIED。</p> <p>我们看一下给队列上锁是如何起作用的。当中断服务程序操作队列并且导致阻塞的任务解除阻塞时，会首先判断该队列是否上锁，如果没有上锁，则解除被阻塞的任务，还会根据需要设置上下文切换请求标志；</p> <p>如果队列已经上锁，则不会解除被阻塞的任务，取而代之的是，将xRxLock或xTxLock加1，表示队列上锁期间出队或入队的数目，也表示有任务可以解除阻塞了。这部分代码在带中断保护的入队和出队API函数中，后面我们会讲到，这里先有个印象。</p> <p>有将队列上锁操作，就会有解除队列锁操作。函数prvUnlockQueue()用于解除队列锁，将可以解除阻塞的任务插入到就绪列表，解除任务的最大数量由xRxLock和xTxLock指定。</p> <p>经过一系列的逻辑判断，发现本任务还是要进入阻塞状态，则调用函数vTaskPlaceOnEventList()来实现。这个函数将揭示任务因等待特定事件而进入阻塞的详细步骤，其实非常简单，只有两步：第一步，将任务的事件列表项（任务TCB结构体成员xEventListItem）插入到队列的等待入队列表（队列结构体成员xTasksWaitingToSend）中；第二步，将任务的状态列表项（任务TCB结构体成员xStateListItem）从就绪列表中删除，然后插入到延时列表中，任务的最大延时时间放入xStateListItem. xItemValue中，每次系统节拍定时器中断服务函数中，都会检查这个值，检测任务是否超时。</p> <p>当任务成功阻塞在等待入队操作后，当前任务就没有必要再占用CPU了，所以接下来解除队列锁、恢复调度器、进行任务切换，下一个处于最高优先级的就绪任务就会被运行了。</p> <p class="maodian"></p> <h3>2.2 xQueueGenericSendFromISR ()</h3> <p>这个函数用于入队，用于中断服务程序中。根据参数的不同，可以从队列尾入队、从队列首入队也可以覆盖式入队。覆盖式入队用于只有一个队列项的场合，入队时如果队列已满，则将之前的队列项覆盖掉。函数原型为：</p> <div class="ay1code"> <pre class="brush:cpp;">BaseType_t xQueueGenericSendFromISR  				(   						QueueHandle_t xQueue,   						const void * const pvItemToQueue,   						BaseType_t * const pxHigherPriorityTaskWoken,   						const BaseType_t xCopyPosition   				)</pre> </div> <p><code>xQueue</code>：队列句柄。</p> <p><code>pvItemToQueue</code>：指针，指向要入队的项目。</p> <p><code>pxHigherPriorityTaskWoken</code>：如果入队导致一个任务解锁，并且解锁的任务优先级高于当前运行的任务，则该函数将*pxHigherPriorityTaskWoken设置成pdTRUE。</p> <p>如果xQueueSendFromISR()设置这个值为pdTRUE，则中断退出前需要一次上下文切换。从FreeRTOS V7.3.0起，pxHigherPriorityTaskWoken称为一个可选参数，并可以设置为NULL。</p> <p><code>xCopyPosition</code>：入队位置，可以选择从队列尾入队、从队列首入队和覆盖式入队。</p> <p>这个函数和xQueueGenericSend()很相似，但是当队列满时不会阻塞，直接返回一个错误码，表示队列满（相当于阻塞时间为0）。因此，有了分析xQueueGenericSend()的基础，这个函数我们很快就能看完。源码简化后如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">BaseType_t xQueueGenericSendFromISR(   				QueueHandle_t xQueue,   				const void * const pvItemToQueue,   				BaseType_t * const pxHigherPriorityTaskWoken,   				const BaseType_t xCopyPosition )  {  BaseType_t xReturn;  UBaseType_t uxSavedInterruptStatus;  Queue_t * const pxQueue = ( Queue_t * ) xQueue;      uxSavedInterruptStatus = portSET_INTERRUPT_MASK_FROM_ISR();      {          if( ( pxQueue->uxMessagesWaiting < pxQueue->uxLength ) || ( xCopyPosition == queueOVERWRITE ) )          {              traceQUEUE_SEND_FROM_ISR( pxQueue );              /*完成数据拷贝工作,分为从队列尾入队,从队列首入队和覆盖式入队*/              ( void ) prvCopyDataToQueue( pxQueue, pvItemToQueue, xCopyPosition );              /*检查队列是否上锁,如果上锁,则队列事件列表不能被改变 */              if( pxQueue->xTxLock == queueUNLOCKED )              {   /*队列没有上锁*/                  if( listLIST_IS_EMPTY( &( pxQueue->xTasksWaitingToReceive ) ) == pdFALSE )                  {                      if( xTaskRemoveFromEventList( &( pxQueue->xTasksWaitingToReceive ) ) != pdFALSE )                      {                          /* 解除阻塞的任务优先级比当前任务高,记录上下文切换请求,等返回中断服务程序后,可以显示的强制上下文切换 */                          if( pxHigherPriorityTaskWoken != NULL )                          {                              *pxHigherPriorityTaskWoken = pdTRUE;                          }                      }                  }              }              else              {                  /* 队列上锁,增加锁计数器,等到任务解除队列锁时,使用这个计数器就可以知道有多少数据入队,可以最多解除多少个因等待从队列读数据而阻塞的任务 */                  ++( pxQueue->xTxLock );              }              xReturn = pdPASS;          }          else          {              xReturn = errQUEUE_FULL;          }      }      portCLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedInterruptStatus );      return xReturn;  }</pre> </div> <p>因为没有阻塞，所以代码简单了很多，唯一值得注意的是，当成功入队后，如果有因为等待出队而阻塞的任务，现在可以将其中最高优先级的任务解除阻塞，在执行解除阻塞操作之前，会判断队列是否上锁。</p> <p>如果没有上锁，则解除被阻塞的任务，还会根据需要设置上下文切换请求标志；</p> <p>如果队列已经上锁，则不会解除被阻塞的任务，取而代之的是将xTxLock加1，表示队列上锁期间入队的个数，也表示有任务可以解除阻塞了。</p> <p class="maodian"></p> <h2>3.出队</h2> <p>出队的API函数要相对少一些，也分为带中断保护的出队操作和不带中断保护的出队操作。每种出队情况都可以选择是否删除队列项。出队API函数如表3-1所示。</p> <p>表3-1:出队API接口列表</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/63a8d65d1e28d4b1ec2b367b44222e7b.jpg"></p> <p>出队操作和入队操作有很多相似性，将入队流程理解透彻，出队操作不在话下，因此我们不再分析源码。</p> 			                </div>
-                <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-1332.htm">Centos7离线安装Nginx亲测版</a></p>
-                                        <p>下一个：<a href="/html/category/article-1342.htm">import axios from ‘axios‘失效的问题</a></p>
-                                    </div>
-
-                            </div>
-            <div class="col-md-4 w3l-services">
-                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6193.htm">戴娇倩（戴娇倩老公）</a></h4>
-                <p>本文目录         戴娇倩如懿传里演什么？  她没有参演如懿传，很多人都觉得戴娇倩就是在《如懿传》中饰演阿箬的演员，但其实并不是，只是长得相像而已。在前几年的时候，戴娇倩还生下了一位女儿，之后更</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7167.htm">宠物用品一件代发小程序（宠物食品一件代发）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈宠物用品一件代发小程序，以及宠物食品一件代发对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、阿里巴巴里一件代发是怎么操作的...     </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6845.htm">我所在的城市有一家动物医院的英语怎么说 我所在的城市有一家动物医院的英语怎么说</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于我所在的城市有一家动物医院的英语怎么说的问题，于是小编就整理了2个相关介绍我所在的城市有一家动物医院的英语怎么说的解答，让我们一</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6192.htm">中国吊扇十大电风扇品牌(吊扇品牌有哪些)</a></h4>
-                <p>排行相关内容，小编在这里做了整理，希望能对大家有所帮助，关于吊扇品牌排行信息，一起来了解一下吧！ 吊扇10大品牌       吊扇10大品牌有美的Midea、钻石、艾美特、华生wahson、格力GRE</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6753.htm">为什么猫咪***不能洗澡（猫咪洗澡***能一起吗）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈为什么猫咪打针不能洗澡，以及猫咪洗澡打针能一起吗对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫打疫苗前能洗澡吗?2、...      </p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6983.htm">动物医院诊室的岗位职责是什么 动物医院诊室的岗位职责是什么呢</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于动物医院诊室的岗位职责是什么的问题，于是小编就整理了5个相关介绍动物医院诊室的岗位职责是什么的解答，让我们一起看看吧。动物诊所助</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6661.htm">动物疫苗经营范围有哪些类型（动物疫苗经营许可）</a></h4>
-                <p>摘要：       今天给各位分享动物疫苗经营范围有哪些类型的知识，其中也会对动物疫苗经营许可进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、动物疫苗的概念是.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7351.htm">动物疫苗市场开放（动物疫苗经销商）</a></h4>
-                <p>摘要：       本篇文章给大家谈谈动物疫苗市场开放，以及动物疫苗经销商对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、动物疫苗概念再度活跃2、...        本篇文章</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6890.htm">宠物粮食品牌取名字大全（宠物粮食品牌取名字大全集）</a></h4>
-                <p>摘要：       今天给各位分享宠物粮食品牌取名字大全的知识，其中也会对宠物粮食品牌取名字大全集进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、猫粮品牌排名.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6017.htm">猫三联需要两针还是三针的（猫三联到底打两针还是三针）</a></h4>
-                <p>摘要：       今天给各位分享猫三联需要两针还是三针的的知识，其中也会对猫三联到底打两针还是三针进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、猫三联三针.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">14</span> <a href="/html/date/2024-08/" title="2024-08 归档">2024-08</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
-                            </div>
-        </div>
-    </div>
-</div>
-            </div>
-        </div>
-    </div>
-    
-        <!-- Footer -->
-    <section class="w3l-footer py-sm-5 py-4">
-        <div class="container">
-            <div class="footer-content">
-                <div class="row">
-                    <div class="col-lg-8 footer-left">
-                        <p class="m-0">EgyptAddress 版权所有</p>
-                    </div>
-                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
-                        <ul class="social m-0 p-0">
-                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
-                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
-                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
-                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
-                        </ul>
-                    </div>
+        <div class="exception-var">
+        <h2>Environment Variables</h2>
+                <div>
+                        <h3 class="subheading">GET Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>website_id</strong></div>
+                    <div class="col-md-9"><small>
+                        1                    </small></div>
                 </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>id</strong></div>
+                    <div class="col-md-9"><small>
+                        1341                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>POST Data</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
             </div>
-        </div>
-        <!-- move top -->
-        <button onclick="topFunction()" id="movetop" title="Go to top">
-            <span class="fa fa-angle-up"></span>
-        </button>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Files</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Cookies</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Session</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">Server/Request Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ALLUSERSPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Roaming                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>COMPUTERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ComSpec</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\system32\cmd.exe                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DriverData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\System32\Drivers\DriverData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_APP_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Internet Explorer                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_USER_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Default                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FREI0R_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        D:\PROGRA~1\APOWER~1\VIDEOC~1\frei0r;D:\Program Files (x86)\Apowersoft\Video Converter Studio\frei0r                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEDRIVE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEPATH</strong></div>
+                    <div class="col-md-9"><small>
+                        \Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOCALAPPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOGONSERVER</strong></div>
+                    <div class="col-md-9"><small>
+                        \\DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>NUMBER_OF_PROCESSORS</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OneDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\OneDrive                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OS</strong></div>
+                    <div class="col-md-9"><small>
+                        Windows_NT                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>Path</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATHEXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_ARCHITECTURE</strong></div>
+                    <div class="col-md-9"><small>
+                        AMD64                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_IDENTIFIER</strong></div>
+                    <div class="col-md-9"><small>
+                        Intel64 Family 6 Model 158 Stepping 10, GenuineIntel                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_LEVEL</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_REVISION</strong></div>
+                    <div class="col-md-9"><small>
+                        9e0a                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PSModulePath</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PUBLIC</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\Public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SESSIONNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        Console                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemRoot</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN_ROAMINGPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>windir</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_ACCEPT</strong></div>
+                    <div class="col-md-9"><small>
+                        */*                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_USER_AGENT</strong></div>
+                    <div class="col-md-9"><small>
+                        Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_HOST</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REDIRECT_STATUS</strong></div>
+                    <div class="col-md-9"><small>
+                        200                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        80                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        51128                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_SOFTWARE</strong></div>
+                    <div class="col-md-9"><small>
+                        nginx/1.15.11                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>GATEWAY_INTERFACE</strong></div>
+                    <div class="col-md-9"><small>
+                        CGI/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_SCHEME</strong></div>
+                    <div class="col-md-9"><small>
+                        http                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PROTOCOL</strong></div>
+                    <div class="col-md-9"><small>
+                        HTTP/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_ROOT</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog?website_id=1&amp;id=1341                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_LENGTH</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_TYPE</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_METHOD</strong></div>
+                    <div class="col-md-9"><small>
+                        GET                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>QUERY_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        s=/addons/xcblog/index/url_blog&amp;website_id=1&amp;id=1341                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_TRANSLATED</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_INFO</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_FILENAME</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public/index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FCGI_ROLE</strong></div>
+                    <div class="col-md-9"><small>
+                        RESPONDER                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PHP_SELF</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME_FLOAT</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987395.7193                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987395                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Environment Variables</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">ThinkPHP Constants</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_VERSION</strong></div>
+                    <div class="col-md-9"><small>
+                        5.0.26                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987395.7199                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_MEM</strong></div>
+                    <div class="col-md-9"><small>
+                        409072                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DS</strong></div>
+                    <div class="col-md-9"><small>
+                        \                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LIB_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CORE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TRAIT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\traits\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ROOT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXTEND_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\extend\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>VENDOR_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>RUNTIME_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOG_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\log\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CACHE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\cache\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\temp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ENV_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        PHP_                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_CLI</strong></div>
+                    <div class="col-md-9"><small>
+                        false                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_WIN</strong></div>
+                    <div class="col-md-9"><small>
+                        true                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FILTER_VALIDATE_BOOL</strong></div>
+                    <div class="col-md-9"><small>
+                        258                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTMLPURIFIER_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\ezyang\htmlpurifier\library                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ADDON_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\addons\                    </small></div>
+                </div>
+                            </div>
+                    </div>
+            </div>
+    
+    <div class="copyright">
+        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
+        <span>V5.0.26</span> 
+        <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
+    </div>
         <script>
-        // When the user scrolls down 20px from the top of the document, show the button
-        window.onscroll = function() {
-            scrollFunction()
-        };
+        var LINE = 133;
 
-        function scrollFunction() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                document.getElementById("movetop").style.display = "block";
+        function $(selector, node){
+            var elements;
+
+            node = node || document;
+            if(document.querySelectorAll){
+                elements = node.querySelectorAll(selector);
             } else {
-                document.getElementById("movetop").style.display = "none";
-            }
-        }
-
-        // When the user clicks on the button, scroll to the top of the document
-        function topFunction() {
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        }
-        </script>
-        <!-- /move top -->
-    </section>
-    <!-- //Footer -->
-
-    <!-- all js scripts and files here -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
-    <!-- /typig-text-->
-    <script>
-    const typedTextSpan = document.querySelector(".typed-text");
-    const cursorSpan = document.querySelector(".cursor");
-
-    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
-    const typingDelay = 200;
-    const erasingDelay = 10;
-    const newTextDelay = 100; // Delay between current and next text
-    let textArrayIndex = 0;
-    let charIndex = 0;
-
-    function type() {
-        if (charIndex < textArray[textArrayIndex].length) {
-            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
-            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
-            charIndex++;
-            setTimeout(type, typingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            setTimeout(erase, newTextDelay);
-        }
-    }
-
-    function erase() {
-        if (charIndex > 0) {
-            // add class 'typing' if there's none
-            if (!cursorSpan.classList.contains("typing")) {
-                cursorSpan.classList.add("typing");
-            }
-            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
-            charIndex--;
-            setTimeout(erase, erasingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            textArrayIndex++;
-            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
-            setTimeout(type, typingDelay);
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
-        if (textArray.length) setTimeout(type, newTextDelay + 250);
-    });
-    </script>
-    <!-- //typig-text-->
-    <!-- services owlcarousel -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
-    <!-- script for services -->
-    <script>
-    $(document).ready(function() {
-        $('.owl-two').owlCarousel({
-            loop: true,
-            margin: 30,
-            nav: false,
-            responsiveClass: true,
-            autoplay: false,
-            autoplayTimeout: 5000,
-            autoplaySpeed: 1000,
-            autoplayHoverPause: false,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                480: {
-                    items: 1,
-                    nav: false
-                },
-                700: {
-                    items: 1,
-                    nav: false
-                },
-                1090: {
-                    items: 3,
-                    nav: false
+                switch(selector.substr(0, 1)){
+                    case '#':
+                        elements = [node.getElementById(selector.substr(1))];
+                        break;
+                    case '.':
+                        if(document.getElementsByClassName){
+                            elements = node.getElementsByClassName(selector.substr(1));
+                        } else {
+                            elements = get_elements_by_class(selector.substr(1), node);
+                        }
+                        break;
+                    default:
+                        elements = node.getElementsByTagName();
                 }
             }
-        })
-    })
-    </script>
-    <!-- //script for services -->
-    <!-- script for tesimonials carousel slider -->
-    <script>
-    $(document).ready(function() {
-        $("#owl-demo1").owlCarousel({
-            loop: true,
-            margin: 20,
-            nav: false,
-            responsiveClass: true,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                736: {
-                    items: 1,
-                    nav: false
-                },
-                1000: {
-                    items: 2,
-                    nav: false,
-                    loop: false
+            return elements;
+
+            function get_elements_by_class(search_class, node, tag) {
+                var elements = [], eles, 
+                    pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
+
+                node = node || document;
+                tag  = tag  || '*';
+
+                eles = node.getElementsByTagName(tag);
+                for(var i = 0; i < eles.length; i++) {
+                    if(pattern.test(eles[i].className)) {
+                        elements.push(eles[i])
+                    }
+                }
+
+                return elements;
+            }
+        }
+
+        $.getScript = function(src, func){
+            var script = document.createElement('script');
+            
+            script.async  = 'async';
+            script.src    = src;
+            script.onload = func || function(){};
+            
+            $('head')[0].appendChild(script);
+        }
+
+        ;(function(){
+            var files = $('.toggle');
+            var ol    = $('ol', $('.prettyprint')[0]);
+            var li    = $('li', ol[0]);   
+
+            // 短路径和长路径变换
+            for(var i = 0; i < files.length; i++){
+                files[i].ondblclick = function(){
+                    var title = this.title;
+
+                    this.title = this.innerHTML;
+                    this.innerHTML = title;
                 }
             }
-        })
-    })
+
+            // 设置出错行
+            var err_line = $('.line-' + LINE, ol[0])[0];
+            err_line.className = err_line.className + ' line-error';
+
+            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
+                prettyPrint();
+
+                // 解决Firefox浏览器一个很诡异的问题
+                // 当代码高亮后，ol的行号莫名其妙的错位
+                // 但是只要刷新li里面的html重新渲染就没有问题了
+                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
+                    ol[0].innerHTML = ol[0].innerHTML;
+                }
+            });
+
+        })();
     </script>
-    <!-- //script for tesimonials carousel slider -->
-    <!-- video popup -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('.popup-with-zoom-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-zoom-in'
-        });
-
-        $('.popup-with-move-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-slide-bottom'
-        });
-    });
-    </script>
-    <!-- //video popup -->
-    <!-- stats number counter-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
-    <script>
-    $('.counter').countUp();
-    </script>
-    <!-- //stats number counter -->
-    <!-- disable body scroll which navbar is in active -->
-    <script>
-    $(function() {
-        $('.navbar-toggler').click(function() {
-            $('body').toggleClass('noscroll');
-        })
-
-        $('.post-content-content .js_to').click(function(){
-            var url = $(this).data('url');
-            var code = $(this).data('code');
-            url += code;
-
-            window.open(url);
-        })
-    });
-    </script>
-    <!-- disable body scroll which navbar is in active -->
-    <!--/MENU-JS-->
-    <script>
-    $(window).on("scroll", function() {
-        var scroll = $(window).scrollTop();
-
-        if (scroll >= 80) {
-            $("#site-header").addClass("nav-fixed");
-        } else {
-            $("#site-header").removeClass("nav-fixed");
-        }
-    });
-
-    //Main navigation Active Class Add Remove
-    $(".navbar-toggler").on("click", function() {
-        $("header").toggleClass("active");
-    });
-    $(document).on("ready", function() {
-        if ($(window).width() > 991) {
-            $("header").removeClass("active");
-        }
-        $(window).on("resize", function() {
-            if ($(window).width() > 991) {
-                $("header").removeClass("active");
-            }
-        });
-    });
-    </script>
-    <!--//MENU-JS-->
-    <!-- bootstrap js -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
-</body>
-
+    </body>
 </html>

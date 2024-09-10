@@ -1,495 +1,925 @@
-<!doctype html>
-<html lang="zh-CN">
-
+<!DOCTYPE html>
+<html>
 <head>
-        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-1954.htm" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>FreeRTOS进阶之任务创建完全解析_操作系统 - EgyptAddress</title>
-    <link rel="icon" href="/assets/addons/xcblog/img/egyptaddress/favicon.ico" type="image/x-icon"/>
-        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/addons/xcblog/css/egyptaddress/style-starter.css">
-    <script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
-     crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <title>System Error</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <style>
+        /* Base */
+        body {
+            color: #333;
+            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0 20px 20px;
+            word-break: break-word;
+        }
+        h1{
+            margin: 10px 0 0;
+            font-size: 28px;
+            font-weight: 500;
+            line-height: 32px;
+        }
+        h2{
+            color: #4288ce;
+            font-weight: 400;
+            padding: 6px 0;
+            margin: 6px 0 0;
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+        }
+        h3.subheading {
+            color: #4288ce;
+            margin: 6px 0 0;
+            font-weight: 400;
+        }
+        h3{
+            margin: 12px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        abbr{
+            cursor: help;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+        a{
+            color: #868686;
+            cursor: pointer;
+        }
+        a:hover{
+            text-decoration: underline;
+        }
+        .line-error{
+            background: #f8cbcb;
+        }
+
+        .echo table {
+            width: 100%;
+        }
+
+        .echo pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f7f7f7;
+            border: 0;
+            border-radius: 3px;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        .echo pre > pre {
+            padding: 0;
+            margin: 0;
+        }
+        /* Layout */
+        .col-md-3 {
+            width: 25%;
+        }
+        .col-md-9 {
+            width: 75%;
+        }
+        [class^="col-md-"] {
+            float: left;
+        }
+        .clearfix {
+            clear:both;
+        }
+        @media only screen 
+        and (min-device-width : 375px) 
+        and (max-device-width : 667px) { 
+            .col-md-3,
+            .col-md-9 {
+                width: 100%;
+            }
+        }
+        /* Exception Info */
+        .exception {
+            margin-top: 20px;
+        }
+        .exception .message{
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-bottom: 0 none;
+            line-height: 18px;
+            font-size:16px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+
+        .exception .code{
+            float: left;
+            text-align: center;
+            color: #fff;
+            margin-right: 12px;
+            padding: 16px;
+            border-radius: 4px;
+            background: #999;
+        }
+        .exception .source-code{
+            padding: 6px;
+            border: 1px solid #ddd;
+
+            background: #f9f9f9;
+            overflow-x: auto;
+
+        }
+        .exception .source-code pre{
+            margin: 0;
+        }
+        .exception .source-code pre ol{
+            margin: 0;
+            color: #4288ce;
+            display: inline-block;
+            min-width: 100%;
+            box-sizing: border-box;
+        font-size:14px;
+            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
+            padding-left: 56px;
+        }
+        .exception .source-code pre li{
+            border-left: 1px solid #ddd;
+            height: 18px;
+            line-height: 18px;
+        }
+        .exception .source-code pre code{
+            color: #333;
+            height: 100%;
+            display: inline-block;
+            border-left: 1px solid #fff;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace{
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-top: 0 none;
+            line-height: 16px;
+        font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+        }
+        .exception .trace ol{
+            margin: 12px;
+        }
+        .exception .trace ol li{
+            padding: 2px 4px;
+        }
+        .exception div:last-child{
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Exception Variables */
+        .exception-var table{
+            width: 100%;
+            margin: 12px 0;
+            box-sizing: border-box;
+            table-layout:fixed;
+            word-wrap:break-word;            
+        }
+        .exception-var table caption{
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 6px 0;
+        }
+        .exception-var table caption small{
+            font-weight: 300;
+            display: inline-block;
+            margin-left: 10px;
+            color: #ccc;
+        }
+        .exception-var table tbody{
+            font-size: 13px;
+            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
+        }
+        .exception-var table td{
+            padding: 0 6px;
+            vertical-align: top;
+            word-break: break-all;
+        }
+        .exception-var table td:first-child{
+            width: 28%;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .exception-var table td pre{
+            margin: 0;
+        }
+
+        /* Copyright Info */
+        .copyright{
+            margin-top: 24px;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
+        }
+
+        /* SPAN elements with the classes below are added by prettyprint. */
+        pre.prettyprint .pln { color: #000 }  /* plain text */
+        pre.prettyprint .str { color: #080 }  /* string content */
+        pre.prettyprint .kwd { color: #008 }  /* a keyword */
+        pre.prettyprint .com { color: #800 }  /* a comment */
+        pre.prettyprint .typ { color: #606 }  /* a type name */
+        pre.prettyprint .lit { color: #066 }  /* a literal value */
+        /* punctuation, lisp open bracket, lisp close bracket */
+        pre.prettyprint .pun, pre.prettyprint .opn, pre.prettyprint .clo { color: #660 }
+        pre.prettyprint .tag { color: #008 }  /* a markup tag name */
+        pre.prettyprint .atn { color: #606 }  /* a markup attribute name */
+        pre.prettyprint .atv { color: #080 }  /* a markup attribute value */
+        pre.prettyprint .dec, pre.prettyprint .var { color: #606 }  /* a declaration; a variable name */
+        pre.prettyprint .fun { color: red }  /* a function name */
+    </style>
 </head>
-
 <body>
-        <!-- header -->
-    <header id="site-header" class="fixed-top">
-        <div class="container">
-            <nav class="navbar navbar-expand-lg stroke">
-                <a class="navbar-brand" href="/">
-                                        <span class="fa fa-laptop"></span> EgyptAddress
-                                    </a>
-                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
-                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
-                    </span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                    <ul class="navbar-nav ml-auto">
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/">首页</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="/html/category/">文章分类</a>
-                        </li>
-                                                <li class="nav-item">
-                            <a class="nav-link" href="#">关于</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">联系</a>
-                        </li>
-                    </ul>
-                </div>
-                <!-- toggle switch for light and dark theme -->
-                <div class="mobile-position">
-                    <nav class="navigation">
-                        <div class="theme-switch-wrapper">
-                            <label class="theme-switch" for="checkbox">
-                                <input type="checkbox" id="checkbox">
-                                <div class="mode-container">
-                                    <i class="gg-sun"></i>
-                                    <i class="gg-moon"></i>
-                                </div>
-                            </label>
-                        </div>
-                    </nav>
-                </div>
-                <!-- //toggle switch for light and dark theme -->
-            </nav>
-        </div>
-    </header>
-    <!-- //header -->
-    
-    <!-- about breadcrumb -->
-    <section class="w3l-about-breadcrumb text-center">
-        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
-            <div class="container py-2">
-                <h1 class="title" style="word-break: break-all;">FreeRTOS进阶之任务创建完全解析_操作系统</h1>
-                <ul class="breadcrumbs-custom-path mt-2">
-                    <li><a href="/">首页</a></li>
-                    <li><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span></li>
-                    <li><a href="/html/category/">文章分类</a></li>
-                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
-                </ul>
+    <div class="echo">
             </div>
+        <div class="exception">
+    <div class="message">
+        
+            <div class="info">
+                <div>
+                    <h2>[8]&nbsp;<abbr title="think\exception\ErrorException">ErrorException</abbr> in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></h2>
+                </div>
+                <div><h1>未定义变量: hot_city_list</h1></div>
+            </div>
+        
+    </div>
+	        <div class="source-code">
+            <pre class="prettyprint lang-php"><ol start="124"><li class="line-124"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-125"><code>            &lt;?php if(is_array($hot_country_list) || $hot_country_list instanceof \think\Collection || $hot_country_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_country_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-126"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-127"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-128"><code>            &lt;/li&gt;
+</code></li><li class="line-129"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li><li class="line-130"><code>        &lt;/ul&gt;
+</code></li><li class="line-131"><code>    &lt;/div&gt;
+</code></li><li class="line-132"><code>&lt;/div&gt;
+</code></li><li class="line-133"><code>&lt;?php endif; if($hot_city_list): ?&gt;
+</code></li><li class="line-134"><code>&lt;div class=&quot;panel panel-default box article-list&quot;&gt;
+</code></li><li class="line-135"><code>    &lt;div class=&quot;panel-heading&quot;&gt;&lt;h2&gt;热门城市&lt;/h2&gt;&lt;/div&gt;
+</code></li><li class="line-136"><code>    &lt;div class=&quot;panel-body&quot;&gt;
+</code></li><li class="line-137"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
+</code></li><li class="line-138"><code>            &lt;?php if(is_array($hot_city_list) || $hot_city_list instanceof \think\Collection || $hot_city_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_city_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
+</code></li><li class="line-139"><code>            &lt;li class=&quot;py-2&quot;&gt;
+</code></li><li class="line-140"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
+</code></li><li class="line-141"><code>            &lt;/li&gt;
+</code></li><li class="line-142"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
+</code></li></ol></pre>
         </div>
-    </section>
-    <!-- //about breadcrumb -->
-    <div class="container py-lg-5 py-3">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="post-content-content">
-                      				  				  				<div id="navCategory"> <h5 class="catalogue">目录</h5> <ul class="first_class_ul"> <li>前言</li> <li>1.创建任务堆栈和任务TCB</li> <li>2.初始化任务TCB必要的字段</li> <li>3.初始化任务堆栈</li> <li>4.进入临界区</li> <li>5.当前任务数量增加1</li> <li>6.为第一次运行做必要的初始化</li> <li>7.更新当前正在运行的任务TCB指针</li> <li>8.将新创建的任务加入就绪列表数组</li> <li>9.退出临界区</li> <li>10.执行上下文切换</li> </ul> </div> <p class="maodian"></p> <h2>前言</h2> <p>在FreeRTOS基础系列 FreeRTOS任务创建和删除中介绍了任务创建API函数xTaskCreate()，我们这里先回顾一下这个函数的声明：</p> <div class="ay1code"> <pre class="brush:cpp;">        BaseType_t xTaskCreate(                              TaskFunction_tp vTaskCode,                              const char * constpcName,                              unsigned short usStackDepth,                              void *pvParameters,                              UBaseType_t uxPriority,                              TaskHandle_t *pvCreatedTask                            );</pre> </div> <p>这个API函数的作用是创建新的任务并将它加入到任务就绪列表，函数参数含义为：</p> <p><code>pvTaskCode</code>：函数指针，指向任务函数的入口。任务永远不会返回（位于死循环内）。该参数类型TaskFunction_t定义在文件projdefs.h中，定义为：typedef void(*TaskFunction_t)( void * )，即参数为空指针类型并返回空类型。</p> <p><code>pcName</code>：任务描述。主要用于调试。字符串的最大长度（包括字符串结束字符）由宏configMAX_TASK_NAME_LEN指定，该宏位于FreeRTOSConfig.h文件中。</p> <p><code>usStackDepth</code>：指定任务堆栈大小，能够支持的堆栈变量数量（堆栈深度），而不是字节数。</p> <p>比如，在16位宽度的堆栈下，usStackDepth定义为100，则实际使用200字节堆栈存储空间。堆栈的宽度乘以深度必须不超过size_t类型所能表示的最大值。</p> <p>比如，size_t为16位，则可以表示堆栈的最大值是65535字节。这是因为堆栈在申请时是以字节为单位的，申请的字节数就是堆栈宽度乘以深度，如果这个乘积超出size_t所表示的范围，就会溢出，分配的堆栈空间也不是我们想要的。</p> <p><code>pvParameters</code>：指针，当任务创建时，作为一个参数传递给任务。</p> <p><code>uxPriority</code>：任务的优先级。具有MPU支持的系统，可以通过置位优先级参数的portPRIVILEGE_BIT位，随意的在特权（系统）模式下创建任务。</p> <p>比如，创建一个优先级为2的特权任务，参数uxPriority可以设置为 ( 2 | portPRIVILEGE_BIT )。</p> <p><code>pvCreatedTask</code>：用于回传一个句柄（ID），创建任务后可以使用这个句柄引用任务。</p> <p>虽然xTaskCreate()看上去很像函数，但其实是一个宏，真正被调用的函数是xTaskGenericCreate()，xTaskCreate()宏定义如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">#define xTaskCreate( pvTaskCode, pcName, usStackDepth,pvParameters, uxPriority, pxCreatedTask )    \        xTaskGenericCreate( ( pvTaskCode ),( pcName ), ( usStackDepth ), ( pvParameters ), ( uxPriority ), ( pxCreatedTask), ( NULL ), ( NULL ), ( NULL ) )</pre> </div> <p>可以看到,xTaskCreate比xTaskGenericCreate少了三个参数，在宏定义中，这三个参数被设置为NULL。这三个参数用于使用静态变量的方法分配堆栈、任务TCB空间以及设置MPU相关的参数。</p> <p>一般情况下，这三个参数是不使用的，所以任务创建宏xTaskCreate定义的时候，将这三个参数对用户隐藏了。接下来的章节中，为了方便，我们还是称xTaskCreate()为函数，虽然它是一个宏定义。</p> <p>上面我们提到了任务TCB（任务控制块），这是一个需要重点介绍的关键点。它用于存储任务的状态信息，包括任务运行时的环境。每个任务都有自己的任务TCB。</p> <p>任务TCB是一个相对比较大的数据结构，这也是情理之中的，因为与任务相关的代码占到整个FreeRTOS代码量的一半左右，这些代码大都与任务TCB相关，我们先来介绍一下任务TCB数据结构的定义：</p> <div class="ay1code"> <pre class="brush:cpp;">typedef struct tskTaskControlBlock  {      volatile StackType_t    *pxTopOfStack; /*当前堆栈的栈顶,必须位于结构体的第一项*/      #if ( portUSING_MPU_WRAPPERS == 1 )          xMPU_SETTINGS   xMPUSettings;      /*MPU设置,必须位于结构体的第二项*/      #endif      ListItem_t          xStateListItem; /*任务的状态列表项，以引用的方式表示任务的状态*/      ListItem_t          xEventListItem;    /*事件列表项，用于将任务以引用的方式挂接到事件列表*/      UBaseType_t         uxPriority;        /*保存任务优先级，0表示最低优先级*/      StackType_t         *pxStack;           /*指向堆栈的起始位置*/      char               pcTaskName[ configMAX_TASK_NAME_LEN ];/*任务名字*/      #if ( portSTACK_GROWTH > 0 )          StackType_t     *pxEndOfStack;     /*指向堆栈的尾部*/      #endif      #if ( portCRITICAL_NESTING_IN_TCB == 1 )          UBaseType_t     uxCriticalNesting; /*保存临界区嵌套深度*/      #endif      #if ( configUSE_TRACE_FACILITY == 1 )          UBaseType_t     uxTCBNumber;       /*保存一个数值，每个任务都有唯一的值*/          UBaseType_t     uxTaskNumber;      /*存储一个特定数值*/      #endif      #if ( configUSE_MUTEXES == 1 )          UBaseType_t     uxBasePriority;    /*保存任务的基础优先级*/          UBaseType_t     uxMutexesHeld;      #endif      #if ( configUSE_APPLICATION_TASK_TAG == 1 )          TaskHookFunction_t pxTaskTag;      #endif      #if( configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0 )          void *pvThreadLocalStoragePointers[configNUM_THREAD_LOCAL_STORAGE_POINTERS ];      #endif      #if( configGENERATE_RUN_TIME_STATS == 1 )          uint32_t        ulRunTimeCounter;  /*记录任务在运行状态下执行的总时间*/      #endif      #if ( configUSE_NEWLIB_REENTRANT == 1 )          /* 为任务分配一个Newlibreent结构体变量。Newlib是一个C库函数，并非FreeRTOS维护，FreeRTOS也不对使用结果负责。如果用户使用Newlib，必须熟知Newlib的细节*/          struct _reent xNewLib_reent;      #endif      #if( configUSE_TASK_NOTIFICATIONS == 1 )          volatile uint32_t ulNotifiedValue; /*与任务通知相关*/          volatile uint8_t ucNotifyState;      #endif      #if( configSUPPORT_STATIC_ALLOCATION == 1 )          uint8_t ucStaticAllocationFlags; /* 如果堆栈由静态数组分配，则设置为pdTRUE，如果堆栈是动态分配的，则设置为pdFALSE*/      #endif      #if( INCLUDE_xTaskAbortDelay == 1 )          uint8_t ucDelayAborted;      #endif  } tskTCB;  typedef tskTCB TCB_t;</pre> </div> <p>下面我们详细的介绍这个数据结构的主要成员：</p> <p>指针pxTopOfStack必须位于结构体的第一项，指向当前堆栈的栈顶，对于向下增长的堆栈，pxTopOfStack总是指向最后一个入栈的项目。</p> <p>如果使用MPU，xMPUSettings必须位于结构体的第二项，用于MPU设置。</p> <p>接下来是状态列表项xStateListItem和事件列表项xEventListItem，我们在上一章介绍列表和列表项的文章中提到过：列表被FreeRTOS调度器使用，用于跟踪任务，处于就绪、挂起、延时的任务，都会被挂接到各自的列表中。</p> <p>调度器就是通过把任务TCB中的状态列表项xStateListItem和事件列表项xEventListItem挂接到不同的列表中来实现上述过程的。</p> <p>在task.c中，定义了一些静态列表变量，其中有就绪、阻塞、挂起列表，例如当某个任务处于就绪态时，调度器就将这个任务TCB的xStateListItem列表项挂接到就绪列表。</p> <p>事件列表项也与之类似，当队列满的情况下，任务因入队操作而阻塞时，就会将事件列表项挂接到队列的等待入队列表上。</p> <p>uxPriority用于保存任务的优先级，0为最低优先级。任务创建时，指定的任务优先级就被保存到该变量中。</p> <p>指针pxStack指向堆栈的起始位置，任务创建时会分配指定数目的任务堆栈，申请堆栈内存函数返回的指针就被赋给该变量。</p> <p>很多刚接触FreeRTOS的人会分不清指针pxTopOfStack和pxStack的区别，这里简单说一下：</p> <p>pxTopOfStack指向当前堆栈栈顶，随着进栈出栈，pxTopOfStack指向的位置是会变化的；pxStack指向当前堆栈的起始位置，一经分配后，堆栈起始位置就固定了，不会被改变了。</p> <p>那么为什么需要pxStack变量呢，这是因为随着任务的运行，堆栈可能会溢出，在堆栈向下增长的系统中，这个变量可用于检查堆栈是否溢出；</p> <p>如果在堆栈向上增长的系统中，要想确定堆栈是否溢出，还需要另外一个变量pxEndOfStack来辅助诊断是否堆栈溢出，后面会讲到这个变量。</p> <p>字符数组pcTaskName用于保存任务的描述或名字，在任务创建时，由参数指定。</p> <p>名字的长度由宏configMAX_TASK_NAME_LEN（位于FreeRTOSConfig.h中）指定，包含字符串结束标志。</p> <p>如果堆栈向上生长（portSTACK_GROWTH > 0），指针pxEndOfStack指向堆栈尾部，用于检验堆栈是否溢出。</p> <p>变量uxCriticalNesting用于保存临界区嵌套深度，初始值为0。</p> <p>接下来两个变量用于可视化追踪，仅当宏configUSE_TRACE_FACILITY（位于FreeRTOSConfig.h中）为1时有效。变量uxTCBNumber存储一个数值，在创建任务时由内核自动分配数值（通常每创建一个任务，值增加1），每个任务的uxTCBNumber值都不同，主要用于调试。</p> <p>变量uxTaskNumber用于存储一个特定值，与变量uxTCBNumber不同，uxTaskNumber的数值不是由内核分配的，而是通过API函数vTaskSetTaskNumber()来设置的，数值由函数参数指定。</p> <p>如果使用互斥量（configUSE_MUTEXES == 1），任务优先级被临时提高时，变量uxBasePriority用来保存任务原来的优先级。</p> <p>变量ucStaticAllocationFlags也需要说明一下，我们前面说过任务创建API函数xTaskCreate()只能使用动态内存分配的方式创建任务堆栈和任务TCB，如果要使用静态变量实现任务堆栈和任务TCB就需要使用函数xTaskGenericCreate()来实现。</p> <p>如果任务堆栈或任务TCB由静态数组和静态变量实现，则将该变量设置为pdTRUE（任务堆栈空间由静态数组变量实现时为0x01，任务TCB由静态变量实现时为0x02，任务堆栈和任务TCB都由静态变量实现时为0x03），如果堆栈是动态分配的，则将该变量设置为pdFALSE。</p> <p>到这里任务TCB的数据结构就讲完了，下面我们用一个例子来讲述任务创建的过程，为方便起见，假设被创建的任务叫“任务A”，任务函数为vTask_A()：</p> <div class="ay1code"> <pre class="brush:cpp;">    TaskHandle_t xHandle；      xTaskCreate(vTask_A,”Task A”,120,NULL,1,&xHandle);</pre> </div> <p>这里创建了一个任务，任务优先级为1，由于硬件平台是32为架构，所以指定了120*4=480字节的任务堆栈，向任务函数vTask_A()传递的参数为空（NULL），任务句柄由变量xHandle保存。</p> <p>当这个语句执行后，任务A被创建并加入就绪任务列表，我们这章的主要目的，就是看看这个语句在执行过程中，发生了什么事情。</p> <p class="maodian"></p> <h2>1.创建任务堆栈和任务TCB</h2> <p>调用函数prvAllocateTCBAndStack()创建任务堆栈和任务TCB。有两种方式创建任务堆栈和任务TCB，一种是使用动态内存分配方法，这样当任务删除时，任务堆栈和任务控制块空间会被释放，可用于其它任务；</p> <p>另一种是使用静态变量来实现，在创建任务前定义好全局或者静态堆栈数组和任务控制块变量，在调用创建任务API函数时，将这两个变量以参数的形式传递给任务创建函数xTaskGenericCreate()。</p> <p>如果使用默认的xTaskCreate()创建任务函数，则使用动态内存分配，因为与静态内存分配有关的参数不可见（在本文一开始我们说过xTaskCreate()其实是一个带参数的宏定义，真正被执行的函数是xTaskGenericCreate()，参考宏xTaskCreate()的定义可以知道，xTaskCreate()对外隐藏了使用静态内存分配的参数，在调用xTaskGenericCreate()时，这些参数被设置为NULL）。</p> <p>任务堆栈成功分配后，经过对齐的堆栈起始地址被保存到任务TCB的pxStack字段。</p> <p>如果使能堆栈溢出检查或者使用可视化追踪功能，则使用固定值tskSTACK_FILL_BYTE（0xa5）填充堆栈。</p> <p>函数prvAllocateTCBAndStack()的源码去除断言和不常用的条件编译后如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">static TCB_t *prvAllocateTCBAndStack( const uint16_t usStackDepth, StackType_t * const puxStackBuffer, TCB_t * const pxTaskBuffer )  {  TCB_t *pxNewTCB;  StackType_t *pxStack;         /* 分配堆栈空间*/      pxStack = ( StackType_t * ) pvPortMallocAligned( ( ( ( size_t ) usStackDepth ) * sizeof( StackType_t ) ), puxStackBuffer );      if( pxStack != NULL )      {          /* 分配TCB空间 */          pxNewTCB = ( TCB_t * ) pvPortMallocAligned( sizeof( TCB_t ), pxTaskBuffer );          if( pxNewTCB != NULL )          {              /* 将堆栈起始位置存入TCB*/              pxNewTCB->pxStack = pxStack;          }          else          {              /* 如果TCB分配失败，释放之前申请的堆栈空间 */              if( puxStackBuffer == NULL )              {                  vPortFree( pxStack );              }          }      }      else      {          pxNewTCB = NULL;      }      if( pxNewTCB != NULL )      {          /* 如果需要，使用固定值填充堆栈 */          #if( ( configCHECK_FOR_STACK_OVERFLOW> 1 ) || ( configUSE_TRACE_FACILITY == 1 ) || ( INCLUDE_uxTaskGetStackHighWaterMark== 1 ) )          {              /* 仅用于调试 */              ( void ) memset( pxNewTCB->pxStack, ( int ) tskSTACK_FILL_BYTE, ( size_t ) usStackDepth * sizeof( StackType_t ) );          }          #endif      }      return pxNewTCB;  }</pre> </div> <p class="maodian"></p> <h2>2.初始化任务TCB必要的字段</h2> <p>调用函数prvInitialiseTCBVariables()初始化任务TCB必要的字段。在调用创建任务API函数xTaskCreate()时，参数pcName（任务描述）、uxPriority（任务优先级）都会被写入任务TCB相应的字段，TCB字段中的xStateListItem和xEventListItem列表项也会被初始化，初始化后的列表项如图2-1所示。</p> <p>在图2-1中，列表项xEventListItem的成员列表项值xItemValue被初始为4，这是因为我在应用中设置的最大优先级数目（configMAX_PRIORITIES）为5，而xEventListItem. xItemValue等于configMAX_PRIORITIES减去任务A的优先级（为1），即5-1=4。这一点很重要，在这里xItemValue不是直接保存任务优先级，而是保存优先级的补数，这意味着xItemValue的值越大，对应的任务优先级越小。</p> <p>FreeRTOS内核使用vListInsert函数（详细见FreeRTOS进阶列表和列表项示例分析）将事件列表项插入到一个列表，这个函数根据xItemValue的值的大小顺序来进行插入操作。</p> <p>使用宏listGET_OWNER_OF_HEAD_ENTRY获得列表中的第一个列表项的xItemValue值总是最小，也就是优先级最高的任务！</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/92b911b51d4cbd26cacca6255bf4e5a1.jpg"></p> <p>图2-1：初始化状态和事件列表项</p> <p>此外，TCB其它的一些字段也被初始化，比如临界区嵌套次数、运行时间计数器、任务通知值、任务通知状态等，函数prvInitialiseTCBVariables()的源码如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">static void prvInitialiseTCBVariables( TCB_t * const pxTCB, const char * const pcName, UBaseType_t uxPriority,   \                                const MemoryRegion_t * const xRegions, const uint16_t usStackDepth )  {  UBaseType_t x;      /* 将任务描述存入TCB */      for( x = ( UBaseType_t ) 0; x < ( UBaseType_t ) configMAX_TASK_NAME_LEN; x++ )      {          pxTCB->pcTaskName[ x ] = pcName[ x ];          if( pcName[ x ] == 0x00 )          {              break;          }      }      /* 确保字符串有结束 */      pxTCB->pcTaskName[ configMAX_TASK_NAME_LEN - 1 ] = '\0';         /* 调整优先级，宏configMAX_PRIORITIES的值在FreeRTOSConfig.h中设置 */      if( uxPriority >= ( UBaseType_t ) configMAX_PRIORITIES )      {          uxPriority = ( UBaseType_t ) configMAX_PRIORITIES - ( UBaseType_t ) 1U;      }      pxTCB->uxPriority = uxPriority;      #if ( configUSE_MUTEXES == 1 )              /*使用互斥量*/      {            pxTCB->uxBasePriority = uxPriority;          pxTCB->uxMutexesHeld = 0;      }      #endif /* configUSE_MUTEXES */      /*初始化列表项*/      vListInitialiseItem( &( pxTCB->xStateListItem ) );      vListInitialiseItem( &( pxTCB->xEventListItem ) );      /* 设置列表项xStateListItem的成员pvOwner指向当前任务控制块 */      listSET_LIST_ITEM_OWNER( &( pxTCB->xStateListItem ), pxTCB );      /* 设置列表项xEventListItem的成员xItemValue*/      listSET_LIST_ITEM_VALUE( &( pxTCB->xEventListItem ), ( TickType_t ) configMAX_PRIORITIES - ( TickType_t ) uxPriority );      /* 设置列表项xEventListItem的成员pvOwner指向当前任务控制块 */      listSET_LIST_ITEM_OWNER( &( pxTCB->xEventListItem ), pxTCB );      #if ( portCRITICAL_NESTING_IN_TCB ==1 )    /*使能临界区嵌套功能*/      {            pxTCB->uxCriticalNesting = ( UBaseType_t ) 0U;      }      #endif /* portCRITICAL_NESTING_IN_TCB */      #if ( configUSE_APPLICATION_TASK_TAG == 1 ) /*使能任务标签功能*/      {            pxTCB->pxTaskTag = NULL;      }      #endif /* configUSE_APPLICATION_TASK_TAG */      #if ( configGENERATE_RUN_TIME_STATS == 1 )  /*使能事件统计功能*/      {          pxTCB->ulRunTimeCounter = 0UL;      }      #endif /* configGENERATE_RUN_TIME_STATS */      #if ( portUSING_MPU_WRAPPERS == 1 )         /*使用MPU功能*/      {          vPortStoreTaskMPUSettings( &( pxTCB->xMPUSettings ), xRegions, pxTCB->pxStack, usStackDepth );      }      #else /* portUSING_MPU_WRAPPERS */      {          ( void ) xRegions;          ( void ) usStackDepth;      }      #endif /* portUSING_MPU_WRAPPERS */      #if( configNUM_THREAD_LOCAL_STORAGE_POINTERS != 0 )/*使能线程本地存储指针*/      {          for( x = 0; x < ( UBaseType_t )configNUM_THREAD_LOCAL_STORAGE_POINTERS; x++ )          {              pxTCB->pvThreadLocalStoragePointers[ x ] = NULL;          }      }      #endif      #if ( configUSE_TASK_NOTIFICATIONS == 1 )   /*使能任务通知功能*/      {          pxTCB->ulNotifiedValue = 0;          pxTCB->ucNotifyState = taskNOT_WAITING_NOTIFICATION;      }      #endif      #if ( configUSE_NEWLIB_REENTRANT == 1 )     /*使用Newlib*/      {          _REENT_INIT_PTR( ( &( pxTCB->xNewLib_reent ) ) );      }      #endif      #if( INCLUDE_xTaskAbortDelay == 1 )      {          pxTCB->ucDelayAborted = pdFALSE;      }      #endif  }</pre> </div> <p class="maodian"></p> <h2>3.初始化任务堆栈</h2> <p>调用函数pxPortInitialiseStack()初始化任务堆栈，并将最新的栈顶指针赋值给任务TCB的pxTopOfStack字段。</p> <p>调用函数pxPortInitialiseStack()后，相当于执行了一次系统节拍时钟中断:将一些重要寄存器入栈。虽然任务还没开始执行,也并没有中断发生,但看上去就像寄存器已经被入栈了，并且部分堆栈值被修改成了我们需要的已知值。</p> <p>对于不同的硬件架构，入栈的寄存器也不相同，所以我们看到这个函数是由移植层提供的。对于Cortex-M3架构，需要依次入栈xPSR、PC、LR、R12、R3~R0、R11~R4，假设堆栈是向下生长的，初始化后的堆栈如图3-1所示。</p> <p>在图3-1中我们看到寄存器xPSR被初始为0x01000000，其中bit24被置1，表示使用Thumb指令；</p> <p>寄存器PC被初始化为任务函数指针vTask_A，这样当某次任务切换后，任务A获得CPU控制权，任务函数vTask_A被出栈到PC寄存器，之后会执行任务A的代码；</p> <p>LR寄存器初始化为函数指针prvTaskExitError,这是由移植层提供的一个出错处理函数。</p> <p>当中断发生时，LR被设置成中断要返回的地址，但是每个任务都是一个死循环，正常情况下不应该退出任务函数，所以一旦从任务函数退出，说明那里出错了，这个时候会调用寄存器LR指向的函数来处理这个错误，即prvTaskExitError；</p> <p>根据ATPCS（ARM-Thumb过程调用标准），我们知道子函数调用通过寄存器R0~R3传递参数，在文章的最开始讲xTaskCreate()函数时，提到这个函数有一个空指针类型的参数pvParameters，当任务创建时，它作为一个参数传递给任务，所以这个参数被保存到R0中，用来向任务传递参数。</p> <p>任务TCB结构体成员pxTopOfStack表示当前堆栈的栈顶，它指向最后一个入栈的项目，所以在图中它指向R4，TCB结构体另外一个成员pxStack表示堆栈的起始位置，所以在图中它指向堆栈的最开始处。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/4a1e6288382a1d6b4de7165b1d5851c8.jpg"></p> <p>图3-1：初始化任务堆栈</p> <p class="maodian"></p> <h2>4.进入临界区</h2> <p>调用taskENTER_CRITICAL()进入临界区，这是一个宏定义，最终进入临界区的代码由移植层提供。</p> <p class="maodian"></p> <h2>5.当前任务数量增加1</h2> <p>在tasks.c中 ，定义了一些静态私有变量，用来跟踪任务的数量或者状态等等，其中变量uxCurrentNumberOfTasks表示当前任务的总数量，每创建一个任务，这个变量都会增加1。</p> <p class="maodian"></p> <h2>6.为第一次运行做必要的初始化</h2> <p>如果这是第一个任务（uxCurrentNumberOfTasks等于1），则调用函数prvInitialiseTaskLists()初始化任务列表。FreeRTOS使用列表来跟踪任务，在tasks.c中，定义了静态类型的列表变量：</p> <div class="ay1code"> <pre class="brush:cpp;">PRIVILEGED_DATAstatic List_t pxReadyTasksLists[ configMAX_PRIORITIES ];/*按照优先级排序的就绪态任务*/  PRIVILEGED_DATAstatic List_t xDelayedTaskList1;                        /*延时的任务 */  PRIVILEGED_DATAstatic List_t xDelayedTaskList2;                        /*延时的任务 */  PRIVILEGED_DATAstatic List_t xPendingReadyList;                        /*任务已就绪,但调度器被挂起 */  #if (INCLUDE_vTaskDelete == 1 )      PRIVILEGED_DATA static List_t xTasksWaitingTermination;             /*任务已经被删除,但内存尚未释放*/  #endif  #if (INCLUDE_vTaskSuspend == 1 )      PRIVILEGED_DATA static List_t xSuspendedTaskList;                   /*当前挂起的任务*/  #endif</pre> </div> <p>现在这些列表都要进行初始化，会调用API函数vListInitialise()初始化列表，这个函数在FreeRTOS列表和列表项中讲过，每个列表的初始化方式都是相同的，以就绪态列表pxReadyTasksLists[0]为例，初始化后如图6-1所示：</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/8bb250234085dc6902f50cf6bfc19d59.jpg"></p> <p>图6-1：初始化后的列表</p> <p>函数prvInitialiseTaskLists()的源代码如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">static void prvInitialiseTaskLists( void )  {  UBaseType_tuxPriority;      for( uxPriority = ( UBaseType_t ) 0U; uxPriority < ( UBaseType_t ) configMAX_PRIORITIES; uxPriority++ )      {          vListInitialise( &( pxReadyTasksLists[ uxPriority ] ) );      }      vListInitialise( &xDelayedTaskList1 );      vListInitialise( &xDelayedTaskList2 );      vListInitialise( &xPendingReadyList );      #if ( INCLUDE_vTaskDelete == 1 )      {          vListInitialise( &xTasksWaitingTermination );      }      #endif /* INCLUDE_vTaskDelete */         #if ( INCLUDE_vTaskSuspend == 1 )      {          vListInitialise( &xSuspendedTaskList );      }      #endif /* INCLUDE_vTaskSuspend */      /* Start with pxDelayedTaskList using list1 and the pxOverflowDelayedTaskListusing list2. */      pxDelayedTaskList = &xDelayedTaskList1;      pxOverflowDelayedTaskList = &xDelayedTaskList2;  }</pre> </div> <p class="maodian"></p> <h2>7.更新当前正在运行的任务TCB指针</h2> <p>tasks.c中定义了一个任务TCB指针型变量：</p> <blockquote> <p>PRIVILEGED_DATA TCB_t * volatile pxCurrentTCB= NULL;</p> </blockquote> <p>这是一个全局变量，在tasks.c中只定义了这一个全局变量。这个变量用来指向当前正在运行的任务TCB，我们需要多了解一下这个变量。</p> <p>FreeRTOS的核心是确保处于优先级最高的就绪任务获得CPU运行权。在下一章讲述任务切换时会知道，任务切换就是找到优先级最高的就绪任务，而找出的这个最高优先级任务的TCB，就被赋给变量pxCurrentTCB。</p> <p>如果调度器还没有准备好（程序刚开始运行时，可能会先创建几个任务，之后才会启动调度器），并且新创建的任务优先级大于变量pxCurrentTCB指向的任务优先级，则设置pxCurrentTCB指向当前新创建的任务TCB（确保pxCurrentTCB指向优先级最高的就绪任务）。</p> <div class="ay1code"> <pre class="brush:cpp;">if( xSchedulerRunning == pdFALSE )  {      if( pxCurrentTCB->uxPriority <= uxPriority )      {          pxCurrentTCB = pxNewTCB;      }      else      {          mtCOVERAGE_TEST_MARKER();      }  }</pre> </div> <p class="maodian"></p> <h2>8.将新创建的任务加入就绪列表数组</h2> <p>调用prvAddTaskToReadyList(pxNewTCB)将创建的任务TCB加入到就绪列表数组中，任务的优先级确定了加入到就绪列表数组的哪个下标。比如我们新创建的任务优先级为1，则这个任务被加入到列表pxReadyTasksLists[1]中。</p> <p>prvAddTaskToReadyList()其实是一个宏，由一系列语句组成，去除其中的跟踪宏外，这个宏定义如下所示：</p> <div class="ay1code"> <pre class="brush:cpp;">#defineprvAddTaskToReadyList( pxTCB )                        \      taskRECORD_READY_PRIORITY( ( pxTCB)->uxPriority );       \      vListInsertEnd( &( pxReadyTasksLists[ (pxTCB )->uxPriority ] ), &( ( pxTCB )->xStateListItem ) );</pre> </div> <p>宏taskRECORD_READY_PRIORITY()用来更新变量uxTopReadyPriority，这个变量在tasks.c中定义为静态变量，记录处于就绪态的最高任务优先级。这个变量参与了FreeRTOS的最核心代码：确保处于优先级最高的就绪任务获得CPU运行权。它在这里参与如何最快的找到优先级最高的就绪任务。为了最快，不同的架构会各显神通，一些架构还有特殊指令可用，所以这个宏由移植层提供。我们会在下一章介绍任务切换时，以Cortex-M3架构为例，详细介绍如何最快的找到优先级最高的就绪任务。</p> <p>函数vListInsertEnd()将列表项插入到列表末端，在FreeRTOS进阶列表和列表项示例分析中已经提到过，这里会结合着例子再看一下这个函数。</p> <p>从前面我们直到，在调用函数vListInsertEnd()之前，就绪列表pxReadyTasksLists[1]和任务TCB的状态列表项xStateListItem都已经初始化好了，见图6-1和图2-1，为了方便查看，我们将这两幅图合成一副，见图8-1。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/14e7bf98b2137b5582955470d8c2cb00.jpg"></p> <p>图8-1：初始化后的列表和列表项</p> <p>调用vListInsertEnd(a，b)会将列表项b，插入到列表a的后面，函数执行完毕后，列表和列表项的关系如图8-2所示。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/356295aef9725ae15e2c3fb4146c5b56.jpg"></p> <p>图8-2：插入一个列表项后的列表</p> <p>在此基础上，假设又创建了任务B，任务A和任务B优先级相同，都为1。和任务A一样，任务B也有它自己的任务TCB，其中的状态列表项字段xStateListItem也要插入到列表pxReadyTasksLists[1]中，新的列表和列表项如图8-3所示。</p> <p style="text-align:center"><img decoding="async" alt="" src="http://img.555519.xyz/uploads3/20220420/74ed3930a37a281a1fbf09e39814921a.jpg"></p> <p>图8-3：相同优先级就绪列表挂接两个列表项</p> <p class="maodian"></p> <h2>9.退出临界区</h2> <p>调用taskEXIT_CRITICAL()退出临界区，这是一个宏定义，最终退出临界区的代码由移植层提供。</p> <p class="maodian"></p> <h2>10.执行上下文切换</h2> <p>如果上面的步骤都正确执行，并且调度器也开始工作，则判断当前任务的优先级是否大于新创建的任务优先级。如果新创建的任务优先级更高，则调用taskYIELD_IF_USING_PREEMPTION()强制进行一次上下文切换，切换后，新创建的任务将获得CPU控制权，精简后的代码如下所示。</p> <div class="ay1code"> <pre class="brush:cpp;"> if( xReturn == pdPASS )      {          if( xSchedulerRunning != pdFALSE )          {              /* 如果新创建的任务优先级大于当前任务优先级，则新创建的任务应该被立即执行。*/              if(pxCurrentTCB->uxPriority < uxPriority )              {                  taskYIELD_IF_USING_PREEMPTION();              }          }      }</pre> </div> 			                </div>
-                <div class="col-md-12 mt-5">
-                                        <p>上一个：<a href="/html/category/article-1953.htm">springboot2+spring-retry配置及使用</a></p>
-                                        <p>下一个：<a href="/html/category/article-2239.htm">【面试普通人VS高手系列】HashMap是怎么解决哈希冲突的？</a></p>
-                                    </div>
-
-                                <div class="panel panel-default mt-5">
-                    <div class="panel-heading">
-                        <h3 class="m-0">推荐文章</h3>
-                    </div>
-                    <div class="panel-body">
-                        <ul class="p-0 x-0">
-                                                        <li class="py-2"><a href="/html/category/article-1351.htm">Rabbit MQ 怎么保证可靠性、幂等性、消费顺序</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-789.htm">vue 实现简单表格分页功能</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-250.htm">配置tomcat，修改对项目的访问路径</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-237.htm">Java空指针异常和解决办法</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-223.htm">Git 代码管理（代码提交和代码回退）</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-198.htm">js的二级菜单</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-176.htm">PHP魔术方法</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-159.htm">SpringBoot教程SpringBoot统一结果封装</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-153.htm">零宽断言正则表达式替换方案</a></li>
-                                                        <li class="py-2"><a href="/html/category/article-141.htm">Citus 分布式 PostgreSQL 集群 &#8211; SQL Reference(查询处理)</a></li>
-                                                    </ul>
-                    </div>
+	        <div class="trace">
+            <h2>Call Stack</h2>
+            <ol>
+                <li>in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></li>
+                                <li>
+                at <abbr title="think\Error">Error</abbr>::appError(8, '<a class="toggle" title="Undefined variable: hot_city_list">Undefined variable: ...</a>', '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 133, ['cacheFile' => '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 'vars' => ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], 'config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a>                </li>
+                                <li>
+                at include('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\template\driver\File.php line 53">File.php line 53</a>                </li>
+                                <li>
+                at <abbr title="think\template\driver\File">File</abbr>->read('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\Template.php line 188">Template.php line 188</a>                </li>
+                                <li>
+                at <abbr title="think\Template">Template</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\view\driver\Think.php line 86">Think.php line 86</a>                </li>
+                                <li>
+                at <abbr title="think\view\driver\Think">Think</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\View.php line 163">View.php line 163</a>                </li>
+                                <li>
+                at <abbr title="think\View">View</abbr>->fetch('<a class="toggle" title="egyptaddress/index/url_blog">egyptaddress/index/u...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\controller\Index.php line 442">Index.php line 442</a>                </li>
+                                <li>
+                at <abbr title="addons\xcblog\controller\Index">Index</abbr>->url_blog()                </li>
+                                <li>
+                at call_user_func_array([<em>object</em>(<abbr title="addons\xcblog\controller\Index">Index</abbr>), 'url_blog'], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\vendor\karsonzhang\fastadmin-addons\src\addons\Route.php line 78">Route.php line 78</a>                </li>
+                                <li>
+                at <abbr title="think\addons\Route">Route</abbr>->execute('xcblog', 'index', 'url_blog')                </li>
+                                <li>
+                at <abbr title="ReflectionMethod">ReflectionMethod</abbr>->invokeArgs(<em>object</em>(<abbr title="think\addons\Route">Route</abbr>), ['xcblog', 'index', 'url_blog']) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 343">App.php line 343</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::invokeMethod(['\think\addons\Route', 'execute'], ['website_id' => '1', 'id' => '1954', 'addon' => 'xcblog', ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 470">App.php line 470</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::exec(['type' => 'method', 'method' => ['\think\addons\Route', 'execute'], 'var' => []], ['app_host' => '', 'app_debug' => <em>true</em>, 'app_trace' => <em>false</em>, ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 139">App.php line 139</a>                </li>
+                                <li>
+                at <abbr title="think\App">App</abbr>::run() in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php line 19">start.php line 19</a>                </li>
+                                <li>
+                at require('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\public\index.php line 23">index.php line 23</a>                </li>
+                            </ol>
+        </div>
+    </div>
+        
+    
+        <div class="exception-var">
+        <h2>Environment Variables</h2>
+                <div>
+                        <h3 class="subheading">GET Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>website_id</strong></div>
+                    <div class="col-md-9"><small>
+                        1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>id</strong></div>
+                    <div class="col-md-9"><small>
+                        1954                    </small></div>
                 </div>
                             </div>
-            <div class="col-md-4 w3l-services">
-                <h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6060.htm">动物疫苗要打几针的疫苗有效（动物疫苗要打几针的疫苗有效呢）</a></h4>
-                <p>摘要：       今天给各位分享动物疫苗要打几针的疫苗有效的知识，其中也会对动物疫苗要打几针的疫苗有效呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、猫咪.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7074.htm">做梦梦见海豹是什么意思啊（梦见小海豹心理学解析）</a></h4>
-                <p>摘要：       今天给各位分享做梦梦见海豹是什么意思啊的知识，其中也会对梦见小海豹心理学解析进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、梦见海豹有什么.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4515.htm">真正的宠物狗免费领养网站有哪些地方（真正的宠物狗免费领养网站有哪些地方呢）</a></h4>
-                <p>摘要：       今天给各位分享真正的宠物狗免费领养网站有哪些地方的知识，其中也会对真正的宠物狗免费领养网站有哪些地方呢进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6061.htm">动物打预防针去哪里打针好点（给动物打疫苗的官方部门）</a></h4>
-                <p>摘要：       今天给各位分享动物打预防针去哪里打针好点的知识，其中也会对给动物打疫苗的官方部门进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、去哪里给猫.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7397.htm">宠物领养协议书范本图片高清大图（宠物领养协议书范本图片高清大图下载）</a></h4>
-                <p>摘要：       今天给各位分享宠物领养协议书范本图片高清大图的知识，其中也会对宠物领养协议书范本图片高清大图下载进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-4479.htm">宠物狗粮上市公司 宠物狗粮上市公司有哪些</a></h4>
-                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于宠物狗粮上市公司的问题，于是小编就整理了3个相关介绍宠物狗粮上市公司的解答，让我们一起看看吧。我去店里买狗粮，老板推荐”爱贝“给</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6148.htm">兽药厂家前100强（兽药十大厂家）</a></h4>
-                <p>摘要：       今天给各位分享兽药厂家前100强的知识，其中也会对兽药十大厂家进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、谁知道中国有哪些百强兽药企业.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-6982.htm">给宠物医院的好评怎么写（给宠物医院的好评怎么写简短）</a></h4>
-                <p>摘要：       今天给各位分享给宠物医院的好评怎么写的知识，其中也会对给宠物医院的好评怎么写简短进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、给宠物医院.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-7213.htm">电视剧胜算唐飞怎么样了（这都可以）胜算唐飞最终死了没，三顺，胜算电视剧，</a></h4>
-                <p>重点不是优先考虑日程表上的内容，而是安排优先事项。     由柳云龙、苏青、梁冠华、李立群、钱波等主演的《胜算》马上就要大结局了，这部剧在开播后受到了很大的争议，男主柳云龙素有“谍战剧之王”之称，《风</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                <h4><a href="/html/category/article-5998.htm">网传中国版无限挑战综艺名单 嘉宾拟定：黄晓明李易峰杨幂宋茜</a></h4>
-                <p>网传版无限挑战综单 嘉宾拟定：黄晓明李易峰杨幂宋茜 随着综艺《爸爸去哪儿》、《runningman》、《我们结婚了》等节目在上播出，不但吸引众多中国粉丝，许多省级卫道也纷纷买下版权，拍摄出有中国元素的</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
-<div class="row w3l-achievements">
-    <div class="col-lg-12 item">
-        <div class="card">
-            <div class="box-wrap">
-                                <h4><span class="badge" style="float: right;">14</span> <a href="/html/date/2024-08/" title="2024-08 归档">2024-08</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
-                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
-                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
-                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
-                            </div>
-        </div>
-    </div>
-</div>
-            </div>
-        </div>
-    </div>
-    
-        <!-- Footer -->
-    <section class="w3l-footer py-sm-5 py-4">
-        <div class="container">
-            <div class="footer-content">
-                <div class="row">
-                    <div class="col-lg-8 footer-left">
-                        <p class="m-0">EgyptAddress 版权所有</p>
                     </div>
-                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
-                        <ul class="social m-0 p-0">
-                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
-                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
-                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
-                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
-                        </ul>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>POST Data</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
                     </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Files</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Cookies</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Session</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
+                    </div>
+                <div>
+                        <h3 class="subheading">Server/Request Data</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ALLUSERSPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
                 </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Roaming                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CommonProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\Common Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>COMPUTERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ComSpec</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\system32\cmd.exe                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DriverData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows\System32\Drivers\DriverData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_APP_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Internet Explorer                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FPS_BROWSER_USER_PROFILE_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        Default                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FREI0R_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        D:\PROGRA~1\APOWER~1\VIDEOC~1\frei0r;D:\Program Files (x86)\Apowersoft\Video Converter Studio\frei0r                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEDRIVE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HOMEPATH</strong></div>
+                    <div class="col-md-9"><small>
+                        \Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOCALAPPDATA</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOGONSERVER</strong></div>
+                    <div class="col-md-9"><small>
+                        \\DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>NUMBER_OF_PROCESSORS</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OneDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\OneDrive                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>OS</strong></div>
+                    <div class="col-md-9"><small>
+                        Windows_NT                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>Path</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATHEXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_ARCHITECTURE</strong></div>
+                    <div class="col-md-9"><small>
+                        AMD64                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_IDENTIFIER</strong></div>
+                    <div class="col-md-9"><small>
+                        Intel64 Family 6 Model 158 Stepping 10, GenuineIntel                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_LEVEL</strong></div>
+                    <div class="col-md-9"><small>
+                        6                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PROCESSOR_REVISION</strong></div>
+                    <div class="col-md-9"><small>
+                        9e0a                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramData</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\ProgramData                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramFiles(x86)</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files (x86)                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ProgramW6432</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PSModulePath</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PUBLIC</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\Public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SESSIONNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        Console                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemDrive</strong></div>
+                    <div class="col-md-9"><small>
+                        C:                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SystemRoot</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TMP</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERDOMAIN_ROAMINGPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        DESKTOP-NSJC0E1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERNAME</strong></div>
+                    <div class="col-md-9"><small>
+                        CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>USERPROFILE</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Users\CJ                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>windir</strong></div>
+                    <div class="col-md-9"><small>
+                        C:\Windows                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_ACCEPT</strong></div>
+                    <div class="col-md-9"><small>
+                        */*                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_USER_AGENT</strong></div>
+                    <div class="col-md-9"><small>
+                        Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTTP_HOST</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REDIRECT_STATUS</strong></div>
+                    <div class="col-md-9"><small>
+                        200                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        abgp.com                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        80                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_PORT</strong></div>
+                    <div class="col-md-9"><small>
+                        51435                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REMOTE_ADDR</strong></div>
+                    <div class="col-md-9"><small>
+                        127.0.0.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_SOFTWARE</strong></div>
+                    <div class="col-md-9"><small>
+                        nginx/1.15.11                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>GATEWAY_INTERFACE</strong></div>
+                    <div class="col-md-9"><small>
+                        CGI/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_SCHEME</strong></div>
+                    <div class="col-md-9"><small>
+                        http                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SERVER_PROTOCOL</strong></div>
+                    <div class="col-md-9"><small>
+                        HTTP/1.1                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_ROOT</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DOCUMENT_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_URI</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog?website_id=1&amp;id=1954                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_NAME</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_LENGTH</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONTENT_TYPE</strong></div>
+                    <div class="col-md-9"><small>
+                                            </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_METHOD</strong></div>
+                    <div class="col-md-9"><small>
+                        GET                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>QUERY_STRING</strong></div>
+                    <div class="col-md-9"><small>
+                        s=/addons/xcblog/index/url_blog&amp;website_id=1&amp;id=1954                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_TRANSLATED</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PATH_INFO</strong></div>
+                    <div class="col-md-9"><small>
+                        /addons/xcblog/index/url_blog                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>SCRIPT_FILENAME</strong></div>
+                    <div class="col-md-9"><small>
+                        E:/SVNRepositories/AddressBaseGitPages/public/index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FCGI_ROLE</strong></div>
+                    <div class="col-md-9"><small>
+                        RESPONDER                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>PHP_SELF</strong></div>
+                    <div class="col-md-9"><small>
+                        /index.php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME_FLOAT</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987397.4496                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>REQUEST_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987397                    </small></div>
+                </div>
+                            </div>
+                    </div>
+                <div>
+                        <div class="clearfix">
+                <div class="col-md-3"><strong>Environment Variables</strong></div>
+                <div class="col-md-9"><small>empty</small></div>
             </div>
-        </div>
-        <!-- move top -->
-        <button onclick="topFunction()" id="movetop" title="Go to top">
-            <span class="fa fa-angle-up"></span>
-        </button>
+                    </div>
+                <div>
+                        <h3 class="subheading">ThinkPHP Constants</h3>
+            <div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>APP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_VERSION</strong></div>
+                    <div class="col-md-9"><small>
+                        5.0.26                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_TIME</strong></div>
+                    <div class="col-md-9"><small>
+                        1724987397.4501                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_START_MEM</strong></div>
+                    <div class="col-md-9"><small>
+                        409072                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>DS</strong></div>
+                    <div class="col-md-9"><small>
+                        \                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>THINK_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LIB_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CORE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TRAIT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\traits\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ROOT_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>EXTEND_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\extend\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>VENDOR_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>RUNTIME_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>LOG_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\log\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CACHE_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\cache\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>TEMP_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\runtime\temp\                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>CONF_EXT</strong></div>
+                    <div class="col-md-9"><small>
+                        .php                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ENV_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        PHP_                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_CLI</strong></div>
+                    <div class="col-md-9"><small>
+                        false                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>IS_WIN</strong></div>
+                    <div class="col-md-9"><small>
+                        true                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>FILTER_VALIDATE_BOOL</strong></div>
+                    <div class="col-md-9"><small>
+                        258                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>HTMLPURIFIER_PREFIX</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\vendor\ezyang\htmlpurifier\library                    </small></div>
+                </div>
+                                <div class="clearfix">
+                    <div class="col-md-3"><strong>ADDON_PATH</strong></div>
+                    <div class="col-md-9"><small>
+                        E:\SVNRepositories\AddressBaseGitPages\addons\                    </small></div>
+                </div>
+                            </div>
+                    </div>
+            </div>
+    
+    <div class="copyright">
+        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
+        <span>V5.0.26</span> 
+        <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
+    </div>
         <script>
-        // When the user scrolls down 20px from the top of the document, show the button
-        window.onscroll = function() {
-            scrollFunction()
-        };
+        var LINE = 133;
 
-        function scrollFunction() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                document.getElementById("movetop").style.display = "block";
+        function $(selector, node){
+            var elements;
+
+            node = node || document;
+            if(document.querySelectorAll){
+                elements = node.querySelectorAll(selector);
             } else {
-                document.getElementById("movetop").style.display = "none";
-            }
-        }
-
-        // When the user clicks on the button, scroll to the top of the document
-        function topFunction() {
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        }
-        </script>
-        <!-- /move top -->
-    </section>
-    <!-- //Footer -->
-
-    <!-- all js scripts and files here -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
-    <!-- /typig-text-->
-    <script>
-    const typedTextSpan = document.querySelector(".typed-text");
-    const cursorSpan = document.querySelector(".cursor");
-
-    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
-    const typingDelay = 200;
-    const erasingDelay = 10;
-    const newTextDelay = 100; // Delay between current and next text
-    let textArrayIndex = 0;
-    let charIndex = 0;
-
-    function type() {
-        if (charIndex < textArray[textArrayIndex].length) {
-            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
-            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
-            charIndex++;
-            setTimeout(type, typingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            setTimeout(erase, newTextDelay);
-        }
-    }
-
-    function erase() {
-        if (charIndex > 0) {
-            // add class 'typing' if there's none
-            if (!cursorSpan.classList.contains("typing")) {
-                cursorSpan.classList.add("typing");
-            }
-            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
-            charIndex--;
-            setTimeout(erase, erasingDelay);
-        } else {
-            cursorSpan.classList.remove("typing");
-            textArrayIndex++;
-            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
-            setTimeout(type, typingDelay);
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
-        if (textArray.length) setTimeout(type, newTextDelay + 250);
-    });
-    </script>
-    <!-- //typig-text-->
-    <!-- services owlcarousel -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/owl.carousel.js"></script>
-    <!-- script for services -->
-    <script>
-    $(document).ready(function() {
-        $('.owl-two').owlCarousel({
-            loop: true,
-            margin: 30,
-            nav: false,
-            responsiveClass: true,
-            autoplay: false,
-            autoplayTimeout: 5000,
-            autoplaySpeed: 1000,
-            autoplayHoverPause: false,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                480: {
-                    items: 1,
-                    nav: false
-                },
-                700: {
-                    items: 1,
-                    nav: false
-                },
-                1090: {
-                    items: 3,
-                    nav: false
+                switch(selector.substr(0, 1)){
+                    case '#':
+                        elements = [node.getElementById(selector.substr(1))];
+                        break;
+                    case '.':
+                        if(document.getElementsByClassName){
+                            elements = node.getElementsByClassName(selector.substr(1));
+                        } else {
+                            elements = get_elements_by_class(selector.substr(1), node);
+                        }
+                        break;
+                    default:
+                        elements = node.getElementsByTagName();
                 }
             }
-        })
-    })
-    </script>
-    <!-- //script for services -->
-    <!-- script for tesimonials carousel slider -->
-    <script>
-    $(document).ready(function() {
-        $("#owl-demo1").owlCarousel({
-            loop: true,
-            margin: 20,
-            nav: false,
-            responsiveClass: true,
-            responsive: {
-                0: {
-                    items: 1,
-                    nav: false
-                },
-                736: {
-                    items: 1,
-                    nav: false
-                },
-                1000: {
-                    items: 2,
-                    nav: false,
-                    loop: false
+            return elements;
+
+            function get_elements_by_class(search_class, node, tag) {
+                var elements = [], eles, 
+                    pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
+
+                node = node || document;
+                tag  = tag  || '*';
+
+                eles = node.getElementsByTagName(tag);
+                for(var i = 0; i < eles.length; i++) {
+                    if(pattern.test(eles[i].className)) {
+                        elements.push(eles[i])
+                    }
+                }
+
+                return elements;
+            }
+        }
+
+        $.getScript = function(src, func){
+            var script = document.createElement('script');
+            
+            script.async  = 'async';
+            script.src    = src;
+            script.onload = func || function(){};
+            
+            $('head')[0].appendChild(script);
+        }
+
+        ;(function(){
+            var files = $('.toggle');
+            var ol    = $('ol', $('.prettyprint')[0]);
+            var li    = $('li', ol[0]);   
+
+            // 短路径和长路径变换
+            for(var i = 0; i < files.length; i++){
+                files[i].ondblclick = function(){
+                    var title = this.title;
+
+                    this.title = this.innerHTML;
+                    this.innerHTML = title;
                 }
             }
-        })
-    })
+
+            // 设置出错行
+            var err_line = $('.line-' + LINE, ol[0])[0];
+            err_line.className = err_line.className + ' line-error';
+
+            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
+                prettyPrint();
+
+                // 解决Firefox浏览器一个很诡异的问题
+                // 当代码高亮后，ol的行号莫名其妙的错位
+                // 但是只要刷新li里面的html重新渲染就没有问题了
+                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
+                    ol[0].innerHTML = ol[0].innerHTML;
+                }
+            });
+
+        })();
     </script>
-    <!-- //script for tesimonials carousel slider -->
-    <!-- video popup -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('.popup-with-zoom-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-zoom-in'
-        });
-
-        $('.popup-with-move-anim').magnificPopup({
-            type: 'inline',
-
-            fixedContentPos: false,
-            fixedBgPos: true,
-
-            overflowY: 'auto',
-
-            closeBtnInside: true,
-            preloader: false,
-
-            midClick: true,
-            removalDelay: 300,
-            mainClass: 'my-mfp-slide-bottom'
-        });
-    });
-    </script>
-    <!-- //video popup -->
-    <!-- stats number counter-->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/jquery.countup.js"></script>
-    <script>
-    $('.counter').countUp();
-    </script>
-    <!-- //stats number counter -->
-    <!-- disable body scroll which navbar is in active -->
-    <script>
-    $(function() {
-        $('.navbar-toggler').click(function() {
-            $('body').toggleClass('noscroll');
-        })
-
-        $('.post-content-content .js_to').click(function(){
-            var url = $(this).data('url');
-            var code = $(this).data('code');
-            url += code;
-
-            window.open(url);
-        })
-    });
-    </script>
-    <!-- disable body scroll which navbar is in active -->
-    <!--/MENU-JS-->
-    <script>
-    $(window).on("scroll", function() {
-        var scroll = $(window).scrollTop();
-
-        if (scroll >= 80) {
-            $("#site-header").addClass("nav-fixed");
-        } else {
-            $("#site-header").removeClass("nav-fixed");
-        }
-    });
-
-    //Main navigation Active Class Add Remove
-    $(".navbar-toggler").on("click", function() {
-        $("header").toggleClass("active");
-    });
-    $(document).on("ready", function() {
-        if ($(window).width() > 991) {
-            $("header").removeClass("active");
-        }
-        $(window).on("resize", function() {
-            if ($(window).width() > 991) {
-                $("header").removeClass("active");
-            }
-        });
-    });
-    </script>
-    <!--//MENU-JS-->
-    <!-- bootstrap js -->
-    <script src="/assets/addons/xcblog/js/frontend/egyptaddress/bootstrap.min.js"></script>
-</body>
-
+    </body>
 </html>
