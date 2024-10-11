@@ -87,6 +87,8 @@
                 );
             })
 
+            G.Fun.area_refresh();
+
         }
     };
 
