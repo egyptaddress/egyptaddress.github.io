@@ -1,925 +1,467 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <title>System Error</title>
-    <meta name="robots" content="noindex,nofollow" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <style>
-        /* Base */
-        body {
-            color: #333;
-            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
-            margin: 0;
-            padding: 0 20px 20px;
-            word-break: break-word;
-        }
-        h1{
-            margin: 10px 0 0;
-            font-size: 28px;
-            font-weight: 500;
-            line-height: 32px;
-        }
-        h2{
-            color: #4288ce;
-            font-weight: 400;
-            padding: 6px 0;
-            margin: 6px 0 0;
-            font-size: 18px;
-            border-bottom: 1px solid #eee;
-        }
-        h3.subheading {
-            color: #4288ce;
-            margin: 6px 0 0;
-            font-weight: 400;
-        }
-        h3{
-            margin: 12px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        abbr{
-            cursor: help;
-            text-decoration: underline;
-            text-decoration-style: dotted;
-        }
-        a{
-            color: #868686;
-            cursor: pointer;
-        }
-        a:hover{
-            text-decoration: underline;
-        }
-        .line-error{
-            background: #f8cbcb;
-        }
-
-        .echo table {
-            width: 100%;
-        }
-
-        .echo pre {
-            padding: 16px;
-            overflow: auto;
-            font-size: 85%;
-            line-height: 1.45;
-            background-color: #f7f7f7;
-            border: 0;
-            border-radius: 3px;
-            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-        }
-
-        .echo pre > pre {
-            padding: 0;
-            margin: 0;
-        }
-        /* Layout */
-        .col-md-3 {
-            width: 25%;
-        }
-        .col-md-9 {
-            width: 75%;
-        }
-        [class^="col-md-"] {
-            float: left;
-        }
-        .clearfix {
-            clear:both;
-        }
-        @media only screen 
-        and (min-device-width : 375px) 
-        and (max-device-width : 667px) { 
-            .col-md-3,
-            .col-md-9 {
-                width: 100%;
-            }
-        }
-        /* Exception Info */
-        .exception {
-            margin-top: 20px;
-        }
-        .exception .message{
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-bottom: 0 none;
-            line-height: 18px;
-            font-size:16px;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-
-        .exception .code{
-            float: left;
-            text-align: center;
-            color: #fff;
-            margin-right: 12px;
-            padding: 16px;
-            border-radius: 4px;
-            background: #999;
-        }
-        .exception .source-code{
-            padding: 6px;
-            border: 1px solid #ddd;
-
-            background: #f9f9f9;
-            overflow-x: auto;
-
-        }
-        .exception .source-code pre{
-            margin: 0;
-        }
-        .exception .source-code pre ol{
-            margin: 0;
-            color: #4288ce;
-            display: inline-block;
-            min-width: 100%;
-            box-sizing: border-box;
-        font-size:14px;
-            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
-            padding-left: 56px;
-        }
-        .exception .source-code pre li{
-            border-left: 1px solid #ddd;
-            height: 18px;
-            line-height: 18px;
-        }
-        .exception .source-code pre code{
-            color: #333;
-            height: 100%;
-            display: inline-block;
-            border-left: 1px solid #fff;
-        font-size:14px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-        .exception .trace{
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-top: 0 none;
-            line-height: 16px;
-        font-size:14px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-        .exception .trace ol{
-            margin: 12px;
-        }
-        .exception .trace ol li{
-            padding: 2px 4px;
-        }
-        .exception div:last-child{
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
-        }
-
-        /* Exception Variables */
-        .exception-var table{
-            width: 100%;
-            margin: 12px 0;
-            box-sizing: border-box;
-            table-layout:fixed;
-            word-wrap:break-word;            
-        }
-        .exception-var table caption{
-            text-align: left;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 6px 0;
-        }
-        .exception-var table caption small{
-            font-weight: 300;
-            display: inline-block;
-            margin-left: 10px;
-            color: #ccc;
-        }
-        .exception-var table tbody{
-            font-size: 13px;
-            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
-        }
-        .exception-var table td{
-            padding: 0 6px;
-            vertical-align: top;
-            word-break: break-all;
-        }
-        .exception-var table td:first-child{
-            width: 28%;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-        .exception-var table td pre{
-            margin: 0;
-        }
-
-        /* Copyright Info */
-        .copyright{
-            margin-top: 24px;
-            padding: 12px 0;
-            border-top: 1px solid #eee;
-        }
-
-        /* SPAN elements with the classes below are added by prettyprint. */
-        pre.prettyprint .pln { color: #000 }  /* plain text */
-        pre.prettyprint .str { color: #080 }  /* string content */
-        pre.prettyprint .kwd { color: #008 }  /* a keyword */
-        pre.prettyprint .com { color: #800 }  /* a comment */
-        pre.prettyprint .typ { color: #606 }  /* a type name */
-        pre.prettyprint .lit { color: #066 }  /* a literal value */
-        /* punctuation, lisp open bracket, lisp close bracket */
-        pre.prettyprint .pun, pre.prettyprint .opn, pre.prettyprint .clo { color: #660 }
-        pre.prettyprint .tag { color: #008 }  /* a markup tag name */
-        pre.prettyprint .atn { color: #606 }  /* a markup attribute name */
-        pre.prettyprint .atv { color: #080 }  /* a markup attribute value */
-        pre.prettyprint .dec, pre.prettyprint .var { color: #606 }  /* a declaration; a variable name */
-        pre.prettyprint .fun { color: red }  /* a function name */
-    </style>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-11.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>SpringMVC的异步 - EgyptAddress</title>
+    <link rel="icon" href="/assets/website/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/website/css/egyptaddress/style-starter.css">
+    <link rel="stylesheet" href="/assets/website/css/style.css">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
+     crossorigin="anonymous"></script>
 </head>
+
 <body>
-    <div class="echo">
-            </div>
-        <div class="exception">
-    <div class="message">
-        
-            <div class="info">
-                <div>
-                    <h2>[8]&nbsp;<abbr title="think\exception\ErrorException">ErrorException</abbr> in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></h2>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/html/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
                 </div>
-                <div><h1>未定义变量: hot_city_list</h1></div>
-            </div>
-        
-    </div>
-	        <div class="source-code">
-            <pre class="prettyprint lang-php"><ol start="124"><li class="line-124"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
-</code></li><li class="line-125"><code>            &lt;?php if(is_array($hot_country_list) || $hot_country_list instanceof \think\Collection || $hot_country_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_country_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
-</code></li><li class="line-126"><code>            &lt;li class=&quot;py-2&quot;&gt;
-</code></li><li class="line-127"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
-</code></li><li class="line-128"><code>            &lt;/li&gt;
-</code></li><li class="line-129"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
-</code></li><li class="line-130"><code>        &lt;/ul&gt;
-</code></li><li class="line-131"><code>    &lt;/div&gt;
-</code></li><li class="line-132"><code>&lt;/div&gt;
-</code></li><li class="line-133"><code>&lt;?php endif; if($hot_city_list): ?&gt;
-</code></li><li class="line-134"><code>&lt;div class=&quot;panel panel-default box article-list&quot;&gt;
-</code></li><li class="line-135"><code>    &lt;div class=&quot;panel-heading&quot;&gt;&lt;h2&gt;热门城市&lt;/h2&gt;&lt;/div&gt;
-</code></li><li class="line-136"><code>    &lt;div class=&quot;panel-body&quot;&gt;
-</code></li><li class="line-137"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
-</code></li><li class="line-138"><code>            &lt;?php if(is_array($hot_city_list) || $hot_city_list instanceof \think\Collection || $hot_city_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_city_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
-</code></li><li class="line-139"><code>            &lt;li class=&quot;py-2&quot;&gt;
-</code></li><li class="line-140"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
-</code></li><li class="line-141"><code>            &lt;/li&gt;
-</code></li><li class="line-142"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
-</code></li></ol></pre>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
         </div>
-	        <div class="trace">
-            <h2>Call Stack</h2>
-            <ol>
-                <li>in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></li>
-                                <li>
-                at <abbr title="think\Error">Error</abbr>::appError(8, '<a class="toggle" title="Undefined variable: hot_city_list">Undefined variable: ...</a>', '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 133, ['cacheFile' => '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 'vars' => ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], 'config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a>                </li>
-                                <li>
-                at include('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\template\driver\File.php line 53">File.php line 53</a>                </li>
-                                <li>
-                at <abbr title="think\template\driver\File">File</abbr>->read('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\Template.php line 188">Template.php line 188</a>                </li>
-                                <li>
-                at <abbr title="think\Template">Template</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\view\driver\Think.php line 86">Think.php line 86</a>                </li>
-                                <li>
-                at <abbr title="think\view\driver\Think">Think</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\View.php line 163">View.php line 163</a>                </li>
-                                <li>
-                at <abbr title="think\View">View</abbr>->fetch('<a class="toggle" title="egyptaddress/index/url_blog">egyptaddress/index/u...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\controller\Index.php line 442">Index.php line 442</a>                </li>
-                                <li>
-                at <abbr title="addons\xcblog\controller\Index">Index</abbr>->url_blog()                </li>
-                                <li>
-                at call_user_func_array([<em>object</em>(<abbr title="addons\xcblog\controller\Index">Index</abbr>), 'url_blog'], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\vendor\karsonzhang\fastadmin-addons\src\addons\Route.php line 78">Route.php line 78</a>                </li>
-                                <li>
-                at <abbr title="think\addons\Route">Route</abbr>->execute('xcblog', 'index', 'url_blog')                </li>
-                                <li>
-                at <abbr title="ReflectionMethod">ReflectionMethod</abbr>->invokeArgs(<em>object</em>(<abbr title="think\addons\Route">Route</abbr>), ['xcblog', 'index', 'url_blog']) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 343">App.php line 343</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::invokeMethod(['\think\addons\Route', 'execute'], ['website_id' => '1', 'id' => '11', 'addon' => 'xcblog', ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 470">App.php line 470</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::exec(['type' => 'method', 'method' => ['\think\addons\Route', 'execute'], 'var' => []], ['app_host' => '', 'app_debug' => <em>true</em>, 'app_trace' => <em>false</em>, ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 139">App.php line 139</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::run() in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php line 19">start.php line 19</a>                </li>
-                                <li>
-                at require('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\public\index.php line 23">index.php line 23</a>                </li>
-                            </ol>
+    </header>
+    <!-- //header -->
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title">SpringMVC的异步</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><a href="/html/category/"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="tittle">SpringMVC的异步</h1>
+                  				  				  				<div id="content_views" class="markdown_views prism-atom-one-dark"> <h3> SpringMVC的异步</h3> <blockquote> <p>最近接触了springMVC的异步模式，总结下来有两个优点：</p> <p>第一，当然是节约tomcat容器的线程 </p> <p>第二，可以利用异步超时，起到一定的超时降级保护 </p> <p>注意：在Controller中使用时，一定要注意做好接口的线程池隔离，让慢的接口使用固定数量的线程池， 否则从tomcat减少的线程会转移到应用里，导致拥塞，在部分接口下游异常的情况的情况下，会出现影响正常接口的服务. </p> </blockquote> <p>关于Spring MVC的异步</p> <blockquote> <p>同步接口在请求处理过程中一直处于阻塞状态，而异步接口可以启用后台线程去处理耗时任务。基本的使用场景：</p> <ul> <li> <p>高并发场景</p> </li> <li> <p>高耗时场景</p> </li> </ul> <p>SpringMVC提供的几种异步实现方案：</p> <ul> <li> <p>Callable 提供的带有返回值的并发操作</p> </li> <li> <p>WebAsyncTask 对Callable的封装处理</p> </li> <li> <p>@Async </p> </li> <li> <p>DeferredResult</p> </li> </ul> </blockquote> <p>Callable</p> <p>就是最简单的线程运行，然后获取返回值的模式。优点是简单，缺点是不能中途取消，只有结合FutureTask才能够提供一定的控制。但是，也不能提供异步通知的方式。</p> <pre><code>/**  * @author qiyu  * @date 2020-07-30 20:03  */ @Slf4j @RestController public class AsyncController {      @GetMapping("/test")     public String test() throws InterruptedException {         log.info("主线程开始=====>"+ Thread.currentThread().getName());         Thread.sleep(30000);         log.info("主线程结束=====>"+ Thread.currentThread().getName());         return "success";     }       @GetMapping("/testAsync")     public Callable<String> testAsync() throws InterruptedException {         log.info("主线程开始=====>"+ Thread.currentThread().getName());         Callable<String> callable = () -> {             log.info("异步线程开始=====>" + Thread.currentThread().getName());             Thread.sleep(30000);             log.info("异步线程结束=====>" + Thread.currentThread().getName());             return "success";         };         log.info("主线程结束=====>"+ Thread.currentThread().getName());         return callable;     } } </code></pre> <p>WebAsyncTask 实例</p> <blockquote> <p><code>WebAsyncTask</code> : 在构造时写入<code>Callable</code>主要业务逻辑<br /><code>WebAsyncTask.onCompletion(Runnable)</code> ：在当前任务执行结束以后，无论是执行成功还是异常中止，onCompletion的回调最终都会被调用<br /><code>WebAsyncTask.onError(Callable>)</code> ：当异步任务抛出异常的时候，<code>onError()</code>方法即会被调用<br /><code>WebAsyncTask.onTimeout(Callable>)</code> ：当异步任务发生超时的时候，<code>onTimeout()</code>方法即会被调用</p> <p><code>WebAsyncTask</code>类是<code>Spring</code>提供的一步任务处理类。</p> <p><code>WebAsyncTask</code>是<code>Callable</code>的升级版</p> </blockquote> <pre><code>@RequestMapping("/async")     @ResponseBody     public WebAsyncTask<String> asyncTask(){         // 1000 为超时设置         WebAsyncTask<String> webAsyncTask = new WebAsyncTask<String>(1000,new Callable<String>(){             @Override             public String call() throws Exception {                 //业务逻辑处理                 Thread.sleep(5000);                 String message = "username:wangbinghua";                 return message;             }         });         webAsyncTask.onCompletion(new Runnable() {             @Override             public void run() {                 System.out.println("调用完成");             }         });         webAsyncTask.onTimeout(new Callable<String>() {             @Override             public String call() throws Exception {                 System.out.println("业务处理超时");                 return "<h1>Time Out</h1>";             }         });          return webAsyncTask;     } </code></pre> <p>@Async实例</p> <blockquote> <p>含义</p> <blockquote> <p>1，在方法上使用该@Async注解，申明该方法是一个异步任务；</p> <p>2，在类上面使用该@Async注解，申明该类中的所有方法都是异步任务；</p> <p>3，使用此注解的方法的类对象，必须是spring管理下的bean对象；</p> <p>4，要想使用异步任务，需要在主类上开启异步配置，即，配置上@EnableAsync注解；</p> </blockquote> <p>用法</p> <blockquote> <p>在Spring中启用@Async：</p> <pre><code>    1，@Async注解在使用时，如果不指定线程池的名称，则使用Spring默认的线程池，Spring默认的线程池为**SimpleAsyncTaskExecutor**。      2，方法上一旦标记了这个@Async注解，当其它线程调用这个方法时，就会开启一个新的子线程去异步处理该业务逻辑。 </code></pre> </blockquote> <p>例子</p> <blockquote> <p>3.1，启动类中增加@EnableAsync</p> <p>以Spring boot 为例，启动类中增加@EnableAsync：</p> <pre><code>@EnableAsync@SpringBootApplicationpublic class ManageApplication {    //...} </code></pre> <p>3.2，方法上加@Async注解：</p> <pre><code>@Componentpublic class MyAsyncTask {     @Async    public void asyncCpsItemImportTask(Long platformId, String jsonList){        //...具体业务逻辑    }} </code></pre> <p>3.3，默认线程池的缺陷：</p> <pre><code>    上面的配置会启用默认的线程池/执行器，异步执行指定的方法。      Spring默认的线程池的默认配置：      默认核心线程数：8，        最大线程数：Integet.MAX_VALUE，    队列使用LinkedBlockingQueue，    容量是：Integet.MAX_VALUE，    空闲线程保留时间：60s，    线程池拒绝策略：AbortPolicy。      从最大线程数的配置上，相信你也看到问题了：**并发情况下，会无限创建线程。。。** </code></pre> <p>3.4，默认线程池–自定义配置参数：</p> <pre><code>    默认线程池的上述缺陷如何解决：      答案是，自定义配置参数就可以了。  spring:   task:     execution:       pool:         max-size: 6         core-size: 3         keep-alive: 3s         queue-capacity: 1000         thread-name-prefix: name </code></pre> </blockquote> <p>实现原理</p> <blockquote> <p>@Async的原理概括：</p> <p>@Async 的原理是通过 Spring AOP 动态代理 的方式来实现的。</p> <pre><code>    Spring容器启动初始化bean时，判断类中是否使用了@[Async](https://so.csdn.net/so/search?q=Async\&spm=1001.2101.3001.7020 "Async")注解，如果使用了则为其创建切入点和切入点处理器，根据切入点创建代理，      在线程调用@Async注解标注的方法时，会调用代理，执行切入点处理器invoke方法，将方法的执行提交给线程池中的另外一个线程来处理，从而实现了异步执行。      所以，需要注意的一个错误用法是，如果a方法调用它同类中的标注@Async的b方法，是不会异步执行的，因为从a方法进入调用的都是该类对象本身，不会进入代理类。 </code></pre> <p>因此，相同类中的方法调用带@Async的方法是无法异步的，这种情况仍然是同步。</p> </blockquote> </blockquote> <p>DeferredResult实例</p> <blockquote> <p><code>DeferredResult</code>和<code>Callable</code>实现功能类型，都是异步返回，只不过<code>Callable</code>不能直接设置超时时间，还需要和<code>FutureTask</code>配合使用</p> </blockquote> <pre><code>@Controller public class DeferedResultController {       private ConcurrentLinkedDeque<DeferredResult<String>> deferredResults =             new ConcurrentLinkedDeque<DeferredResult<String>>();       @RequestMapping("/getResult")     @ResponseBody     public DeferredResult<String> getDeferredResultController(){          //设置 5秒就会超时         final DeferredResult<String> stringDeferredResult = new DeferredResult<String>(1000);                  //将请求加入到队列中         deferredResults.add(stringDeferredResult);          final String message = "{username:wangbinghua}";          ExecutorService executorService = Executors.newFixedThreadPool(10);         executorService.submit(new Runnable() {             @Override             public void run() {                            try {                     Thread.sleep(1010);                 } catch (InterruptedException e) {                     e.printStackTrace();                 }                  //业务处理                 System.out.println("业务处理");                 stringDeferredResult.setResult(message);             }         });           //setResult完毕之后，调用该方法         stringDeferredResult.onCompletion(new Runnable() {             @Override             public void run() {                 System.out.println("异步调用完成");                 //响应完毕之后，将请求从队列中去除掉                 deferredResults.remove(stringDeferredResult);             }         });          stringDeferredResult.onTimeout(new Runnable() {             @Override             public void run() {                 System.out.println("业务处理超时");                 stringDeferredResult.setResult("error:timeOut");             }         });         return stringDeferredResult;     }      //开启线程定时扫描队列，响应客户端     @Scheduled(fixedRate = 1000)     public void scheduleResult(){         System.out.println(new Date());         for(int i = 0;i < deferredResults.size();i++){             DeferredResult<String> deferredResult = deferredResults.getFirst();             deferredResult.setResult("result:" + i);         }     } } </code></pre> <p>说明</p> <blockquote> <p>在Spring Mvc的控制层（springmvc层框架中）中，只要有一个用户请求便会实例化一个DeferedResult对象，然后返回该对象，然后就会释放TOMCAT的线程，从而完成客户端响应。只要DeferedResult对象不设置result响应的内容，则控制层（springMVC层）的容器主线程在响应客户端上就会发生阻塞。</p> <p>因为SpringMVC只会实例化一个Controller对象，无论有多少个用户请求，在堆上只有一个Controller对象，因此可以添加一个成员变量List，将这些用户请求的DeferedResult对象存放到List中，然后启动一个定时线程扫描list，从而依次执行setResult方法，响应客户端。</p> </blockquote></div> 			                <div class="clearfix"></div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-10.htm">Python中将字典转为成员变量详解</a></p>
+                                        <p>下一个：<a href="/html/category/article-12.htm">PHP匿名类</a></p>
+                                    </div>
+                            </div>
+            <div class="col-md-4 w3l-services">
+                
+<h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9053.htm">动物疫苗怎么制作出来的（动物疫苗制作流程）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗怎么制作出来的，以及动物疫苗制作流程对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、疫苗都是怎么生产的?有哪些方法?...    </p>
+            </div>
         </div>
     </div>
-        
-    
-        <div class="exception-var">
-        <h2>Environment Variables</h2>
-                <div>
-                        <h3 class="subheading">GET Data</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>website_id</strong></div>
-                    <div class="col-md-9"><small>
-                        1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>id</strong></div>
-                    <div class="col-md-9"><small>
-                        11                    </small></div>
-                </div>
-                            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>POST Data</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9421.htm">三国杀特效素材视频（三国杀 视频）</a></h4>
+                <p>摘要：       今天给各位分享三国杀特效素材视频的知识，其中也会对三国杀 视频进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、三国杀大将军特效在哪设置...</p>
             </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Files</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Cookies</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Session</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <h3 class="subheading">Server/Request Data</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ALLUSERSPROFILE</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\ProgramData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>APPDATA</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\AppData\Roaming                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramFiles</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramFiles(x86)</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files (x86)\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramW6432</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>COMPUTERNAME</strong></div>
-                    <div class="col-md-9"><small>
-                        DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ComSpec</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\system32\cmd.exe                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DriverData</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\System32\Drivers\DriverData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FPS_BROWSER_APP_PROFILE_STRING</strong></div>
-                    <div class="col-md-9"><small>
-                        Internet Explorer                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FPS_BROWSER_USER_PROFILE_STRING</strong></div>
-                    <div class="col-md-9"><small>
-                        Default                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FREI0R_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        D:\PROGRA~1\APOWER~1\VIDEOC~1\frei0r;D:\Program Files (x86)\Apowersoft\Video Converter Studio\frei0r                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HOMEDRIVE</strong></div>
-                    <div class="col-md-9"><small>
-                        C:                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HOMEPATH</strong></div>
-                    <div class="col-md-9"><small>
-                        \Users\CJ                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LOCALAPPDATA</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\AppData\Local                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LOGONSERVER</strong></div>
-                    <div class="col-md-9"><small>
-                        \\DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>NUMBER_OF_PROCESSORS</strong></div>
-                    <div class="col-md-9"><small>
-                        6                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>OneDrive</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\OneDrive                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>OS</strong></div>
-                    <div class="col-md-9"><small>
-                        Windows_NT                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>Path</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATHEXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_ARCHITECTURE</strong></div>
-                    <div class="col-md-9"><small>
-                        AMD64                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_IDENTIFIER</strong></div>
-                    <div class="col-md-9"><small>
-                        Intel64 Family 6 Model 158 Stepping 10, GenuineIntel                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_LEVEL</strong></div>
-                    <div class="col-md-9"><small>
-                        6                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_REVISION</strong></div>
-                    <div class="col-md-9"><small>
-                        9e0a                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramData</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\ProgramData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramFiles</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramFiles(x86)</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files (x86)                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramW6432</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PSModulePath</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PUBLIC</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\Public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SESSIONNAME</strong></div>
-                    <div class="col-md-9"><small>
-                        Console                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SystemDrive</strong></div>
-                    <div class="col-md-9"><small>
-                        C:                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SystemRoot</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TEMP</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TMP</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERDOMAIN</strong></div>
-                    <div class="col-md-9"><small>
-                        DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERDOMAIN_ROAMINGPROFILE</strong></div>
-                    <div class="col-md-9"><small>
-                        DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERNAME</strong></div>
-                    <div class="col-md-9"><small>
-                        CJ                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERPROFILE</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>windir</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_ACCEPT</strong></div>
-                    <div class="col-md-9"><small>
-                        */*                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_USER_AGENT</strong></div>
-                    <div class="col-md-9"><small>
-                        Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_HOST</strong></div>
-                    <div class="col-md-9"><small>
-                        abgp.com                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REDIRECT_STATUS</strong></div>
-                    <div class="col-md-9"><small>
-                        200                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_NAME</strong></div>
-                    <div class="col-md-9"><small>
-                        abgp.com                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_PORT</strong></div>
-                    <div class="col-md-9"><small>
-                        80                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_ADDR</strong></div>
-                    <div class="col-md-9"><small>
-                        127.0.0.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REMOTE_PORT</strong></div>
-                    <div class="col-md-9"><small>
-                        63764                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REMOTE_ADDR</strong></div>
-                    <div class="col-md-9"><small>
-                        127.0.0.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_SOFTWARE</strong></div>
-                    <div class="col-md-9"><small>
-                        nginx/1.15.11                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>GATEWAY_INTERFACE</strong></div>
-                    <div class="col-md-9"><small>
-                        CGI/1.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_SCHEME</strong></div>
-                    <div class="col-md-9"><small>
-                        http                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_PROTOCOL</strong></div>
-                    <div class="col-md-9"><small>
-                        HTTP/1.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DOCUMENT_ROOT</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DOCUMENT_URI</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_URI</strong></div>
-                    <div class="col-md-9"><small>
-                        /addons/xcblog/index/url_blog?website_id=1&amp;id=11                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SCRIPT_NAME</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONTENT_LENGTH</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONTENT_TYPE</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_METHOD</strong></div>
-                    <div class="col-md-9"><small>
-                        GET                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>QUERY_STRING</strong></div>
-                    <div class="col-md-9"><small>
-                        s=/addons/xcblog/index/url_blog&amp;website_id=1&amp;id=11                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATH_TRANSLATED</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATH_INFO</strong></div>
-                    <div class="col-md-9"><small>
-                        /addons/xcblog/index/url_blog                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SCRIPT_FILENAME</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public/index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FCGI_ROLE</strong></div>
-                    <div class="col-md-9"><small>
-                        RESPONDER                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PHP_SELF</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_TIME_FLOAT</strong></div>
-                    <div class="col-md-9"><small>
-                        1724987360.2855                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_TIME</strong></div>
-                    <div class="col-md-9"><small>
-                        1724987360                    </small></div>
-                </div>
-                            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Environment Variables</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <h3 class="subheading">ThinkPHP Constants</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>APP_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_VERSION</strong></div>
-                    <div class="col-md-9"><small>
-                        5.0.26                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_START_TIME</strong></div>
-                    <div class="col-md-9"><small>
-                        1724987360.286                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_START_MEM</strong></div>
-                    <div class="col-md-9"><small>
-                        409072                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>EXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DS</strong></div>
-                    <div class="col-md-9"><small>
-                        \                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LIB_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CORE_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TRAIT_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\traits\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ROOT_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>EXTEND_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\extend\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>VENDOR_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\vendor\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>RUNTIME_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LOG_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\log\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CACHE_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\cache\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TEMP_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\temp\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONF_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONF_EXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ENV_PREFIX</strong></div>
-                    <div class="col-md-9"><small>
-                        PHP_                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>IS_CLI</strong></div>
-                    <div class="col-md-9"><small>
-                        false                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>IS_WIN</strong></div>
-                    <div class="col-md-9"><small>
-                        true                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FILTER_VALIDATE_BOOL</strong></div>
-                    <div class="col-md-9"><small>
-                        258                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTMLPURIFIER_PREFIX</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\vendor\ezyang\htmlpurifier\library                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ADDON_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\addons\                    </small></div>
-                </div>
-                            </div>
-                    </div>
-            </div>
-    
-    <div class="copyright">
-        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
-        <span>V5.0.26</span> 
-        <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
+        </div>
     </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9651.htm">战狼二人物原型（画壁翠竹）奔走相告，</a></h4>
+                <p>众所周知，导演兼演员的吴京因为《战狼2》火遍大江南北乃至全球!那么问题来了，可能很多影迷还不知道吴京的婚姻情况吧！     其实狼哥已经是一个有家室的人啦，狼嫂就是年轻漂亮的短发美女主持人谢楠！   </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9328.htm">养猫的人容易得什么病图片真实（养猫人容易患什么病）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈养猫的人容易得什么病图片真实，以及养猫人容易患什么病对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫会导致什么疾病?...      </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9006.htm">两个月大的猫抓伤（两个月大的猫抓伤可要打狂犬疫苗）</a></h4>
+                <p>摘要：       今天给各位分享两个月大的猫抓伤的知识，其中也会对两个月大的猫抓伤可要打狂犬疫苗进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、被2个月小猫.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9237.htm">薄冰是谁（于无声处演员表）太疯狂了，</a></h4>
+                <p>在国内，最难拍好的电视剧类型是什么？我的答案可能让人意外：谍战剧谍战剧有什么难拍的？自带强情节、高悬念等优势，能够涵盖各种精彩元素，随便拍拍，收视就能爆不是吗？但细细想想，近20年最优秀的谍战剧，几乎</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9743.htm">宠物主粮品牌消费排行榜（高端宠物粮食）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物主粮品牌消费排行榜，以及高端宠物粮食对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、小型犬狗粮排名前十品牌2、...        本</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9604.htm">上海宠物领养日期查询官网（上海宠物狗领养网站）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈上海宠物领养日期查询官网，以及上海宠物狗领养网站对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、哪里有领养流浪猫流浪狗的地方?...   </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-10019.htm">免费赠送领养边牧可靠吗（免费领养狗狗送到家是否可信）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈免费赠送领养边牧可靠吗，以及免费领养狗狗送到家是否可信对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、可以帮我领养一条狗狗吗?...   </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9881.htm">红烧羊排教程</a></h4>
+                <p>各位同学好，相信还有很多人对于怎么的相关问题不太了解，今天给各位分享一下关于红烧羊排怎么的解答，希望可以帮助到大家，下面一起来看看吧！！本文目录导读：红烧羊排的制作方法红烧羊排的制作技巧红烧羊排的制作</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-10/" title="2024-10 归档">2024-10</a></h4>
+                                <h4><span class="badge" style="float: right;">52</span> <a href="/html/date/2024-09/" title="2024-09 归档">2024-09</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-08/" title="2024-08 归档">2024-08</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
         <script>
-        var LINE = 133;
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
 
-        function $(selector, node){
-            var elements;
-
-            node = node || document;
-            if(document.querySelectorAll){
-                elements = node.querySelectorAll(selector);
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
             } else {
-                switch(selector.substr(0, 1)){
-                    case '#':
-                        elements = [node.getElementById(selector.substr(1))];
-                        break;
-                    case '.':
-                        if(document.getElementsByClassName){
-                            elements = node.getElementsByClassName(selector.substr(1));
-                        } else {
-                            elements = get_elements_by_class(selector.substr(1), node);
-                        }
-                        break;
-                    default:
-                        elements = node.getElementsByTagName();
-                }
-            }
-            return elements;
-
-            function get_elements_by_class(search_class, node, tag) {
-                var elements = [], eles, 
-                    pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
-
-                node = node || document;
-                tag  = tag  || '*';
-
-                eles = node.getElementsByTagName(tag);
-                for(var i = 0; i < eles.length; i++) {
-                    if(pattern.test(eles[i].className)) {
-                        elements.push(eles[i])
-                    }
-                }
-
-                return elements;
+                document.getElementById("movetop").style.display = "none";
             }
         }
 
-        $.getScript = function(src, func){
-            var script = document.createElement('script');
-            
-            script.async  = 'async';
-            script.src    = src;
-            script.onload = func || function(){};
-            
-            $('head')[0].appendChild(script);
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
         }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+    <!-- all js scripts and files here -->
+    <script src="/assets/website/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
 
-        ;(function(){
-            var files = $('.toggle');
-            var ol    = $('ol', $('.prettyprint')[0]);
-            var li    = $('li', ol[0]);   
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
 
-            // 短路径和长路径变换
-            for(var i = 0; i < files.length; i++){
-                files[i].ondblclick = function(){
-                    var title = this.title;
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
 
-                    this.title = this.innerHTML;
-                    this.innerHTML = title;
-                }
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
             }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
 
-            // 设置出错行
-            var err_line = $('.line-' + LINE, ol[0])[0];
-            err_line.className = err_line.className + ' line-error';
-
-            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
-                prettyPrint();
-
-                // 解决Firefox浏览器一个很诡异的问题
-                // 当代码高亮后，ol的行号莫名其妙的错位
-                // 但是只要刷新li里面的html重新渲染就没有问题了
-                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
-                    ol[0].innerHTML = ol[0].innerHTML;
-                }
-            });
-
-        })();
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
     </script>
-    </body>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/website/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/website/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
 </html>

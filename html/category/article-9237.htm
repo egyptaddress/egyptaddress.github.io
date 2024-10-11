@@ -1,880 +1,468 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <title>System Error</title>
-    <meta name="robots" content="noindex,nofollow" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <style>
-        /* Base */
-        body {
-            color: #333;
-            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
-            margin: 0;
-            padding: 0 20px 20px;
-            word-break: break-word;
-        }
-        h1{
-            margin: 10px 0 0;
-            font-size: 28px;
-            font-weight: 500;
-            line-height: 32px;
-        }
-        h2{
-            color: #4288ce;
-            font-weight: 400;
-            padding: 6px 0;
-            margin: 6px 0 0;
-            font-size: 18px;
-            border-bottom: 1px solid #eee;
-        }
-        h3.subheading {
-            color: #4288ce;
-            margin: 6px 0 0;
-            font-weight: 400;
-        }
-        h3{
-            margin: 12px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        abbr{
-            cursor: help;
-            text-decoration: underline;
-            text-decoration-style: dotted;
-        }
-        a{
-            color: #868686;
-            cursor: pointer;
-        }
-        a:hover{
-            text-decoration: underline;
-        }
-        .line-error{
-            background: #f8cbcb;
-        }
-
-        .echo table {
-            width: 100%;
-        }
-
-        .echo pre {
-            padding: 16px;
-            overflow: auto;
-            font-size: 85%;
-            line-height: 1.45;
-            background-color: #f7f7f7;
-            border: 0;
-            border-radius: 3px;
-            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-        }
-
-        .echo pre > pre {
-            padding: 0;
-            margin: 0;
-        }
-        /* Layout */
-        .col-md-3 {
-            width: 25%;
-        }
-        .col-md-9 {
-            width: 75%;
-        }
-        [class^="col-md-"] {
-            float: left;
-        }
-        .clearfix {
-            clear:both;
-        }
-        @media only screen 
-        and (min-device-width : 375px) 
-        and (max-device-width : 667px) { 
-            .col-md-3,
-            .col-md-9 {
-                width: 100%;
-            }
-        }
-        /* Exception Info */
-        .exception {
-            margin-top: 20px;
-        }
-        .exception .message{
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-bottom: 0 none;
-            line-height: 18px;
-            font-size:16px;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-
-        .exception .code{
-            float: left;
-            text-align: center;
-            color: #fff;
-            margin-right: 12px;
-            padding: 16px;
-            border-radius: 4px;
-            background: #999;
-        }
-        .exception .source-code{
-            padding: 6px;
-            border: 1px solid #ddd;
-
-            background: #f9f9f9;
-            overflow-x: auto;
-
-        }
-        .exception .source-code pre{
-            margin: 0;
-        }
-        .exception .source-code pre ol{
-            margin: 0;
-            color: #4288ce;
-            display: inline-block;
-            min-width: 100%;
-            box-sizing: border-box;
-        font-size:14px;
-            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
-            padding-left: 56px;
-        }
-        .exception .source-code pre li{
-            border-left: 1px solid #ddd;
-            height: 18px;
-            line-height: 18px;
-        }
-        .exception .source-code pre code{
-            color: #333;
-            height: 100%;
-            display: inline-block;
-            border-left: 1px solid #fff;
-        font-size:14px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-        .exception .trace{
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-top: 0 none;
-            line-height: 16px;
-        font-size:14px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-        .exception .trace ol{
-            margin: 12px;
-        }
-        .exception .trace ol li{
-            padding: 2px 4px;
-        }
-        .exception div:last-child{
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
-        }
-
-        /* Exception Variables */
-        .exception-var table{
-            width: 100%;
-            margin: 12px 0;
-            box-sizing: border-box;
-            table-layout:fixed;
-            word-wrap:break-word;            
-        }
-        .exception-var table caption{
-            text-align: left;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 6px 0;
-        }
-        .exception-var table caption small{
-            font-weight: 300;
-            display: inline-block;
-            margin-left: 10px;
-            color: #ccc;
-        }
-        .exception-var table tbody{
-            font-size: 13px;
-            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
-        }
-        .exception-var table td{
-            padding: 0 6px;
-            vertical-align: top;
-            word-break: break-all;
-        }
-        .exception-var table td:first-child{
-            width: 28%;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-        .exception-var table td pre{
-            margin: 0;
-        }
-
-        /* Copyright Info */
-        .copyright{
-            margin-top: 24px;
-            padding: 12px 0;
-            border-top: 1px solid #eee;
-        }
-
-        /* SPAN elements with the classes below are added by prettyprint. */
-        pre.prettyprint .pln { color: #000 }  /* plain text */
-        pre.prettyprint .str { color: #080 }  /* string content */
-        pre.prettyprint .kwd { color: #008 }  /* a keyword */
-        pre.prettyprint .com { color: #800 }  /* a comment */
-        pre.prettyprint .typ { color: #606 }  /* a type name */
-        pre.prettyprint .lit { color: #066 }  /* a literal value */
-        /* punctuation, lisp open bracket, lisp close bracket */
-        pre.prettyprint .pun, pre.prettyprint .opn, pre.prettyprint .clo { color: #660 }
-        pre.prettyprint .tag { color: #008 }  /* a markup tag name */
-        pre.prettyprint .atn { color: #606 }  /* a markup attribute name */
-        pre.prettyprint .atv { color: #080 }  /* a markup attribute value */
-        pre.prettyprint .dec, pre.prettyprint .var { color: #606 }  /* a declaration; a variable name */
-        pre.prettyprint .fun { color: red }  /* a function name */
-    </style>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-9237.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>薄冰是谁（于无声处演员表）太疯狂了，</title>
+    <link rel="icon" href="/assets/website/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <meta name="description" content="在国内，最难拍好的电视剧类型是什么？我的答案可能让人意外：谍战剧谍战剧有什么难拍的？自带强情节、高悬念等优势，能够涵盖各种精彩元素，随便拍拍，收视就能爆不是吗？但细细想想，近20年最优秀的谍战剧，几乎" />
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/website/css/egyptaddress/style-starter.css">
+    <link rel="stylesheet" href="/assets/website/css/style.css">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
+     crossorigin="anonymous"></script>
 </head>
+
 <body>
-    <div class="echo">
-            </div>
-        <div class="exception">
-    <div class="message">
-        
-            <div class="info">
-                <div>
-                    <h2>[8]&nbsp;<abbr title="think\exception\ErrorException">ErrorException</abbr> in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></h2>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/html/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
                 </div>
-                <div><h1>未定义变量: hot_city_list</h1></div>
-            </div>
-        
-    </div>
-	        <div class="source-code">
-            <pre class="prettyprint lang-php"><ol start="124"><li class="line-124"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
-</code></li><li class="line-125"><code>            &lt;?php if(is_array($hot_country_list) || $hot_country_list instanceof \think\Collection || $hot_country_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_country_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
-</code></li><li class="line-126"><code>            &lt;li class=&quot;py-2&quot;&gt;
-</code></li><li class="line-127"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
-</code></li><li class="line-128"><code>            &lt;/li&gt;
-</code></li><li class="line-129"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
-</code></li><li class="line-130"><code>        &lt;/ul&gt;
-</code></li><li class="line-131"><code>    &lt;/div&gt;
-</code></li><li class="line-132"><code>&lt;/div&gt;
-</code></li><li class="line-133"><code>&lt;?php endif; if($hot_city_list): ?&gt;
-</code></li><li class="line-134"><code>&lt;div class=&quot;panel panel-default box article-list&quot;&gt;
-</code></li><li class="line-135"><code>    &lt;div class=&quot;panel-heading&quot;&gt;&lt;h2&gt;热门城市&lt;/h2&gt;&lt;/div&gt;
-</code></li><li class="line-136"><code>    &lt;div class=&quot;panel-body&quot;&gt;
-</code></li><li class="line-137"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
-</code></li><li class="line-138"><code>            &lt;?php if(is_array($hot_city_list) || $hot_city_list instanceof \think\Collection || $hot_city_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_city_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
-</code></li><li class="line-139"><code>            &lt;li class=&quot;py-2&quot;&gt;
-</code></li><li class="line-140"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
-</code></li><li class="line-141"><code>            &lt;/li&gt;
-</code></li><li class="line-142"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
-</code></li></ol></pre>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
         </div>
-	        <div class="trace">
-            <h2>Call Stack</h2>
-            <ol>
-                <li>in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></li>
-                                <li>
-                at <abbr title="think\Error">Error</abbr>::appError(8, '<a class="toggle" title="Undefined variable: hot_city_list">Undefined variable: ...</a>', '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 133, ['cacheFile' => '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 'vars' => ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], 'config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a>                </li>
-                                <li>
-                at include('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\template\driver\File.php line 53">File.php line 53</a>                </li>
-                                <li>
-                at <abbr title="think\template\driver\File">File</abbr>->read('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\Template.php line 188">Template.php line 188</a>                </li>
-                                <li>
-                at <abbr title="think\Template">Template</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\view\driver\Think.php line 86">Think.php line 86</a>                </li>
-                                <li>
-                at <abbr title="think\view\driver\Think">Think</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\View.php line 163">View.php line 163</a>                </li>
-                                <li>
-                at <abbr title="think\View">View</abbr>->fetch('<a class="toggle" title="egyptaddress/index/url_blog">egyptaddress/index/u...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\controller\Index.php line 442">Index.php line 442</a>                </li>
-                                <li>
-                at <abbr title="addons\xcblog\controller\Index">Index</abbr>->url_blog()                </li>
-                                <li>
-                at call_user_func_array([<em>object</em>(<abbr title="addons\xcblog\controller\Index">Index</abbr>), 'url_blog'], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\vendor\karsonzhang\fastadmin-addons\src\addons\Route.php line 78">Route.php line 78</a>                </li>
-                                <li>
-                at <abbr title="think\addons\Route">Route</abbr>->execute('xcblog', 'index', 'url_blog')                </li>
-                                <li>
-                at <abbr title="ReflectionMethod">ReflectionMethod</abbr>->invokeArgs(<em>object</em>(<abbr title="think\addons\Route">Route</abbr>), ['xcblog', 'index', 'url_blog']) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 343">App.php line 343</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::invokeMethod(['\think\addons\Route', 'execute'], ['website_id' => '1', 'id' => '9237', 'addon' => 'xcblog', ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 470">App.php line 470</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::exec(['type' => 'method', 'method' => ['\think\addons\Route', 'execute'], 'var' => []], ['app_host' => '', 'app_debug' => <em>true</em>, 'app_trace' => <em>false</em>, ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 139">App.php line 139</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::run() in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php line 19">start.php line 19</a>                </li>
-                                <li>
-                at require('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\public\index.php line 23">index.php line 23</a>                </li>
-                            </ol>
+    </header>
+    <!-- //header -->
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title">薄冰是谁（于无声处演员表）太疯狂了，</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><a href="/html/category/"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="tittle">薄冰是谁（于无声处演员表）太疯狂了，</h1>
+                  			<div class="orbui orbui-post orbui-post-01"></script>  <ins class="adsbygoogle"       style="display:block; text-align:center;"       data-ad-layout="in-article"       data-ad-format="fluid"       data-ad-client="ca-pub-6016799283272811"       data-ad-slot="9026798696"></ins>  </script></div>						<p>     </p><p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">在国内，最难拍好的电视剧类型是什么？我的答案可能让人意外：谍战剧谍战剧有什么难拍的？自带强情节、高悬念等优势，能够涵盖各种精彩元素，随便拍拍，收视就能爆不是吗？但细细想想，近20年最优秀的谍战剧，几乎扎堆一般，出现在2006—2015年。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">2006年，一部柳云龙的《暗算》直接一部到位，将谍战剧的谍战氛围发挥到了极致，至今无人超越。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">其后的《潜伏》《黎明之前》《悬崖》，可以说接二连三引发新的高潮但这股谍战剧精品浪潮，基本止步于2015年的《伪装者》往后看，能与这几部谍战剧掰一掰手腕的，就剩下2017年播出的《风筝》了而《风筝》实际上也是2015年之前拍摄的作品。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">谍战剧为什么难拍？从这几部“神剧”中，不难看出端倪首先，谍战剧最主要的，就是氛围感只有步步惊心，观众才会有代入感无论是《暗算》还是《潜伏》，或是靳东的《伪装者》，最精彩的无不是烧脑智斗，无限“谍中谍”</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">其次，是需要强演技偶像剧还能用滤镜、慢镜头给演员遮丑，谍战剧可不行，为什么几乎所有年轻偶像担纲的谍战剧都扑街了？因为烂演技放进谍战剧里，观众一分钟都坚持不下去而像张嘉益的《悬崖》之所以令人百看不厌，除了情节精彩，最关键的就是全员演技炸裂，角色深入人心。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">最后，是谍战剧的精神难以呈现。柳云龙的《风筝》之所以令无数人落泪，就是该剧将谍战人员的牺牲精神演绎到极致，“断线风筝”，却矢志不渝，太动人。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">但柳云龙毕竟只有一个，普通创作者要表现这种精神，很容易就变成了浮夸所以即使是王牌阵容，也不必然保证出精品，被无数谍战剧迷翘首期盼数年的谍战大剧《无间》，阵容顶级，投资破亿，播出以来，在东方卫视的收视率甚至超越了央八《爱情而已》，然而这部谍战王炸，距离以上精品，差距依然不小。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">谍战剧，就再也出不来叫好叫座的剧王了？好在，《无间》渐入高潮，又有一部优秀的谍战剧提枪上马——《薄冰》。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">海报上的三个演员，就兜住了这部谍战剧的底王劲松+富大龙+吴越，三方谍战，悬崖之舞编导阵容，是打造过《麻雀》的海飞+金琛《无间》强手在前，黄金档正面对决，能讨到便宜吗？湖南卫视首播2集，拿下卫视收视第二，实时收视甚至超过了《无间》首播成绩。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">观众口碑，不乏“真香”的四五星点赞。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">最诱人的，是故事一开场，王劲松、吴越的对手戏，就直接将我拉回了那个谍战剧演技狂飙的时代一口气刷了6集，可以清楚明确地感觉到，这部《薄冰》，与最近几年的谍战剧都不一样——谍，因演技而出彩；战，因故事而惊险。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">那么，《薄冰》究竟能不能挑战《无间》，成为2023谍战剧的新天花板？</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">不急，我们慢慢看——01、入戏：谍战、悬疑、内斗，顶级演技局，开场就期待值拉满《薄冰》，剧如其名。谍战世界如暗流深海。谍战人员如履薄冰。和《无间》一样，《薄冰》故事的背景设定在1943年的上海。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">两部谍战大剧，都将谍战背景设置在这个时期，并非没有道理，因为这个时期，会出现３方谍战的对弈局面，也就是军统、日伪以及我方特工的对决故事巧妙将“谍战”和“抗战”元素融合在一起，开场，我就被它的快节奏抓住了。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">日伪监狱，血气弥漫十多名军统特工被捕，富大龙饰演的日本梅机关特务头子井田仿佛带着醉意，一手拿枪，一手揪起一个软骨头的军统特工“你说这群人里边，谁最嘴硬？”没等对方开口，随手对着下面就是一枪，一名被捕人员应声倒地。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">井田却绽放出灿烂笑容，仿佛享受着杀戮带来的愉悦，而对方已经吓得屁滚尿流。果然很快，就交代出军统的计划。5分钟，我的心已经提到嗓子眼。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">导演没费一枪一炮，就用叙事完成了对观众的心跳轰炸开场这癫狂反派和血色暗涌，是谍战剧熟悉的味道了第二步谍战暗杀，才刚露出端倪就在井田忙着逼供的时候，军统代号&#8221;吕布&#8221;的王牌特工陈浅已经暗暗将枪口对准了暗杀对象。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">一场能剧演出正在进行，所有人都全情投入看着演出，没有人注意躲在二楼角落背后的陈浅。画面切到剧场上方的空隙，枪口已死死瞄准目标。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">但陈浅却泛起难：哪个才是目标？那就打草惊蛇。按照约定，剧场保险丝4点准时烧掉。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">一声枪响，坐在前排的日本人应声倒下。随后保险丝烧毁，剧场顿时灯光熄灭，现场的日军和观众一片混乱，陈浅顺势滑下，在昏暗中完成致命一击。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">等到灯光恢复时，偷偷来观看能剧演出的日军将军已经死去，杀死他的，是脖颈上的一块玻璃。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">该脱身了。接下来，就是一场惊险刺激的街头突围战。陈浅奋力开火，接连扫清了前方的路障，但匣子枪很快子弹打完。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">两人脱逃的车辆轮胎中枪，抢下一辆摩托车，再跑。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">然而在日军重重关卡之下，同伴“貂蝉”中枪，为保护受伤的同伴，陈浅错过了最佳的逃生时机？陈浅被捕而这又牵出《薄冰》开场的第三步：军统内斗是的，主创知道观众最想看什么，不用等，第一集就直接端上来了——一场谍战演技局。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">谍战剧的一个特点就是既有文戏，也有武戏。这就是考验文戏实力的时候了。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">好在，《薄冰》最不缺的，就是演技派对阵双方，都是一等一的狠角色：王劲松VS吴越议题只有一个：救，还不是不救？你以为主张施救的是吴越的角色?错，是王劲松饰演的军统情报处处长关永山你以为问题的关键是救人？</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">又错，是权力，是内斗，是军统内部，到底谁说了算陈浅还被关在敌人的监狱里受刑，这边层层嵌套的关系网下，各方力量却忙着勾心斗角，暗流一股一股袭来王劲松：“丘处长你刚才说的，只要他在现场没被打死，就有可能活下来，所以现在去营救，应该还来得及，对吧。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">”</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">吴越微微一笑：“救不救人你说了算，怎么救，陶大队长说了算”。然后顿了一下，“但是做这件事，真的是需要有本事的，如果没有的话，就不要去陪葬了。”</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">王劲松一低头，一轻叹，再婉转地一笑：“邱处长你这么说就有点——”注意王劲松这一秒钟的情绪变化，他把台词的最后两个字，含在喉咙里，仿佛转了一圈再转出来，而且脸色突变，正色直面吴越说出台词：冷酷！</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">而吴越也停顿了一下，笑容凝固在脸上：冷静，应该更准确点吧。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">王劲松立刻陪笑点头，用一脸勉强说出：对，也对！</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">看到这里，我顿时一拍大腿，眼泪都快飙出来，对了，这场戏就对了——这才是，真正的谍战剧的味道好一场高手对弈老戏骨狂飙演技，表面看似大家风平浪静，实则暗地里波涛汹涌互相算计，太太太有谍战剧内味儿了！太久没看到这样的谍战剧，每一句台词，都是交锋，每一次言谈交锋的时候，都能挑动观众的情绪，时而紧张，时而蓄势。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">1分钟，没一个废字，也没有一个多余的表情</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">看似对话结束，其实余音渺渺多少微妙的算计，重大的抉择，便在表面客客气气、实则暗流涌动中完成了这便是谍战剧的讲究——真正的谍战大剧，不仅是凭借视听效果和暗调画面，而是真正的谍战交锋，是局中局，高潮迭起的剧情内容以及意想不到的反转。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">怎么样，是不是很久没看到这样的谍战爽剧了？02、破局：三次突围，高能刺激，动作燃，节奏快，一场越狱，开场即高潮可以说故事开场，就给男主陈浅开启了“地狱”难度：他不是直接暴露了，是开场就被捕了三番攻守，也由此拉开架势。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">第一轮，男主突围。男主在监狱里，并非坐以待毙，而是早已和唯一的伙伴，用手势商定对策。审讯中，两人依计行事。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">伙伴面对酷刑，什么都不说，正要被带下去，已经被打得奄奄一息的男主开口：我能告诉你，他都不知道的但我有个条件，必须让他死日军头目赶紧靠近问：你能告诉我什么？时机到了，陈浅趁其不备一个撞头，接着同伴也瞬间出手。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">利刃割喉，利器捅刺，放倒，破门……狠得酣畅凌厉，痛感穿透银幕。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">而在导演的镜头下，暴力不止制造爽感，还埋下伏笔。两人迅速换装，一起快步走出梅机关。然而就在打开大门的一瞬间，“貂蝉”中枪牺牲，陈浅再次被捕。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">但凡这时候有一辆军统特工接应的车辆，两个人都能突围成功但军统的时间全用在内耗上了这一局，特工陈浅表现完美，但军统特工陈浅，输了第二轮，置之死地而后生军统的营救姗姗来迟，我方的营救却立即展开董洁饰演的我方卧底“飞天”，接到麻雀的命令，营救陈浅。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">对，麻雀，海飞谍战宇宙，连上了。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">通过施展美人计，作为日伪情报部门医务人员的“飞天”得以顺利为陈浅注射假死药物，令他陷入昏迷。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">接着身负重伤的陈浅，被宋家腾饰演的日伪特工押往梅机关。此时受命出击的军统特工，总算是埋伏在了陈浅被押回去的路上。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">但此时的陈浅，已经身负重伤奄奄一息，很快在押运途中失去了呼吸押运车辆半途停下，埋伏在前方的军统特工只好按兵不动而利用假死骗过日方的陈浅，终于得以被埋尸荒野就在日伪特工全部离去的时候，我方情报人员春羊和海叔出现了，一番装神弄鬼，成功吓走了附近的村民，两人操起锄头，二话没说，把陷入假死状态的陈浅，从坟墓里挖了出来。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">关键时刻，营救他的不是陈潜所在的军统，而是我方力量。在春羊的照顾下，陈浅伤势好转，重回军统。然而更残酷的考验还在等着他——第三轮，军统内审。归来的陈浅，迎来的不是安慰和勋章，而是审查人员邱映霞。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">“从敌人手里逃出来，你这么弄自己人，有意思吗？“”要足够干净，才算自己人，党国不留沙子”。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">肺都快气炸的陈浅：我刚才说的话都有人证，你们可以自己去查。“人证可以收买“。这边审，一群军统老狐狸同步监听。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">“那我身上那些为党国受过的伤也是买来的？”“为什么不能是可苦肉计呢？”</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">好一番苦苦相逼。总算通过编造完整说词，避开我方营救真相，完成考验的陈浅，却刚在军统食堂吃了一顿早饭，就听到对牺牲战友的诽谤，结果二话不说上去就打掉了嘴臭同僚的门牙。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">他在军统内部最大的对头——谢冬天出场了，表面给了不成器的属下一耳光，实则对陈浅宣战。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">这梁子，算结下了三轮攻守，虽然危机步步紧逼，但陈浅次次化解，并最终平安归来一番番言语的机锋、心理的博弈和武力的攻守，颇有优秀谍战片的影子，尤其是几位实力派演员发挥极其精彩，气氛剑拔弩张，看得过瘾这个开场，也埋着大量信息，让观众直接看懂故事背景、了解人物关系，同时点燃了一条悬念的引线。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">由于军统谢冬天俘虏了日方特使浅井，而这位特使正是陈浅在日本的同学，而且与他容貌相似接下来，就是陈浅的卧底大戏他将如何过关？在加入我方之后，他又如何在王劲松、富大龙、吴越角色的逼视下，一步步完成任务？敌我暗中角力，终于走向终极的三面拉扯。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">暗流汹涌中，透着于无声处听惊雷的震慑力和神秘感。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">人人打着算盘人人，又只是棋盘上的一枚棋子胜利终将属于我们，而陈浅也会在抗战结束后，参与粉碎军统的“涅槃计划”，找出军统潜伏特工狸</a>，迎来重庆的和平解放但这之间的如履薄冰中，发生了什么？这些谜题贯穿始终，直至尾声才会揭晓答案。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">03、演技：九大实力派演员坐阵，表演精湛，情感细腻，沉浸感十足发现没，《薄冰》与近年其他谍战剧最大的区别，在于两个字——演技《薄冰》的主演是彭冠英和陈钰琪，主要配角有富大龙、王劲松、吴越、董洁、陈小纭、姚安濂、宋家腾、高瀚宇等，全员演技派。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">一堆好演员聚在一起，经过前两集的铺垫，后面一旦飙上戏，观众就很难自拔了接下来的演技点评，不按番位来，直接按前六集的演技表现第一位，没有任何悬念，王劲松这些年王劲松的演技早已被公认，他不但大剧不断，还非常善于演那种性格两面的角色。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">例如《北平无战事》中无时无刻叼着烟，以及无时无刻不在咳嗽的王蒲忱在谍战剧中，那种心思缜密、游走于各方之间的人物，对他来说，简直是信手拈来。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">这次他饰演的军统情报处处长关永山随即又改变了气质，不再是生人勿进的霸气，而是透出一份难得的亲切感无论是念词说话，还是肢体动作，再或者面部表情，都令人感觉和蔼可亲面对被捕的下属，他请邱映霞营救没有盛气凌人的气势，也没有霸气外露的狠辣表情，但说话却很有分量，不怒自威。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">谍战剧中有好人，有坏人，这都不难演，最难演的人是好坏难辨，正邪难分这正是王劲松这次的角色虽然他看似亲切，又常在笑，真心假意却难辨，表面最和善的人也可能是最狠辣的人虽然这次王劲松的戏不多，但就凭开场这场戏来看，顶级演员，戏贵精不贵多。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">第二位，富大龙许多人见识到富大龙的演技，还是在历史剧《大秦帝国之纵横》中，他饰演的秦惠文王嬴驷，的确演到了无法超越的程度但其实在《紫日》《天狗》等剧中，富大龙早已展现出过人演技这次他分饰两角，作为井田裕太郎弟弟出现时，一出场就邪气十足。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">对，不止是霸气，是邪气日军大佐这种角色，最大的难度在于，过去演得太多，很容易演得雷同而富大龙却一开场就演出不同，和许多威风凛凛的日军高官不同，富大龙出场却像喝醉了酒，杀人如玩乐一般而第七集作为哥哥出场的场景，他又显得高度冷静彬彬有礼，可淡定中又让人捉摸不透，不寒而栗。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">富大龙一个镜头就将两个人物区分开来既演出了弟弟的邪气，又演出了哥哥的气场真是精彩第三位，吴越从《大明风华》《扫黑风暴》到《县委大院》，吴越的表演状态不是重回巅峰，而是已经超越了年轻时这次饰演军统处长邱映霞，一出场就硬刚王劲松的角色，铁娘子的风范一场戏就立足。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">接下来几场戏，她的演绎简直不要太传神眉宇犀利，态度冰冷，有一种由内而外散发的沉稳内审陈浅那场戏，步步紧逼，步步为营，一股寒气直接从屏幕溢出来，我是陈浅，被她这么问，没问题我都怀疑自己有问题我现在迫不及待想看她跟王劲松的下一场对手戏了。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">第四位、彭冠英有了这些个顶个的顶级演技派，彭冠英的表演能排在第四位，已经不仅是过关，而是优异。凭《阳光之下》成名的彭冠英，最擅长的其实是反派角色，但演正方卧底演技也不输。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">他英气的脸庞，挺拔的身材，让他和谍战剧的设定适配度很高，彭冠英演出了角色的谨慎、机敏，嫉恶如仇也很好地把握住了这人物身上的两种特性：痞气和隐忍他看不惯军统内部勾当，早晚进到我们的队伍里来我认为这是一个正确的选角，彭冠英的表现也不亚于海飞谍战宇宙上一部的主角张若昀，唯一的问题是，《惊蛰》里可没有这一部这么多的演技派。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">第五位，孙之鸿、宋家腾把两位放在一起说，因为两位演员堪称全剧最佳CP和喜剧担当。一个一看董洁饰演的顾曼丽就失了魂，以一己之力为陈浅逃出生天作出巨大贡献。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">另一个浑身透着一股喜感，男主身份被怀疑，他一口咬定看着“吕布”死的。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">全剧最讨喜反派，非这对组合莫属第六位，高瀚宇高瀚宇是一个年轻演员，我原本担心他在一群老戏骨中表演会拖后腿，没想到是开局的惊喜他饰演的谢冬天，是男主在军统内部最大的麻烦高瀚宇完全演出了人物的邪气，让我想上去揍他一顿。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">年轻演员在演技派面前不怯场，敢演，就值得一赞。除此之外，还有姚安濂饰演的徐德海，沉稳老练，透出一股温暖，一个字，稳。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">董洁饰演的我方特工“飞天”顾曼丽，优雅淡定，遇事不慌，虽然年华不再，但那优雅的姿态，依然让人怦然心动。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">陈钰琪饰演的春羊，俏皮可爱，甜美动人，表演也不僵硬，在新一代下小花中，不是很坏的选择。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">能看出这个开场，海飞想塑造的，不是一个个遭受拷打、宁死不屈的完美英雄也不是一个邪恶透顶，张口闭口八格亚努的反派而是一个个有血有肉，有软肋有脆弱的，真实的“人”那就对了04、破局：有谍有战，描摹众生相，首播收视不俗，2023谍战剧改写天花板了。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">6集看完，《薄冰》显然不是一部完美的谍战剧，故事依然有些粗疏，甚至有点神剧感但从开场的质感来看，依然堪称不俗，尤其是演员演技在线这些年来，超越柳云龙，成为了所有谍战剧后来者的目标但现实而言，当下的谍战剧，在类型创作上，已经陷入瓶颈。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">所以谍战剧最需要的暂时不是超越，是回血而 《薄冰》不算一部突破和创新的谍战剧，但却很好地拍出了谍战剧的味道首先，谍“谍”即悬疑故事开场就谍海翻波，除了剧情节奏给人留下深刻印象之外让人印象深刻的还有剧集的质感。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">无论是演员演技，还是服化道细节，再或者是运镜剪辑，都给人一种强悬疑感，细腻又高级其次，战剧集明显融合了谍战和抗战类型元素，让动作戏的燃和谍战的险有机结合，既能看到面子，也能看到里子故事来看，它铺陈了多条线索，在商业创作上趋于成熟。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">错综复杂的势力，各种线索的交织，肯定能吸引着观众一直追下去。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">谍战剧向来有着庞大的收视群体但当下最难的，是找回谍战剧的信仰感剧集编剧海飞说：“薄冰”在我的想象中，是静止表象下的暗潮涌动，你不知道你踏下的哪一步，将最终导致1个小时或10个小时后冰面破裂，水流湍急而理想与信仰是支撑着他们所有关乎生死选择的存在。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">看来，海飞想到了谍战剧破局的关键，让“如履薄冰”的人们在阳光下闪耀，正是《薄冰》存在的价值和意义但能否破局，要看真本领各种类型百花齐放，观众的口味和诉求，已经开始改变谍战剧归来的底气是什么呢？以《薄冰》《无间》为代表的谍战剧，可能就是回答这个问题的某种尝试：。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">观众需要的不会只是谍战的刺激，而是对所有曾经奋斗在隐蔽战线的无名英雄，真挚的缅怀与致敬。</p>     <p style="font-size: 18px; line-height: 40px; text-align: left; margin-bottom: 30px;">我想，这才是对谍战剧、对观众的敬畏。也只有这样的谍战剧，才能唤醒最初被谍战剧的光影魔法击中灵魂的动人体验。若能做到，那拿下爆款，就无需如履薄冰。</p>      					                <div class="clearfix"></div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-9236.htm">宠物贩卖机市场背景（卫生巾自助贩卖机市场背景）</a></p>
+                                        <p>下一个：<a href="/html/category/article-9282.htm">葱烧鸭舌的做法视频(葱烧鸭舌的做法大全)</a></p>
+                                    </div>
+                            </div>
+            <div class="col-md-4 w3l-services">
+                
+<h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9007.htm">桌面左下角点了没反应（杨巧儿）</a></h4>
+                <p>目录：                                                                                                 </p>
+            </div>
         </div>
     </div>
-        
-    
-        <div class="exception-var">
-        <h2>Environment Variables</h2>
-                <div>
-                        <h3 class="subheading">GET Data</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>website_id</strong></div>
-                    <div class="col-md-9"><small>
-                        1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>id</strong></div>
-                    <div class="col-md-9"><small>
-                        9237                    </small></div>
-                </div>
-                            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>POST Data</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9788.htm">猫咪三针疫苗间隔必须按规定时间吗多久（猫咪三针疫苗间隔必须按规定时间吗多久打）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈猫咪三针疫苗间隔必须按规定时间吗多久，以及猫咪三针疫苗间隔必须按规定时间吗多久打对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、猫咪打..</p>
             </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Files</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Cookies</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Session</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <h3 class="subheading">Server/Request Data</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ALLUSERSPROFILE</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\ProgramData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>APPDATA</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\system32\config\systemprofile\AppData\Roaming                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramFiles</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramFiles(x86)</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files (x86)\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramW6432</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>COMPUTERNAME</strong></div>
-                    <div class="col-md-9"><small>
-                        DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ComSpec</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\system32\cmd.exe                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DriverData</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\System32\Drivers\DriverData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LOCALAPPDATA</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\system32\config\systemprofile\AppData\Local                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>NUMBER_OF_PROCESSORS</strong></div>
-                    <div class="col-md-9"><small>
-                        6                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>OS</strong></div>
-                    <div class="col-md-9"><small>
-                        Windows_NT                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>Path</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATHEXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_ARCHITECTURE</strong></div>
-                    <div class="col-md-9"><small>
-                        AMD64                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_IDENTIFIER</strong></div>
-                    <div class="col-md-9"><small>
-                        Intel64 Family 6 Model 158 Stepping 10, GenuineIntel                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_LEVEL</strong></div>
-                    <div class="col-md-9"><small>
-                        6                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_REVISION</strong></div>
-                    <div class="col-md-9"><small>
-                        9e0a                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramData</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\ProgramData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramFiles</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramFiles(x86)</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files (x86)                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramW6432</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PSModulePath</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PUBLIC</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\Public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SystemDrive</strong></div>
-                    <div class="col-md-9"><small>
-                        C:                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SystemRoot</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TEMP</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\TEMP                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TMP</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\TEMP                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERDOMAIN</strong></div>
-                    <div class="col-md-9"><small>
-                        WORKGROUP                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERNAME</strong></div>
-                    <div class="col-md-9"><small>
-                        DESKTOP-NSJC0E1$                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERPROFILE</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\system32\config\systemprofile                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>windir</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_ACCEPT</strong></div>
-                    <div class="col-md-9"><small>
-                        */*                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_USER_AGENT</strong></div>
-                    <div class="col-md-9"><small>
-                        Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_HOST</strong></div>
-                    <div class="col-md-9"><small>
-                        abgp.com                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REDIRECT_STATUS</strong></div>
-                    <div class="col-md-9"><small>
-                        200                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_NAME</strong></div>
-                    <div class="col-md-9"><small>
-                        abgp.com                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_PORT</strong></div>
-                    <div class="col-md-9"><small>
-                        80                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_ADDR</strong></div>
-                    <div class="col-md-9"><small>
-                        127.0.0.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REMOTE_PORT</strong></div>
-                    <div class="col-md-9"><small>
-                        54597                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REMOTE_ADDR</strong></div>
-                    <div class="col-md-9"><small>
-                        127.0.0.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_SOFTWARE</strong></div>
-                    <div class="col-md-9"><small>
-                        nginx/1.15.11                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>GATEWAY_INTERFACE</strong></div>
-                    <div class="col-md-9"><small>
-                        CGI/1.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_SCHEME</strong></div>
-                    <div class="col-md-9"><small>
-                        http                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_PROTOCOL</strong></div>
-                    <div class="col-md-9"><small>
-                        HTTP/1.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DOCUMENT_ROOT</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DOCUMENT_URI</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_URI</strong></div>
-                    <div class="col-md-9"><small>
-                        /addons/xcblog/index/url_blog?website_id=1&amp;id=9237                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SCRIPT_NAME</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONTENT_LENGTH</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONTENT_TYPE</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_METHOD</strong></div>
-                    <div class="col-md-9"><small>
-                        GET                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>QUERY_STRING</strong></div>
-                    <div class="col-md-9"><small>
-                        s=/addons/xcblog/index/url_blog&amp;website_id=1&amp;id=9237                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATH_TRANSLATED</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATH_INFO</strong></div>
-                    <div class="col-md-9"><small>
-                        /addons/xcblog/index/url_blog                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SCRIPT_FILENAME</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public/index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FCGI_ROLE</strong></div>
-                    <div class="col-md-9"><small>
-                        RESPONDER                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PHP_SELF</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_TIME_FLOAT</strong></div>
-                    <div class="col-md-9"><small>
-                        1728015367.2535                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_TIME</strong></div>
-                    <div class="col-md-9"><small>
-                        1728015367                    </small></div>
-                </div>
-                            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Environment Variables</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <h3 class="subheading">ThinkPHP Constants</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>APP_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_VERSION</strong></div>
-                    <div class="col-md-9"><small>
-                        5.0.26                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_START_TIME</strong></div>
-                    <div class="col-md-9"><small>
-                        1728015367.2539                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_START_MEM</strong></div>
-                    <div class="col-md-9"><small>
-                        409072                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>EXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DS</strong></div>
-                    <div class="col-md-9"><small>
-                        \                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LIB_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CORE_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TRAIT_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\traits\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ROOT_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>EXTEND_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\extend\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>VENDOR_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\vendor\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>RUNTIME_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LOG_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\log\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CACHE_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\cache\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TEMP_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\temp\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONF_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONF_EXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ENV_PREFIX</strong></div>
-                    <div class="col-md-9"><small>
-                        PHP_                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>IS_CLI</strong></div>
-                    <div class="col-md-9"><small>
-                        false                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>IS_WIN</strong></div>
-                    <div class="col-md-9"><small>
-                        true                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FILTER_VALIDATE_BOOL</strong></div>
-                    <div class="col-md-9"><small>
-                        258                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTMLPURIFIER_PREFIX</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\vendor\ezyang\htmlpurifier\library                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ADDON_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\addons\                    </small></div>
-                </div>
-                            </div>
-                    </div>
-            </div>
-    
-    <div class="copyright">
-        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
-        <span>V5.0.26</span> 
-        <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
+        </div>
     </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9605.htm">养猫导致的疾病怎么办（养猫得病吗）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈养猫导致的疾病怎么办，以及养猫得病吗对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫后身上很多小红点怎么办...        本篇文</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9973.htm">动物疫苗的种类及特点有哪些图片及名称（动物疫苗的类型）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗的种类及特点有哪些图片及名称，以及动物疫苗的类型对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、狗狗打的疫苗分为哪几种?都有什..</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9006.htm">两个月大的猫抓伤（两个月大的猫抓伤可要打狂犬疫苗）</a></h4>
+                <p>摘要：       今天给各位分享两个月大的猫抓伤的知识，其中也会对两个月大的猫抓伤可要打狂犬疫苗进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、被2个月小猫.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-10110.htm">成都宠物领养中心地址在哪里呀（成都宠物领养中心地址在哪里呀多少钱）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈成都宠物领养中心地址在哪里呀，以及成都宠物领养中心地址在哪里呀多少钱对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、成都哪里有正规的宠..</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-10111.htm">开宠物店去哪里学技术比较好（开宠物店哪里进宠物）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈开宠物店去哪里学技术比较好，以及开宠物店哪里进宠物对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、开宠物店去哪里培训2、...      </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9927.htm">妙三多是几联疫苗（妙三多是三联吗）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈妙三多是几联疫苗，以及妙三多是三联吗对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、妙三多一年一打还是三年一打...        本篇文</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-10065.htm">南京哪里泡温泉最好的地方(南京哪里泡温泉最好)</a></h4>
+                <p>最近经常有小伙伴私信询问哪里泡温泉最好？相关的问题，今天，蝶侠小编整理了以下内容，希望可以对大家有所帮助。本文目录一览：1、南京哪里泡温泉最好？2、南京温泉（享受热泉养生之旅）3、南京哪里是泡温泉的好</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9053.htm">动物疫苗怎么制作出来的（动物疫苗制作流程）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗怎么制作出来的，以及动物疫苗制作流程对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、疫苗都是怎么生产的?有哪些方法?...    </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-10/" title="2024-10 归档">2024-10</a></h4>
+                                <h4><span class="badge" style="float: right;">52</span> <a href="/html/date/2024-09/" title="2024-09 归档">2024-09</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-08/" title="2024-08 归档">2024-08</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
         <script>
-        var LINE = 133;
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
 
-        function $(selector, node){
-            var elements;
-
-            node = node || document;
-            if(document.querySelectorAll){
-                elements = node.querySelectorAll(selector);
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
             } else {
-                switch(selector.substr(0, 1)){
-                    case '#':
-                        elements = [node.getElementById(selector.substr(1))];
-                        break;
-                    case '.':
-                        if(document.getElementsByClassName){
-                            elements = node.getElementsByClassName(selector.substr(1));
-                        } else {
-                            elements = get_elements_by_class(selector.substr(1), node);
-                        }
-                        break;
-                    default:
-                        elements = node.getElementsByTagName();
-                }
-            }
-            return elements;
-
-            function get_elements_by_class(search_class, node, tag) {
-                var elements = [], eles, 
-                    pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
-
-                node = node || document;
-                tag  = tag  || '*';
-
-                eles = node.getElementsByTagName(tag);
-                for(var i = 0; i < eles.length; i++) {
-                    if(pattern.test(eles[i].className)) {
-                        elements.push(eles[i])
-                    }
-                }
-
-                return elements;
+                document.getElementById("movetop").style.display = "none";
             }
         }
 
-        $.getScript = function(src, func){
-            var script = document.createElement('script');
-            
-            script.async  = 'async';
-            script.src    = src;
-            script.onload = func || function(){};
-            
-            $('head')[0].appendChild(script);
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
         }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+    <!-- all js scripts and files here -->
+    <script src="/assets/website/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
 
-        ;(function(){
-            var files = $('.toggle');
-            var ol    = $('ol', $('.prettyprint')[0]);
-            var li    = $('li', ol[0]);   
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
 
-            // 短路径和长路径变换
-            for(var i = 0; i < files.length; i++){
-                files[i].ondblclick = function(){
-                    var title = this.title;
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
 
-                    this.title = this.innerHTML;
-                    this.innerHTML = title;
-                }
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
             }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
 
-            // 设置出错行
-            var err_line = $('.line-' + LINE, ol[0])[0];
-            err_line.className = err_line.className + ' line-error';
-
-            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
-                prettyPrint();
-
-                // 解决Firefox浏览器一个很诡异的问题
-                // 当代码高亮后，ol的行号莫名其妙的错位
-                // 但是只要刷新li里面的html重新渲染就没有问题了
-                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
-                    ol[0].innerHTML = ol[0].innerHTML;
-                }
-            });
-
-        })();
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
     </script>
-    </body>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/website/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/website/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
 </html>

@@ -1,925 +1,467 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <title>System Error</title>
-    <meta name="robots" content="noindex,nofollow" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <style>
-        /* Base */
-        body {
-            color: #333;
-            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
-            margin: 0;
-            padding: 0 20px 20px;
-            word-break: break-word;
-        }
-        h1{
-            margin: 10px 0 0;
-            font-size: 28px;
-            font-weight: 500;
-            line-height: 32px;
-        }
-        h2{
-            color: #4288ce;
-            font-weight: 400;
-            padding: 6px 0;
-            margin: 6px 0 0;
-            font-size: 18px;
-            border-bottom: 1px solid #eee;
-        }
-        h3.subheading {
-            color: #4288ce;
-            margin: 6px 0 0;
-            font-weight: 400;
-        }
-        h3{
-            margin: 12px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        abbr{
-            cursor: help;
-            text-decoration: underline;
-            text-decoration-style: dotted;
-        }
-        a{
-            color: #868686;
-            cursor: pointer;
-        }
-        a:hover{
-            text-decoration: underline;
-        }
-        .line-error{
-            background: #f8cbcb;
-        }
-
-        .echo table {
-            width: 100%;
-        }
-
-        .echo pre {
-            padding: 16px;
-            overflow: auto;
-            font-size: 85%;
-            line-height: 1.45;
-            background-color: #f7f7f7;
-            border: 0;
-            border-radius: 3px;
-            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-        }
-
-        .echo pre > pre {
-            padding: 0;
-            margin: 0;
-        }
-        /* Layout */
-        .col-md-3 {
-            width: 25%;
-        }
-        .col-md-9 {
-            width: 75%;
-        }
-        [class^="col-md-"] {
-            float: left;
-        }
-        .clearfix {
-            clear:both;
-        }
-        @media only screen 
-        and (min-device-width : 375px) 
-        and (max-device-width : 667px) { 
-            .col-md-3,
-            .col-md-9 {
-                width: 100%;
-            }
-        }
-        /* Exception Info */
-        .exception {
-            margin-top: 20px;
-        }
-        .exception .message{
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-bottom: 0 none;
-            line-height: 18px;
-            font-size:16px;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-
-        .exception .code{
-            float: left;
-            text-align: center;
-            color: #fff;
-            margin-right: 12px;
-            padding: 16px;
-            border-radius: 4px;
-            background: #999;
-        }
-        .exception .source-code{
-            padding: 6px;
-            border: 1px solid #ddd;
-
-            background: #f9f9f9;
-            overflow-x: auto;
-
-        }
-        .exception .source-code pre{
-            margin: 0;
-        }
-        .exception .source-code pre ol{
-            margin: 0;
-            color: #4288ce;
-            display: inline-block;
-            min-width: 100%;
-            box-sizing: border-box;
-        font-size:14px;
-            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
-            padding-left: 56px;
-        }
-        .exception .source-code pre li{
-            border-left: 1px solid #ddd;
-            height: 18px;
-            line-height: 18px;
-        }
-        .exception .source-code pre code{
-            color: #333;
-            height: 100%;
-            display: inline-block;
-            border-left: 1px solid #fff;
-        font-size:14px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-        .exception .trace{
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-top: 0 none;
-            line-height: 16px;
-        font-size:14px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
-        }
-        .exception .trace ol{
-            margin: 12px;
-        }
-        .exception .trace ol li{
-            padding: 2px 4px;
-        }
-        .exception div:last-child{
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
-        }
-
-        /* Exception Variables */
-        .exception-var table{
-            width: 100%;
-            margin: 12px 0;
-            box-sizing: border-box;
-            table-layout:fixed;
-            word-wrap:break-word;            
-        }
-        .exception-var table caption{
-            text-align: left;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 6px 0;
-        }
-        .exception-var table caption small{
-            font-weight: 300;
-            display: inline-block;
-            margin-left: 10px;
-            color: #ccc;
-        }
-        .exception-var table tbody{
-            font-size: 13px;
-            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
-        }
-        .exception-var table td{
-            padding: 0 6px;
-            vertical-align: top;
-            word-break: break-all;
-        }
-        .exception-var table td:first-child{
-            width: 28%;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-        .exception-var table td pre{
-            margin: 0;
-        }
-
-        /* Copyright Info */
-        .copyright{
-            margin-top: 24px;
-            padding: 12px 0;
-            border-top: 1px solid #eee;
-        }
-
-        /* SPAN elements with the classes below are added by prettyprint. */
-        pre.prettyprint .pln { color: #000 }  /* plain text */
-        pre.prettyprint .str { color: #080 }  /* string content */
-        pre.prettyprint .kwd { color: #008 }  /* a keyword */
-        pre.prettyprint .com { color: #800 }  /* a comment */
-        pre.prettyprint .typ { color: #606 }  /* a type name */
-        pre.prettyprint .lit { color: #066 }  /* a literal value */
-        /* punctuation, lisp open bracket, lisp close bracket */
-        pre.prettyprint .pun, pre.prettyprint .opn, pre.prettyprint .clo { color: #660 }
-        pre.prettyprint .tag { color: #008 }  /* a markup tag name */
-        pre.prettyprint .atn { color: #606 }  /* a markup attribute name */
-        pre.prettyprint .atv { color: #080 }  /* a markup attribute value */
-        pre.prettyprint .dec, pre.prettyprint .var { color: #606 }  /* a declaration; a variable name */
-        pre.prettyprint .fun { color: red }  /* a function name */
-    </style>
+        <link rel="canonical" href="https://egyptaddress.github.io/html/category/article-21.htm" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>springboot集成elasticsearch注意事项 - EgyptAddress</title>
+    <link rel="icon" href="/assets/website/img/egyptaddress/favicon.ico" type="image/x-icon"/>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/website/css/egyptaddress/style-starter.css">
+    <link rel="stylesheet" href="/assets/website/css/style.css">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?54eb6c7259fef0472f9cccce059c36b2";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3332997411212854"
+     crossorigin="anonymous"></script>
 </head>
+
 <body>
-    <div class="echo">
-            </div>
-        <div class="exception">
-    <div class="message">
-        
-            <div class="info">
-                <div>
-                    <h2>[8]&nbsp;<abbr title="think\exception\ErrorException">ErrorException</abbr> in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></h2>
+        <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg stroke">
+                <a class="navbar-brand" href="/">
+                                        <span class="fa fa-laptop"></span> EgyptAddress
+                                    </a>
+                <button class="navbar-toggler  collapsed bg-gradient" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                    </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav ml-auto">
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="/html/category/">文章分类</a>
+                        </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="#">关于</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">联系</a>
+                        </li>
+                    </ul>
                 </div>
-                <div><h1>未定义变量: hot_city_list</h1></div>
-            </div>
-        
-    </div>
-	        <div class="source-code">
-            <pre class="prettyprint lang-php"><ol start="124"><li class="line-124"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
-</code></li><li class="line-125"><code>            &lt;?php if(is_array($hot_country_list) || $hot_country_list instanceof \think\Collection || $hot_country_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_country_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
-</code></li><li class="line-126"><code>            &lt;li class=&quot;py-2&quot;&gt;
-</code></li><li class="line-127"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
-</code></li><li class="line-128"><code>            &lt;/li&gt;
-</code></li><li class="line-129"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
-</code></li><li class="line-130"><code>        &lt;/ul&gt;
-</code></li><li class="line-131"><code>    &lt;/div&gt;
-</code></li><li class="line-132"><code>&lt;/div&gt;
-</code></li><li class="line-133"><code>&lt;?php endif; if($hot_city_list): ?&gt;
-</code></li><li class="line-134"><code>&lt;div class=&quot;panel panel-default box article-list&quot;&gt;
-</code></li><li class="line-135"><code>    &lt;div class=&quot;panel-heading&quot;&gt;&lt;h2&gt;热门城市&lt;/h2&gt;&lt;/div&gt;
-</code></li><li class="line-136"><code>    &lt;div class=&quot;panel-body&quot;&gt;
-</code></li><li class="line-137"><code>        &lt;ul class=&quot;p-0 x-0&quot;&gt;
-</code></li><li class="line-138"><code>            &lt;?php if(is_array($hot_city_list) || $hot_city_list instanceof \think\Collection || $hot_city_list instanceof \think\Paginator): $i = 0; $__LIST__ = $hot_city_list;if( count($__LIST__)==0 ) : echo &quot;&quot; ;else: foreach($__LIST__ as $key=&gt;$item): $mod = ($i % 2 );++$i;?&gt;
-</code></li><li class="line-139"><code>            &lt;li class=&quot;py-2&quot;&gt;
-</code></li><li class="line-140"><code>                &lt;a href=&quot;&lt;?php echo $item['url']; ?&gt;&quot; class=&quot;mx-3 my-2&quot;&gt;&lt;?php echo $item['name']; ?&gt;地址&lt;/a&gt;
-</code></li><li class="line-141"><code>            &lt;/li&gt;
-</code></li><li class="line-142"><code>            &lt;?php endforeach; endif; else: echo &quot;&quot; ;endif; ?&gt;
-</code></li></ol></pre>
+                <!-- toggle switch for light and dark theme -->
+                <div class="mobile-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
         </div>
-	        <div class="trace">
-            <h2>Call Stack</h2>
-            <ol>
-                <li>in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a></li>
-                                <li>
-                at <abbr title="think\Error">Error</abbr>::appError(8, '<a class="toggle" title="Undefined variable: hot_city_list">Undefined variable: ...</a>', '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 133, ['cacheFile' => '<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', 'vars' => ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], 'config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php line 133">5bed51f9d2701efd42134ed5e3af98e1.php line 133</a>                </li>
-                                <li>
-                at include('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\template\driver\File.php line 53">File.php line 53</a>                </li>
-                                <li>
-                at <abbr title="think\template\driver\File">File</abbr>->read('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\runtime\temp\5bed51f9d2701efd42134ed5e3af98e1.php">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\Template.php line 188">Template.php line 188</a>                </li>
-                                <li>
-                at <abbr title="think\Template">Template</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\view\driver\Think.php line 86">Think.php line 86</a>                </li>
-                                <li>
-                at <abbr title="think\view\driver\Think">Think</abbr>->fetch('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\view\egyptaddress\index\url_blog.html">E:\SVNRepositories\A...</a>', ['config' => ['rewrite' => ['index/index' => '/xcblog/$', 'index/closed' => '/xcblog/closed/$', 'index/search' => '/search/', ...]], 'user' => <em>null</em>, 'site' => ['name' => 'ABGP', 'beian' => '', 'cdnurl' => '', ...], ...], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\View.php line 163">View.php line 163</a>                </li>
-                                <li>
-                at <abbr title="think\View">View</abbr>->fetch('<a class="toggle" title="egyptaddress/index/url_blog">egyptaddress/index/u...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\addons\xcblog\controller\Index.php line 442">Index.php line 442</a>                </li>
-                                <li>
-                at <abbr title="addons\xcblog\controller\Index">Index</abbr>->url_blog()                </li>
-                                <li>
-                at call_user_func_array([<em>object</em>(<abbr title="addons\xcblog\controller\Index">Index</abbr>), 'url_blog'], []) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\vendor\karsonzhang\fastadmin-addons\src\addons\Route.php line 78">Route.php line 78</a>                </li>
-                                <li>
-                at <abbr title="think\addons\Route">Route</abbr>->execute('xcblog', 'index', 'url_blog')                </li>
-                                <li>
-                at <abbr title="ReflectionMethod">ReflectionMethod</abbr>->invokeArgs(<em>object</em>(<abbr title="think\addons\Route">Route</abbr>), ['xcblog', 'index', 'url_blog']) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 343">App.php line 343</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::invokeMethod(['\think\addons\Route', 'execute'], ['website_id' => '1', 'id' => '21', 'addon' => 'xcblog', ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 470">App.php line 470</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::exec(['type' => 'method', 'method' => ['\think\addons\Route', 'execute'], 'var' => []], ['app_host' => '', 'app_debug' => <em>true</em>, 'app_trace' => <em>false</em>, ...]) in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\App.php line 139">App.php line 139</a>                </li>
-                                <li>
-                at <abbr title="think\App">App</abbr>::run() in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php line 19">start.php line 19</a>                </li>
-                                <li>
-                at require('<a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\thinkphp\start.php">E:\SVNRepositories\A...</a>') in <a class="toggle" title="E:\SVNRepositories\AddressBaseGitPages\public\index.php line 23">index.php line 23</a>                </li>
-                            </ol>
+    </header>
+    <!-- //header -->
+    <!-- about breadcrumb -->
+    <section class="w3l-about-breadcrumb text-center">
+        <div class="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
+            <div class="container py-2">
+                <h1 class="title">springboot集成elasticsearch注意事项</h1>
+                <ul class="breadcrumbs-custom-path mt-2">
+                    <li><a href="/">首页</a></li>
+                    <li><a href="/html/category/"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 文章分类</a></li>
+                    <li class="active"><span class="fa fa-arrow-right mx-2" aria-hidden="true"></span> 正文</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- //about breadcrumb -->
+    <div class="container py-lg-5 py-3">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="tittle">springboot集成elasticsearch注意事项</h1>
+                  				  				  				<div id="content_views" class="htmledit_views"> <h3>一、elasticsearch基础</h3> <p>&nbsp;　　这里假设各位已经简单了解过elasticsearch，并不对es进入更多的，更深层次的解释，如有必要，会在写文章专门进行es讲解。</p> <p>　　Elasticsearch是一个基于Apache Lucene(TM)的开源搜索引擎。无论在开源还是专有领域，Lucene可以被认为是迄今为止最先进、性能最好的、功能最全的搜索引擎库。</p> <p>　　但是，Lucene只是一个库。想要使用它，你必须使用Java来作为开发语言并将其直接集成到你的应用中，更糟糕的是，Lucene非常复杂，你需要深入了解检索的相关知识来理解它是如何工作的。</p> <p>　　Elasticsearch也使用Java开发并使用Lucene作为其核心来实现所有索引和搜索的功能，但是它的目的是通过简单的<code>RESTful API</code>来隐藏Lucene的复杂性，从而让全文搜索变得简单。</p> <p>&nbsp;　　index ==》索引 ==》Mysql中的一个库，库里面可以建立很多表，存储不同类型的数据，而表在ES中就是type。</p> <p>　　 type&nbsp;==》类型&nbsp;==》相当于Mysql中的一张表，存储json类型的数据</p> <p>　　 document&nbsp; ==》文档&nbsp;==》一个文档相当于Mysql一行的数据</p> <p>　　 field&nbsp;==》列&nbsp;==》相当于mysql中的列，也就是一个属性</p> <p><strong>这里多说下：</strong></p> <p>在Elasticsearch6.0.0或者或者更新版本中创建的索引只会包含一个映射类型（mappingtype）。在5.x中创建的具有多个映射类型的索引在Elasticsearch6.x中依然会正常工作。在Elasticsearch7.0.0中，映射类型type将会被完全移除。</p> <p>原文链接</p> <p>　　开始的时候，我们说“索引（index）”类似于SQL数据库中的“数据库”，将“类型（type）”等同于“表”。</p> <p>　　这是一个糟糕的类比，并且导致了一些错误的假设。在SQL数据库中，表之间是相互独立的。一个表中的各列并不会影响到其它表中的同名的列。而在映射类型（mappingtype）中却不是这样的。</p> <p>&nbsp;　　在同一个Elasticsearch索引中，其中不同映射类型中的同名字段在内部是由同一个Lucene字段来支持的。换句话说，使用上面的例子，user类型中的user_name字段与tweet类型中的user_name字段是完全一样的，并且两个user_name字段在两个类型中必须具有相同的映射（定义）。</p> <p>&nbsp;　　这会在某些情况下导致一些混乱，比如，在同一个索引中，当你想在其中的一个类型中将deleted字段作为date类型，而在另一个类型中将其作为boolean字段。</p> <p>&nbsp;　　在此之上需要考虑一点，如果同一个索引中存储的各个实体如果只有很少或者根本没有同样的字段，这种情况会导致稀疏数据，并且会影响到Lucene的高效压缩数据的能力。</p> <p>&nbsp;　　基于这些原因，将映射类型的概念从Elasticsearch中移除。</p> <h3>二、springboot 对应的Es版本关系</h3> <table> <thead> <tr> <th>springboot</th> <th>elasticsearch</th> </tr> </thead> <tbody> <tr> <td>2.0.0.RELEASE</td> <td>2.2.0</td> </tr> <tr> <td>1.4.0.M1</td> <td>1.7.3</td> </tr> <tr> <td>1.3.0.RELEASE</td> <td>1.5.2</td> </tr> <tr> <td>1.2.0.RELEASE</td> <td>1.4.4</td> </tr> <tr> <td>1.1.0.RELEASE</td> <td>1.3.2</td> </tr> <tr> <td>1.0.0.RELEASE</td> <td>1.1.1</td> </tr> </tbody> </table> <p>　　1、None of the configured nodes are available 或者org.elasticsearch.transport.RemoteTransportException: Failed to deserialize exception response from stream</p> <p>　　原因：spring data elasticSearch 的版本与Spring boot、Elasticsearch版本不匹配。</p> <p>这是版本之间的对应关系。Spring boot 1.3.5默认的elasticsearch版本是1.5.2，此时启动1.7.2版本以下的Elasticsearch客户端连接正常。</p> <p>　　注：注意java的es默认连接端口是9300，9200是http端口，这两个在使用中应注意区分。</p> <p>　　2、Caused by: java.lang.IllegalArgumentException: @ConditionalOnMissingBean annotations must specify at least one bean (type, name or annotation)</p> <p>　　原因：spring boot是1.3.x版本，而es采用了2.x版本。在es的2.x版本去除了一些类，而这些类在spring boot的1.3.x版本中仍然被使用，导致此错误</p> <p><strong>&nbsp;以上解决参考下面的对应关系</strong>：</p> <table> <thead> <tr> <th>Spring Boot Version (x)</th> <th>Spring Data Elasticsearch Version (y)</th> <th>Elasticsearch Version (z)</th> </tr> </thead> <tbody> <tr> <td>x <= 1.3.5</td> <td>y <= 1.3.4</td> <td>z <= 1.7.2*</td> </tr> <tr> <td>x >= 1.4.x</td> <td>2.0.0 <=y < 5.0.0**</td> <td>2.0.0 <= z < 5.0.0**</td> </tr> </tbody> </table> <p>　　　请一定注意版本兼容问题。这关系到很多maven依赖。Spring Data Elasticsearch Spring Boot version matrix</p> <p><strong>ik 分词对应的版本关系：</strong></p> <p>elasticsearch-analysis-ik</p> <p><strong>Analyzer:</strong></p> <p><strong><code>ik_smart</code>&nbsp;,<code>ik_max_word</code>&nbsp;, Tokenizer:<code>ik_smart</code>&nbsp;,<code>ik_max_word</code></strong></p> <p><strong>Versions</strong></p> <table> <thead> <tr> <th>IK version</th> <th>ES version</th> </tr> </thead> <tbody> <tr> <td>master</td> <td>6.x -> master</td> </tr> <tr> <td>6.2.2</td> <td>6.2.2</td> </tr> <tr> <td>6.1.3</td> <td>6.1.3</td> </tr> <tr> <td>5.6.8</td> <td>5.6.8</td> </tr> <tr> <td>5.5.3</td> <td>5.5.3</td> </tr> <tr> <td>5.4.3</td> <td>5.4.3</td> </tr> <tr> <td>5.3.3</td> <td>5.3.3</td> </tr> <tr> <td>5.2.2</td> <td>5.2.2</td> </tr> <tr> <td>5.1.2</td> <td>5.1.2</td> </tr> <tr> <td>1.10.6</td> <td>2.4.6</td> </tr> <tr> <td>1.9.5</td> <td>2.3.5</td> </tr> <tr> <td>1.8.1</td> <td>2.2.1</td> </tr> <tr> <td>1.7.0</td> <td>2.1.1</td> </tr> <tr> <td>1.5.0</td> <td>2.0.0</td> </tr> <tr> <td>1.2.6</td> <td>1.0.0</td> </tr> <tr> <td>1.2.5</td> <td>0.90.x</td> </tr> <tr> <td>1.1.3</td> <td>0.20.x</td> </tr> <tr> <td>1.0.0</td> <td>0.16.2 -> 0.19.0</td> </tr> </tbody> </table> <h3>三、环境构建</h3> <p>maven依赖：前提是依赖</p> <pre class="has"><code class="language-html"><parent>    <groupId>org.springframework.boot</groupId>    spring-boot-starter-parent</artifactId>    <version>1.5.9.RELEASE</version>    <relativePath/> <!-- lookup parent from repository --> </parent>  <dependency>       <groupId>org.springframework.boot</groupId>       <artifactId>spring-boot-starter-data-elasticsearch</artifactId> </dependency></code></pre> <p>配置文件：</p> <table border="0" cellpadding="0" cellspacing="0"> <tbody> <tr> <td> <p>1</p> <p>2</p> <p>3</p> <p>4</p> <p>5</p> <p>6</p> <p>7</p> <p>8</p> <p>9</p> <p>10</p> <p>11</p> <p>12</p> </td> <td> <p><code># ES</code></p> <p><code>#开启 Elasticsearch 仓库(默认值:true)</code></p> <p><code>spring.data.elasticsearch.repositories.enabled=true</code></p> <p><code>#默认 9300 是 Java 客户端的端口。9200 是支持 Restful HTTP 的接口</code></p> <p><code>spring.data.elasticsearch.cluster-nodes = 127.0.0.1:9300</code></p> <p><code>#spring.data.elasticsearch.cluster-name Elasticsearch 集群名(默认值: elasticsearch)</code></p> <p><code>#spring.data.elasticsearch.cluster-nodes 集群节点地址列表，用逗号分隔。如果没有指定，就启动一个客户端节点</code></p> <p><code>#spring.data.elasticsearch.propertie 用来配置客户端的额外属性</code></p> <p><code>#存储索引的位置</code></p> <p><code>spring.data.elasticsearch.properties.path.home=/data/project/target/elastic</code></p> <p><code>#连接超时的时间</code></p> <p><code>spring.data.elasticsearch.properties.transport.tcp.connect_timeout=120s</code></p> </td> </tr> </tbody> </table> <h3>&nbsp;四、es索引实体类</h3> <p>Spring-data-elasticsearch为我们提供了<strong><code>@Document</code>、<code>@Field</code></strong>等注解，如果某个实体需要建立索引，只需要加上这些注解即可</p> <p>1.类上注解：@Document (相当于Hibernate实体的@Entity/@Table)(必写)，加上了<code>@Document</code>注解之后，默认情况下这个实体中所有的属性都会被建立索引、并且分词。</p> <table> <thead> <tr> <th>类型</th> <th>属性名</th> <th>默认值</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td>String</td> <td>indexName</td> <td>无</td> <td>索引库的名称，建议以项目的名称命名</td> </tr> <tr> <td>String</td> <td>type</td> <td>“”</td> <td>类型，建议以实体的名称命名</td> </tr> <tr> <td>short</td> <td>shards</td> <td>5</td> <td>默认分区数</td> </tr> <tr> <td>short</td> <td>replica</td> <td>1</td> <td>每个分区默认的备份数</td> </tr> <tr> <td>String</td> <td>refreshInterval</td> <td>“1s”</td> <td>刷新间隔</td> </tr> <tr> <td>String</td> <td>indexStoreType</td> <td>“fs”</td> <td>索引文件存储类型</td> </tr> </tbody> </table> <p>2.主键注解：@Id (相当于Hibernate实体的主键@Id注解)(必写)</p> <p>只是一个标识，并没有属性。</p> <p>3.属性注解 @Field (相当于Hibernate实体的@Column注解)</p> <p><strong>@Field默认是可以不加的，默认所有属性都会添加到ES中。加上@Field之后，@document默认把所有字段加上索引失效，只有家@Field 才会被索引(同时也看设置索引的属性是否为no)</strong></p> <table> <thead> <tr> <th>类型</th> <th>属性名</th> <th>默认值</th> <th>说明</th> </tr> </thead> <tbody> <tr> <td>FieldType</td> <td>type</td> <td>FieldType.Auto</td> <td>自动检测属性的类型</td> </tr> <tr> <td>FieldIndex</td> <td>index</td> <td>FieldIndex.analyzed</td> <td>默认情况下分词</td> </tr> <tr> <td>boolean</td> <td>store</td> <td>false</td> <td>默认情况下不存储原文</td> </tr> <tr> <td>String</td> <td>searchAnalyzer</td> <td>“”</td> <td>指定字段搜索时使用的分词器</td> </tr> <tr> <td>String</td> <td>indexAnalyzer</td> <td>“”</td> <td>指定字段建立索引时指定的分词器</td> </tr> <tr> <td>String[]</td> <td>ignoreFields</td> <td>{}</td> <td>如果某个字段需要被忽略</td> </tr> </tbody> </table> <h3>五、相关查询方法</h3> <p><a href="http://www.m6000.cn/wp-content/themes/begin%20lts/inc/go.php?url=https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/"  rel="nofollow">官网参考</p> <p>　　实现方式比较多，已经存在的接口，使用根据需要继承即可：</p> <p>　　1、CrudRepository接口</p> <pre class="has"><code class="language-html">public interface CrudRepository<T, ID extends Serializable>   extends Repository<T, ID> {    <S extends T> S save(S entity);          Optional<T> findById(ID primaryKey);     Iterable<T> findAll();                   long count();                            void delete(T entity);                   boolean existsById(ID primaryKey);       // … more functionality omitted. }</code></pre> <p>　　2、PagingAndSortingRepository接口</p> <pre class="has"><code class="language-html">public interface PagingAndSortingRepository<T, ID extends Serializable>   extends CrudRepository<T, ID> {    Iterable<T> findAll(Sort sort);    Page<T> findAll(Pageable pageable); }</code></pre> <p>&nbsp;例子：</p> <p>分页：</p> <pre class="has"><code class="language-html">PagingAndSortingRepository<User, Long> repository = // … get access to a bean Page<User> users = repository.findAll(new PageRequest(1, 20));</code></pre> <p>计数：</p> <pre class="has"><code class="language-html">interface UserRepository extends CrudRepository<User, Long> {    long countByLastname(String lastname); }</code></pre> <p>　　3、其他，参考官网</p> <p><strong>自定义查询实现</strong></p> <p><strong>那么我们如何自定义方法呢？我们只要使用特定的单词对方法名进行定义，那么Spring就会对我们写的方法名进行解析，</strong></p> <p><strong>该机制条前缀<code>find…By</code>，<code>read…By</code>，<code>query…By</code>，<code>count…By</code>，和<code>get…By</code>从所述方法和开始分析它的其余部分。引入子句可以包含进一步的表达式，如<code>Distinct</code>在要创建的查询上设置不同的标志。然而，第一个<code>By</code>作为分隔符来指示实际标准的开始。在非常基础的层次上，您可以定义实体属性的条件并将它们与<code>And</code>和连接起来<code>Or</code>。</strong></p> <pre class="has"><code class="language-html">interface PersonRepository extends Repository<User, Long> {    List<Person> findByEmailAddressAndLastname(EmailAddress emailAddress, String lastname);    // Enables the distinct flag for the query   List<Person> findDistinctPeopleByLastnameOrFirstname(String lastname, String firstname);   List<Person> findPeopleDistinctByLastnameOrFirstname(String lastname, String firstname);    // Enabling ignoring case for an individual property   List<Person> findByLastnameIgnoreCase(String lastname);   // Enabling ignoring case for all suitable properties   List<Person> findByLastnameAndFirstnameAllIgnoreCase(String lastname, String firstname);    // Enabling static ORDER BY for a query   List<Person> findByLastnameOrderByFirstnameAsc(String lastname);   List<Person> findByLastnameOrderByFirstnameDesc(String lastname); }</code></pre> <p><strong>　　构建查询属性算法原理</strong>：</p> <p>如上例所示。在查询创建时，确保解析的属性是托管类的属性。但是，你也可以通过遍历嵌套属性来定义约束。假设<code>Person x</code>有一个<code>Address</code>和<code>ZipCode</code>。在这种情况下，方法名称为</p> <pre class="has"><code class="language-html">List<Person> findByAddressZipCode(ZipCode zipCode);</code></pre> <p>创建属性遍历<code>x.address.zipCode</code>。解析算法首先将整个part（<code>AddressZipCode</code>）作为属性进行解释，然后检查具有该名称属性的类。如果皮匹配成功，则使用该属性。如果不是属性，则算法拆分从右侧的驼峰部分头部和尾部，并试图找出相应的属性，在我们的例子，<code>AddressZip</code>和<code>Code</code>。如果算法找到具有该头部的属性，它将采用尾部并继续从那里构建树，然后按照刚刚描述的方式分割尾部。如果第一个分割不匹配，则算法将分割点移动到左侧（<code>Address</code>，<code>ZipCode</code>）并继续。</p> <p>虽然这应该适用于大多数情况，但算法仍可能会选择错误的属性。假设这个<code>Person</code>类也有一个<code>addressZip</code>属性。该算法将在第一轮拆分中匹配，并且基本上选择错误的属性并最终失败（因为<code>addressZip</code>可能没有<code>code</code>属性的类型）。</p> <p>为了解决这个歧义，你可以<code>\_</code>在你的方法名称中使用手动定义遍历点。所以我们的方法名称会像这样结束：</p> <pre class="has"><code class="language-html">List<Person> findByAddress_ZipCode(ZipCode zipCode);</code></pre> <pre class="has"><code class="language-html">由于我们将下划线视为保留字符，因此我们强烈建议遵循标准的Java命名约定（即，不要在属性名称中使用下划线，而应使用驼峰大小写）  其他分页查询</code></pre> <pre class="has"><code class="language-html">Page<User> findByLastname(String lastname, Pageable pageable);  Slice<User> findByLastname(String lastname, Pageable pageable);  List<User> findByLastname(String lastname, Sort sort);</code></pre> <p><strong>也可以用Java8 Stream查询和sql语句查询</strong></p> <table border="0" cellpadding="0" cellspacing="0"> <tbody> <tr> <td> <p>1</p> <p>2</p> <p>3</p> <p>4</p> <p>5</p> <p>6</p> <p>7</p> </td> <td> <p><code>@Query</code><code>(</code><code>"select u from User u"</code><code>)</code></p> <p><code>Stream<User> findAllByCustomQueryAndStream();</code></p> <p><code>Stream<User> readAllByFirstnameNotNull();</code></p> <p><code>@Query</code><code>(</code><code>"select u from User u"</code><code>)</code></p> <p><code>Stream<User> streamAllPaged(Pageable pageable);</code></p> </td> </tr> </tbody> </table> <p><strong>有些在复杂的可以使用es查询语句</strong></p> <p>我们可以使用@Query注解进行查询，这样要求我们需要自己写ES的查询语句</p> <pre class="has"><code class="language-html">public interface BookRepository extends ElasticsearchRepository<Book, String> {     @Query("{"bool" : {"must" : {"field" : {"name" : "?0"}}}}")     Page<Book> findByName(String name,Pageable pageable); }</code></pre> <p><strong>方法和es查询转换：</strong></p> <table> <thead> <tr> <th>Keyword</th> <th>Sample</th> <th>Elasticsearch Query String</th> </tr> </thead> <tbody> <tr> <td> <p><code>And</code></p> </td> <td> <p><code>findByNameAndPrice</code></p> </td> <td> <p><code>{"bool" : {"must" : [ {"field" : {"name" : "?"}}, {"field" : {"price" : "?"}} ]}}</code></p> </td> </tr> <tr> <td> <p><code>Or</code></p> </td> <td> <p><code>findByNameOrPrice</code></p> </td> <td> <p><code>{"bool" : {"should" : [ {"field" : {"name" : "?"}}, {"field" : {"price" : "?"}} ]}}</code></p> </td> </tr> <tr> <td> <p><code>Is</code></p> </td> <td> <p><code>findByName</code></p> </td> <td> <p><code>{"bool" : {"must" : {"field" : {"name" : "?"}}}}</code></p> </td> </tr> <tr> <td> <p><code>Not</code></p> </td> <td> <p><code>findByNameNot</code></p> </td> <td> <p><code>{"bool" : {"must_not" : {"field" : {"name" : "?"}}}}</code></p> </td> </tr> <tr> <td> <p><code>Between</code></p> </td> <td> <p><code>findByPriceBetween</code></p> </td> <td> <p><code>{"bool" : {"must" : {"range" : {"price" : {"from" : ?,"to" : ?,"include_lower" : true,"include_upper" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>LessThanEqual</code></p> </td> <td> <p><code>findByPriceLessThan</code></p> </td> <td> <p><code>{"bool" : {"must" : {"range" : {"price" : {"from" : null,"to" : ?,"include_lower" : true,"include_upper" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>GreaterThanEqual</code></p> </td> <td> <p><code>findByPriceGreaterThan</code></p> </td> <td> <p><code>{"bool" : {"must" : {"range" : {"price" : {"from" : ?,"to" : null,"include_lower" : true,"include_upper" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>Before</code></p> </td> <td> <p><code>findByPriceBefore</code></p> </td> <td> <p><code>{"bool" : {"must" : {"range" : {"price" : {"from" : null,"to" : ?,"include_lower" : true,"include_upper" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>After</code></p> </td> <td> <p><code>findByPriceAfter</code></p> </td> <td> <p><code>{"bool" : {"must" : {"range" : {"price" : {"from" : ?,"to" : null,"include_lower" : true,"include_upper" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>Like</code></p> </td> <td> <p><code>findByNameLike</code></p> </td> <td> <p><code>{"bool" : {"must" : {"field" : {"name" : {"query" : "?*","analyze_wildcard" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>StartingWith</code></p> </td> <td> <p><code>findByNameStartingWith</code></p> </td> <td> <p><code>{"bool" : {"must" : {"field" : {"name" : {"query" : "?*","analyze_wildcard" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>EndingWith</code></p> </td> <td> <p><code>findByNameEndingWith</code></p> </td> <td> <p><code>{"bool" : {"must" : {"field" : {"name" : {"query" : "*?","analyze_wildcard" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>Contains/Containing</code></p> </td> <td> <p><code>findByNameContaining</code></p> </td> <td> <p><code>{"bool" : {"must" : {"field" : {"name" : {"query" : "<strong>?</strong>","analyze_wildcard" : true}}}}}</code></p> </td> </tr> <tr> <td> <p><code>In</code></p> </td> <td> <p><code>findByNameIn(Collection<String>names)</code></p> </td> <td> <p><code>{"bool" : {"must" : {"bool" : {"should" : [ {"field" : {"name" : "?"}}, {"field" : {"name" : "?"}} ]}}}}</code></p> </td> </tr> <tr> <td> <p><code>NotIn</code></p> </td> <td> <p><code>findByNameNotIn(Collection<String>names)</code></p> </td> <td> <p><code>{"bool" : {"must_not" : {"bool" : {"should" : {"field" : {"name" : "?"}}}}}}</code></p> </td> </tr> <tr> <td> <p><code>Near</code></p> </td> <td> <p><code>findByStoreNear</code></p> </td> <td> <p><code>Not Supported Yet !</code></p> </td> </tr> <tr> <td> <p><code>True</code></p> </td> <td> <p><code>findByAvailableTrue</code></p> </td> <td> <p><code>{"bool" : {"must" : {"field" : {"available" : true}}}}</code></p> </td> </tr> <tr> <td> <p><code>False</code></p> </td> <td> <p><code>findByAvailableFalse</code></p> </td> <td> <p><code>{"bool" : {"must" : {"field" : {"available" : false}}}}</code></p> </td> </tr> <tr> <td> <p><code>OrderBy</code></p> </td> <td> <p><code>findByAvailableTrueOrderByNameDesc</code></p> </td> <td> <p><code>{"sort" : [{ "name" : {"order" : "desc"} }],"bool" : {"must" : {"field" : {"available" : true}}}}</code></p> </td> </tr> </tbody> </table> <h3>六、between使用注意</h3> <p>&nbsp; 在使用的时候没有找到直接的例子，由于between是转换成range，所以需要范围参数from和to，</p> <p>&nbsp;举例如下：</p> <pre class="has"><code class="language-html">Page<Recruit> findByRecruitWorkAndRecruitCitysAndWorkTypeAndXjTimeBetween(String recruitWork, String recruitCitys, Integer workType, Date fromXjTime, Date toXjTime,Pageable pageable);</code></pre> <p><strong>注意：</strong>这里必须要注意的是：只要使用了between参数，****<strong>XjTimeBetween(......,from,to) ，使用该方法的时候，必须要传递范围参数from，to，不能同时为空。</strong></p> <p><strong>否则异常</strong></p> <pre class="has"><code class="language-java"><strong>org.springframework.dao.InvalidDataAccessApiUsageException: Range [* TO *] is not allowed</strong>  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.elasticsearch.core.query.Criteria.between(Criteria.java:304)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.elasticsearch.repository.query.parser.ElasticsearchQueryCreator.from(ElasticsearchQueryCreator.java:127)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.elasticsearch.repository.query.parser.ElasticsearchQueryCreator.and(ElasticsearchQueryCreator.java:76)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.elasticsearch.repository.query.parser.ElasticsearchQueryCreator.and(ElasticsearchQueryCreator.java:46)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.repository.query.parser.AbstractQueryCreator.createCriteria(AbstractQueryCreator.java:109)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.repository.query.parser.AbstractQueryCreator.createQuery(AbstractQueryCreator.java:88)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.repository.query.parser.AbstractQueryCreator.createQuery(AbstractQueryCreator.java:73)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.elasticsearch.repository.query.ElasticsearchPartQuery.createQuery(ElasticsearchPartQuery.java:102)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.elasticsearch.repository.query.ElasticsearchPartQuery.execute(ElasticsearchPartQuery.java:51)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.doInvoke(RepositoryFactorySupport.java:499)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.repository.core.support.RepositoryFactorySupport$QueryExecutorMethodInterceptor.invoke(RepositoryFactorySupport.java:477)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:56)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:92)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.data.repository.core.support.SurroundingTransactionDetectorMethodInterceptor.invoke(SurroundingTransactionDetectorMethodInterceptor.java:57)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)  &nbsp;&nbsp;&nbsp;&nbsp;at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:213)  &nbsp;&nbsp;&nbsp;&nbsp;at com.sun.proxy.$Proxy86.findByRecruitWorkAndRecruitCitysAndWorkTypeAndXjTimeBetween(Unknown Source)  &nbsp;&nbsp;&nbsp;&nbsp;at com.zhimingdeng.service.impl.EsIndexServiceImpl.findByRecruitWorkAndRecruitCitysAndWorkTypeAndXjTimeBetween(EsIndexServiceImpl.java:155)</code></pre> <p><strong>因为底层要求参数不能同时为空</strong></p> <h3>七、es时间类型注意</h3> <p>　　&nbsp;对于Elasticsearch原生支持date类型，json格式通过字符来表示date类型。所以在用json提交日期至elasticsearch的时候，es会隐式转换，把es认为是date类型的字符串直接转为date类型，间字段内容实际上就是转换成long类型作为内部存储的(所以完全可以接受其他时间格式作为时间字段的内容)。至于什么样的字符串es会认为可以转换成date类型，参考elasticsearch官网介绍</p> <p>　　date类型是包含时区信息的，如果我们没有在json代表日期的字符串中显式指定时区，对es来说没什么问题，但是对于我们来说可能会发现一些时间差8个小时的问题。</p> <p>　　Elastic本身有一种特殊的时间格式，其形式如"2016-01-25T00:00:00"，此格式为ISO8601标准。具体时间日期格式要求可以参见es官方文档。</p> <p>　　然而我们在计算日期间隔，甚至按日分类的时候，往往需要把这个String时间转化为Unix时间戳(Unix Timestamp(时间戳))的形式,再进行计算。而通常，这个时间戳会以毫秒的形式(Java)保存在一个long类型里面，这就涉及到了String与long类型的相互转化。</p> <p>　　此外在使用Java Client聚合查询日期的时候，需要注意时区问题，因为默认的es是按照UTC标准时区算的，所以不设置的聚合统计结果是不正确的。默认不设置时区参数，es是安装UTC的时间进行查询的，所以分组的结果可能与预期不一样。</p> <p><code>　　JSON</code>&nbsp;没有日期类型，因此在 Elasticsearch 中可以表达成:</p> <ol> <li>日期格式化的字符串，比如: "2018-01-01" 或者 "2018/01/01 01:01:30";</li> <li>毫秒级别的<code>long</code>&nbsp;类型或秒级别的<code>integer</code>&nbsp;类型，比如: 1515150699465, 1515150699;</li> </ol> <p>　　实际上不管日期以何种格式写入，在 ES 内部都会先穿换成 UTC 时间并存储为<code>long</code>&nbsp;类型。日期格式可以自定义，如果没有指定的话会使用以下的默认格式:</p> <p><code>　　"strict_date_optional_time||epoch_millis"</code></p> <p>　　因此总结来说，不管哪种可以表示时间的格式写入，都可以用来表示时间</p> <p><strong>所以这里引出多种解决方案：</strong></p> <p>　　 1、es 默认的是 utc 时间，而国内服务器是 cst 时间，首先有时间上的差距需要转换。但是如果底层以及上层都统一用时间戳，完美解决时区问题。但是时间戳对我们来说不直观</p> <p>　　2、我们在往es提交日期数据的时候，直接提交带有时区信息的日期字符串，如：“2016-07-15T12:58:17.136+0800”</p> <p>　　3、还有另外的一种：</p> <p>　直接设置format为你想要的格式，比如 "<code>yyyy-MM-dd HH:mm:ss"</code>&nbsp;然后存储的时候，指定格式，并且Mapping&nbsp;&nbsp;也是指定相同的<code>format</code>&nbsp;。</p> <p>　　第一次使用方式：</p> <table border="0" cellpadding="0" cellspacing="0"> <tbody> <tr> <td> <p>1</p> <p>2</p> <p>3</p> <p>4</p> </td> <td> <p><code></code><code>@Field</code><code>( type = FieldType.Date,</code></p> <p><code></code><code>format = DateFormat.custom,pattern = date_optional_time"</code></p> <p><code></code><code>)</code></p> <p><code>private</code><code>Date gmtCreate;</code></p> </td> </tr> </tbody> </table> <p>我这里是数据是从数据库直接读取，使用的datetime类型，原来直接使用的时候，抛异常：</p> <p><strong>　　MapperParsingException[failed to parse</strong>&nbsp;[***]];<strong>nested: IllegalArgumentException[Invalid format</strong>: "格式"];</p> <p>　　原因是： jackson库在转换为json的时候，将Date类型转为为了long型的字符串表示，而我们定义的是date_optional_time格式的字符串，所以解析错误，</p> <p>　　具体的解决办法：去掉注解中的format=DateFormat.date_optional_time，让其使用默认的格式，也就是&nbsp;'<strong>strict_date_optional_time||epoch_millis</strong>' , 既能接受<strong>date_optional_time</strong>格式的，也能接受epoch_millis格式，由于为了查看更直观感受改为如下：</p> <pre class="has"><code class="language-html">　　@Field( type = FieldType.Date,             format = DateFormat.custom,pattern = "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"     ) private Date gmtCreate;</code></pre> <p>&nbsp;改成这样后，底层多种格式都可以存储，如果没有根据时间进行范围查找，这里基本上已经就告一段落了。</p> <p><strong>时间范围查找需求：</strong><strong>存储Date，和取出来也是Dete</strong></p> <p>存储的时候利用各种JSON对象，如&nbsp;Jackson&nbsp;等。存储的时候就可以用JSON Format一下再存储，然后取出来后</p> <pre class="has"><code class="language-html">　　@Field( type = FieldType.Date,             format = DateFormat.custom,pattern = "yyyy-MM-dd HH:mm:ss"     )     @JsonFormat (shape = JsonFormat.Shape.STRING, pattern ="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")     private Date xjTime;</code></pre> <p>&nbsp;有了这个注解后，</p> <pre class="has"><code class="language-html">　　　　timezone="GMT+8" 主要是因为底层存放的数据日期时区是UTC，这里转换成GMT</code></pre> <p>&nbsp;真实存储格式如下(高能瞎眼)：</p> <p><img decoding="async" alt="" class="has" src="http://img.555519.xyz/uploads3/20220602/47e7c2cac3ada8fc0d1517d69448620a.jpg"></p> <p><strong>时间范围查找需求注意：</strong></p> <p><strong>根据条件查询的时候，时间范围需要传入range，这里涉及到了两种选择，底层查询方法实现的时候range的参数为</strong></p> <p><strong>　1.date:</strong></p> <p><strong></strong>传入的是date参数，然后就行查询的时候，会报异常，因为我把日期转成了<strong>yyyy-MM-dd HH:mm:ss</strong>,但是底层数据是<strong>2018-03-27T16:00:00.000Z</strong>这种格式，导致错误，详细异常如下</p> <pre class="has"><code class="language-java">org.elasticsearch.action.search.SearchPhaseExecutionException: all shards failed  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.action.search.AbstractSearchAsyncAction.onFirstPhaseResult(AbstractSearchAsyncAction.java:206)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.action.search.AbstractSearchAsyncAction$1.onFailure(AbstractSearchAsyncAction.java:152)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.action.ActionListenerResponseHandler.handleException(ActionListenerResponseHandler.java:46)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.transport.TransportService$DirectResponseChannel.processException(TransportService.java:855)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.transport.TransportService$DirectResponseChannel.sendResponse(TransportService.java:833)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.transport.TransportService$4.onFailure(TransportService.java:387)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.common.util.concurrent.AbstractRunnable.run(AbstractRunnable.java:39)  &nbsp;&nbsp;&nbsp;&nbsp;at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)  &nbsp;&nbsp;&nbsp;&nbsp;at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)  &nbsp;&nbsp;&nbsp;&nbsp;at java.lang.Thread.run(Thread.java:745)  <strong>Caused by: org.elasticsearch.ElasticsearchParseException: failed to parse date field [2018-03-27T16:00:00.000Z] with format [yyyy-MM-dd HH:mm:ss]</strong>  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.common.joda.DateMathParser.parseDateTime(DateMathParser.java:203)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.common.joda.DateMathParser.parse(DateMathParser.java:67)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.index.mapper.core.DateFieldMapper$DateFieldType.parseToMilliseconds(DateFieldMapper.java:451)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.index.mapper.core.DateFieldMapper$DateFieldType.innerRangeQuery(DateFieldMapper.java:435)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.index.mapper.core.DateFieldMapper$DateFieldType.access$000(DateFieldMapper.java:199)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.index.mapper.core.DateFieldMapper$DateFieldType$LateParsingQuery.rewrite(DateFieldMapper.java:224)  &nbsp;&nbsp;&nbsp;&nbsp;at org.apache.lucene.search.BooleanQuery.rewrite(BooleanQuery.java:278)  &nbsp;&nbsp;&nbsp;&nbsp;at org.apache.lucene.search.IndexSearcher.rewrite(IndexSearcher.java:837)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.search.internal.ContextIndexSearcher.rewrite(ContextIndexSearcher.java:81)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.search.internal.DefaultSearchContext.preProcess(DefaultSearchContext.java:231)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.search.query.QueryPhase.preProcess(QueryPhase.java:103)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.search.SearchService.createContext(SearchService.java:676)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.search.SearchService.createAndPutContext(SearchService.java:620)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.search.SearchService.executeDfsPhase(SearchService.java:264)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.search.action.SearchServiceTransportAction$SearchDfsTransportHandler.messageReceived(SearchServiceTransportAction.java:360)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.search.action.SearchServiceTransportAction$SearchDfsTransportHandler.messageReceived(SearchServiceTransportAction.java:357)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.transport.TransportRequestHandler.messageReceived(TransportRequestHandler.java:33)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.transport.RequestHandlerRegistry.processMessageReceived(RequestHandlerRegistry.java:75)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.transport.TransportService$4.doRun(TransportService.java:376)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.common.util.concurrent.AbstractRunnable.run(AbstractRunnable.java:37)  &nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;3&nbsp;common frames omitted  <strong>Caused by: java.lang.IllegalArgumentException: Invalid format:&nbsp;"2018-03-27T16:00:00.000Z"&nbsp;is malformed at&nbsp;"T16:00:00.000Z"</strong>  &nbsp;&nbsp;&nbsp;&nbsp;at org.joda.time.format.DateTimeParserBucket.doParseMillis(DateTimeParserBucket.java:187)  &nbsp;&nbsp;&nbsp;&nbsp;at org.joda.time.format.DateTimeFormatter.parseMillis(DateTimeFormatter.java:826)  &nbsp;&nbsp;&nbsp;&nbsp;at org.elasticsearch.common.joda.DateMathParser.parseDateTime(DateMathParser.java:200)  &nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;22&nbsp;common frames omitted</code></pre> <p><strong>实现参考：</strong><strong>解决：传入的date参数格式化成底层的类型</strong></p> <pre class="has"><code class="language-html">Page<Recruit> findByRecruitWorkAndRecruitCitysAndWorkTypeAndXjTimeBetween(String recruitWork, String recruitCitys, Integer workType, Date fromXjTime, Date toXjTime,Pageable pageable);</code></pre> <p><strong>&nbsp; 2.String:</strong></p> <p>&nbsp;参数直接使用string，避免上层转换成不合适的时间格式，使用框架底层自己转换，避免错误。</p> <pre class="has"><code class="language-html">实现参考：</code></pre> <pre class="has"><code class="language-html">Page<Recruit> findByRecruitWorkAndRecruitCitysAndWorkTypeAndXjTimeBetween(String recruitWork, String recruitCitys, Integer workType, String fromXjTime, String toXjTime,Pageable pageable);</code></pre> <p>es时间自定义类型</p> <p>https://stackoverflow.com/questions/29122071/elasticsearch-failed-to-parse-date</p> <p>https://stackoverflow.com/questions/29496081/spring-data-elasticsearchs-field-annotation-not-working</p> <p>https://stackoverflow.com/questions/32042430/elasticsearch-spring-data-date-format-always-is-long</p> <h3>八、使用注意</h3> <p>　　个人认为springboot 这种集成es的方法，最大的优点是开发速度快，不要求对es一些api要求熟悉，能快速上手，即使之前对es不胜了解，也能通过方法名或者sql快速写出自己需要的逻辑，而具体转换成api层的操作，则有框架底层帮你实现。</p> <p>　　缺点也显而易见首先，使用的springboot的版本对es的版本也有了要求，不能超过es的某些版本号，部署时需要注意。第二，速度提升的同时，也失去了一些实用api的灵活性。一些比较灵活的条件封装不能很容易的实现。各有利弊，各位权衡。</p> <blockquote> <p><em>原文地址：http://www.cnblogs.com/guozp/p/8686904.html</em></p> </blockquote> </div> 			                <div class="clearfix"></div>
+                <div class="col-md-12 mt-5">
+                                        <p>上一个：<a href="/html/category/article-20.htm">servlet 中 servlet context 与 session 与 request 三个对象的常用方法和存放数据的作用域。</a></p>
+                                        <p>下一个：<a href="/html/category/article-22.htm">iOS全埋点解决方案-UITableView和UICollectionView点击事件</a></p>
+                                    </div>
+                            </div>
+            <div class="col-md-4 w3l-services">
+                
+<h3 class="title-big mb-sm-3 mb-3">热门文章</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-10157.htm">十大猫粮品牌排行榜（猫粮十大品牌排行榜前十名）</a></h4>
+                <p>摘要：       今天给各位分享十大猫粮品牌排行榜的知识，其中也会对猫粮十大品牌排行榜前十名进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、口碑最好的十大猫.</p>
+            </div>
         </div>
     </div>
-        
-    
-        <div class="exception-var">
-        <h2>Environment Variables</h2>
-                <div>
-                        <h3 class="subheading">GET Data</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>website_id</strong></div>
-                    <div class="col-md-9"><small>
-                        1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>id</strong></div>
-                    <div class="col-md-9"><small>
-                        21                    </small></div>
-                </div>
-                            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>POST Data</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9006.htm">两个月大的猫抓伤（两个月大的猫抓伤可要打狂犬疫苗）</a></h4>
+                <p>摘要：       今天给各位分享两个月大的猫抓伤的知识，其中也会对两个月大的猫抓伤可要打狂犬疫苗进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、被2个月小猫.</p>
             </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Files</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Cookies</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Session</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <h3 class="subheading">Server/Request Data</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ALLUSERSPROFILE</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\ProgramData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>APPDATA</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\AppData\Roaming                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramFiles</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramFiles(x86)</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files (x86)\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CommonProgramW6432</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\Common Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>COMPUTERNAME</strong></div>
-                    <div class="col-md-9"><small>
-                        DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ComSpec</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\system32\cmd.exe                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DriverData</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows\System32\Drivers\DriverData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FPS_BROWSER_APP_PROFILE_STRING</strong></div>
-                    <div class="col-md-9"><small>
-                        Internet Explorer                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FPS_BROWSER_USER_PROFILE_STRING</strong></div>
-                    <div class="col-md-9"><small>
-                        Default                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FREI0R_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        D:\PROGRA~1\APOWER~1\VIDEOC~1\frei0r;D:\Program Files (x86)\Apowersoft\Video Converter Studio\frei0r                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HOMEDRIVE</strong></div>
-                    <div class="col-md-9"><small>
-                        C:                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HOMEPATH</strong></div>
-                    <div class="col-md-9"><small>
-                        \Users\CJ                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LOCALAPPDATA</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\AppData\Local                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LOGONSERVER</strong></div>
-                    <div class="col-md-9"><small>
-                        \\DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>NUMBER_OF_PROCESSORS</strong></div>
-                    <div class="col-md-9"><small>
-                        6                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>OneDrive</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\OneDrive                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>OS</strong></div>
-                    <div class="col-md-9"><small>
-                        Windows_NT                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>Path</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATHEXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_ARCHITECTURE</strong></div>
-                    <div class="col-md-9"><small>
-                        AMD64                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_IDENTIFIER</strong></div>
-                    <div class="col-md-9"><small>
-                        Intel64 Family 6 Model 158 Stepping 10, GenuineIntel                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_LEVEL</strong></div>
-                    <div class="col-md-9"><small>
-                        6                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PROCESSOR_REVISION</strong></div>
-                    <div class="col-md-9"><small>
-                        9e0a                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramData</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\ProgramData                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramFiles</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramFiles(x86)</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files (x86)                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ProgramW6432</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PSModulePath</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PUBLIC</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\Public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SESSIONNAME</strong></div>
-                    <div class="col-md-9"><small>
-                        Console                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SystemDrive</strong></div>
-                    <div class="col-md-9"><small>
-                        C:                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SystemRoot</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TEMP</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TMP</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ\AppData\Local\Temp                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERDOMAIN</strong></div>
-                    <div class="col-md-9"><small>
-                        DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERDOMAIN_ROAMINGPROFILE</strong></div>
-                    <div class="col-md-9"><small>
-                        DESKTOP-NSJC0E1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERNAME</strong></div>
-                    <div class="col-md-9"><small>
-                        CJ                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>USERPROFILE</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Users\CJ                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>windir</strong></div>
-                    <div class="col-md-9"><small>
-                        C:\Windows                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_ACCEPT</strong></div>
-                    <div class="col-md-9"><small>
-                        */*                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_USER_AGENT</strong></div>
-                    <div class="col-md-9"><small>
-                        Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTTP_HOST</strong></div>
-                    <div class="col-md-9"><small>
-                        abgp.com                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REDIRECT_STATUS</strong></div>
-                    <div class="col-md-9"><small>
-                        200                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_NAME</strong></div>
-                    <div class="col-md-9"><small>
-                        abgp.com                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_PORT</strong></div>
-                    <div class="col-md-9"><small>
-                        80                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_ADDR</strong></div>
-                    <div class="col-md-9"><small>
-                        127.0.0.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REMOTE_PORT</strong></div>
-                    <div class="col-md-9"><small>
-                        63961                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REMOTE_ADDR</strong></div>
-                    <div class="col-md-9"><small>
-                        127.0.0.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_SOFTWARE</strong></div>
-                    <div class="col-md-9"><small>
-                        nginx/1.15.11                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>GATEWAY_INTERFACE</strong></div>
-                    <div class="col-md-9"><small>
-                        CGI/1.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_SCHEME</strong></div>
-                    <div class="col-md-9"><small>
-                        http                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SERVER_PROTOCOL</strong></div>
-                    <div class="col-md-9"><small>
-                        HTTP/1.1                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DOCUMENT_ROOT</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DOCUMENT_URI</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_URI</strong></div>
-                    <div class="col-md-9"><small>
-                        /addons/xcblog/index/url_blog?website_id=1&amp;id=21                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SCRIPT_NAME</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONTENT_LENGTH</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONTENT_TYPE</strong></div>
-                    <div class="col-md-9"><small>
-                                            </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_METHOD</strong></div>
-                    <div class="col-md-9"><small>
-                        GET                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>QUERY_STRING</strong></div>
-                    <div class="col-md-9"><small>
-                        s=/addons/xcblog/index/url_blog&amp;website_id=1&amp;id=21                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATH_TRANSLATED</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PATH_INFO</strong></div>
-                    <div class="col-md-9"><small>
-                        /addons/xcblog/index/url_blog                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>SCRIPT_FILENAME</strong></div>
-                    <div class="col-md-9"><small>
-                        E:/SVNRepositories/AddressBaseGitPages/public/index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FCGI_ROLE</strong></div>
-                    <div class="col-md-9"><small>
-                        RESPONDER                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>PHP_SELF</strong></div>
-                    <div class="col-md-9"><small>
-                        /index.php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_TIME_FLOAT</strong></div>
-                    <div class="col-md-9"><small>
-                        1724987361.6268                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>REQUEST_TIME</strong></div>
-                    <div class="col-md-9"><small>
-                        1724987361                    </small></div>
-                </div>
-                            </div>
-                    </div>
-                <div>
-                        <div class="clearfix">
-                <div class="col-md-3"><strong>Environment Variables</strong></div>
-                <div class="col-md-9"><small>empty</small></div>
-            </div>
-                    </div>
-                <div>
-                        <h3 class="subheading">ThinkPHP Constants</h3>
-            <div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>APP_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_VERSION</strong></div>
-                    <div class="col-md-9"><small>
-                        5.0.26                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_START_TIME</strong></div>
-                    <div class="col-md-9"><small>
-                        1724987361.6272                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_START_MEM</strong></div>
-                    <div class="col-md-9"><small>
-                        409072                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>EXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>DS</strong></div>
-                    <div class="col-md-9"><small>
-                        \                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>THINK_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LIB_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CORE_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\think\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TRAIT_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\thinkphp\library\traits\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ROOT_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>EXTEND_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\extend\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>VENDOR_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\vendor\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>RUNTIME_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>LOG_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\log\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CACHE_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\cache\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>TEMP_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\runtime\temp\                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONF_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\public/../application/                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>CONF_EXT</strong></div>
-                    <div class="col-md-9"><small>
-                        .php                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ENV_PREFIX</strong></div>
-                    <div class="col-md-9"><small>
-                        PHP_                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>IS_CLI</strong></div>
-                    <div class="col-md-9"><small>
-                        false                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>IS_WIN</strong></div>
-                    <div class="col-md-9"><small>
-                        true                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>FILTER_VALIDATE_BOOL</strong></div>
-                    <div class="col-md-9"><small>
-                        258                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>HTMLPURIFIER_PREFIX</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\vendor\ezyang\htmlpurifier\library                    </small></div>
-                </div>
-                                <div class="clearfix">
-                    <div class="col-md-3"><strong>ADDON_PATH</strong></div>
-                    <div class="col-md-9"><small>
-                        E:\SVNRepositories\AddressBaseGitPages\addons\                    </small></div>
-                </div>
-                            </div>
-                    </div>
-            </div>
-    
-    <div class="copyright">
-        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
-        <span>V5.0.26</span> 
-        <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
+        </div>
     </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-10018.htm">三国杀武将登场特效是什么样的图片（三国杀各武将台词大全）</a></h4>
+                <p>摘要：       今天给各位分享三国杀武将登场特效是什么样的图片的知识，其中也会对三国杀各武将台词大全进行解释，如果能碰巧解决你现在面临的问题，别忘了关注本站，现在开始吧！本文目录一览：1、三国杀.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9973.htm">动物疫苗的种类及特点有哪些图片及名称（动物疫苗的类型）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈动物疫苗的种类及特点有哪些图片及名称，以及动物疫苗的类型对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、狗狗打的疫苗分为哪几种?都有什..</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9834.htm">动物疫苗接种方法视频 动物疫苗接种方法视频教程</a></h4>
+                <p>摘要：       大家好，今天小编关注到一个比较有意思的话题，就是关于动物疫苗接种方法视频的问题，于是小编就整理了2个相关介绍动物疫苗接种方法视频的解答，让我们一起看看吧。牛的疫苗可以口服吗？三联四</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9604.htm">上海宠物领养日期查询官网（上海宠物狗领养网站）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈上海宠物领养日期查询官网，以及上海宠物狗领养网站对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、哪里有领养流浪猫流浪狗的地方?...   </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9605.htm">养猫导致的疾病怎么办（养猫得病吗）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈养猫导致的疾病怎么办，以及养猫得病吗对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、养猫后身上很多小红点怎么办...        本篇文</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9283.htm">哪种猫粮比较好又不贵（猫咪拉稀怎么治疗最快）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈哪种猫粮比较好又不贵，以及猫咪拉稀怎么治疗最快对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、什么猫粮便宜又好2、...        本</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9237.htm">薄冰是谁（于无声处演员表）太疯狂了，</a></h4>
+                <p>在国内，最难拍好的电视剧类型是什么？我的答案可能让人意外：谍战剧谍战剧有什么难拍的？自带强情节、高悬念等优势，能够涵盖各种精彩元素，随便拍拍，收视就能爆不是吗？但细细想想，近20年最优秀的谍战剧，几乎</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                <h4><a href="/html/category/article-9375.htm">宠物粮加工机器设备厂家有哪些呢（宠物粮食加工厂设备）</a></h4>
+                <p>摘要：       本篇文章给大家谈谈宠物粮加工机器设备厂家有哪些呢，以及宠物粮食加工厂设备对应的知识点，希望对各位有所帮助，不要忘了收藏本站喔。本文目录一览：1、宠物用品和狗粮都生产的厂家有哪些..</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="title-big mb-sm-3 mb-3">归纳</h3>
+<div class="row w3l-achievements">
+    <div class="col-lg-12 item">
+        <div class="card">
+            <div class="box-wrap">
+                                <h4><span class="badge" style="float: right;">22</span> <a href="/html/date/2024-10/" title="2024-10 归档">2024-10</a></h4>
+                                <h4><span class="badge" style="float: right;">52</span> <a href="/html/date/2024-09/" title="2024-09 归档">2024-09</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-08/" title="2024-08 归档">2024-08</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-07/" title="2024-07 归档">2024-07</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-06/" title="2024-06 归档">2024-06</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-05/" title="2024-05 归档">2024-05</a></h4>
+                                <h4><span class="badge" style="float: right;">60</span> <a href="/html/date/2024-04/" title="2024-04 归档">2024-04</a></h4>
+                                <h4><span class="badge" style="float: right;">62</span> <a href="/html/date/2024-03/" title="2024-03 归档">2024-03</a></h4>
+                                <h4><span class="badge" style="float: right;">58</span> <a href="/html/date/2024-02/" title="2024-02 归档">2024-02</a></h4>
+                            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+        <!-- Footer -->
+    <section class="w3l-footer py-sm-5 py-4">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-8 footer-left">
+                        <p class="m-0">EgyptAddress 版权所有</p>
+                    </div>
+                    <div class="col-lg-4 footer-right text-lg-right text-center mt-lg-0 mt-3">
+                        <ul class="social m-0 p-0">
+                            <li><a href="#facebook"><span class="fa fa-facebook-official"></span></a></li>
+                            <li><a href="#linkedin"><span class="fa fa-linkedin-square"></span></a></li>
+                            <li><a href="#instagram"><span class="fa fa-instagram"></span></a></li>
+                            <li><a href="#twitter"><span class="fa fa-twitter"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- move top -->
+        <button onclick="topFunction()" id="movetop" title="Go to top">
+            <span class="fa fa-angle-up"></span>
+        </button>
         <script>
-        var LINE = 133;
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            scrollFunction()
+        };
 
-        function $(selector, node){
-            var elements;
-
-            node = node || document;
-            if(document.querySelectorAll){
-                elements = node.querySelectorAll(selector);
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
             } else {
-                switch(selector.substr(0, 1)){
-                    case '#':
-                        elements = [node.getElementById(selector.substr(1))];
-                        break;
-                    case '.':
-                        if(document.getElementsByClassName){
-                            elements = node.getElementsByClassName(selector.substr(1));
-                        } else {
-                            elements = get_elements_by_class(selector.substr(1), node);
-                        }
-                        break;
-                    default:
-                        elements = node.getElementsByTagName();
-                }
-            }
-            return elements;
-
-            function get_elements_by_class(search_class, node, tag) {
-                var elements = [], eles, 
-                    pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
-
-                node = node || document;
-                tag  = tag  || '*';
-
-                eles = node.getElementsByTagName(tag);
-                for(var i = 0; i < eles.length; i++) {
-                    if(pattern.test(eles[i].className)) {
-                        elements.push(eles[i])
-                    }
-                }
-
-                return elements;
+                document.getElementById("movetop").style.display = "none";
             }
         }
 
-        $.getScript = function(src, func){
-            var script = document.createElement('script');
-            
-            script.async  = 'async';
-            script.src    = src;
-            script.onload = func || function(){};
-            
-            $('head')[0].appendChild(script);
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
         }
+        </script>
+        <!-- /move top -->
+    </section>
+    <!-- //Footer -->
+    <!-- all js scripts and files here -->
+    <script src="/assets/website/js/frontend/egyptaddress/theme-change.js"></script><!-- theme switch js (light and dark)-->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery-3.3.1.min.js"></script><!-- default jQuery -->
+    <!-- /typig-text-->
+    <script>
+    const typedTextSpan = document.querySelector(".typed-text");
+    const cursorSpan = document.querySelector(".cursor");
 
-        ;(function(){
-            var files = $('.toggle');
-            var ol    = $('ol', $('.prettyprint')[0]);
-            var li    = $('li', ol[0]);   
+    const textArray = ["UI/UX Designer", "Freelancer", "Web developer"];
+    const typingDelay = 200;
+    const erasingDelay = 10;
+    const newTextDelay = 100; // Delay between current and next text
+    let textArrayIndex = 0;
+    let charIndex = 0;
 
-            // 短路径和长路径变换
-            for(var i = 0; i < files.length; i++){
-                files[i].ondblclick = function(){
-                    var title = this.title;
+    function type() {
+        if (charIndex < textArray[textArrayIndex].length) {
+            if (!cursorSpan.classList.contains("typing")) cursorSpan.classList.add("typing");
+            typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(type, typingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            setTimeout(erase, newTextDelay);
+        }
+    }
 
-                    this.title = this.innerHTML;
-                    this.innerHTML = title;
-                }
+    function erase() {
+        if (charIndex > 0) {
+            // add class 'typing' if there's none
+            if (!cursorSpan.classList.contains("typing")) {
+                cursorSpan.classList.add("typing");
             }
+            typedTextSpan.textContent = textArray[textArrayIndex].substring(0, 0);
+            charIndex--;
+            setTimeout(erase, erasingDelay);
+        } else {
+            cursorSpan.classList.remove("typing");
+            textArrayIndex++;
+            if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+            setTimeout(type, typingDelay);
+        }
+    }
 
-            // 设置出错行
-            var err_line = $('.line-' + LINE, ol[0])[0];
-            err_line.className = err_line.className + ' line-error';
-
-            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
-                prettyPrint();
-
-                // 解决Firefox浏览器一个很诡异的问题
-                // 当代码高亮后，ol的行号莫名其妙的错位
-                // 但是只要刷新li里面的html重新渲染就没有问题了
-                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
-                    ol[0].innerHTML = ol[0].innerHTML;
-                }
-            });
-
-        })();
+    document.addEventListener("DOMContentLoaded", function() { // On DOM Load initiate the effect
+        if (textArray.length) setTimeout(type, newTextDelay + 250);
+    });
     </script>
-    </body>
+    <!-- //typig-text-->
+    <!-- services owlcarousel -->
+    <script src="/assets/website/js/frontend/egyptaddress/owl.carousel.js"></script>
+    <!-- script for services -->
+    <script>
+    $(document).ready(function() {
+        $('.owl-two').owlCarousel({
+            loop: true,
+            margin: 30,
+            nav: false,
+            responsiveClass: true,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            autoplaySpeed: 1000,
+            autoplayHoverPause: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                480: {
+                    items: 1,
+                    nav: false
+                },
+                700: {
+                    items: 1,
+                    nav: false
+                },
+                1090: {
+                    items: 3,
+                    nav: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for services -->
+    <!-- script for tesimonials carousel slider -->
+    <script>
+    $(document).ready(function() {
+        $("#owl-demo1").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: false,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: false
+                },
+                736: {
+                    items: 1,
+                    nav: false
+                },
+                1000: {
+                    items: 2,
+                    nav: false,
+                    loop: false
+                }
+            }
+        })
+    })
+    </script>
+    <!-- //script for tesimonials carousel slider -->
+    <!-- video popup -->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.magnific-popup.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+            type: 'inline',
+
+            fixedContentPos: false,
+            fixedBgPos: true,
+
+            overflowY: 'auto',
+
+            closeBtnInside: true,
+            preloader: false,
+
+            midClick: true,
+            removalDelay: 300,
+            mainClass: 'my-mfp-slide-bottom'
+        });
+    });
+    </script>
+    <!-- //video popup -->
+    <!-- stats number counter-->
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.waypoints.min.js"></script>
+    <script src="/assets/website/js/frontend/egyptaddress/jquery.countup.js"></script>
+    <script>
+    $('.counter').countUp();
+    </script>
+    <!-- //stats number counter -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+    $(function() {
+        $('.navbar-toggler').click(function() {
+            $('body').toggleClass('noscroll');
+        })
+    });
+    </script>
+    <!-- disable body scroll which navbar is in active -->
+    <!--/MENU-JS-->
+    <script>
+    $(window).on("scroll", function() {
+        var scroll = $(window).scrollTop();
+
+        if (scroll >= 80) {
+            $("#site-header").addClass("nav-fixed");
+        } else {
+            $("#site-header").removeClass("nav-fixed");
+        }
+    });
+
+    //Main navigation Active Class Add Remove
+    $(".navbar-toggler").on("click", function() {
+        $("header").toggleClass("active");
+    });
+    $(document).on("ready", function() {
+        if ($(window).width() > 991) {
+            $("header").removeClass("active");
+        }
+        $(window).on("resize", function() {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+        });
+    });
+    </script>
+    <!--//MENU-JS-->
+    <!-- bootstrap js -->
+    <script src="/assets/website/js/frontend/egyptaddress/bootstrap.min.js"></script>
+</body>
+
 </html>
